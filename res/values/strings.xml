@@ -50,10 +50,10 @@
 	<string name="world11description">Turn on the thrusters at the right time to land
 		safely on the moon.</string>
 	<string name="world12description">Move the trampoline to keep your egg bouncing!</string>
-	<string name="chooseAvatarButton">Choose your Egg</string>
+	<string name="chooseAvatarButton">Choose Avatar</string>
 	<string name="chooseWorldButton">Choose World</string>
 	<string name="selectWorldPrompt">Select a world:</string>
-	<string name="selectAvatarPrompt">Select an egg and decorate:</string>
+	<string name="selectAvatarPrompt">Select an avatar and customize:</string>
 	<string name="scoreLabel">Level:</string>
 	<string name="admobid">a151468afd9849c</string>
 	<string name="amazonappkey">393941414236534a4b515531334c5745</string>

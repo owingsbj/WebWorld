@@ -1,12 +1,5 @@
 package com.gallantrealm.webworld.activities;
 
-import android.content.Intent;
-import android.graphics.Typeface;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
 import com.gallantrealm.eggworld.R;
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.android.GallantActivity;
@@ -14,6 +7,12 @@ import com.gallantrealm.myworld.android.MessageDialog;
 import com.gallantrealm.myworld.android.StartWorldActivity;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
 import com.gallantrealm.myworld.client.model.ClientModelChangedListener;
+import android.content.Intent;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 public class SelectAvatarActivity extends GallantActivity implements View.OnClickListener, ClientModelChangedListener {
 
@@ -62,7 +61,7 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.select_egg);
+		setContentView(R.layout.select_avatar);
 
 		titleText = (TextView) findViewById(R.id.titleText);
 		happySelect = findViewById(R.id.happySelect);
