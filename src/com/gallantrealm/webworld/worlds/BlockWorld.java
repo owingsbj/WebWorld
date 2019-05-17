@@ -2,8 +2,6 @@ package com.gallantrealm.webworld.worlds;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Scriptable;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.android.PauseAction;
@@ -216,16 +214,6 @@ public class BlockWorld extends BaseEggWorld {
 		worldActions = new WWAction[] { new PauseAction(), new ChangeViewAction() };
 		setAvatarActions(new WWAction[] { new JumpAction(), new SwimAction(), new DigAction(), new PileAction(), new BlockAction() });
 
-		/// Embed Javascript
-		Context cx = Context.enter();
-		try {
-			cx.setOptimizationLevel(-1);
-			Scriptable scope = cx.initStandardObjects();
-			Object result = cx.evaluateString(scope, "function f(x){return [x+1, x+2, x+3]} f(7)", "<cmd>", 1, null);
-			System.out.println(cx.toString(result));
-		} finally {
-			Context.exit();
-		}
 	}
 
 	public class DigAction extends WWAction implements Serializable {

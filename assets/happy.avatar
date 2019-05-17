@@ -1,0 +1,15 @@
+// Happy, the egg avatar
+
+avatar = new WWSphere();
+avatar.setColor(WWObject.SIDE_ALL, new WWColor(1, 1, 1));
+avatar.setName("Happy");
+avatar.setSize(new WWVector(1, 1, 1));
+avatar.setTaperX(0.25);
+avatar.setTaperY(0.25);
+avatar.setPhysical(true);
+avatar.setDensity(0.1);
+avatar.setFreedomMoveZ(true);
+avatar.setFreedomRotateX(false);
+avatar.setFreedomRotateY(false);
+avatar.setFreedomRotateZ(true);
+avatar.setTextureURL(WWSimpleShape.SIDE_ALL, "happy_skin");

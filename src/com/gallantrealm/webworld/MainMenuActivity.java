@@ -1,11 +1,9 @@
-package com.gallantrealm.webworld.activities;
+package com.gallantrealm.webworld;
 
+import com.gallantrealm.myworld.android.AndroidClientModel;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-
-import com.gallantrealm.myworld.android.AndroidClientModel;
-import com.gallantrealm.myworld.android.SelectWorldActivityNew;
 
 public class MainMenuActivity extends com.gallantrealm.myworld.android.MainMenuActivity {
 
@@ -24,7 +22,7 @@ public class MainMenuActivity extends com.gallantrealm.myworld.android.MainMenuA
 		});
 		chooseWorldButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Intent intent = new Intent(MainMenuActivity.this, SelectWorldActivityNew.class);
+				Intent intent = new Intent(MainMenuActivity.this, SelectWorldActivity.class);
 				startActivity(intent);
 			}
 		});

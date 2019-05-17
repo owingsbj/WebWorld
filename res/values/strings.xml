@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">WebWorld</string>
-	<string name="mainMenuClassName">com.gallantrealm.webworld.activities.MainMenuActivity</string>
-	<string name="defaultWorldName">com.gallantrealm.webworld.worlds.BlockWorld</string>
-	<string name="defaultAvatarName">happy</string>
+	<string name="mainMenuClassName">com.gallantrealm.webworld.MainMenuActivity</string>
+	<string name="selectAvatarClassName">com.gallantrealm.webworld.SelectAvatarActivity</string>
+	<string name="selectWorldClassName">com.gallantrealm.webworld.SelectWorldActivity</string>
+	<string name="defaultWorldName">Block</string>
+	<string name="defaultAvatarName">Egg</string>
 	<string name="nworlds">12</string>
 	<string name="world1Name">Block</string>
 	<string name="world2Name">Maze</string>
@@ -18,7 +20,7 @@
 	<string name="world10Name">Slalom</string>
 	<string name="world11Name">Lunar Lander</string>
 	<string name="world12Name">Trampoline</string>
-	<string name="world1ClassName">com.gallantrealm.webworld.worlds.BlockWorld</string>
+	<string name="world1ClassName">com.gallantrealm.webworld.worlds.ScriptWorld</string>
 	<string name="world2ClassName">com.gallantrealm.webworld.worlds.MazeWorld</string>
 	<string name="world3ClassName">com.gallantrealm.webworld.worlds.ObstacleWorld</string>
 	<string name="world4ClassName">com.gallantrealm.webworld.worlds.RaceWorld</string>

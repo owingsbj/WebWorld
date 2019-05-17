@@ -1,6 +1,5 @@
-package com.gallantrealm.webworld.activities;
+package com.gallantrealm.webworld;
 
-import com.gallantrealm.eggworld.R;
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.android.GallantActivity;
 import com.gallantrealm.myworld.android.MessageDialog;
@@ -101,7 +100,7 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 		custom11Text = (TextView) findViewById(R.id.custom11text);
 		custom12Text = (TextView) findViewById(R.id.custom12text);
 		okButton = (Button) findViewById(R.id.okButton);
-		decorateButton = (Button) findViewById(R.id.decorateButton);
+		decorateButton = (Button) findViewById(R.id.customizeButton);
 
 		Typeface typeface = clientModel.getTypeface(this);
 		if (typeface != null) {
@@ -263,10 +262,10 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 		String avatarName = clientModel.getAvatarName();
 		if (avatarName.startsWith("custom")) {
 			Intent intent = new Intent(SelectAvatarActivity.this, StartWorldActivity.class);
-			intent.setAction("com.gallantrealm.eggworld.worlds.DecorateWorld");
+			intent.setAction("com.gallantrealm.webworld.worlds.DecorateWorld");
 			startActivity(intent);
 		} else {
-			final MessageDialog messageDialog = new MessageDialog(this, null, "Choose a custom egg to decorate.", new String[] { "OK" }, null);
+			final MessageDialog messageDialog = new MessageDialog(this, null, "Choose an avatar to customize.", new String[] { "OK" }, null);
 			messageDialog.show();
 		}
 	}
