@@ -1,9 +1,11 @@
 package com.gallantrealm.webworld.worlds;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Serializable;
+import java.util.Properties;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.NativeJavaObject;
@@ -102,13 +104,13 @@ public class ScriptWorld extends WWWorld {
 		cx.evaluateString(scope, "importPackage(Packages.com.gallantrealm.myworld.model);", "<importPackage>", 1, null);
 
 		// create the avatar
+		System.out.println("Opening avatar " + avatarName);
 		WWObject avatar = null;
 		WWUser user = new WWUser();
 		user.setName(avatarName);
 		addUser(user);
 		String avatarScriptName = avatarName + ".avatar";
 		try {
-			System.out.println("Opening " + avatarScriptName);
 			InputStream inStream = clientModel.loadFile(avatarScriptName, false);
 			if (inStream == null) {
 				System.err.println("Script "+avatarScriptName+" could not  be found");
@@ -116,7 +118,7 @@ public class ScriptWorld extends WWWorld {
 				Reader reader = new InputStreamReader(inStream, "UTF-8");
 
 				// Run the world script
-				System.out.println("Running script");
+				System.out.println("Running script "+avatarScriptName);
 				try {
 					Object result = cx.evaluateReader(scope, reader, avatarScriptName, 1, null);
 					NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(scope, "avatar");
@@ -158,10 +160,17 @@ public class ScriptWorld extends WWWorld {
 			avatarCameraBehavior.setTimer(5000);
 		}
 
-		// create the world
-		String worldScriptName = worldName + ".world";
+		// run the first world script
+		System.out.println("Opening world "+worldName);
+		Properties worldProps = new Properties();
 		try {
-			System.out.println("Opening " + worldScriptName);
+			worldProps.load(clientModel.getContext().getAssets().open("worlds/" + worldName + "/world.properties"));
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+		}
+		String worldScriptName = "worlds/"+worldName+"/"+worldProps.getProperty("script", "world.js");
+		try {
+			System.out.println("Running script "+worldScriptName);
 			InputStream inStream = clientModel.loadFile(worldScriptName, false);
 			Reader reader = new InputStreamReader(inStream, "UTF-8");
 
@@ -171,8 +180,6 @@ public class ScriptWorld extends WWWorld {
 			Object wrappedAvatar = Context.javaToJS(avatar, scope);
 			ScriptableObject.putProperty(scope, "avatar", wrappedAvatar);
 
-			// Run the world script
-			System.out.println("Running script");
 			try {
 				Object result = cx.evaluateReader(scope, reader, worldScriptName, 1, null);
 				clientModel.alert("Script ran.  Result is: " + cx.toString(result), null);
@@ -183,7 +190,7 @@ public class ScriptWorld extends WWWorld {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			clientModel.showMessage("Couldn't load world " + worldScriptName);
+			clientModel.showMessage("Couldn't load script " + worldScriptName);
 		} finally {
 			Context.exit();
 		}
