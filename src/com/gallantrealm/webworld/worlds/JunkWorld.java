@@ -17,7 +17,7 @@ import com.gallantrealm.myworld.model.WWTorus;
 import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 
-public class JunkWorld extends BaseEggWorld {
+public class JunkWorld extends BaseWebWorld {
 
 	WWSimpleShape avatar;
 	int beaconsFound = 0;

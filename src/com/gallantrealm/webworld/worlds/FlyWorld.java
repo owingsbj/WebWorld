@@ -20,7 +20,7 @@ import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
-public class FlyWorld extends BaseEggWorld {
+public class FlyWorld extends BaseWebWorld {
 	ClientModel clientModel = AndroidClientModel.getClientModel();
 
 	FlyBehavior flyBehavior;

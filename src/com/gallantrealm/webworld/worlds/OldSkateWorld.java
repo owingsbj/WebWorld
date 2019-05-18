@@ -16,7 +16,7 @@ import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
-public class OldSkateWorld extends BaseEggWorld {
+public class OldSkateWorld extends BaseWebWorld {
 
 	WWSimpleShape avatar;
 	boolean rolling;

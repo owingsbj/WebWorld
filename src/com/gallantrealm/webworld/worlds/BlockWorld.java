@@ -18,7 +18,7 @@ import com.gallantrealm.myworld.model.WWTranslucency;
 import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 
-public class BlockWorld extends BaseEggWorld {
+public class BlockWorld extends BaseWebWorld {
 
 	WWMesh ground;
 	WWObject avatar;

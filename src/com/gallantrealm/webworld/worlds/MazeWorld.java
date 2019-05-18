@@ -16,7 +16,7 @@ import com.gallantrealm.myworld.model.WWVector;
 
 // TODO: Add complexities on levels > 5
 // TODO: Add points thing (level & time)
-public class MazeWorld extends BaseEggWorld {
+public class MazeWorld extends BaseWebWorld {
 
 	WWSimpleShape avatar;
 
@@ -308,7 +308,7 @@ public class MazeWorld extends BaseEggWorld {
 				playSound("winningSound2", 0.1f);
 			}
 			AndroidClientModel.getClientModel().setScore(2, getLevel());
-			int rc = clientModel.alert(null, "Congratulations, you made it through level " + getLevel() + "!", new String[] { "Next Level", "Quit" }, "I made it through level " + getLevel() + " of the EggWorld maze!");
+			int rc = clientModel.alert(null, "Congratulations, you made it through level " + getLevel() + "!", new String[] { "Next Level", "Quit" }, "I made it through level " + getLevel() + " of the webworld maze!");
 			destroyMaze();
 			if (rc == 0) {
 				setLevel(getLevel() + 1);

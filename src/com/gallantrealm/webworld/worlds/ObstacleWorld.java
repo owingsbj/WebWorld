@@ -17,7 +17,7 @@ import com.gallantrealm.myworld.model.WWTorus;
 import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 
-public class ObstacleWorld extends BaseEggWorld {
+public class ObstacleWorld extends BaseWebWorld {
 
 	WWSimpleShape avatar1;
 	ArrayList<WWObject> obstacles = new ArrayList<WWObject>();

@@ -1,6 +1,6 @@
 package com.gallantrealm.webworld.shapes;
 
-import com.gallantrealm.eggworld.R;
+import com.gallantrealm.webworld.R;
 
 public class Oval {
 	public static String getStaticName() {

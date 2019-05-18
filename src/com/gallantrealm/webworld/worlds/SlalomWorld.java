@@ -25,7 +25,7 @@ import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 import android.content.Intent;
 
-public class SlalomWorld extends BaseEggWorld {
+public class SlalomWorld extends BaseWebWorld {
 
 	AndroidClientModel clientModel = AndroidClientModel.getClientModel();
 
@@ -582,7 +582,7 @@ public class SlalomWorld extends BaseEggWorld {
 						clientModel.setLevel(courseNumber, Math.max(1, clientModel.getLevel(courseNumber)) + 1);
 						setLevel(clientModel.getLevel(courseNumber));
 						clientModel.disconnect();
-						clientModel.setWorldName("com.gallantrealm.eggworld.worlds.SlalomWorld");
+						clientModel.setWorldName("com.gallantrealm.webworld.worlds.SlalomWorld");
 						Intent intent = new Intent(clientModel.getContext(), StartWorldActivity.class);
 						clientModel.getContext().startActivity(intent);
 					} else if (rc == 1) {

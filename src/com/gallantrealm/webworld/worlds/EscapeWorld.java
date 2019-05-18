@@ -21,7 +21,7 @@ import com.gallantrealm.myworld.model.WWVector;
  * @author owingsbj
  * 
  */
-public class EscapeWorld extends BaseEggWorld {
+public class EscapeWorld extends BaseWebWorld {
 
 	WWSimpleShape avatar;
 	ArrayList<WWCylinder> rings;

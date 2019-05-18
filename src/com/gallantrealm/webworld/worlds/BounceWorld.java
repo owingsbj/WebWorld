@@ -20,7 +20,7 @@ import com.gallantrealm.myworld.model.WWVector;
  * @author owingsbj
  * 
  */
-public class BounceWorld extends BaseEggWorld {
+public class BounceWorld extends BaseWebWorld {
 
 	WWObject avatar;
 	float highestHeight = 0;

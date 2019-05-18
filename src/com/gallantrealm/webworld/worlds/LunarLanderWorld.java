@@ -19,7 +19,7 @@ import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 import android.content.Intent;
 
-public class LunarLanderWorld extends BaseEggWorld {
+public class LunarLanderWorld extends BaseWebWorld {
 	AndroidClientModel clientModel = AndroidClientModel.getClientModel();
 
 	WWSimpleShape avatar;
@@ -341,7 +341,7 @@ public class LunarLanderWorld extends BaseEggWorld {
 						AndroidClientModel clientModel = AndroidClientModel.getClientModel();
 						clientModel.setScore(11, level + 1);
 						clientModel.disconnect();
-						clientModel.setWorldName("com.gallantrealm.eggworld.worlds.LunarLanderWorld");
+						clientModel.setWorldName("com.gallantrealm.webworld.worlds.LunarLanderWorld");
 						Intent intent = new Intent(clientModel.getContext(), StartWorldActivity.class);
 						clientModel.getContext().startActivity(intent);
 					}

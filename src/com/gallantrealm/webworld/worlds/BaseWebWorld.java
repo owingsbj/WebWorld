@@ -17,7 +17,7 @@ import com.gallantrealm.myworld.model.WWSphere;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
-public class BaseEggWorld extends WWWorld {
+public class BaseWebWorld extends WWWorld {
 
 	protected float thrust;
 	protected float torque;
@@ -55,7 +55,7 @@ public class BaseEggWorld extends WWWorld {
 	WWAction[] avatarActions = new WWAction[0];
 	WWAction[] worldActions = new WWAction[] { new PauseAction(), new ChangeViewAction() };
 
-	public BaseEggWorld() {
+	public BaseWebWorld() {
 		super(true, true, null, 15, true);
 		AndroidClientModel.getClientModel().cameraInitiallyFacingAvatar = true;
 		AndroidClientModel.getClientModel().cameraDampRate = 0;
@@ -65,7 +65,7 @@ public class BaseEggWorld extends WWWorld {
 		AndroidClientModel.getClientModel().behindTilt = 10;
 	}
 
-	public BaseEggWorld(String saveWorldFileName) {
+	public BaseWebWorld(String saveWorldFileName) {
 		super(true, true, saveWorldFileName, 15, true);
 		AndroidClientModel.getClientModel().cameraInitiallyFacingAvatar = true;
 		AndroidClientModel.getClientModel().cameraDampRate = 0;

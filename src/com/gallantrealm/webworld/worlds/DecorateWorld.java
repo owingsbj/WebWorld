@@ -37,7 +37,7 @@ import android.graphics.RectF;
  * @author owingsbj
  * 
  */
-public class DecorateWorld extends BaseEggWorld {
+public class DecorateWorld extends BaseWebWorld {
 
 	static int PEN = 0;
 	static int CIRCLE = 2;

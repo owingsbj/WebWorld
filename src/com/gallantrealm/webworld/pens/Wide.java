@@ -1,6 +1,6 @@
 package com.gallantrealm.webworld.pens;
 
-import com.gallantrealm.eggworld.R;
+import com.gallantrealm.webworld.R;
 
 public class Wide {
 	public static String getStaticName() {

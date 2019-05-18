@@ -19,7 +19,7 @@ import com.gallantrealm.myworld.model.WWVector;
 /**
  * Coaster builder for eggs.
  */
-public class RollerCoasterWorld extends BaseEggWorld {
+public class RollerCoasterWorld extends BaseWebWorld {
 
 	AndroidClientModel clientModel = AndroidClientModel.getClientModel();
 

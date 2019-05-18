@@ -12,7 +12,7 @@ public class MainMenuActivity extends com.gallantrealm.myworld.android.MainMenuA
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		clientModel.setContext(this);
-		clientModel.setAllWorldsUnlocked();  // override default behavior.  Eggworld users don't like unlocking games one by one.
+		clientModel.setAllWorldsUnlocked();  // override default behavior.  webworld users don't like unlocking games one by one.
 		super.onCreate(savedInstanceState);
 		chooseAvatarButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {

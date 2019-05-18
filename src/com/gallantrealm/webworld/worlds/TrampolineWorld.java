@@ -20,7 +20,7 @@ import com.gallantrealm.myworld.model.WWVector;
  * @author owingsbj
  * 
  */
-public class TrampolineWorld extends BaseEggWorld {
+public class TrampolineWorld extends BaseWebWorld {
 
 	AndroidClientModel clientModel = AndroidClientModel.getClientModel();
 

@@ -22,7 +22,7 @@ import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
-public class RaceWorld extends BaseEggWorld {
+public class RaceWorld extends BaseWebWorld {
 
 	static final float GRIDSIZE = 60;
 	static final float GUIDE_WALL_TRANSPARENCY = 1.0f;
@@ -197,7 +197,7 @@ public class RaceWorld extends BaseEggWorld {
 				if (clientModel.isPlayMusic()) {
 					playSound("winningSound2", 0.1f);
 				}
-				int rc = clientModel.alert(null, "Congratulations, you won!", new String[] { "Next Level", "Quit" }, "I won at level " + getLevel() + " in EggWorld Race!");
+				int rc = clientModel.alert(null, "Congratulations, you won!", new String[] { "Next Level", "Quit" }, "I won at level " + getLevel() + " in webworld Race!");
 				if (rc == 0) {
 					destroyTrack();
 					setLevel(getLevel() + 1);
