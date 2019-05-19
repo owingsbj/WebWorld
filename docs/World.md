@@ -1,8 +1,0 @@
-# World
-
-## Properties
-
-## Methods
-
-## Events
-
