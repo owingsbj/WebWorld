@@ -334,7 +334,7 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 		}
-		clientModel.setWorldName(worldName, "com.gallantrealm.webworld.worlds.ScriptWorld");
+		clientModel.setWorldName(worldName, "com.gallantrealm.webworld.model.World");
 	}
 
 	Bitmap oldBitmap;
