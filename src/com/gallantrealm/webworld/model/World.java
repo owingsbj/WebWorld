@@ -15,7 +15,6 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.TopLevel;
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.android.PauseAction;
-import com.gallantrealm.myworld.client.model.ClientModel;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
 import com.gallantrealm.myworld.model.OldPhysicsThread;
 import com.gallantrealm.myworld.model.PhysicsThread;
@@ -23,7 +22,6 @@ import com.gallantrealm.myworld.model.WWAction;
 import com.gallantrealm.myworld.model.WWBehavior;
 import com.gallantrealm.myworld.model.WWBox;
 import com.gallantrealm.myworld.model.WWColor;
-import com.gallantrealm.myworld.model.WWCylinder;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWSimpleShape;
 import com.gallantrealm.myworld.model.WWSphere;
@@ -31,9 +29,8 @@ import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
-import android.os.AsyncTask;
-
 public class World extends WWWorld {
+	private static final long serialVersionUID = 1L;
 
 	protected float thrust;
 	protected float torque;
@@ -46,6 +43,7 @@ public class World extends WWWorld {
 	Properties avatarProperties;
 
 	public class ChangeViewAction extends WWAction implements Serializable {
+		private static final long serialVersionUID = 1L;
 
 		private int view;
 
@@ -77,31 +75,27 @@ public class World extends WWWorld {
 
 	public World() {
 		super(true, true, null, 15, true);
-		initializeWorldInBackground();
+		initializeWorld();
 	}
 
 	public World(String saveWorldFileName, String avatarName) {
 		super(true, true, saveWorldFileName, 15, true);
-		initializeWorldInBackground();
+		initializeWorld();
 	}
-	
-	private void initializeWorldInBackground() {
-		AsyncTask.execute(new Runnable() {
-			public void run() {
-				clientModel = AndroidClientModel.getClientModel();
-				avatarProperties = getAvatarProperties(clientModel.getAvatarName());
-				worldProperties = getWorldProperties(clientModel.getWorldName());
 
-				clientModel.cameraInitiallyFacingAvatar = true;
-				clientModel.cameraDampRate = 0;
-				clientModel.calibrateSensors();
-				clientModel.cameraDampRate = 0.5f;
-				clientModel.behindDistance = 3;
-				clientModel.behindTilt = 10;
+	private void initializeWorld() {
+		clientModel = AndroidClientModel.getClientModel();
+		avatarProperties = getAvatarProperties(clientModel.getAvatarName());
+		worldProperties = getWorldProperties(clientModel.getWorldName());
 
-				runScripts();
-			}
-		});
+		clientModel.cameraInitiallyFacingAvatar = true;
+		clientModel.cameraDampRate = 0;
+		clientModel.calibrateSensors();
+		clientModel.cameraDampRate = 0.5f;
+		clientModel.behindDistance = 3;
+		clientModel.behindTilt = 10;
+
+		runScripts();
 	}
 
 	private Properties getAvatarProperties(String avatarName) {
@@ -165,6 +159,21 @@ public class World extends WWWorld {
 		TopLevel scope = new ImporterTopLevel(cx);
 		cx.initStandardObjects(scope, false);
 		cx.evaluateString(scope, "importPackage(Packages.com.gallantrealm.webworld.model);", "<importPackage>", 1, null);
+		ScriptableObject.putProperty(scope, "SIDE_ALL", 0);
+		ScriptableObject.putProperty(scope, "SIDE_TOP", 1);
+		ScriptableObject.putProperty(scope, "SIDE_BOTTOM", 2);
+		ScriptableObject.putProperty(scope, "SIDE_SIDE1", 3);
+		ScriptableObject.putProperty(scope, "SIDE_SIDE2", 4);
+		ScriptableObject.putProperty(scope, "SIDE_SIDE3", 5);
+		ScriptableObject.putProperty(scope, "SIDE_SIDE4", 6);
+		ScriptableObject.putProperty(scope, "SIDE_INSIDE_TOP", 7);
+		ScriptableObject.putProperty(scope, "SIDE_INSIDE_BOTTOM", 8);
+		ScriptableObject.putProperty(scope, "SIDE_INSIDE1", 9);
+		ScriptableObject.putProperty(scope, "SIDE_INSIDE2", 10);
+		ScriptableObject.putProperty(scope, "SIDE_INSIDE3", 11);
+		ScriptableObject.putProperty(scope, "SIDE_INSIDE4", 12);
+		ScriptableObject.putProperty(scope, "SIDE_CUTOUT1", 13);
+		ScriptableObject.putProperty(scope, "SIDE_CUTOUT2", 14);
 
 		// create the avatar
 		System.out.println("Opening avatar " + avatarName);
@@ -217,6 +226,8 @@ public class World extends WWWorld {
 		// add a behavior to the avatar so it is facing user for a while
 		if (clientModel.cameraInitiallyFacingAvatar) {
 			WWBehavior avatarCameraBehavior = new WWBehavior() {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public boolean timerEvent() {
 					clientModel.setViewpoint(clientModel.getViewpoint());
@@ -242,21 +253,6 @@ public class World extends WWWorld {
 			// make sure the world, some constants, and avatar are available to the world script
 			Object wrappedWorld = Context.javaToJS(this, scope);
 			ScriptableObject.putProperty(scope, "world", wrappedWorld);
-			ScriptableObject.putProperty(scope, "SIDE_ALL", 0);
-			ScriptableObject.putProperty(scope, "SIDE_TOP", 1);
-			ScriptableObject.putProperty(scope, "SIDE_BOTTOM", 2);
-			ScriptableObject.putProperty(scope, "SIDE_SIDE1", 3);
-			ScriptableObject.putProperty(scope, "SIDE_SIDE2", 4);
-			ScriptableObject.putProperty(scope, "SIDE_SIDE3", 5);
-			ScriptableObject.putProperty(scope, "SIDE_SIDE4", 6);
-			ScriptableObject.putProperty(scope, "SIDE_INSIDE_TOP", 7);
-			ScriptableObject.putProperty(scope, "SIDE_INSIDE_BOTTOM", 8);
-			ScriptableObject.putProperty(scope, "SIDE_INSIDE1", 9);
-			ScriptableObject.putProperty(scope, "SIDE_INSIDE2", 10);
-			ScriptableObject.putProperty(scope, "SIDE_INSIDE3", 11);
-			ScriptableObject.putProperty(scope, "SIDE_INSIDE4", 12);
-			ScriptableObject.putProperty(scope, "SIDE_CUTOUT1", 13);
-			ScriptableObject.putProperty(scope, "SIDE_CUTOUT2", 14);
 			Object wrappedAvatar = Context.javaToJS(avatar, scope);
 			ScriptableObject.putProperty(scope, "avatar", wrappedAvatar);
 
@@ -280,6 +276,11 @@ public class World extends WWWorld {
 
 		// Exit the top-level scope
 		Context.exit();
+	}
+
+	@Override
+	public void restored() {
+		clientModel = AndroidClientModel.getClientModel();
 	}
 
 	@Override
@@ -324,6 +325,8 @@ public class World extends WWWorld {
 		avatar.setTextureURL(WWSimpleShape.SIDE_ALL, avatarName + "_skin");
 		if (clientModel.cameraInitiallyFacingAvatar) {
 			WWBehavior avatarCameraBehavior = new WWBehavior() {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public boolean timerEvent() {
 					clientModel.setViewpoint(clientModel.getViewpoint()); // to force view from viewpoint after some time
