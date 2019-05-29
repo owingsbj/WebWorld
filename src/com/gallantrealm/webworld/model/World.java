@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Properties;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
@@ -13,6 +15,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.TopLevel;
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.android.PauseAction;
+import com.gallantrealm.myworld.client.model.ClientModel;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
 import com.gallantrealm.myworld.model.OldPhysicsThread;
 import com.gallantrealm.myworld.model.PhysicsThread;
@@ -28,6 +31,8 @@ import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
+import android.os.AsyncTask;
+
 public class World extends WWWorld {
 
 	protected float thrust;
@@ -35,6 +40,10 @@ public class World extends WWWorld {
 	protected float lift;
 	protected float lean;
 	protected float tilt;
+
+	transient AndroidClientModel clientModel;
+	Properties worldProperties;
+	Properties avatarProperties;
 
 	public class ChangeViewAction extends WWAction implements Serializable {
 
@@ -49,14 +58,14 @@ public class World extends WWWorld {
 		public void start() {
 			view++;
 			if (view == 1) {
-				AndroidClientModel.getClientModel().setViewpoint(1);
+				clientModel.setViewpoint(1);
 			} else if (view == 2) {
-				AndroidClientModel.getClientModel().birdsEyeHeight = 15;
-				AndroidClientModel.getClientModel().setViewpoint(2);
+				clientModel.birdsEyeHeight = 15;
+				clientModel.setViewpoint(2);
 			} else if (view == 3) {
-				AndroidClientModel.getClientModel().setViewpoint(3);
+				clientModel.setViewpoint(3);
 			} else {
-				AndroidClientModel.getClientModel().setViewpoint(0);
+				clientModel.setViewpoint(0);
 				view = 0;
 			}
 		}
@@ -68,32 +77,86 @@ public class World extends WWWorld {
 
 	public World() {
 		super(true, true, null, 15, true);
-		AndroidClientModel.getClientModel().cameraInitiallyFacingAvatar = true;
-		AndroidClientModel.getClientModel().cameraDampRate = 0;
-		AndroidClientModel.getClientModel().calibrateSensors();
-		AndroidClientModel.getClientModel().cameraDampRate = 0.5f;
-		AndroidClientModel.getClientModel().behindDistance = 3;
-		AndroidClientModel.getClientModel().behindTilt = 10;
-
-		runScripts(null);
+		initializeWorldInBackground();
 	}
 
 	public World(String saveWorldFileName, String avatarName) {
 		super(true, true, saveWorldFileName, 15, true);
-		AndroidClientModel.getClientModel().cameraInitiallyFacingAvatar = true;
-		AndroidClientModel.getClientModel().cameraDampRate = 0;
-		AndroidClientModel.getClientModel().calibrateSensors();
-		AndroidClientModel.getClientModel().cameraDampRate = 0.5f;
-// TODO		AndroidClientModel.getClientModel().dampCameraTranslations = true;
-		AndroidClientModel.getClientModel().behindDistance = 3;
-		AndroidClientModel.getClientModel().behindTilt = 10;
+		initializeWorldInBackground();
+	}
+	
+	private void initializeWorldInBackground() {
+		AsyncTask.execute(new Runnable() {
+			public void run() {
+				clientModel = AndroidClientModel.getClientModel();
+				avatarProperties = getAvatarProperties(clientModel.getAvatarName());
+				worldProperties = getWorldProperties(clientModel.getWorldName());
 
-		runScripts(avatarName);
+				clientModel.cameraInitiallyFacingAvatar = true;
+				clientModel.cameraDampRate = 0;
+				clientModel.calibrateSensors();
+				clientModel.cameraDampRate = 0.5f;
+				clientModel.behindDistance = 3;
+				clientModel.behindTilt = 10;
+
+				runScripts();
+			}
+		});
 	}
 
-	private void runScripts(String avatarName) {
-		AndroidClientModel clientModel = AndroidClientModel.getClientModel();
+	private Properties getAvatarProperties(String avatarName) {
+		Properties properties = new Properties();
+		HttpURLConnection connection = null;
+		InputStream inputStream = null;
+		try {
+			URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/avatar.properties");
+			System.out.println(">> " + url);
+			connection = (HttpURLConnection) (url.openConnection());
+			inputStream = connection.getInputStream();
+			properties.load(inputStream);
+			properties.list(System.out);
+			System.out.println();
+		} catch (IOException e) {
+			System.err.println(e);
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return properties;
+	}
+
+	private Properties getWorldProperties(String worldName) {
+		Properties properties = new Properties();
+		HttpURLConnection connection = null;
+		InputStream inputStream = null;
+		try {
+			URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/world.properties");
+			System.out.println(">> " + url);
+			connection = (HttpURLConnection) (url.openConnection());
+			inputStream = connection.getInputStream();
+			properties.load(inputStream);
+			properties.list(System.out);
+			System.out.println();
+		} catch (IOException e) {
+			System.err.println(e);
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return properties;
+	}
+
+	private void runScripts() {
 		String worldName = clientModel.getWorldName();
+		String avatarName = clientModel.getAvatarName();
 
 		// create toplevel scope
 		System.out.println("Creating toplevel scope");
@@ -109,26 +172,23 @@ public class World extends WWWorld {
 		WWUser user = new WWUser();
 		user.setName(avatarName);
 		addUser(user);
-		String avatarScriptName = avatarName + ".avatar";
+		HttpURLConnection connection = null;
+		InputStream inputStream = null;
 		try {
-			InputStream inStream = clientModel.loadFile(avatarScriptName, false);
-			if (inStream == null) {
-				System.err.println("Script "+avatarScriptName+" could not  be found");
-			} else {
-				Reader reader = new InputStreamReader(inStream, "UTF-8");
-
-				// Run the world script
-				System.out.println("Running script "+avatarScriptName);
-				try {
-					Object result = cx.evaluateReader(scope, reader, avatarScriptName, 1, null);
-					NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(scope, "avatar");
-					if (avatarWrapped != null) {
-						avatar = (WWObject) (avatarWrapped.unwrap());
-					}
-				} catch (Exception e) {
-					System.err.println("Script failed: " + e.getMessage());
+			URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("script"));
+			System.out.println(">> " + url);
+			connection = (HttpURLConnection) (url.openConnection());
+			inputStream = connection.getInputStream();
+			Reader reader = new InputStreamReader(inputStream, "UTF-8");
+			System.out.println("Running avatar script..");
+			try {
+				Object result = cx.evaluateReader(scope, reader, avatarProperties.getProperty("script"), 1, null);
+				NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(scope, "avatar");
+				if (avatarWrapped != null) {
+					avatar = (WWObject) (avatarWrapped.unwrap());
 				}
-				inStream.close();
+			} catch (Exception e) {
+				System.err.println("Script failed: " + e.getMessage());
 			}
 			if (avatar == null) {
 				System.err.println("Script didn't set an object to use for an avatar, using a box");
@@ -145,14 +205,21 @@ public class World extends WWWorld {
 		} catch (Exception e) {
 			e.printStackTrace();
 			clientModel.showMessage("Couldn't create the avatar " + avatarName);
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+				}
+			}
 		}
 
 		// add a behavior to the avatar so it is facing user for a while
-		if (AndroidClientModel.getClientModel().cameraInitiallyFacingAvatar) {
+		if (clientModel.cameraInitiallyFacingAvatar) {
 			WWBehavior avatarCameraBehavior = new WWBehavior() {
 				@Override
 				public boolean timerEvent() {
-					AndroidClientModel.getClientModel().setViewpoint(AndroidClientModel.getClientModel().getViewpoint());
+					clientModel.setViewpoint(clientModel.getViewpoint());
 					return true;
 				}
 			};
@@ -160,19 +227,17 @@ public class World extends WWWorld {
 			avatarCameraBehavior.setTimer(5000);
 		}
 
-		// run the first world script
-		System.out.println("Opening world "+worldName);
-		Properties worldProps = new Properties();
+		// create the world
+		System.out.println("Opening world " + worldName);
+		connection = null;
+		inputStream = null;
 		try {
-			worldProps.load(clientModel.getContext().getAssets().open("worlds/" + worldName + "/world.properties"));
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
-		}
-		String worldScriptName = "worlds/"+worldName+"/"+worldProps.getProperty("script", "world.js");
-		try {
-			System.out.println("Running script "+worldScriptName);
-			InputStream inStream = clientModel.loadFile(worldScriptName, false);
-			Reader reader = new InputStreamReader(inStream, "UTF-8");
+			URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
+			System.out.println(">> " + url);
+			connection = (HttpURLConnection) (url.openConnection());
+			inputStream = connection.getInputStream();
+			Reader reader = new InputStreamReader(inputStream, "UTF-8");
+			System.out.println("Running world script..");
 
 			// make sure the world, some constants, and avatar are available to the world script
 			Object wrappedWorld = Context.javaToJS(this, scope);
@@ -196,20 +261,25 @@ public class World extends WWWorld {
 			ScriptableObject.putProperty(scope, "avatar", wrappedAvatar);
 
 			try {
-				Object result = cx.evaluateReader(scope, reader, worldScriptName, 1, null);
+				Object result = cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
 				clientModel.alert("Script ran.  Result is: " + cx.toString(result), null);
 			} catch (Exception e) {
 				System.err.println("Script failed: " + e.getMessage());
 			}
-			inStream.close();
-
 		} catch (Exception e) {
 			e.printStackTrace();
-			clientModel.showMessage("Couldn't load script " + worldScriptName);
+			clientModel.showMessage("Couldn't create world " + worldName);
 		} finally {
-			Context.exit();
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+				}
+			}
 		}
 
+		// Exit the top-level scope
+		Context.exit();
 	}
 
 	@Override
@@ -219,7 +289,7 @@ public class World extends WWWorld {
 
 	protected void setAvatarActions(WWAction[] actions) {
 		avatarActions = actions;
-		AndroidClientModel.getClientModel().fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_AVATAR_ACTIONS_CHANGED);
+		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_AVATAR_ACTIONS_CHANGED);
 	}
 
 	@Override
@@ -229,7 +299,7 @@ public class World extends WWWorld {
 
 	protected void setWorldActions(WWAction[] actions) {
 		worldActions = actions;
-		AndroidClientModel.getClientModel().fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_WORLD_ACTIONS_CHANGED);
+		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_WORLD_ACTIONS_CHANGED);
 	}
 
 	@Override
@@ -252,11 +322,11 @@ public class World extends WWWorld {
 		avatar.setFreedomRotateZ(true);
 		int avatarId = addObject(avatar);
 		avatar.setTextureURL(WWSimpleShape.SIDE_ALL, avatarName + "_skin");
-		if (AndroidClientModel.getClientModel().cameraInitiallyFacingAvatar) {
+		if (clientModel.cameraInitiallyFacingAvatar) {
 			WWBehavior avatarCameraBehavior = new WWBehavior() {
 				@Override
 				public boolean timerEvent() {
-					AndroidClientModel.getClientModel().setViewpoint(AndroidClientModel.getClientModel().getViewpoint()); // to force view from viewpoint after some time
+					clientModel.setViewpoint(clientModel.getViewpoint()); // to force view from viewpoint after some time
 					return true;
 				}
 			};
@@ -272,7 +342,7 @@ public class World extends WWWorld {
 
 	@Override
 	public boolean dampenCamera() {
-		return AndroidClientModel.getClientModel().getViewpoint() != 1;
+		return clientModel.getViewpoint() != 1;
 	}
 
 }

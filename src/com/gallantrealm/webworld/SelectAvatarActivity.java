@@ -1,207 +1,199 @@
 package com.gallantrealm.webworld;
 
-import com.gallantrealm.myworld.android.AndroidClientModel;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StreamTokenizer;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Properties;
 import com.gallantrealm.myworld.android.GallantActivity;
 import com.gallantrealm.myworld.android.MessageDialog;
 import com.gallantrealm.myworld.android.StartWorldActivity;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
 import com.gallantrealm.myworld.client.model.ClientModelChangedListener;
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-public class SelectAvatarActivity extends GallantActivity implements View.OnClickListener, ClientModelChangedListener {
+public class SelectAvatarActivity extends GallantActivity implements View.OnClickListener, ClientModelChangedListener, OnGestureListener {
 
-	AndroidClientModel clientModel = AndroidClientModel.getClientModel();
+	int navatars;
+	int currentAvatarNum;
 
+	View mainLayout;
 	TextView titleText;
+	TextView countText;
+	Button previousButton;
+	Button nextButton;
+	View selectedView;
+	TextView avatarNameText;
+	ImageView avatarImage;
+	TextView avatarDescriptionText;
 	Button okButton;
-	Button decorateButton;
-	View happySelect;
-	View jackSelect;
-	View jillSelect;
-	View patchSelect;
-	View robotSelect;
-	View mongoSelect;
-	View cupidSelect;
-	View luckySelect;
-	View bugsSelect;
-	View casperSelect;
-	View gobbleSelect;
-	View santaSelect;
-	View custom1Select;
-	View custom2Select;
-	View custom3Select;
-	View custom4Select;
-	View custom5Select;
-	View custom6Select;
-	View custom7Select;
-	View custom8Select;
-	View custom9Select;
-	View custom10Select;
-	View custom11Select;
-	View custom12Select;
-	TextView custom1Text;
-	TextView custom2Text;
-	TextView custom3Text;
-	TextView custom4Text;
-	TextView custom5Text;
-	TextView custom6Text;
-	TextView custom7Text;
-	TextView custom8Text;
-	TextView custom9Text;
-	TextView custom10Text;
-	TextView custom11Text;
-	TextView custom12Text;
+	Button customizeButton;
+
+	GestureDetector gestureDetector;
+
+	ArrayList<String> avatarFolders;
+	Properties avatarProps;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.select_avatar);
+		setContentView(R.layout.select_avatar2);
 
+		mainLayout = findViewById(R.id.mainLayout);
 		titleText = (TextView) findViewById(R.id.titleText);
-		happySelect = findViewById(R.id.happySelect);
-		jackSelect = findViewById(R.id.jackSelect);
-		jillSelect = findViewById(R.id.jillSelect);
-		patchSelect = findViewById(R.id.patchSelect);
-		robotSelect = findViewById(R.id.robotSelect);
-		mongoSelect = findViewById(R.id.mongoSelect);
-		cupidSelect = findViewById(R.id.cupidSelect);
-		luckySelect = findViewById(R.id.luckySelect);
-		bugsSelect = findViewById(R.id.bugsSelect);
-		casperSelect = findViewById(R.id.casperSelect);
-		gobbleSelect = findViewById(R.id.gobbleSelect);
-		santaSelect = findViewById(R.id.santaSelect);
-		custom1Select = findViewById(R.id.custom1Select);
-		custom2Select = findViewById(R.id.custom2Select);
-		custom3Select = findViewById(R.id.custom3Select);
-		custom4Select = findViewById(R.id.custom4Select);
-		custom5Select = findViewById(R.id.custom5Select);
-		custom6Select = findViewById(R.id.custom6Select);
-		custom7Select = findViewById(R.id.custom7Select);
-		custom8Select = findViewById(R.id.custom8Select);
-		custom9Select = findViewById(R.id.custom9Select);
-		custom10Select = findViewById(R.id.custom10Select);
-		custom11Select = findViewById(R.id.custom11Select);
-		custom12Select = findViewById(R.id.custom12Select);
-		custom1Text = (TextView) findViewById(R.id.custom1text);
-		custom2Text = (TextView) findViewById(R.id.custom2text);
-		custom3Text = (TextView) findViewById(R.id.custom3text);
-		custom4Text = (TextView) findViewById(R.id.custom4text);
-		custom5Text = (TextView) findViewById(R.id.custom5text);
-		custom6Text = (TextView) findViewById(R.id.custom6text);
-		custom7Text = (TextView) findViewById(R.id.custom7text);
-		custom8Text = (TextView) findViewById(R.id.custom8text);
-		custom9Text = (TextView) findViewById(R.id.custom9text);
-		custom10Text = (TextView) findViewById(R.id.custom10text);
-		custom11Text = (TextView) findViewById(R.id.custom11text);
-		custom12Text = (TextView) findViewById(R.id.custom12text);
+		countText = (TextView) findViewById(R.id.countText);
+		selectedView = findViewById(R.id.selectedView);
+		avatarNameText = (TextView) findViewById(R.id.avatarNameText);
+		avatarImage = (ImageView) findViewById(R.id.avatarImage);
+		avatarDescriptionText = (TextView) findViewById(R.id.avatarDescriptionText);
+		previousButton = (Button) findViewById(R.id.previousButton);
+		nextButton = (Button) findViewById(R.id.nextButton);
 		okButton = (Button) findViewById(R.id.okButton);
-		decorateButton = (Button) findViewById(R.id.customizeButton);
+		customizeButton = (Button) findViewById(R.id.customizeButton);
+
+		mainLayout.setBackgroundResource(clientModel.getTheme().themeBackgroundId);
+		songId = clientModel.getTheme().themeSongId;
 
 		Typeface typeface = clientModel.getTypeface(this);
 		if (typeface != null) {
 			titleText.setTypeface(typeface);
+			countText.setTypeface(typeface);
+			avatarNameText.setTypeface(typeface);
 			okButton.setTypeface(typeface);
-			decorateButton.setTypeface(typeface);
+			customizeButton.setTypeface(typeface);
 		}
 
-		happySelect.setOnClickListener(this);
-		jackSelect.setOnClickListener(this);
-		jillSelect.setOnClickListener(this);
-		patchSelect.setOnClickListener(this);
-		robotSelect.setOnClickListener(this);
-		mongoSelect.setOnClickListener(this);
-		cupidSelect.setOnClickListener(this);
-		luckySelect.setOnClickListener(this);
-		bugsSelect.setOnClickListener(this);
-		casperSelect.setOnClickListener(this);
-		gobbleSelect.setOnClickListener(this);
-		santaSelect.setOnClickListener(this);
-		custom1Select.setOnClickListener(this);
-		custom2Select.setOnClickListener(this);
-		custom3Select.setOnClickListener(this);
-		custom4Select.setOnClickListener(this);
-		custom5Select.setOnClickListener(this);
-		custom6Select.setOnClickListener(this);
-		custom7Select.setOnClickListener(this);
-		custom8Select.setOnClickListener(this);
-		custom9Select.setOnClickListener(this);
-		custom10Select.setOnClickListener(this);
-		custom11Select.setOnClickListener(this);
-		custom12Select.setOnClickListener(this);
-		okButton.setOnClickListener(this);
-		decorateButton.setOnClickListener(this);
+		int styleId = clientModel.getTheme().buttonStyleId;
+		if (styleId != 0) {
+			okButton.setBackgroundResource(styleId);
+			customizeButton.setBackgroundResource(styleId);
+		}
 
-		updateSelectedAvatar();
+		previousButton.setOnClickListener(this);
+		nextButton.setOnClickListener(this);
+		okButton.setOnClickListener(this);
+		customizeButton.setOnClickListener(this);
+
+		avatarFolders = new ArrayList<String>();
+		AsyncTask.execute(new Runnable() {
+			public void run() {
+				HttpURLConnection connection = null;
+				InputStream inputStream = null;
+				try {
+					System.out.println(">> http://gallantrealm.com/webworld/listAvatars.jsp");
+					connection = (HttpURLConnection) (new URL("http://gallantrealm.com/webworld/listAvatars.jsp")).openConnection();
+					inputStream = connection.getInputStream();
+					Reader reader = new InputStreamReader(inputStream, "UTF-8");
+					StreamTokenizer tokenizer = new StreamTokenizer(reader);
+					while (tokenizer.nextToken() != StreamTokenizer.TT_EOF) {
+						if (tokenizer.ttype == StreamTokenizer.TT_WORD) {
+							avatarFolders.add(tokenizer.sval);
+						}
+					}
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				} finally {
+					if (inputStream != null) {
+						try {
+							inputStream.close();
+						} catch (IOException e) {
+						}
+					}
+				}
+				System.out.println(avatarFolders);
+				navatars = avatarFolders.size();
+				currentAvatarNum = 1;
+				for (int i = 0; i < avatarFolders.size(); i++) {
+					if (avatarFolders.get(i).equals(clientModel.getWorldName())) {
+						currentAvatarNum = i + 1;
+					}
+				}
+				String avatarName = avatarFolders.get(currentAvatarNum - 1);
+				clientModel.setAvatarName(avatarName);
+				getAvatarProperties(avatarName);
+			}
+		});
 		clientModel.addClientModelChangedListener(this);
+
+		gestureDetector = new GestureDetector(this, this);
 	}
 
 	public void onClick(View v) {
-		if (v.equals(happySelect)) {
-			clientModel.setAvatarName("happy");
-		} else if (v.equals(jackSelect)) {
-			clientModel.setAvatarName("jack");
-		} else if (v.equals(jillSelect)) {
-			clientModel.setAvatarName("jill");
-		} else if (v.equals(patchSelect)) {
-			clientModel.setAvatarName("patch");
-		} else if (v.equals(robotSelect)) {
-			clientModel.setAvatarName("robot");
-		} else if (v.equals(mongoSelect)) {
-			clientModel.setAvatarName("mongo");
-		} else if (v.equals(cupidSelect)) {
-			clientModel.setAvatarName("cupid");
-		} else if (v.equals(luckySelect)) {
-			clientModel.setAvatarName("lucky");
-		} else if (v.equals(bugsSelect)) {
-			clientModel.setAvatarName("bugs");
-		} else if (v.equals(casperSelect)) {
-			clientModel.setAvatarName("casper");
-		} else if (v.equals(gobbleSelect)) {
-			clientModel.setAvatarName("gobble");
-		} else if (v.equals(santaSelect)) {
-			clientModel.setAvatarName("santa");
-		} else if (v.equals(custom1Select)) {
-			clientModel.setAvatarName("custom1");
-		} else if (v.equals(custom2Select)) {
-			clientModel.setAvatarName("custom2");
-		} else if (v.equals(custom3Select)) {
-			clientModel.setAvatarName("custom3");
-		} else if (v.equals(custom4Select)) {
-			clientModel.setAvatarName("custom4");
-		} else if (v.equals(custom5Select)) {
-			clientModel.setAvatarName("custom5");
-		} else if (v.equals(custom6Select)) {
-			clientModel.setAvatarName("custom6");
-		} else if (v.equals(custom7Select)) {
-			clientModel.setAvatarName("custom7");
-		} else if (v.equals(custom8Select)) {
-			clientModel.setAvatarName("custom8");
-		} else if (v.equals(custom9Select)) {
-			clientModel.setAvatarName("custom9");
-		} else if (v.equals(custom10Select)) {
-			clientModel.setAvatarName("custom10");
-		} else if (v.equals(custom11Select)) {
-			clientModel.setAvatarName("custom11");
-		} else if (v.equals(custom12Select)) {
-			clientModel.setAvatarName("custom12");
+		if (v.equals(nextButton)) {
+			onNext();
+		} else if (v.equals(previousButton)) {
+			onPrevious();
 		} else if (v.equals(okButton)) {
-			this.finish();
-		} else if (v.equals(decorateButton)) {
-			startDecorator();
+			if (!clientModel.isWorldUnlocked(currentAvatarNum)) {
+				(new MessageDialog(this, null, "Sorry, can't select because it is locked.", new String[] { "OK" })).show();
+			} else {
+				this.finish();
+			}
+		} else if (v.equals(customizeButton)) {
+			System.out.println("launching avatar customization");
+			clientModel.setCustomizeMode(true);
+			Intent intent = new Intent(SelectAvatarActivity.this, StartWorldActivity.class);
+			startActivity(intent);
 		}
 		clientModel.savePreferences(this);
+		updateUI();
+	}
+
+	@Override
+	public void onNext() {
+		if (currentAvatarNum < navatars) {
+			Animation animation = new TranslateAnimation(selectedView.getWidth() / 4, 0, 0, 0);
+			animation.setDuration(250);
+			selectedView.startAnimation(animation);
+			currentAvatarNum += 1;
+			if (clientModel.isWorldUnlocked(currentAvatarNum)) {
+				String avatarName = avatarFolders.get(currentAvatarNum - 1);
+				clientModel.setAvatarName(avatarName);
+				getAvatarProperties(avatarName);
+			}
+		}
+	}
+
+	@Override
+	public void onPrevious() {
+		if (currentAvatarNum > 1) {
+			Animation animation = new TranslateAnimation(-selectedView.getWidth() / 4, 0, 0, 0);
+			animation.setDuration(250);
+			selectedView.startAnimation(animation);
+			currentAvatarNum -= 1;
+			if (clientModel.isWorldUnlocked(currentAvatarNum)) {
+				String avatarName = avatarFolders.get(currentAvatarNum - 1);
+				clientModel.setAvatarName(avatarName);
+				getAvatarProperties(avatarName);
+			}
+		}
 	}
 
 	@Override
 	protected void onStart() {
-		songId = R.raw.theme_song;
 		super.onStart();
-		updateSelectedAvatar();
 	}
 
 	@Override
@@ -210,63 +202,170 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 	}
 
 	public void clientModelChanged(ClientModelChangedEvent event) {
-		if (event.getEventType() == ClientModelChangedEvent.EVENT_TYPE_SELECTED_AVATAR_CHANGED) {
-			updateSelectedAvatar();
+		if (event.getEventType() == ClientModelChangedEvent.EVENT_TYPE_SELECTED_GAME_CHANGED || event.getEventType() == ClientModelChangedEvent.EVENT_TYPE_FULLVERSION_CHANGED) {
+			updateUI();
 		}
 	}
 
-	public void updateSelectedAvatar() {
-		String avatarName = clientModel.getAvatarName();
-		if (avatarName == null) {
+	public void getAvatarProperties(final String avatarName) {
+		avatarProps = new Properties();
+		AsyncTask.execute(new Runnable() {
+			public void run() {
+				HttpURLConnection connection = null;
+				InputStream inputStream = null;
+				try {
+					URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/avatar.properties");
+					System.out.println(">> " + url);
+					connection = (HttpURLConnection) (url.openConnection());
+					inputStream = connection.getInputStream();
+					avatarProps.load(inputStream);
+					avatarProps.list(System.out);
+					System.out.println();
+				} catch (IOException e) {
+					System.err.println(e);
+				} finally {
+					if (inputStream != null) {
+						try {
+							inputStream.close();
+						} catch (IOException e) {
+						}
+					}
+				}
+				runOnUiThread(new Runnable() {
+					public void run() {
+						updateUI();
+					}
+				});
+			}
+		});
+	}
+
+	Bitmap oldBitmap;
+
+	public void updateUI() {
+		if (avatarFolders == null || avatarProps == null) {
 			return;
 		}
-		happySelect.setBackgroundColor(avatarName.equals("happy") ? 0x8040f040 : 0x80404040);
-		jackSelect.setBackgroundColor(avatarName.equals("jack") ? 0x8040f040 : 0x80404040);
-		jillSelect.setBackgroundColor(avatarName.equals("jill") ? 0x8040f040 : 0x80404040);
-		patchSelect.setBackgroundColor(avatarName.equals("patch") ? 0x8040f040 : 0x80404040);
-		robotSelect.setBackgroundColor(avatarName.equals("robot") ? 0x8040f040 : 0x80404040);
-		mongoSelect.setBackgroundColor(avatarName.equals("mongo") ? 0x8040f040 : 0x80404040);
-		cupidSelect.setBackgroundColor(avatarName.equals("cupid") ? 0x8040f040 : 0x80404040);
-		luckySelect.setBackgroundColor(avatarName.equals("lucky") ? 0x8040f040 : 0x80404040);
-		bugsSelect.setBackgroundColor(avatarName.equals("bugs") ? 0x8040f040 : 0x80404040);
-		casperSelect.setBackgroundColor(avatarName.equals("casper") ? 0x8040f040 : 0x80404040);
-		gobbleSelect.setBackgroundColor(avatarName.equals("gobble") ? 0x8040f040 : 0x80404040);
-		santaSelect.setBackgroundColor(avatarName.equals("santa") ? 0x8040f040 : 0x80404040);
-		custom1Select.setBackgroundColor(avatarName.equals("custom1") ? 0x8040f040 : 0x80404040);
-		custom2Select.setBackgroundColor(avatarName.equals("custom2") ? 0x8040f040 : 0x80404040);
-		custom3Select.setBackgroundColor(avatarName.equals("custom3") ? 0x8040f040 : 0x80404040);
-		custom4Select.setBackgroundColor(avatarName.equals("custom4") ? 0x8040f040 : 0x80404040);
-		custom5Select.setBackgroundColor(avatarName.equals("custom5") ? 0x8040f040 : 0x80404040);
-		custom6Select.setBackgroundColor(avatarName.equals("custom6") ? 0x8040f040 : 0x80404040);
-		custom7Select.setBackgroundColor(avatarName.equals("custom7") ? 0x8040f040 : 0x80404040);
-		custom8Select.setBackgroundColor(avatarName.equals("custom8") ? 0x8040f040 : 0x80404040);
-		custom9Select.setBackgroundColor(avatarName.equals("custom9") ? 0x8040f040 : 0x80404040);
-		custom10Select.setBackgroundColor(avatarName.equals("custom10") ? 0x8040f040 : 0x80404040);
-		custom11Select.setBackgroundColor(avatarName.equals("custom11") ? 0x8040f040 : 0x80404040);
-		custom12Select.setBackgroundColor(avatarName.equals("custom12") ? 0x8040f040 : 0x80404040);
-		custom1Text.setText(clientModel.getAvatarDisplayName(13, "custom1"));
-		custom2Text.setText(clientModel.getAvatarDisplayName(14, "custom2"));
-		custom3Text.setText(clientModel.getAvatarDisplayName(15, "custom3"));
-		custom4Text.setText(clientModel.getAvatarDisplayName(16, "custom4"));
-		custom5Text.setText(clientModel.getAvatarDisplayName(17, "custom5"));
-		custom6Text.setText(clientModel.getAvatarDisplayName(18, "custom6"));
-		custom7Text.setText(clientModel.getAvatarDisplayName(19, "custom7"));
-		custom8Text.setText(clientModel.getAvatarDisplayName(20, "custom8"));
-		custom9Text.setText(clientModel.getAvatarDisplayName(21, "custom9"));
-		custom10Text.setText(clientModel.getAvatarDisplayName(22, "custom10"));
-		custom11Text.setText(clientModel.getAvatarDisplayName(23, "custom11"));
-		custom12Text.setText(clientModel.getAvatarDisplayName(24, "custom12"));
-	}
-
-	public void startDecorator() {
-		String avatarName = clientModel.getAvatarName();
-		if (avatarName.startsWith("custom")) {
-			Intent intent = new Intent(SelectAvatarActivity.this, StartWorldActivity.class);
-			intent.setAction("com.gallantrealm.webworld.worlds.DecorateWorld");
-			startActivity(intent);
+		int n = currentAvatarNum;
+		avatarNameText.setText(avatarProps.getProperty("name", ""));
+		avatarDescriptionText.setText(avatarProps.getProperty("description", ""));
+		avatarImage.setImageBitmap(null);
+		AsyncTask.execute(new Runnable() {
+			public void run() {
+				HttpURLConnection connection = null;
+				InputStream inputStream = null;
+				try {
+					String avatarName = avatarFolders.get(currentAvatarNum - 1);
+					URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/" + avatarProps.getProperty("picture"));
+					System.out.println(">> " + url);
+					connection = (HttpURLConnection) (url.openConnection());
+					inputStream = connection.getInputStream();
+					final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+					runOnUiThread(new Runnable() {
+						public void run() {
+							avatarImage.setImageBitmap(bitmap);
+							if (oldBitmap != null) {
+								oldBitmap.recycle();
+								oldBitmap = null;
+							}
+							oldBitmap = bitmap;
+						}
+					});
+				} catch (IOException e) {
+					System.err.println(e);
+				} finally {
+					if (inputStream != null) {
+						try {
+							inputStream.close();
+						} catch (IOException e) {
+						}
+					}
+				}
+			}
+		});
+		if (n <= 1) {
+			previousButton.setVisibility(View.INVISIBLE);
 		} else {
-			final MessageDialog messageDialog = new MessageDialog(this, null, "Choose an avatar to customize.", new String[] { "OK" }, null);
-			messageDialog.show();
+			previousButton.setVisibility(View.VISIBLE);
+		}
+		if (n >= navatars) {
+			nextButton.setVisibility(View.INVISIBLE);
+		} else {
+			nextButton.setVisibility(View.VISIBLE);
+		}
+		countText.setText("" + n + " of " + navatars);
+		if (clientModel.isCustomizable(n)) {
+			customizeButton.setVisibility(View.VISIBLE);
+		} else {
+			customizeButton.setVisibility(View.GONE);
 		}
 	}
+
+	public String getScoreString(int i) {
+		if (clientModel.isWorldUnlocked(i)) {
+			String scoreString = "";
+			int level = clientModel.getLevel(i);
+			if (level > 0) {
+				scoreString += "Level: " + level + "  ";
+			}
+			int time = clientModel.getTime(i);
+			if (time > 0) {
+				scoreString += "Time: " + formatTime(time) + "  ";
+			}
+			int score = clientModel.getScore(i);
+			if (score > 0) {
+				scoreString += getString(R.string.scoreLabel) + " " + score;
+			}
+			return scoreString;
+		} else {
+			return "Locked";
+		}
+	}
+
+	public static String formatTime(long millis) {
+		Date time = new Date(millis);
+		SimpleDateFormat sdf = new SimpleDateFormat("mm:ss.S");
+		String timeString = sdf.format(time);
+		if (timeString.endsWith(".")) {
+			timeString += "0";
+		}
+		timeString = timeString.substring(0, 7);
+		return timeString;
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		gestureDetector.onTouchEvent(event);
+		return super.onTouchEvent(event);
+	}
+
+	public boolean onDown(MotionEvent e) {
+		return false;
+	}
+
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+		if (Math.abs(velocityX) > Math.abs(velocityY)) {
+			if (velocityX < 0) {
+				onNext();
+			} else if (velocityX > 0) {
+				onPrevious();
+			}
+		}
+		return false;
+	}
+
+	public void onLongPress(MotionEvent e) {
+	}
+
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+		return false;
+	}
+
+	public void onShowPress(MotionEvent e) {
+	}
+
+	public boolean onSingleTapUp(MotionEvent e) {
+		return false;
+	}
+
 }

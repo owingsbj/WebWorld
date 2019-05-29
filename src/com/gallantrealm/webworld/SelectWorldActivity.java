@@ -1,7 +1,14 @@
 package com.gallantrealm.webworld;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StreamTokenizer;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import com.gallantrealm.myworld.android.GallantActivity;
@@ -15,6 +22,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -47,13 +55,13 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 
 	GestureDetector gestureDetector;
 
-	String[] worldFolders;
+	ArrayList<String> worldFolders;
 	Properties worldProps;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.select_world);
+		setContentView(R.layout.select_world2);
 
 		mainLayout = findViewById(R.id.mainLayout);
 		titleText = (TextView) findViewById(R.id.titleText);
@@ -95,14 +103,45 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 		resetButton.setOnClickListener(this);
 		customizeButton.setOnClickListener(this);
 
-		try {
-			worldFolders = getAssets().list("worlds");
-		} catch (IOException e) {
-			worldFolders = new String[0];
-		}
-		nworlds = worldFolders.length;
-		currentWorldNum = getSelectedWorldNum();
-		updateUI();
+		worldFolders = new ArrayList<String>();
+		AsyncTask.execute(new Runnable() {
+			public void run() {
+				HttpURLConnection connection = null;
+				InputStream inputStream = null;
+				try {
+					System.out.println(">> http://gallantrealm.com/webworld/listWorlds.jsp");
+					connection = (HttpURLConnection) (new URL("http://gallantrealm.com/webworld/listWorlds.jsp")).openConnection();
+					inputStream = connection.getInputStream();
+					Reader reader = new InputStreamReader(inputStream, "UTF-8");
+					StreamTokenizer tokenizer = new StreamTokenizer(reader);
+					while (tokenizer.nextToken() != StreamTokenizer.TT_EOF) {
+						if (tokenizer.ttype == StreamTokenizer.TT_WORD) {
+							worldFolders.add(tokenizer.sval);
+						}
+					}
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				} finally {
+					if (inputStream != null) {
+						try {
+							inputStream.close();
+						} catch (IOException e) {
+						}
+					}
+				}
+				System.out.println(worldFolders);
+				nworlds = worldFolders.size();
+				currentWorldNum = 1;
+				for (int i = 0; i < worldFolders.size(); i++) {
+					if (worldFolders.get(i).equals(clientModel.getWorldName())) {
+						currentWorldNum = i + 1;
+					}
+				}
+				String worldName = worldFolders.get(currentWorldNum - 1);
+				clientModel.setWorldName(worldName, "com.gallantrealm.webworld.model.World");
+				getWorldProperties(worldName);
+			}
+		});
 		clientModel.addClientModelChangedListener(this);
 
 		gestureDetector = new GestureDetector(this, this);
@@ -142,7 +181,9 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 			selectedView.startAnimation(animation);
 			currentWorldNum += 1;
 			if (clientModel.isWorldUnlocked(currentWorldNum)) {
-				setSelectedWorldNum(currentWorldNum);
+				String worldName = worldFolders.get(currentWorldNum - 1);
+				clientModel.setWorldName(worldName, "com.gallantrealm.webworld.model.World");
+				getWorldProperties(worldName);
 			}
 		}
 	}
@@ -155,7 +196,9 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 			selectedView.startAnimation(animation);
 			currentWorldNum -= 1;
 			if (clientModel.isWorldUnlocked(currentWorldNum)) {
-				setSelectedWorldNum(currentWorldNum);
+				String worldName = worldFolders.get(currentWorldNum - 1);
+				clientModel.setWorldName(worldName, "com.gallantrealm.webworld.model.World");
+				getWorldProperties(worldName);
 			}
 		}
 	}
@@ -164,72 +207,19 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 		if (!clientModel.isWorldUnlocked(currentWorldNum)) {
 			return;
 		}
-		final int world = getSelectedWorldNum();
-		if (clientModel.getScore(world) > 0) {
-			String name;
-			if (world == 1) {
-				name = getString(R.string.world1Name);
-			} else if (world == 2) {
-				name = getString(R.string.world2Name);
-			} else if (world == 3) {
-				name = getString(R.string.world3Name);
-			} else if (world == 4) {
-				name = getString(R.string.world4Name);
-			} else if (world == 5) {
-				name = getString(R.string.world5Name);
-			} else if (world == 6) {
-				name = getString(R.string.world6Name);
-			} else if (world == 7) {
-				name = getString(R.string.world7Name);
-			} else if (world == 8) {
-				name = getString(R.string.world8Name);
-			} else if (world == 9) {
-				name = getString(R.string.world9Name);
-			} else if (world == 10) {
-				name = getString(R.string.world10Name);
-			} else if (world == 11) {
-				name = getString(R.string.world11Name);
-			} else if (world == 12) {
-				name = getString(R.string.world12Name);
-			} else if (world == 13) {
-				name = getString(R.string.world13Name);
-			} else if (world == 14) {
-				name = getString(R.string.world14Name);
-			} else if (world == 15) {
-				name = getString(R.string.world15Name);
-			} else if (world == 16) {
-				name = getString(R.string.world16Name);
-			} else if (world == 17) {
-				name = getString(R.string.world17Name);
-			} else if (world == 18) {
-				name = getString(R.string.world18Name);
-			} else if (world == 19) {
-				name = getString(R.string.world19Name);
-			} else if (world == 20) {
-				name = getString(R.string.world20Name);
-			} else if (world == 21) {
-				name = getString(R.string.world21Name);
-			} else if (world == 22) {
-				name = getString(R.string.world22Name);
-			} else if (world == 23) {
-				name = getString(R.string.world23Name);
-			} else if (world == 24) {
-				name = getString(R.string.world24Name);
-			} else {
-				name = "Selected world";
-			}
-			final MessageDialog messageDialog = new MessageDialog(this, null, "Reset level or score for " + name + "?", new String[] { "Yes", "No" }, null);
-			messageDialog.show();
-			messageDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-				public void onDismiss(DialogInterface dialog) {
-					if (messageDialog.getButtonPressed() == 0) {
-						clientModel.setScore(world, 0);
-						clientModel.setLevel(world, 0);
-						SelectWorldActivity.this.updateUI();
-					}
+		final MessageDialog messageDialog = new MessageDialog(this, null, "Reset level or score for " + clientModel.getWorldName() + "?", new String[] { "Yes", "No" }, null);
+		messageDialog.show();
+		messageDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+			public void onDismiss(DialogInterface dialog) {
+				if (messageDialog.getButtonPressed() == 0) {
+					
+					// TODO: Allow scores and levels to be maintained by world name, to avoid inserted worlds messing up scoring.
+					clientModel.setScore(currentWorldNum, 0);
+					clientModel.setLevel(currentWorldNum, 0);
+					SelectWorldActivity.this.updateUI();
 				}
-			});
-		}
+			}
+		});
 	}
 
 	@SuppressLint("NewApi")
@@ -249,92 +239,37 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 		}
 	}
 
-	public int getSelectedWorldNum() {
-		String worldName = clientModel.getWorldName();
-		if (getString(R.string.world1ClassName).equals(worldName)) {
-			return 1;
-		}
-		if (getString(R.string.world2ClassName).equals(worldName)) {
-			return 2;
-		}
-		if (getString(R.string.world3ClassName).equals(worldName)) {
-			return 3;
-		}
-		if (getString(R.string.world4ClassName).equals(worldName)) {
-			return 4;
-		}
-		if (getString(R.string.world5ClassName).equals(worldName)) {
-			return 5;
-		}
-		if (getString(R.string.world6ClassName).equals(worldName)) {
-			return 6;
-		}
-		if (getString(R.string.world7ClassName).equals(worldName)) {
-			return 7;
-		}
-		if (getString(R.string.world8ClassName).equals(worldName)) {
-			return 8;
-		}
-		if (getString(R.string.world9ClassName).equals(worldName)) {
-			return 9;
-		}
-		if (getString(R.string.world10ClassName).equals(worldName)) {
-			return 10;
-		}
-		if (getString(R.string.world11ClassName).equals(worldName)) {
-			return 11;
-		}
-		if (getString(R.string.world12ClassName).equals(worldName)) {
-			return 12;
-		}
-		if (getString(R.string.world13ClassName).equals(worldName)) {
-			return 13;
-		}
-		if (getString(R.string.world14ClassName).equals(worldName)) {
-			return 14;
-		}
-		if (getString(R.string.world15ClassName).equals(worldName)) {
-			return 15;
-		}
-		if (getString(R.string.world16ClassName).equals(worldName)) {
-			return 16;
-		}
-		if (getString(R.string.world17ClassName).equals(worldName)) {
-			return 17;
-		}
-		if (getString(R.string.world18ClassName).equals(worldName)) {
-			return 18;
-		}
-		if (getString(R.string.world19ClassName).equals(worldName)) {
-			return 19;
-		}
-		if (getString(R.string.world20ClassName).equals(worldName)) {
-			return 20;
-		}
-		if (getString(R.string.world21ClassName).equals(worldName)) {
-			return 21;
-		}
-		if (getString(R.string.world22ClassName).equals(worldName)) {
-			return 22;
-		}
-		if (getString(R.string.world23ClassName).equals(worldName)) {
-			return 23;
-		}
-		if (getString(R.string.world24ClassName).equals(worldName)) {
-			return 24;
-		}
-		return 1;
-	}
-
-	public void setSelectedWorldNum(int n) {
-		String worldName = worldFolders[n - 1];
+	public void getWorldProperties(final String worldName) {
 		worldProps = new Properties();
-		try {
-			worldProps.load(getAssets().open("worlds/" + worldName + "/world.properties"));
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
-		}
-		clientModel.setWorldName(worldName, "com.gallantrealm.webworld.model.World");
+		AsyncTask.execute(new Runnable() {
+			public void run() {
+				HttpURLConnection connection = null;
+				InputStream inputStream = null;
+				try {
+					URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/world.properties");
+					System.out.println(">> " + url);
+					connection = (HttpURLConnection) (url.openConnection());
+					inputStream = connection.getInputStream();
+					worldProps.load(inputStream);
+					worldProps.list(System.out);
+					System.out.println();
+				} catch (IOException e) {
+					System.err.println(e);
+				} finally {
+					if (inputStream != null) {
+						try {
+							inputStream.close();
+						} catch (IOException e) {
+						}
+					}
+				}
+				runOnUiThread(new Runnable() {
+					public void run() {
+						updateUI();
+					}
+				});
+			}
+		});
 	}
 
 	Bitmap oldBitmap;
@@ -344,21 +279,43 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 			return;
 		}
 		int n = currentWorldNum;
-		worldNameText.setText(worldFolders[n - 1]);
-		worldImage.setImageBitmap(null);
-		if (oldBitmap != null) {
-			oldBitmap.recycle();
-			oldBitmap = null;
-		}
-		try {
-			Bitmap bitmap = BitmapFactory.decodeStream(getAssets().open("worlds/" + worldFolders[n - 1] + "/" + worldProps.getProperty("picture")));
-			worldImage.setImageBitmap(bitmap);
-			oldBitmap = bitmap;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		worldNameText.setText(worldProps.getProperty("name", ""));
 		worldDescriptionText.setText(worldProps.getProperty("description", ""));
 		worldScoreText.setText(getScoreString(n));
+		worldImage.setImageBitmap(null);
+		AsyncTask.execute(new Runnable() {
+			public void run() {
+				HttpURLConnection connection = null;
+				InputStream inputStream = null;
+				try {
+					String worldName = worldFolders.get(currentWorldNum - 1);
+					URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/" + worldProps.getProperty("picture"));
+					System.out.println(">> " + url);
+					connection = (HttpURLConnection) (url.openConnection());
+					inputStream = connection.getInputStream();
+					final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+					runOnUiThread(new Runnable() {
+						public void run() {
+							worldImage.setImageBitmap(bitmap);
+							if (oldBitmap != null) {
+								oldBitmap.recycle();
+								oldBitmap = null;
+							}
+							oldBitmap = bitmap;
+						}
+					});
+				} catch (IOException e) {
+					System.err.println(e);
+				} finally {
+					if (inputStream != null) {
+						try {
+							inputStream.close();
+						} catch (IOException e) {
+						}
+					}
+				}
+			}
+		});
 		if (n <= 1) {
 			previousButton.setVisibility(View.INVISIBLE);
 		} else {
