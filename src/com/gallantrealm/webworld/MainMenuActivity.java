@@ -1,13 +1,10 @@
 package com.gallantrealm.webworld;
 
-import com.gallantrealm.myworld.android.AndroidClientModel;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
 public class MainMenuActivity extends com.gallantrealm.myworld.android.MainMenuActivity {
-
-	AndroidClientModel clientModel = AndroidClientModel.getClientModel();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
