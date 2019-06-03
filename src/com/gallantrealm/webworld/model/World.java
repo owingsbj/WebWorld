@@ -14,6 +14,7 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.TopLevel;
 import com.gallantrealm.myworld.android.AndroidClientModel;
+import com.gallantrealm.myworld.android.MainMenuActivity;
 import com.gallantrealm.myworld.android.MessageDialog;
 import com.gallantrealm.myworld.android.PauseAction;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
@@ -25,6 +26,8 @@ import com.gallantrealm.myworld.model.WWBox;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWWorld;
+
+import android.content.DialogInterface;
 
 public class World extends WWWorld {
 	private static final long serialVersionUID = 1L;
@@ -286,7 +289,16 @@ public class World extends WWWorld {
 				clientModel.getContext().runOnUiThread(new Runnable() {
 					public void run() {
 						final MessageDialog messageDialog = new MessageDialog(clientModel.getContext(), null, "World script error: "+ scriptErrorMessage, new String[] { "OK" }, null);
+						// showWorldActivity.currentDialog = messageDialog;
+						messageDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+							public void onDismiss(DialogInterface d) {
+								//MainMenuActivity.showPopupAd = true;
+								clientModel.getContext().finish();
+								// showWorldActivity.currentDialog = null;
+							}
+						});
 						messageDialog.show();
+						clientModel.pauseWorld();
 					}
 				});
 			}
