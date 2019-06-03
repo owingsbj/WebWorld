@@ -14,7 +14,6 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.TopLevel;
 import com.gallantrealm.myworld.android.AndroidClientModel;
-import com.gallantrealm.myworld.android.MainMenuActivity;
 import com.gallantrealm.myworld.android.MessageDialog;
 import com.gallantrealm.myworld.android.PauseAction;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
@@ -22,12 +21,9 @@ import com.gallantrealm.myworld.model.OldPhysicsThread;
 import com.gallantrealm.myworld.model.PhysicsThread;
 import com.gallantrealm.myworld.model.WWAction;
 import com.gallantrealm.myworld.model.WWBehavior;
-import com.gallantrealm.myworld.model.WWBox;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWWorld;
-
-import android.content.DialogInterface;
 
 public class World extends WWWorld {
 	private static final long serialVersionUID = 1L;
@@ -73,17 +69,17 @@ public class World extends WWWorld {
 	WWAction[] avatarActions = new WWAction[0];
 	WWAction[] worldActions = new WWAction[] { new PauseAction(), new ChangeViewAction() };
 
-	public World() {
+	public World() throws Exception {
 		super(true, true, null, 15, true);
 		initializeWorld();
 	}
 
-	public World(String saveWorldFileName, String avatarName) {
+	public World(String saveWorldFileName, String avatarName) throws Exception {
 		super(true, true, saveWorldFileName, 15, true);
 		initializeWorld();
 	}
 
-	private void initializeWorld() {
+	private void initializeWorld() throws Exception {
 		clientModel = AndroidClientModel.getClientModel();
 		avatarProperties = getAvatarProperties(clientModel.getAvatarName());
 		worldProperties = getWorldProperties(clientModel.getWorldName());
@@ -114,7 +110,7 @@ public class World extends WWWorld {
 			System.err.println(e);
 			clientModel.getContext().runOnUiThread(new Runnable() {
 				public void run() {
-					final MessageDialog messageDialog = new MessageDialog(clientModel.getContext(), null, "Couldn't download avatar "+ avatarName + ".  Are you connected to the internet?", new String[] { "OK" }, null);
+					final MessageDialog messageDialog = new MessageDialog(clientModel.getContext(), null, "Couldn't download avatar " + avatarName + ".  Are you connected to the internet?", new String[] { "OK" }, null);
 					messageDialog.show();
 				}
 			});
@@ -145,7 +141,7 @@ public class World extends WWWorld {
 			System.err.println(e);
 			clientModel.getContext().runOnUiThread(new Runnable() {
 				public void run() {
-					final MessageDialog messageDialog = new MessageDialog(clientModel.getContext(), null, "Couldn't download world "+ worldName + ".  Are you connected to the internet?", new String[] { "OK" }, null);
+					final MessageDialog messageDialog = new MessageDialog(clientModel.getContext(), null, "Couldn't download world " + worldName + ".  Are you connected to the internet?", new String[] { "OK" }, null);
 					messageDialog.show();
 				}
 			});
@@ -160,7 +156,7 @@ public class World extends WWWorld {
 		return properties;
 	}
 
-	private void runScripts() {
+	private void runScripts() throws Exception {
 		final String worldName = clientModel.getWorldName();
 		final String avatarName = clientModel.getAvatarName();
 
@@ -203,23 +199,18 @@ public class World extends WWWorld {
 			Reader reader = new InputStreamReader(inputStream, "UTF-8");
 			System.out.println("Running avatar script..");
 			try {
-				Object result = cx.evaluateReader(scope, reader, avatarProperties.getProperty("script"), 1, null);
-				NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(scope, "avatar");
-				if (avatarWrapped != null) {
-					avatar = (WWObject) (avatarWrapped.unwrap());
+				cx.evaluateReader(scope, reader, avatarProperties.getProperty("script"), 1, null);
+				if (ScriptableObject.hasProperty(scope, "avatar")) {
+					NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(scope, "avatar");
+					if (avatarWrapped != null) {
+						avatar = (WWObject) (avatarWrapped.unwrap());
+					}
 				}
 			} catch (Exception e) {
-				final String scriptErrorMessage = e.getMessage();
-				clientModel.getContext().runOnUiThread(new Runnable() {
-					public void run() {
-						final MessageDialog messageDialog = new MessageDialog(clientModel.getContext(), null, "Avatar script error: "+ scriptErrorMessage, new String[] { "OK" }, null);
-						messageDialog.show();
-					}
-				});
+				throw new Exception(scrubScriptError(e.getMessage()));
 			}
 			if (avatar == null) {
-				System.err.println("Script didn't set an object to use for an avatar, using a box");
-				avatar = new WWBox();
+				throw new Exception("Avatar script " + avatarProperties.getProperty("script") + " didn't set an object to use for an avatar.");
 			}
 
 			// restrict the avatars freedom of movement (can be overwritten by world)
@@ -232,13 +223,7 @@ public class World extends WWWorld {
 			this.addObject(avatar);
 			user.setAvatarId(avatar.getId());
 		} catch (IOException e) {
-			e.printStackTrace();
-			clientModel.getContext().runOnUiThread(new Runnable() {
-				public void run() {
-					final MessageDialog messageDialog = new MessageDialog(clientModel.getContext(), null, "Couldn't download avatar "+ avatarName + ".  Are you connected to the internet?", new String[] { "OK" }, null);
-					messageDialog.show();
-				}
-			});
+			throw new Exception("Couldn't download avatar " + avatarName + ".  Are you connected to the internet?");
 		} finally {
 			if (inputStream != null) {
 				try {
@@ -282,34 +267,12 @@ public class World extends WWWorld {
 			ScriptableObject.putProperty(scope, "avatar", wrappedAvatar);
 
 			try {
-				Object result = cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
-				clientModel.alert("Script ran.  Result is: " + cx.toString(result), null);
+				cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
 			} catch (Exception e) {
-				final String scriptErrorMessage = e.getMessage();
-				clientModel.getContext().runOnUiThread(new Runnable() {
-					public void run() {
-						final MessageDialog messageDialog = new MessageDialog(clientModel.getContext(), null, "World script error: "+ scriptErrorMessage, new String[] { "OK" }, null);
-						// showWorldActivity.currentDialog = messageDialog;
-						messageDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-							public void onDismiss(DialogInterface d) {
-								//MainMenuActivity.showPopupAd = true;
-								clientModel.getContext().finish();
-								// showWorldActivity.currentDialog = null;
-							}
-						});
-						messageDialog.show();
-						clientModel.pauseWorld();
-					}
-				});
+				throw new Exception(scrubScriptError(e.getMessage()));
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
-			clientModel.getContext().runOnUiThread(new Runnable() {
-				public void run() {
-					final MessageDialog messageDialog = new MessageDialog(clientModel.getContext(), null, "Couldn't download world "+ worldName + ".  Are you connected to the internet?", new String[] { "OK" }, null);
-					messageDialog.show();
-				}
-			});
+			throw new Exception("Couldn't download world " + worldName + ".  Are you connected to the internet?");
 		} finally {
 			if (inputStream != null) {
 				try {
@@ -321,6 +284,14 @@ public class World extends WWWorld {
 
 		// Exit the top-level scope
 		Context.exit();
+	}
+
+	private String scrubScriptError(String scriptErrorMessage) {
+		scriptErrorMessage = scriptErrorMessage.replace("Java class", "Class");
+		scriptErrorMessage = scriptErrorMessage.replace("com.gallantrealm.webworld.model.", "");
+		scriptErrorMessage = scriptErrorMessage.replace("public instance field or method", "property");
+		scriptErrorMessage = scriptErrorMessage.replace("Java method", "Method");
+		return scriptErrorMessage;
 	}
 
 	@Override
