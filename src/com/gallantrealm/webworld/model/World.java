@@ -37,6 +37,7 @@ public class World extends WWWorld {
 	transient AndroidClientModel clientModel;
 	Properties worldProperties;
 	Properties avatarProperties;
+	TopLevel scope;
 
 	public class ChangeViewAction extends WWAction implements Serializable {
 		private static final long serialVersionUID = 1L;
@@ -331,6 +332,15 @@ public class World extends WWWorld {
 	@Override
 	public boolean dampenCamera() {
 		return clientModel.getViewpoint() != 1;
+	}
+	
+	public void alert(String message) {
+		clientModel.showMessage(message);
+	}
+	
+	@Override
+	public boolean allowPicking() {
+		return true;   // so touch event will work
 	}
 
 }
