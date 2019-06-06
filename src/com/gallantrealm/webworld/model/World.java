@@ -165,7 +165,7 @@ public class World extends WWWorld {
 		System.out.println("Creating toplevel scope");
 		Context cx = Context.enter();
 		cx.setOptimizationLevel(-1);
-		TopLevel scope = new ImporterTopLevel(cx);
+		scope = new ImporterTopLevel(cx);
 		cx.initStandardObjects(scope, false);
 		cx.evaluateString(scope, "importPackage(Packages.com.gallantrealm.webworld.model);", "<importPackage>", 1, null);
 		ScriptableObject.putProperty(scope, "SIDE_ALL", 0);
@@ -335,7 +335,7 @@ public class World extends WWWorld {
 	}
 	
 	public void alert(String message) {
-		clientModel.showMessage(message);
+		clientModel.alert(message, null);
 	}
 	
 	@Override

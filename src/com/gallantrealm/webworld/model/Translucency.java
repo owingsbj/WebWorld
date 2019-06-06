@@ -1,5 +1,6 @@
 package com.gallantrealm.webworld.model;
 
+import org.mozilla.javascript.Function;
 import com.gallantrealm.myworld.model.WWTranslucency;
 
 public class Translucency extends WWTranslucency {
@@ -14,4 +15,18 @@ public class Translucency extends WWTranslucency {
 		super.setInsideTransparency((insideColor >> 24) & 0xFF);
 	}
 	
+	private EventBehavior eventBehavior;
+	
+	private EventBehavior getEventBehavior() {
+		if (eventBehavior == null) {
+			eventBehavior = new EventBehavior();
+			addBehavior(eventBehavior);
+		}
+		return eventBehavior;
+	}
+	
+	public void setOnTouch(Function f) {
+		getEventBehavior().onTouch = f;
+	}
+
 }
