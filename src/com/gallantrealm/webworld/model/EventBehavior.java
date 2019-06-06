@@ -8,7 +8,8 @@ import com.gallantrealm.myworld.model.WWEntity;
 import com.gallantrealm.myworld.model.WWObject;
 
 public class EventBehavior extends WWBehavior {
-	
+	private static final long serialVersionUID = 1L;
+
 	public Function onTouch;
 	
 	@Override
