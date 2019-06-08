@@ -12,12 +12,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import com.gallantrealm.myworld.android.GallantActivity;
-import com.gallantrealm.myworld.android.MessageDialog;
 import com.gallantrealm.myworld.android.StartWorldActivity;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
 import com.gallantrealm.myworld.client.model.ClientModelChangedListener;
-import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -146,11 +143,7 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 		} else if (v.equals(previousButton)) {
 			onPrevious();
 		} else if (v.equals(okButton)) {
-			if (!clientModel.isWorldUnlocked(currentAvatarNum)) {
-				(new MessageDialog(this, null, "Sorry, can't select because it is locked.", new String[] { "OK" })).show();
-			} else {
-				this.finish();
-			}
+			this.finish();
 		} else if (v.equals(customizeButton)) {
 			System.out.println("launching avatar customization");
 			clientModel.setCustomizeMode(true);

@@ -37,7 +37,7 @@ import android.widget.TextView;
 public class SelectWorldActivity extends GallantActivity implements View.OnClickListener, ClientModelChangedListener, OnGestureListener {
 
 	int nworlds;
-	int currentWorldNum;
+	int currentWorldNum = 1;
 
 	View mainLayout;
 	TextView titleText;
