@@ -9,8 +9,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Properties;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.TopLevel;
 import com.gallantrealm.myworld.android.AndroidClientModel;
@@ -38,6 +40,7 @@ public class World extends WWWorld {
 	Properties worldProperties;
 	Properties avatarProperties;
 	TopLevel scope;
+	Function onRestored;
 
 	public class ChangeViewAction extends WWAction implements Serializable {
 		private static final long serialVersionUID = 1L;
@@ -298,6 +301,20 @@ public class World extends WWWorld {
 	@Override
 	public void restored() {
 		clientModel = AndroidClientModel.getClientModel();
+		if  (onRestored != null) {
+			Context cx = Context.enter();
+			Scriptable scriptableWorld = Context.toObject(this, this.scope);
+			onRestored.call(cx, this.scope, scriptableWorld, new Object[] {});
+			Context.exit();
+		}
+	}
+	
+	public void setOnRestored(Function onRestored) {
+		this.onRestored = onRestored;
+	}
+	
+	public Function getOnRestored() {
+		return onRestored;
 	}
 
 	@Override
