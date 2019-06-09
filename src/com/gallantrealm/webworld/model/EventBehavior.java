@@ -23,17 +23,14 @@ public class EventBehavior extends WWBehavior {
 	@Override
 	public boolean touchEvent(WWObject object, WWEntity toucher, int side, float x, float y) {
 		if (onTouch != null) {
-			Context cx = Context.enter();
 			World world = (World)object.world;
-			Scriptable scriptableObject = Context.toObject(object, world.scope);
 			Scriptable scriptableToucher;
 			if (toucher != null) {
 				scriptableToucher = Context.toObject(toucher, world.scope);
 			} else {
 				scriptableToucher = null;
 			}
-			onTouch.call(cx, world.scope, scriptableObject, new Object[] {scriptableToucher, side, x, y});
-			Context.exit();
+			world.callFunction(onTouch, object, new Object[] {scriptableToucher, side, x, y});
 			return true;
 		}
 		return false;
@@ -42,17 +39,14 @@ public class EventBehavior extends WWBehavior {
 	@Override
 	public boolean pressEvent(WWObject object, WWEntity toucher, int side, float x, float y) {
 		if (onPress != null) {
-			Context cx = Context.enter();
 			World world = (World)object.world;
-			Scriptable scriptableObject = Context.toObject(object, world.scope);
 			Scriptable scriptableToucher;
 			if (toucher != null) {
 				scriptableToucher = Context.toObject(toucher, world.scope);
 			} else {
 				scriptableToucher = null;
 			}
-			onPress.call(cx, world.scope, scriptableObject, new Object[] {scriptableToucher, side, x, y});
-			Context.exit();
+			world.callFunction(onPress, object, new Object[] {scriptableToucher, side, x, y});
 			return true;
 		}
 		return false;
@@ -61,17 +55,14 @@ public class EventBehavior extends WWBehavior {
 	@Override
 	public boolean dragEvent(WWObject object, WWEntity toucher, int side, float x, float y) {
 		if (onDrag != null) {
-			Context cx = Context.enter();
 			World world = (World)object.world;
-			Scriptable scriptableObject = Context.toObject(object, world.scope);
 			Scriptable scriptableToucher;
 			if (toucher != null) {
 				scriptableToucher = Context.toObject(toucher, world.scope);
 			} else {
 				scriptableToucher = null;
 			}
-			onDrag.call(cx, world.scope, scriptableObject, new Object[] {scriptableToucher, side, x, y});
-			Context.exit();
+			world.callFunction(onDrag, object, new Object[] {scriptableToucher, side, x, y});
 			return true;
 		}
 		return false;
@@ -80,17 +71,14 @@ public class EventBehavior extends WWBehavior {
 	@Override
 	public boolean releaseEvent(WWObject object, WWEntity toucher, int side, float x, float y) {
 		if (onRelease != null) {
-			Context cx = Context.enter();
 			World world = (World)object.world;
-			Scriptable scriptableObject = Context.toObject(object, world.scope);
 			Scriptable scriptableToucher;
 			if (toucher != null) {
 				scriptableToucher = Context.toObject(toucher, world.scope);
 			} else {
 				scriptableToucher = null;
 			}
-			onRelease.call(cx, world.scope, scriptableObject, new Object[] {scriptableToucher, side, x, y});
-			Context.exit();
+			world.callFunction(onRelease, object, new Object[] {scriptableToucher, side, x, y});
 			return true;
 		}
 		return false;
@@ -99,12 +87,9 @@ public class EventBehavior extends WWBehavior {
 	@Override
 	public boolean collideEvent(WWObject object, WWObject nearObject, WWVector proximity) {
 		if (onCollide != null) {
-			Context cx = Context.enter();
 			World world = (World)object.world;
-			Scriptable scriptableObject = Context.toObject(object, world.scope);
 			Scriptable scriptableNearObject = Context.toObject(nearObject, world.scope);
-			onCollide.call(cx, world.scope, scriptableObject, new Object[] {scriptableNearObject});
-			Context.exit();
+			world.callFunction(onCollide, object, new Object[] {scriptableNearObject, proximity});
 			return true;
 		}
 		return false;
@@ -113,12 +98,9 @@ public class EventBehavior extends WWBehavior {
 	@Override
 	public boolean slideEvent(WWObject object, WWObject nearObject, WWVector proximity) {
 		if (onSlide != null) {
-			Context cx = Context.enter();
 			World world = (World)object.world;
-			Scriptable scriptableObject = Context.toObject(object, world.scope);
 			Scriptable scriptableNearObject = Context.toObject(nearObject, world.scope);
-			onSlide.call(cx, world.scope, scriptableObject, new Object[] {scriptableNearObject});
-			Context.exit();
+			world.callFunction(onSlide, object, new Object[] {scriptableNearObject, proximity});
 			return true;
 		}
 		return false;
@@ -127,12 +109,9 @@ public class EventBehavior extends WWBehavior {
 	@Override
 	public boolean stopSlideEvent(WWObject object, WWObject nearObject, WWVector proximity) {
 		if (onStopSlide != null) {
-			Context cx = Context.enter();
 			World world = (World)object.world;
-			Scriptable scriptableObject = Context.toObject(object, world.scope);
 			Scriptable scriptableNearObject = Context.toObject(nearObject, world.scope);
-			onStopSlide.call(cx, world.scope, scriptableObject, new Object[] {scriptableNearObject});
-			Context.exit();
+			world.callFunction(onStopSlide, object, new Object[] {scriptableNearObject, proximity});
 			return true;
 		}
 		return false;
@@ -141,11 +120,8 @@ public class EventBehavior extends WWBehavior {
 	@Override
 	public boolean timerEvent(WWObject object) {
 		if (onTimer != null) {
-			Context cx = Context.enter();
 			World world = (World)object.world;
-			Scriptable scriptableObject = Context.toObject(object, world.scope);
-			onTimer.call(cx, world.scope, scriptableObject, new Object[] {});
-			Context.exit();
+			world.callFunction(onTimer, object, new Object[] {});
 			return true;
 		}
 		return false;

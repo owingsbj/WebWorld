@@ -18,6 +18,7 @@ import org.mozilla.javascript.TopLevel;
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.android.MessageDialog;
 import com.gallantrealm.myworld.android.PauseAction;
+import com.gallantrealm.myworld.android.renderer.AndroidRenderer;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
 import com.gallantrealm.myworld.model.OldPhysicsThread;
 import com.gallantrealm.myworld.model.PhysicsThread;
@@ -88,7 +89,7 @@ public class World extends WWWorld {
 		avatarProperties = getAvatarProperties(clientModel.getAvatarName());
 		worldProperties = getWorldProperties(clientModel.getWorldName());
 
-		clientModel.cameraInitiallyFacingAvatar = true;
+		// TODO make this work in BlockWorld.js clientModel.cameraInitiallyFacingAvatar = true;
 		clientModel.cameraDampRate = 0;
 		clientModel.calibrateSensors();
 		clientModel.cameraDampRate = 0.5f;
@@ -301,18 +302,18 @@ public class World extends WWWorld {
 	@Override
 	public void restored() {
 		clientModel = AndroidClientModel.getClientModel();
-		if  (onRestored != null) {
+		if (onRestored != null) {
 			Context cx = Context.enter();
 			Scriptable scriptableWorld = Context.toObject(this, this.scope);
 			onRestored.call(cx, this.scope, scriptableWorld, new Object[] {});
 			Context.exit();
 		}
 	}
-	
+
 	public void setOnRestored(Function onRestored) {
 		this.onRestored = onRestored;
 	}
-	
+
 	public Function getOnRestored() {
 		return onRestored;
 	}
@@ -350,14 +351,46 @@ public class World extends WWWorld {
 	public boolean dampenCamera() {
 		return clientModel.getViewpoint() != 1;
 	}
-	
+
 	public void alert(String message) {
 		clientModel.alert(message, null);
 	}
-	
+
 	@Override
 	public boolean allowPicking() {
-		return true;   // so touch event will work
+		return true; // so touch event will work
 	}
 
+	public void callFunction(Function fun, Object thisObj, Object[] params) {
+		Context cx = Context.enter();
+		try {
+			Scriptable scriptableThisObj = Context.toObject(thisObj, scope);
+			fun.call(cx, scope, scriptableThisObj, params);
+		} catch (Exception e) {
+			final String errorMessage = scrubScriptError(e.getMessage());
+			clientModel.getContext().runOnUiThread(new Runnable() {
+				public void run() {
+					final MessageDialog messageDialog = new MessageDialog(clientModel.getContext(), null, errorMessage, new String[] { "OK" }, null);
+					messageDialog.show();
+				}
+			});
+
+		} finally {
+			Context.exit();
+		}
+	}
+
+	@Override
+	public int addObject(WWObject object) {
+		int id = super.addObject(object);
+		AndroidRenderer.clearRenderings();
+		return id;
+	}
+
+	public void removeObject(WWObject object) {
+		if (object != null) {
+			super.removeObject(object.getId());
+			AndroidRenderer.clearRenderings();
+		}
+	}
 }
