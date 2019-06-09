@@ -303,10 +303,7 @@ public class World extends WWWorld {
 	public void restored() {
 		clientModel = AndroidClientModel.getClientModel();
 		if (onRestored != null) {
-			Context cx = Context.enter();
-			Scriptable scriptableWorld = Context.toObject(this, this.scope);
-			onRestored.call(cx, this.scope, scriptableWorld, new Object[] {});
-			Context.exit();
+			callFunction(onRestored, this, new Object[] {});
 		}
 	}
 
@@ -365,6 +362,9 @@ public class World extends WWWorld {
 		Context cx = Context.enter();
 		try {
 			Scriptable scriptableThisObj = Context.toObject(thisObj, scope);
+			for (int i = 0; i < params.length; i++) {
+				params[i] = Context.toObject(params[i], scope);
+			}
 			fun.call(cx, scope, scriptableThisObj, params);
 		} catch (Exception e) {
 			final String errorMessage = scrubScriptError(e.getMessage());
