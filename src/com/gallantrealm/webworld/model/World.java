@@ -322,7 +322,7 @@ public class World extends WWWorld {
 		showBannerAds();
 	}
 
-	protected void setAvatarActions(WWAction[] actions) {
+	public void setAvatarActions(WWAction[] actions) {
 		avatarActions = actions;
 		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_AVATAR_ACTIONS_CHANGED);
 	}
@@ -332,7 +332,7 @@ public class World extends WWWorld {
 		return avatarActions;
 	}
 
-	protected void setWorldActions(WWAction[] actions) {
+	public void setWorldActions(WWAction[] actions) {
 		worldActions = actions;
 		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_WORLD_ACTIONS_CHANGED);
 	}
