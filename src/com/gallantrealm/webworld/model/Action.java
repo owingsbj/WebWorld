@@ -17,6 +17,11 @@ public class Action extends WWAction {
 		this.name = name;
 	}
 
+	public Action(String name, Function onStart) {
+		this.name = name;
+		this.onStart = onStart;
+	}
+
 	public void setName(String name) {
 		this.name = name;
 	}

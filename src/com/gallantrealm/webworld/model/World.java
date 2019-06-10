@@ -88,6 +88,7 @@ public class World extends WWWorld {
 		clientModel = AndroidClientModel.getClientModel();
 		avatarProperties = getAvatarProperties(clientModel.getAvatarName());
 		worldProperties = getWorldProperties(clientModel.getWorldName());
+		setName(worldProperties.getProperty("name"));
 
 		// TODO make this work in BlockWorld.js clientModel.cameraInitiallyFacingAvatar = true;
 		clientModel.cameraDampRate = 0;
@@ -392,5 +393,11 @@ public class World extends WWWorld {
 			super.removeObject(object.getId());
 			AndroidRenderer.clearRenderings();
 		}
+	}
+	
+	@Override
+	public void setStatus(String status) {
+		super.setStatus(status);
+		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_WWMODEL_UPDATED);
 	}
 }
