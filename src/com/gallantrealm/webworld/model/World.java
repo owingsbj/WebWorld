@@ -71,9 +71,6 @@ public class World extends WWWorld {
 
 	};
 
-	WWAction[] avatarActions = new WWAction[0];
-	WWAction[] worldActions = new WWAction[] { new PauseAction(), new ChangeViewAction() };
-
 	public World() throws Exception {
 		super(true, true, null, 15, true);
 		initializeWorld();
@@ -89,6 +86,7 @@ public class World extends WWWorld {
 		avatarProperties = getAvatarProperties(clientModel.getAvatarName());
 		worldProperties = getWorldProperties(clientModel.getWorldName());
 		setName(worldProperties.getProperty("name"));
+		setActions(new WWAction[] { new PauseAction(), new ChangeViewAction() });
 
 		// TODO make this work in BlockWorld.js clientModel.cameraInitiallyFacingAvatar = true;
 		clientModel.cameraDampRate = 0;
@@ -98,6 +96,8 @@ public class World extends WWWorld {
 		clientModel.behindTilt = 10;
 
 		runScripts();
+		
+		clientModel.setSelectedObject(clientModel.getAvatar());
 	}
 
 	private Properties getAvatarProperties(final String avatarName) {
@@ -319,26 +319,6 @@ public class World extends WWWorld {
 	@Override
 	public void displayed() {
 		showBannerAds();
-	}
-
-	public void setAvatarActions(WWAction[] actions) {
-		avatarActions = actions;
-		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_AVATAR_ACTIONS_CHANGED);
-	}
-
-	@Override
-	public WWAction[] getAvatarActions() {
-		return avatarActions;
-	}
-
-	public void setWorldActions(WWAction[] actions) {
-		worldActions = actions;
-		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_WORLD_ACTIONS_CHANGED);
-	}
-
-	@Override
-	public WWAction[] getWorldActions() {
-		return worldActions;
 	}
 
 	public PhysicsThread makePhysicsThread() {
