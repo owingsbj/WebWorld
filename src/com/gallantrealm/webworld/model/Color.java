@@ -17,6 +17,10 @@ public class Color extends WWColor {
 		super(rgb);
 	}
 
+	public Color(long rgb) {
+		super((int)rgb);
+	}
+
 	public Color(float red, float green, float blue) {
 		super(red, green, blue);
 	}

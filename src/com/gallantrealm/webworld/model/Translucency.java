@@ -1,18 +1,19 @@
 package com.gallantrealm.webworld.model;
 
 import org.mozilla.javascript.Function;
+import com.gallantrealm.myworld.model.WWColor;
 import com.gallantrealm.myworld.model.WWTranslucency;
 
 public class Translucency extends WWTranslucency {
 	private static final long serialVersionUID = 1L;
 	
-	public long getTranslucencyMask() {
-		return super.getInsideColor();
+	public WWColor getTranslucencyMask() {
+		return new WWColor(super.getInsideColor());
 	}
 	
-	public void setTranslucencyMask(long insideColor) {
-		super.setInsideColor((int)(insideColor & 0xFFFFFF));
-		super.setInsideTransparency((insideColor >> 24) & 0xFF);
+	public void setTranslucencyMask(WWColor insideColor) {
+		super.setInsideColor(insideColor.color & 0xFFFFFF);
+		super.setInsideTransparency((insideColor.color >> 24) & 0xFF);
 	}
 	
 	private EventBehavior eventBehavior;

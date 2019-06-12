@@ -16,12 +16,12 @@ public class Texture extends WWTexture {
 		super(url, scaleX, scaleY);
 	}
 
-	public Texture(String url, float scaleX, float scaleY, float offsetX, float offsetY) {
-		super(url, scaleX, scaleY, offsetX, offsetY);
+	public Texture(String url, float scaleX, float scaleY, float rotation) {
+		super(url, scaleX, scaleY, rotation);
 	}
 
-	public Texture(String url, float scaleX, float scaleY, float offsetX, float offsetY, float rotation) {
-		super(url, scaleX, scaleY, offsetX, offsetY, rotation);
+	public Texture(String url, float scaleX, float scaleY, float rotation, float offsetX, float offsetY) {
+		super(url, scaleX, scaleY, rotation, offsetX, offsetY);
 	}
 
 }
