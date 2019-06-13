@@ -66,21 +66,33 @@ public class Action extends WWAction {
 	@Override
 	public void start(float x, float y) {
 		if (onStart != null) {
-			((World) AndroidClientModel.getClientModel().world).callFunction(onStart, this, new Object[] { x, y });
+			Object object = AndroidClientModel.getClientModel().getSelectedObject();
+			if (object == null) {
+				object = AndroidClientModel.getClientModel().getAvatar();
+			}
+			((World) AndroidClientModel.getClientModel().world).callFunction(onStart, object, new Object[] { x, y });
 		}
 	}
 
 	@Override
 	public void repeat(float x, float y) {
 		if (onRepeat != null) {
-			((World) AndroidClientModel.getClientModel().world).callFunction(onRepeat,  this, new Object[] {x, y});
+			Object object = AndroidClientModel.getClientModel().getSelectedObject();
+			if (object == null) {
+				object = AndroidClientModel.getClientModel().getAvatar();
+			}
+			((World) AndroidClientModel.getClientModel().world).callFunction(onRepeat,  object, new Object[] {x, y});
 		}
 	}
 
 	@Override
 	public void stop() {
 		if (onStop != null) {
-			((World) AndroidClientModel.getClientModel().world).callFunction(onStop,  this, new Object[] {});
+			Object object = AndroidClientModel.getClientModel().getSelectedObject();
+			if (object == null) {
+				object = AndroidClientModel.getClientModel().getAvatar();
+			}
+			((World) AndroidClientModel.getClientModel().world).callFunction(onStop,  object, new Object[] {});
 		}
 	}
 

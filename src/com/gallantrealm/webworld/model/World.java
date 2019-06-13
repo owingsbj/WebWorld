@@ -30,6 +30,8 @@ import com.gallantrealm.myworld.model.WWWorld;
 
 public class World extends WWWorld {
 	private static final long serialVersionUID = 1L;
+	
+	public static boolean runningAvatarScript;  // side effect: used by Texture to properly prefix urls
 
 	protected float thrust;
 	protected float torque;
@@ -205,6 +207,7 @@ public class World extends WWWorld {
 			Reader reader = new InputStreamReader(inputStream, "UTF-8");
 			System.out.println("Running avatar script..");
 			try {
+				World.runningAvatarScript = true;
 				cx.evaluateReader(scope, reader, avatarProperties.getProperty("script"), 1, null);
 				if (ScriptableObject.hasProperty(scope, "avatar")) {
 					NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(scope, "avatar");
@@ -214,12 +217,15 @@ public class World extends WWWorld {
 				}
 			} catch (Exception e) {
 				throw new Exception(scrubScriptError(e.getMessage()));
+			} finally {
+				World.runningAvatarScript = false;
 			}
 			if (avatar == null) {
 				throw new Exception("Avatar script " + avatarProperties.getProperty("script") + " didn't set an object to use for an avatar.");
 			}
 
-			// restrict the avatars freedom of movement (can be overwritten by world)
+			// make the avatar pickable and physical (can be overwritten by world)
+			avatar.setPickable(true);
 			avatar.setPhysical(true);
 			avatar.setFreedomMoveZ(true);
 			avatar.setFreedomRotateX(false);
@@ -321,6 +327,10 @@ public class World extends WWWorld {
 		showBannerAds();
 	}
 
+	public void actionsChanged() {
+		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_AVATAR_ACTIONS_CHANGED);
+	}
+
 	public PhysicsThread makePhysicsThread() {
 		return new OldPhysicsThread(this, 10);
 	}
@@ -372,6 +382,9 @@ public class World extends WWWorld {
 		if (object != null) {
 			super.removeObject(object.getId());
 			AndroidRenderer.clearRenderings();
+			if (clientModel.getSelectedObject() == object) {
+				clientModel.setSelectedObject(null);
+			}
 		}
 	}
 	
