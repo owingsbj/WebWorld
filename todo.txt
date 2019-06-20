@@ -1,0 +1,9 @@
+- Add support for world local sounds
+- Add mesh sculpting functions
+- Fix touch on Mac.. maybe colors need to be more different?
+- Improve local development.  Load from local folder?
+
+- Support Animation behaviors
+- Add particles
+
+- Add multi-user
