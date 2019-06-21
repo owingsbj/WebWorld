@@ -1,5 +1,6 @@
 package com.gallantrealm.webworld;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -56,7 +57,7 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.select_avatar2);
+		setContentView(R.layout.webworld_select_avatar);
 
 		mainLayout = findViewById(R.id.mainLayout);
 		titleText = (TextView) findViewById(R.id.titleText);
@@ -99,6 +100,21 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 				HttpURLConnection connection = null;
 				InputStream inputStream = null;
 				try {
+					// First look in the local file system
+					System.out.println(">> /sdcard/windows/BstSharedFolder/avatars");
+					File avatarsDir = new File("/sdcard/windows/BstSharedFolder/avatars");
+					if (avatarsDir.exists()) {
+						if (avatarsDir.isDirectory()) {
+							String[] fileNames = avatarsDir.list();
+							for (String fileName : fileNames) {
+								if (new File(fileName).isDirectory()) {
+									avatarFolders.add(fileName);
+								}
+							}
+						}
+					}
+
+					// Next look in gallanrealm.com
 					System.out.println(">> http://gallantrealm.com/webworld/listAvatars.jsp");
 					connection = (HttpURLConnection) (new URL("http://gallantrealm.com/webworld/listAvatars.jsp")).openConnection();
 					inputStream = connection.getInputStream();

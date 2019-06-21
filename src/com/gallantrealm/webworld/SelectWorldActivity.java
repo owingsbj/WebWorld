@@ -61,7 +61,7 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.select_world2);
+		setContentView(R.layout.webworld_select_world);
 
 		mainLayout = findViewById(R.id.mainLayout);
 		titleText = (TextView) findViewById(R.id.titleText);

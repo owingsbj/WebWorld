@@ -50,19 +50,22 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_weight="1" >
+
 		<Button
-			android:id="@+id/previousButton"
-			style="?android:attr/buttonStyleSmall"
-			android:layout_width="50dp"
-			android:layout_height="50dp"
-			android:layout_gravity="center"
-			android:background="@drawable/theme_button"
-			android:focusable="false"
-			android:paddingLeft="10dp"
-			android:paddingRight="10dp"
-			android:text="&lt;"
-			android:textSize="25dp"
-			android:textStyle="bold" />
+		    android:id="@+id/previousButton"
+		    style="?android:attr/buttonStyleSmall"
+		    android:layout_width="50dp"
+		    android:layout_height="50dp"
+		    android:layout_gravity="center"
+		    android:background="@drawable/theme_button"
+		    android:focusable="false"
+		    android:paddingLeft="10dp"
+		    android:paddingRight="10dp"
+		    android:text="&lt;"
+		    android:textColor="#ffffff"
+		    android:textSize="25dp"
+		    android:textStyle="bold" />
+
 		<LinearLayout
 			android:id="@+id/selectedView"
 			android:layout_width="fill_parent"
@@ -125,19 +128,22 @@
 			    android:textSize="18sp" />
 
 		</LinearLayout>
+
 		<Button
-			android:id="@+id/nextButton"
-			style="?android:attr/buttonStyleSmall"
-			android:layout_width="50dp"
-			android:layout_height="50dp"
-			android:layout_gravity="center"
-			android:background="@drawable/theme_button"
-			android:focusable="false"
-			android:paddingLeft="10dp"
-			android:paddingRight="10dp"
-			android:text=">"
-			android:textSize="25dp"
-			android:textStyle="bold" />
+		    android:id="@+id/nextButton"
+		    style="?android:attr/buttonStyleSmall"
+		    android:layout_width="50dp"
+		    android:layout_height="50dp"
+		    android:layout_gravity="center"
+		    android:background="@drawable/theme_button"
+		    android:focusable="false"
+		    android:paddingLeft="10dp"
+		    android:paddingRight="10dp"
+		    android:text=">"
+		    android:textColor="#ffffff"
+		    android:textSize="25dp"
+		    android:textStyle="bold" />
+
 	</LinearLayout>
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -148,23 +154,25 @@
 			android:layout_width="1dp"
 			android:layout_height="1dp"
 			android:layout_weight="1" />
+
 		<Button
-			android:id="@+id/okButton"
-			android:layout_width="100dp"
-			android:layout_height="60dp"
-			android:layout_gravity="center"
-			android:layout_marginLeft="5dp"
-			android:layout_marginRight="5dp"
-			android:background="@drawable/theme_button"
-			android:paddingLeft="5dp"
-			android:paddingRight="5dp"
-			android:shadowColor="#888888"
-			android:shadowDx="-1"
-			android:shadowDy="-1"
-			android:shadowRadius="1"
-			android:text="OK"
-			android:textSize="20sp"
-			android:textStyle="bold" />
+		    android:id="@+id/okButton"
+		    android:layout_width="100dp"
+		    android:layout_height="60dp"
+		    android:layout_gravity="center"
+		    android:layout_marginLeft="5dp"
+		    android:layout_marginRight="5dp"
+		    android:background="@drawable/theme_button"
+		    android:paddingLeft="5dp"
+		    android:paddingRight="5dp"
+		    android:shadowColor="#888888"
+		    android:shadowDx="-1"
+		    android:shadowDy="-1"
+		    android:shadowRadius="1"
+		    android:text="OK"
+		    android:textColor="#ffffff"
+		    android:textSize="20sp"
+		    android:textStyle="bold" />
 
 		<Button
 		    android:id="@+id/resetScoreButton"
