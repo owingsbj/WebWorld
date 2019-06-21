@@ -1,221 +1,232 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/mainLayout"
-	android:layout_width="match_parent"
-	android:layout_height="fill_parent"
-	android:layout_gravity="center"
-	android:background="@raw/theme_background"
-	android:baselineAligned="false"
-	android:orientation="vertical"
-	android:paddingBottom="10px"
-	android:paddingLeft="10px"
-	android:paddingRight="10px"
-	android:paddingTop="10px" >
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content" >
-		<TextView
-			android:id="@+id/titleText"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:paddingBottom="10px"
-			android:shadowColor="#444444"
-			android:shadowDx="1"
-			android:shadowDy="1"
-			android:shadowRadius="2"
-			android:text="@string/selectWorldPrompt"
-			android:textAppearance="?android:attr/textAppearanceMedium"
-			android:textSize="25sp" />
-		<View
-			android:id="@+id/View01"
-			android:layout_width="1dp"
-			android:layout_height="1dp"
-			android:layout_weight="1" />
+    android:id="@+id/mainLayout"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:layout_gravity="center"
+    android:background="@raw/theme_background"
+    android:baselineAligned="false"
+    android:orientation="vertical"
+    android:paddingBottom="10px"
+    android:paddingLeft="10px"
+    android:paddingRight="10px"
+    android:paddingTop="10px" >
 
-		<TextView
-		    android:id="@+id/countText"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:layout_gravity="right"
-		    android:paddingBottom="10px"
-		    android:shadowColor="#444444"
-		    android:shadowDx="1"
-		    android:shadowDy="1"
-		    android:shadowRadius="2"
-		    android:textAppearance="?android:attr/textAppearanceMedium"
-		    android:textSize="25sp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
 
-	</LinearLayout>
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_weight="1" >
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10px"
+            android:shadowColor="#444444"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2"
+            android:text="@string/selectWorldPrompt"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="25sp" />
 
-		<Button
-		    android:id="@+id/previousButton"
-		    style="?android:attr/buttonStyleSmall"
-		    android:layout_width="50dp"
-		    android:layout_height="50dp"
-		    android:layout_gravity="center"
-		    android:background="@drawable/theme_button"
-		    android:focusable="false"
-		    android:paddingLeft="10dp"
-		    android:paddingRight="10dp"
-		    android:text="&lt;"
-		    android:textColor="#ffffff"
-		    android:textSize="25dp"
-		    android:textStyle="bold" />
+        <View
+            android:id="@+id/View01"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
 
-		<LinearLayout
-			android:id="@+id/selectedView"
-			android:layout_width="fill_parent"
-			android:layout_height="match_parent"
-			android:layout_marginBottom="5dp"
-			android:layout_marginLeft="5dp"
-			android:layout_marginRight="5dp"
-			android:layout_weight="1"
-			android:background="#80808080"
-			android:orientation="vertical"
-			android:paddingBottom="5dp"
-			android:paddingLeft="5dp"
-			android:paddingRight="5dp" >
+        <TextView
+            android:id="@+id/countText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:paddingBottom="10px"
+            android:shadowColor="#444444"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="25sp" />
+    </LinearLayout>
 
-			<TextView
-			    android:id="@+id/avatarNameText"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:layout_gravity="center"
-			    android:text="Loading..."
-			    android:textAppearance="?android:attr/textAppearanceMedium"
-			    android:textSize="35sp"
-			    android:textStyle="bold" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
 
-			<LinearLayout
-				android:layout_width="fill_parent"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:orientation="horizontal" >
+        <Button
+            android:id="@+id/previousButton"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:background="@drawable/theme_button"
+            android:focusable="false"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:shadowColor="#444444"
+            android:shadowDx="3"
+            android:shadowDy="3"
+            android:shadowRadius="3"
+            android:text="&lt;"
+            android:textColor="#ffffff"
+            android:textSize="25dp"
+            android:textStyle="bold" />
 
-				<ImageView
-				    android:id="@+id/avatarImage"
-				    android:layout_width="fill_parent"
-				    android:layout_height="match_parent"
-				    android:layout_weight="3" />
+        <LinearLayout
+            android:id="@+id/selectedView"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:background="#80808080"
+            android:orientation="vertical"
+            android:paddingBottom="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp" >
 
-				<TextView
-				    android:id="@+id/avatarDescriptionText"
-				    android:layout_width="fill_parent"
-				    android:layout_height="wrap_content"
-				    android:layout_gravity="center_vertical"
-				    android:layout_marginLeft="5dp"
-				    android:layout_weight="2"
-				    android:shadowColor="#888"
-				    android:shadowDx="1"
-				    android:shadowDy="1"
-				    android:shadowRadius="1"
-				    android:textAppearance="?android:attr/textAppearanceSmall"
-				    android:textColor="#FFFFFF"
-				    android:textSize="25sp" />
+            <TextView
+                android:id="@+id/avatarNameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Loading..."
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="35sp"
+                android:textStyle="bold" />
 
-			</LinearLayout>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal" >
 
-			<TextView
-			    android:id="@+id/worldScoreText"
-			    android:layout_width="fill_parent"
-			    android:layout_height="wrap_content"
-			    android:gravity="center"
-			    android:textAppearance="?android:attr/textAppearanceMedium"
-			    android:textSize="18sp" />
+                <ImageView
+                    android:id="@+id/avatarImage"
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="3" />
 
-		</LinearLayout>
+                <TextView
+                    android:id="@+id/avatarDescriptionText"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="2"
+                    android:shadowColor="#888"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#FFFFFF"
+                    android:textSize="25sp" />
+            </LinearLayout>
 
-		<Button
-		    android:id="@+id/nextButton"
-		    style="?android:attr/buttonStyleSmall"
-		    android:layout_width="50dp"
-		    android:layout_height="50dp"
-		    android:layout_gravity="center"
-		    android:background="@drawable/theme_button"
-		    android:focusable="false"
-		    android:paddingLeft="10dp"
-		    android:paddingRight="10dp"
-		    android:text=">"
-		    android:textColor="#ffffff"
-		    android:textSize="25dp"
-		    android:textStyle="bold" />
+            <TextView
+                android:id="@+id/worldScoreText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="18sp" />
+        </LinearLayout>
 
-	</LinearLayout>
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center" >
-		<View
-			android:id="@+id/view1"
-			android:layout_width="1dp"
-			android:layout_height="1dp"
-			android:layout_weight="1" />
+        <Button
+            android:id="@+id/nextButton"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:background="@drawable/theme_button"
+            android:focusable="false"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:shadowColor="#444444"
+            android:shadowDx="3"
+            android:shadowDy="3"
+            android:shadowRadius="3"
+            android:text=">"
+            android:textColor="#ffffff"
+            android:textSize="25dp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
-		<Button
-		    android:id="@+id/okButton"
-		    android:layout_width="100dp"
-		    android:layout_height="60dp"
-		    android:layout_gravity="center"
-		    android:layout_marginLeft="5dp"
-		    android:layout_marginRight="5dp"
-		    android:background="@drawable/theme_button"
-		    android:paddingLeft="5dp"
-		    android:paddingRight="5dp"
-		    android:shadowColor="#888888"
-		    android:shadowDx="-1"
-		    android:shadowDy="-1"
-		    android:shadowRadius="1"
-		    android:text="OK"
-		    android:textColor="#ffffff"
-		    android:textSize="20sp"
-		    android:textStyle="bold" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" >
 
-		<Button
-		    android:id="@+id/resetScoreButton"
-		    android:layout_width="100dp"
-		    android:layout_height="60dp"
-		    android:layout_gravity="center"
-		    android:layout_marginLeft="5dp"
-		    android:layout_marginRight="5dp"
-		    android:background="@drawable/theme_button"
-		    android:paddingLeft="0dp"
-		    android:paddingRight="0dp"
-		    android:shadowColor="#888888"
-		    android:shadowDx="-1"
-		    android:shadowDy="-1"
-		    android:shadowRadius="1"
-		    android:text="Reset Level"
-		    android:textSize="20sp"
-		    android:textStyle="bold"
-		    android:visibility="gone" />
+        <View
+            android:id="@+id/view1"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
 
-		<Button
-		    android:id="@+id/customizeButton"
-		    android:layout_width="100dp"
-		    android:layout_height="60dp"
-		    android:layout_marginLeft="5dp"
-		    android:layout_marginRight="5dp"
-		    android:layout_weight="1"
-		    android:background="@drawable/theme_button"
-		    android:paddingLeft="0dp"
-		    android:paddingRight="0dp"
-		    android:shadowColor="#888888"
-		    android:shadowDx="-1"
-		    android:shadowDy="-1"
-		    android:shadowRadius="1"
-		    android:text="Customize"
-		    android:textSize="20sp"
-		    android:textStyle="bold"
-		    android:visibility="gone" />
+        <Button
+            android:id="@+id/okButton"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/theme_button"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:shadowColor="#444444"
+            android:shadowDx="3"
+            android:shadowDy="3"
+            android:shadowRadius="3"
+            android:text="OK"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-		<View
-			android:id="@+id/view2"
-			android:layout_width="1dp"
-			android:layout_height="1dp"
-			android:layout_weight="1" />
-	</LinearLayout>
+        <Button
+            android:id="@+id/resetScoreButton"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/theme_button"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            android:shadowColor="#444444"
+            android:shadowDx="3"
+            android:shadowDy="3"
+            android:shadowRadius="3"
+            android:text="Reset Level"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/customizeButton"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/theme_button"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            android:shadowColor="#444444"
+            android:shadowDx="3"
+            android:shadowDy="3"
+            android:shadowRadius="3"
+            android:text="Customize"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <View
+            android:id="@+id/view2"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
 </LinearLayout>
