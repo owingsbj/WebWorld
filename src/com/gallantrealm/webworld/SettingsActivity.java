@@ -165,9 +165,18 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 			updateSettings();
 		} else if (v.equals(changeLocalFolderButton)) {
 			FolderSelectorDialog fileSelectorDialog = new FolderSelectorDialog(this, "Select local folder");
-			fileSelectorDialog.show("/", new FolderSelectorDialog.SelectionListener() {
-				public void onFolderSelected(String folder) {
-					localFolderText.setText(folder);
+			String initialFolder = clientModel.getLocalFolder();
+			if (!initialFolder.endsWith("/")) {
+				initialFolder  += "/";
+			}
+			fileSelectorDialog.show(initialFolder, new FolderSelectorDialog.SelectionListener() {
+				public void onFolderSelected(final String folder) {
+					SettingsActivity.this.runOnUiThread(new Runnable() {
+						public void run() {
+							localFolderText.setText(folder);
+							clientModel.setLocalFolder(folder);
+						}
+					});
 				}
 			});
 		} else if (v.equals(okButton)) {
@@ -211,6 +220,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		viewIn3dCheckBox.setChecked(clientModel.isStereoscopic());
 		simpleRenderingCheckBox.setChecked(clientModel.isSimpleRendering());
 		powerSaverCheckBox.setChecked(clientModel.isPowerSaver());
+		localFolderText.setText(clientModel.getLocalFolder());
 	}
 
 	public void onItemSelected(AdapterView av, View view, int arg1, long arg2) {
