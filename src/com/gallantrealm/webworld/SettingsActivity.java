@@ -164,11 +164,10 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 			clientModel.savePreferences(this);
 			updateSettings();
 		} else if (v.equals(changeLocalFolderButton)) {
-			FolderSelectorDialog fileSelectorDialog = new FolderSelectorDialog(this, "");
+			FolderSelectorDialog fileSelectorDialog = new FolderSelectorDialog(this, "Select local folder");
 			fileSelectorDialog.show("/", new FolderSelectorDialog.SelectionListener() {
-				public void onFileselected(String arg0) {
-					// TODO Auto-generated method stub
-					
+				public void onFolderSelected(String folder) {
+					localFolderText.setText(folder);
 				}
 			});
 		} else if (v.equals(okButton)) {
