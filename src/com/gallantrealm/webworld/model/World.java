@@ -34,6 +34,8 @@ public class World extends WWWorld {
 	private static final long serialVersionUID = 1L;
 
 	public static boolean runningAvatarScript; // side effect: used by Texture to properly prefix urls
+	public static boolean runningLocalAvatarScript; // another side effect: used by Texture to decide to load local file
+	public static boolean runningLocalWorldScript; // another side effect: used by Texture to decide to load local file
 
 	protected float thrust;
 	protected float torque;
@@ -223,12 +225,14 @@ public class World extends WWWorld {
 			System.out.println(">> " + file);
 			if (file.exists()) {
 				inputStream = new FileInputStream(file);
+				World.runningLocalAvatarScript = true;
 			} else {
 				// Then try gallantrealm.com
 				URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("script"));
 				System.out.println(">> " + url);
 				connection = (HttpURLConnection) (url.openConnection());
 				inputStream = connection.getInputStream();
+				World.runningLocalAvatarScript = false;
 			}
 			Reader reader = new InputStreamReader(inputStream, "UTF-8");
 			System.out.println("Running avatar script..");
@@ -296,12 +300,14 @@ public class World extends WWWorld {
 			System.out.println(">> " + file);
 			if (file.exists()) {
 				inputStream = new FileInputStream(file);
+				World.runningLocalWorldScript = true;
 			} else {
 				// Then try gallantrealm.com
 				URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
 				System.out.println(">> " + url);
 				connection = (HttpURLConnection) (url.openConnection());
 				inputStream = connection.getInputStream();
+				World.runningLocalWorldScript = false;
 			}
 			Reader reader = new InputStreamReader(inputStream, "UTF-8");
 			System.out.println("Running world script..");

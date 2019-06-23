@@ -28,12 +28,21 @@ public class Texture extends WWTexture {
 	private static String worldPrefixUrl(String url) {
 		if (url != null) {
 			if (!url.contains(":") && url.contains(".")) { // a file in the world or avatar
+				AndroidClientModel clientModel = AndroidClientModel.getClientModel();
 				if (World.runningAvatarScript) {
-					String avatarName = AndroidClientModel.getClientModel().getAvatarName();
-					return "http://gallantrealm.com/webworld/avatars/" + avatarName + "/" + url;
+					String avatarName = clientModel.getAvatarName();
+					if (World.runningLocalAvatarScript) {
+						return clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + url;
+					} else {
+						return "http://gallantrealm.com/webworld/avatars/" + avatarName + "/" + url;
+					}
 				} else {
-					String worldName = AndroidClientModel.getClientModel().getWorldName();
-					return "http://gallantrealm.com/webworld/worlds/" + worldName + "/" + url;
+					String worldName = clientModel.getWorldName();
+					if (World.runningLocalWorldScript) {
+						return clientModel.getLocalFolder() + "/worlds/" + worldName + "/" + url;
+					} else {
+						return "http://gallantrealm.com/webworld/worlds/" + worldName + "/" + url;
+					}
 				}
 			}
 		}
