@@ -26,6 +26,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 	CheckBox vibrationCheckBox;
 	TextView controlTypeLabel;
 	Spinner controlType;
+	ArrayAdapter<CharSequence> controlTypeAdapter;
 	SeekBar controlSensitivity;
 	CheckBox viewIn3dCheckBox;
 	CheckBox simpleRenderingCheckBox;
@@ -52,8 +53,8 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		viewIn3dCheckBox = (CheckBox) findViewById(R.id.viewIn3dCheckbox);
 		simpleRenderingCheckBox = (CheckBox) findViewById(R.id.simpleRenderingCheckBox);
 		powerSaverCheckBox = (CheckBox) findViewById(R.id.powerSaverCheckBox);
-		localFolderText = (TextView)findViewById(R.id.localFolderText);
-		changeLocalFolderButton = (Button)findViewById(R.id.changeLocalFolderButton);
+		localFolderText = (TextView) findViewById(R.id.localFolderText);
+		changeLocalFolderButton = (Button) findViewById(R.id.changeLocalFolderButton);
 		okButton = (Button) findViewById(R.id.okButton);
 
 		// shadows aren't working yet.
@@ -86,11 +87,10 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 			controlTypeLabel.setVisibility(View.GONE);
 			controlType.setVisibility(View.GONE);
 		} else {
-			ArrayAdapter<CharSequence> controlTypeAdapter;
 			if (getString(R.string.supportsScreenController).equals("true") && getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
-				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Tilt", "Screen Left", "Screen Right", "Gamepad", "Zeemote" });
+				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Screen Right", "Screen Left", "Tilt", "Gamepad" });
 			} else {
-				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Tilt", "Gamepad", "Zeemote" });
+				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Tilt", "Gamepad" });
 			}
 			controlTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			controlType.setAdapter(controlTypeAdapter);
@@ -167,7 +167,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 			FolderSelectorDialog fileSelectorDialog = new FolderSelectorDialog(this, "Select local folder");
 			String initialFolder = clientModel.getLocalFolder();
 			if (!initialFolder.endsWith("/")) {
-				initialFolder  += "/";
+				initialFolder += "/";
 			}
 			fileSelectorDialog.show(initialFolder, new FolderSelectorDialog.SelectionListener() {
 				public void onFolderSelected(final String folder) {
@@ -203,18 +203,20 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		vibrationCheckBox.setChecked(clientModel.isVibration());
 // SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 // if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) == null) {
-		if (clientModel.useSensors()) {
-			controlType.setSelection(0);
-		} else if (clientModel.useScreenControl()) {
-			if (clientModel.isControlOnLeft()) {
-				controlType.setSelection(1);
+		if (controlTypeAdapter != null) {
+			if (clientModel.useSensors()) {
+				controlType.setSelection(controlTypeAdapter.getPosition("Tilt"));
+			} else if (clientModel.useScreenControl()) {
+				if (clientModel.isControlOnLeft()) {
+					controlType.setSelection(controlTypeAdapter.getPosition("Screen Left"));
+				} else {
+					controlType.setSelection(controlTypeAdapter.getPosition("Screen Right"));
+				}
+			} else if (clientModel.useZeemote()) {
+				controlType.setSelection(controlTypeAdapter.getPosition("Zeemote"));
 			} else {
-				controlType.setSelection(2);
+				controlType.setSelection(controlTypeAdapter.getPosition("Gamepad"));
 			}
-		} else if (clientModel.useZeemote()) {
-			controlType.setSelection(4);
-		} else {
-			controlType.setSelection(3);
 		}
 // }
 		viewIn3dCheckBox.setChecked(clientModel.isStereoscopic());

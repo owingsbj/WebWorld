@@ -26,7 +26,7 @@
 			android:shadowRadius="2"
 			android:text="@string/app_name"
 			android:textColor="#ffffff"
-			android:textSize="60dp"
+			android:textSize="60sp"
 			android:textStyle="italic"
 			android:typeface="serif" />
 		<LinearLayout
@@ -50,8 +50,8 @@
 
 			<Button
 			    android:id="@+id/chooseAvatarButton"
-			    android:layout_width="150dp"
-			    android:layout_height="100dp"
+			    android:layout_width="150sp"
+			    android:layout_height="100sp"
 			    android:layout_gravity="center"
 			    android:background="@drawable/theme_button"
 			    android:shadowColor="#444444"
@@ -71,8 +71,8 @@
 
 			<Button
 			    android:id="@+id/chooseWorldButton"
-			    android:layout_width="150dp"
-			    android:layout_height="100dp"
+			    android:layout_width="150sp"
+			    android:layout_height="100sp"
 			    android:layout_gravity="center"
 			    android:background="@drawable/theme_button"
 			    android:shadowColor="#444444"
@@ -92,8 +92,8 @@
 
 			<Button
 			    android:id="@+id/playButton"
-			    android:layout_width="150dp"
-			    android:layout_height="100dp"
+			    android:layout_width="150sp"
+			    android:layout_height="100sp"
 			    android:layout_gravity="center"
 			    android:background="@drawable/theme_button"
 			    android:shadowColor="#444444"
@@ -118,8 +118,8 @@
 
 			<Button
 			    android:id="@+id/quitButton"
-			    android:layout_width="100dp"
-			    android:layout_height="60dp"
+			    android:layout_width="100sp"
+			    android:layout_height="60sp"
 			    android:layout_gravity="center"
 			    android:layout_marginLeft="30px"
 			    android:background="@drawable/theme_button"
@@ -140,8 +140,8 @@
 
 			<Button
 			    android:id="@+id/helpButton"
-			    android:layout_width="100dp"
-			    android:layout_height="60dp"
+			    android:layout_width="100sp"
+			    android:layout_height="60sp"
 			    android:layout_gravity="center"
 			    android:background="@drawable/theme_button"
 			    android:shadowColor="#444444"
@@ -161,8 +161,8 @@
 
 			<Button
 			    android:id="@+id/settingsButton"
-			    android:layout_width="100dp"
-			    android:layout_height="60dp"
+			    android:layout_width="100sp"
+			    android:layout_height="60sp"
 			    android:layout_gravity="center"
 			    android:layout_marginRight="30px"
 			    android:background="@drawable/theme_button"
@@ -184,8 +184,8 @@
 
 			<Button
 			    android:id="@+id/buyButton"
-			    android:layout_width="100dp"
-			    android:layout_height="60dp"
+			    android:layout_width="100sp"
+			    android:layout_height="60sp"
 			    android:layout_gravity="center"
 			    android:layout_marginRight="30px"
 			    android:background="@drawable/theme_button"
