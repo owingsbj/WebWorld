@@ -160,8 +160,8 @@ public class World extends WWWorld {
 				URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/world.properties");
 				System.out.println(">> " + url);
 				connection = (HttpURLConnection) (url.openConnection());
+				inputStream = connection.getInputStream();
 			}
-			inputStream = connection.getInputStream();
 			properties.load(inputStream);
 			properties.list(System.out);
 			System.out.println();
