@@ -433,4 +433,5 @@ public class World extends WWWorld {
 		super.setStatus(status);
 		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_WWMODEL_UPDATED);
 	}
+	
 }

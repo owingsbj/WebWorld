@@ -107,9 +107,11 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 					System.out.println(">> " + avatarsDir);
 					if (avatarsDir.exists() && avatarsDir.isDirectory()) {
 						String[] fileNames = avatarsDir.list();
-						for (String fileName : fileNames) {
-							if (new File(avatarsDir, fileName).isDirectory()) {
-								avatarFolders.add(fileName);
+						if (fileNames != null) {
+							for (String fileName : fileNames) {
+								if (new File(avatarsDir, fileName).isDirectory()) {
+									avatarFolders.add(fileName);
+								}
 							}
 						}
 					}

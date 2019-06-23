@@ -117,9 +117,11 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 					System.out.println(">> " + worldsDir);
 					if (worldsDir.exists() && worldsDir.isDirectory()) {
 						String[] fileNames = worldsDir.list();
-						for (String fileName : fileNames) {
-							if (new File(worldsDir, fileName).isDirectory()) {
-								worldFolders.add(fileName);
+						if (fileNames != null) {
+							for (String fileName : fileNames) {
+								if (new File(worldsDir, fileName).isDirectory()) {
+									worldFolders.add(fileName);
+								}
 							}
 						}
 					}
