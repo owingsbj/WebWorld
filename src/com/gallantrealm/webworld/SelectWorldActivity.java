@@ -1,5 +1,7 @@
 package com.gallantrealm.webworld;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -109,6 +111,20 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 				HttpURLConnection connection = null;
 				InputStream inputStream = null;
 				try {
+
+					// First look in the local file system
+					File worldsDir = new File(clientModel.getLocalFolder() + "/worlds");
+					System.out.println(">> " + worldsDir);
+					if (worldsDir.exists() && worldsDir.isDirectory()) {
+						String[] fileNames = worldsDir.list();
+						for (String fileName : fileNames) {
+							if (new File(worldsDir, fileName).isDirectory()) {
+								worldFolders.add(fileName);
+							}
+						}
+					}
+
+					// Next look in gallanrealm.com
 					System.out.println(">> http://gallantrealm.com/webworld/listWorlds.jsp");
 					connection = (HttpURLConnection) (new URL("http://gallantrealm.com/webworld/listWorlds.jsp")).openConnection();
 					inputStream = connection.getInputStream();
@@ -212,7 +228,7 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 		messageDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
 			public void onDismiss(DialogInterface dialog) {
 				if (messageDialog.getButtonPressed() == 0) {
-					
+
 					// TODO: Allow scores and levels to be maintained by world name, to avoid inserted worlds messing up scoring.
 					clientModel.setScore(currentWorldNum, 0);
 					clientModel.setLevel(currentWorldNum, 0);
@@ -246,10 +262,18 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 				HttpURLConnection connection = null;
 				InputStream inputStream = null;
 				try {
-					URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/world.properties");
-					System.out.println(">> " + url);
-					connection = (HttpURLConnection) (url.openConnection());
-					inputStream = connection.getInputStream();
+					// First try local
+					File file = new File(clientModel.getLocalFolder() + "/worlds/" + worldName + "/world.properties");
+					System.out.println(">> " + file);
+					if (file.exists()) {
+						inputStream = new FileInputStream(file);
+					} else {
+						// Then try gallantrealm.com
+						URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/world.properties");
+						System.out.println(">> " + url);
+						connection = (HttpURLConnection) (url.openConnection());
+						inputStream = connection.getInputStream();
+					}
 					worldProps.load(inputStream);
 					worldProps.list(System.out);
 					System.out.println();
@@ -289,10 +313,18 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 				InputStream inputStream = null;
 				try {
 					String worldName = worldFolders.get(currentWorldNum - 1);
-					URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/" + worldProps.getProperty("picture"));
-					System.out.println(">> " + url);
-					connection = (HttpURLConnection) (url.openConnection());
-					inputStream = connection.getInputStream();
+					// First try local
+					File file = new File(clientModel.getLocalFolder() + "/worlds/" + worldName + "/" + worldProps.getProperty("picture"));
+					System.out.println(">> " + file);
+					if (file.exists()) {
+						inputStream = new FileInputStream(file);
+					} else {
+						// Then try gallantrealm.com
+						URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/" + worldProps.getProperty("picture"));
+						System.out.println(">> " + url);
+						connection = (HttpURLConnection) (url.openConnection());
+						inputStream = connection.getInputStream();
+					}
 					final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 					runOnUiThread(new Runnable() {
 						public void run() {

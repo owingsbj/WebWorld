@@ -1,6 +1,7 @@
 package com.gallantrealm.webworld;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -100,16 +101,15 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 				HttpURLConnection connection = null;
 				InputStream inputStream = null;
 				try {
+
 					// First look in the local file system
-					System.out.println(">> /sdcard/windows/BstSharedFolder/avatars");
-					File avatarsDir = new File("/sdcard/windows/BstSharedFolder/avatars");
-					if (avatarsDir.exists()) {
-						if (avatarsDir.isDirectory()) {
-							String[] fileNames = avatarsDir.list();
-							for (String fileName : fileNames) {
-								if (new File(fileName).isDirectory()) {
-									avatarFolders.add(fileName);
-								}
+					File avatarsDir = new File(clientModel.getLocalFolder() + "/avatars");
+					System.out.println(">> " + avatarsDir);
+					if (avatarsDir.exists() && avatarsDir.isDirectory()) {
+						String[] fileNames = avatarsDir.list();
+						for (String fileName : fileNames) {
+							if (new File(avatarsDir, fileName).isDirectory()) {
+								avatarFolders.add(fileName);
 							}
 						}
 					}
@@ -223,10 +223,18 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 				HttpURLConnection connection = null;
 				InputStream inputStream = null;
 				try {
-					URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/avatar.properties");
-					System.out.println(">> " + url);
-					connection = (HttpURLConnection) (url.openConnection());
-					inputStream = connection.getInputStream();
+					// First try file
+					File file = new File(clientModel.getLocalFolder() + "/avatars/" + avatarName + "/avatar.properties");
+					System.out.println(">> " + file);
+					if (file.exists()) {
+						inputStream = new FileInputStream(file);
+					} else {
+						// Then try gallantrealm.com
+						URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/avatar.properties");
+						System.out.println(">> " + url);
+						connection = (HttpURLConnection) (url.openConnection());
+						inputStream = connection.getInputStream();
+					}
 					avatarProps.load(inputStream);
 					avatarProps.list(System.out);
 					System.out.println();
@@ -265,10 +273,18 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 				InputStream inputStream = null;
 				try {
 					String avatarName = avatarFolders.get(currentAvatarNum - 1);
-					URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/" + avatarProps.getProperty("picture"));
-					System.out.println(">> " + url);
-					connection = (HttpURLConnection) (url.openConnection());
-					inputStream = connection.getInputStream();
+					// First try file
+					File file = new File(clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + avatarProps.getProperty("picture"));
+					System.out.println(">> " + file);
+					if (file.exists()) {
+						inputStream = new FileInputStream(file);
+					} else {
+						// Then try gallantrealm.com
+						URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/" + avatarProps.getProperty("picture"));
+						System.out.println(">> " + url);
+						connection = (HttpURLConnection) (url.openConnection());
+						inputStream = connection.getInputStream();
+					}
 					final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 					runOnUiThread(new Runnable() {
 						public void run() {
