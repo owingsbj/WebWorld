@@ -1,9 +1,14 @@
-- Improve local development.  Load from local folder.
+- Fix impact sound volume
 - Add support for world local sounds
 - Add mesh sculpting functions
-- Developers console
+
+- Create developers console
+    - Console log
+    - Debugger
+    - Eventually editor
 
 - Support Animation behaviors
 - Add particles
 
 - Add multi-user
+
