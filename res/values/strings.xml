@@ -4,54 +4,9 @@
 	<string name="mainMenuClassName">com.gallantrealm.webworld.MainMenuActivity</string>
 	<string name="selectAvatarClassName">com.gallantrealm.webworld.SelectAvatarActivity</string>
 	<string name="selectWorldClassName">com.gallantrealm.webworld.SelectWorldActivity</string>
-	<string name="defaultWorldName">Block</string>
+	<string name="defaultWorldClassName">com.gallantrealm.webworld.model.World</string>
+	<string name="defaultWorldName">Blocks</string>
 	<string name="defaultAvatarName">Egg</string>
-	<string name="nworlds">12</string>
-	<string name="world1Name">Block</string>
-	<string name="world2Name">Maze</string>
-	<string name="world3Name">Obstacle</string>
-	<string name="world4Name">Race</string>
-	<string name="world5Name">Skate</string>
-	<string name="world6Name">Fly</string>
-	<!-- <string name="world7Name">Escape</string> -->
-	<string name="world7Name">Roller Coaster</string>
-	<string name="world8Name">Space Junk</string>
-	<string name="world9Name">Bounce</string>
-	<string name="world10Name">Slalom</string>
-	<string name="world11Name">Lunar Lander</string>
-	<string name="world12Name">Trampoline</string>
-	<string name="world1ClassName">com.gallantrealm.webworld.worlds.ScriptWorld</string>
-	<string name="world2ClassName">com.gallantrealm.webworld.worlds.MazeWorld</string>
-	<string name="world3ClassName">com.gallantrealm.webworld.worlds.ObstacleWorld</string>
-	<string name="world4ClassName">com.gallantrealm.webworld.worlds.RaceWorld</string>
-	<string name="world5ClassName">com.gallantrealm.webworld.worlds.SkateWorld</string>
-	<string name="world6ClassName">com.gallantrealm.webworld.worlds.FlyWorld</string>
-	<!-- <string name="world7ClassName">com.gallantrealm.webworld.worlds.EscapeWorld</string> -->
-	<string name="world7ClassName">com.gallantrealm.webworld.worlds.RollerCoasterWorld</string>
-	<string name="world8ClassName">com.gallantrealm.webworld.worlds.JunkWorld</string>
-	<string name="world9ClassName">com.gallantrealm.webworld.worlds.BounceWorld</string>
-	<string name="world10ClassName">com.gallantrealm.webworld.worlds.SlalomWorld</string>
-	<string name="world11ClassName">com.gallantrealm.webworld.worlds.LunarLanderWorld</string>
-	<string name="world12ClassName">com.gallantrealm.webworld.worlds.TrampolineWorld</string>
-	<string name="world1description">Modify the terrain and build with blocks in this
-		randomly generated world.</string>
-	<string name="world2description">Make your way through 3D mazes of greater and
-		greater complexity.</string>
-	<string name="world3description">Dodge obstacles and cross over on a high rise
-		platform.</string>
-	<string name="world4description">Race the robot egg on longer and longer courses.</string>
-	<string name="world5description">Skate the bowls and pipes in the skatepark.</string>
-	<string name="world6description">Fly around and then try to land again.</string>
-	<!-- <string name="world7description">Escape the rotating rings of greater and greater depth.</string> -->
-	<string name="world7description">Build and ride your own roller coaster!</string>
-	<string name="world8description">Dodge debris through a corridor in space.</string>
-	<string name="world9description">Bounce off floating balls to higher and higher
-		altitudes.</string>
-	<string name="world10description">Ski down a hill weaving through the gates. See how
-		fast your egg can make it through the course.</string>
-	<string name="world11description">Turn on the thrusters at the right time to land
-		safely on the moon.</string>
-	<string name="world12description">Move the trampoline to keep your egg bouncing!</string>
 	<string name="chooseAvatarButton">Choose Avatar</string>
 	<string name="chooseWorldButton">Choose World</string>
 	<string name="selectWorldPrompt">Select a world:</string>
