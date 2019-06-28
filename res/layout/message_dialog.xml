@@ -37,7 +37,7 @@
             android:shadowDx="1"
             android:shadowDy="1"
             android:shadowRadius="1"
-            android:text="This is the text of the message."
+            android:text="This is the text of the message.  It could wrap onto multiple lines if necessary.  This is a longer message just to make sure that the wrapping looks okay."
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textSize="20sp" />
 
