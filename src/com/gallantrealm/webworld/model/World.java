@@ -315,8 +315,8 @@ public class World extends WWWorld {
 			// make sure the world, some constants, and avatar are available to the world script
 			Object wrappedWorld = Context.javaToJS(this, scope);
 			ScriptableObject.putProperty(scope, "world", wrappedWorld);
-			Object wrappedAvatar = Context.javaToJS(avatar, scope);
-			ScriptableObject.putProperty(scope, "avatar", wrappedAvatar);
+			Object wrappedUser = Context.javaToJS(user, scope);
+			ScriptableObject.putProperty(scope, "user", wrappedUser);
 
 			try {
 				cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
