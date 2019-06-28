@@ -1,15 +1,10 @@
-- Fix impact sound volume
 - Improve screen control look and action
 - Add support for world local sounds
-- Add mesh sculpting functions
-
 - Create developers console
     - Console log
     - Debugger
     - Eventually editor
-
 - Support Animation behaviors
 - Add particles
 
 - Add multi-user
-
