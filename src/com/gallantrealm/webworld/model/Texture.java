@@ -25,6 +25,10 @@ public class Texture extends WWTexture {
 		super(worldPrefixUrl(url), scaleX, scaleY, rotation, offsetX, offsetY);
 	}
 
+	public Texture(String url, float scaleX, float scaleY, float rotation, float offsetX, float offsetY, boolean pixelate) {
+		super(worldPrefixUrl(url), scaleX, scaleY, rotation, offsetX, offsetY, pixelate);
+	}
+
 	private static String worldPrefixUrl(String url) {
 		if (url != null) {
 			if (!url.contains(":") && url.contains(".")) { // a file in the world or avatar
