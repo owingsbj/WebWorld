@@ -129,6 +129,7 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 					// Next look in gallanrealm.com
 					System.out.println(">> http://gallantrealm.com/webworld/listWorlds.jsp");
 					connection = (HttpURLConnection) (new URL("http://gallantrealm.com/webworld/listWorlds.jsp")).openConnection();
+					connection.setConnectTimeout(5000);
 					inputStream = connection.getInputStream();
 					Reader reader = new InputStreamReader(inputStream, "UTF-8");
 					StreamTokenizer tokenizer = new StreamTokenizer(reader);
@@ -139,6 +140,8 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 					}
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
+					worldDescriptionText.setText(e.getMessage());
+					return;
 				} finally {
 					if (inputStream != null) {
 						try {

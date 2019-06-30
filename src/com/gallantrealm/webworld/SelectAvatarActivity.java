@@ -119,6 +119,7 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 					// Next look in gallanrealm.com
 					System.out.println(">> http://gallantrealm.com/webworld/listAvatars.jsp");
 					connection = (HttpURLConnection) (new URL("http://gallantrealm.com/webworld/listAvatars.jsp")).openConnection();
+					connection.setConnectTimeout(5000);
 					inputStream = connection.getInputStream();
 					Reader reader = new InputStreamReader(inputStream, "UTF-8");
 					StreamTokenizer tokenizer = new StreamTokenizer(reader);
@@ -129,6 +130,8 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 					}
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
+					avatarDescriptionText.setText(e.getMessage());
+					return;
 				} finally {
 					if (inputStream != null) {
 						try {
