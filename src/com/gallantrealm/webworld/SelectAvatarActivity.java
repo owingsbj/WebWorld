@@ -128,9 +128,13 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 							avatarFolders.add(tokenizer.sval);
 						}
 					}
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					System.err.println(e.getMessage());
-					avatarDescriptionText.setText(e.getMessage());
+					SelectAvatarActivity.this.runOnUiThread(new Runnable() {
+						public void run() {
+							avatarDescriptionText.setText("Couldn't connect to gallantrealm.com:\n" + e.getMessage());
+						}
+					});
 					return;
 				} finally {
 					if (inputStream != null) {

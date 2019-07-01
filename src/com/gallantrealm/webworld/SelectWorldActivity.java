@@ -138,9 +138,13 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 							worldFolders.add(tokenizer.sval);
 						}
 					}
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					System.err.println(e.getMessage());
-					worldDescriptionText.setText(e.getMessage());
+					SelectWorldActivity.this.runOnUiThread(new Runnable() {
+						public void run() {
+							worldDescriptionText.setText("Couldn't connect to gallantrealm.com:\n" + e.getMessage());
+						}
+					});
 					return;
 				} finally {
 					if (inputStream != null) {
