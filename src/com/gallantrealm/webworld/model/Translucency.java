@@ -98,4 +98,12 @@ public class Translucency extends WWTranslucency {
 		return getEventBehavior().onTimer;
 	}
 
+	public void setAnimations(Animation[] animations) {
+		getEventBehavior().animations = animations;
+	}
+
+	public Animation[] getAnimations() {
+		return getEventBehavior().animations;
+	}
+	
 }
