@@ -38,14 +38,14 @@ public class Texture extends WWTexture {
 					if (World.runningLocalAvatarScript) {
 						return clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + url;
 					} else {
-						return "http://gallantrealm.com/webworld/avatars/" + avatarName + "/" + url;
+						return "http://webworld.gallantrealm.com/avatars/" + avatarName + "/" + url;
 					}
 				} else {
 					String worldName = clientModel.getWorldName();
 					if (World.runningLocalWorldScript) {
 						return clientModel.getLocalFolder() + "/worlds/" + worldName + "/" + url;
 					} else {
-						return "http://gallantrealm.com/webworld/worlds/" + worldName + "/" + url;
+						return "http://webworld.gallantrealm.com/worlds/" + worldName + "/" + url;
 					}
 				}
 			}

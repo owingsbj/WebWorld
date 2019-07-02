@@ -127,8 +127,8 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 					}
 
 					// Next look in gallanrealm.com
-					System.out.println(">> http://gallantrealm.com/webworld/listWorlds.jsp");
-					connection = (HttpURLConnection) (new URL("http://gallantrealm.com/webworld/listWorlds.jsp")).openConnection();
+					System.out.println(">> http://webworld.gallantrealm.com/listWorlds.jsp");
+					connection = (HttpURLConnection) (new URL("http://webworld.gallantrealm.com/listWorlds.jsp")).openConnection();
 					connection.setConnectTimeout(5000);
 					inputStream = connection.getInputStream();
 					Reader reader = new InputStreamReader(inputStream, "UTF-8");
@@ -278,7 +278,7 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 						inputStream = new FileInputStream(file);
 					} else {
 						// Then try gallantrealm.com
-						URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/world.properties");
+						URL url = new URL("http://webworld.gallantrealm.com/worlds/" + worldName + "/world.properties");
 						System.out.println(">> " + url);
 						connection = (HttpURLConnection) (url.openConnection());
 						inputStream = connection.getInputStream();
@@ -329,7 +329,7 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 						inputStream = new FileInputStream(file);
 					} else {
 						// Then try gallantrealm.com
-						URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/" + worldProps.getProperty("picture"));
+						URL url = new URL("http://webworld.gallantrealm.com/worlds/" + worldName + "/" + worldProps.getProperty("picture"));
 						System.out.println(">> " + url);
 						connection = (HttpURLConnection) (url.openConnection());
 						inputStream = connection.getInputStream();
