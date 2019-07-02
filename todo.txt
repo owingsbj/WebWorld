@@ -1,10 +1,11 @@
+- Support Animation behaviors
+- Add customize capability for avatars
 - Improve screen control look and action
 - Add support for world local sounds
 - Create developers console
     - Console log
     - Debugger
     - Eventually editor
-- Support Animation behaviors
 - Add particles
 
 - Add multi-user

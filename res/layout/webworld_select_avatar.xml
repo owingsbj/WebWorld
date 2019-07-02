@@ -94,7 +94,7 @@
                 android:layout_gravity="center"
                 android:text="Loading..."
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textSize="35sp"
+                android:textSize="30sp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -178,11 +178,10 @@
 
         <Button
             android:id="@+id/customizeButton"
-            android:layout_width="100sp"
+            android:layout_width="wrap_content"
             android:layout_height="60sp"
             android:layout_marginLeft="5sp"
             android:layout_marginRight="5sp"
-            android:layout_weight="1"
             android:background="@drawable/theme_button"
             android:paddingLeft="0sp"
             android:paddingRight="0sp"

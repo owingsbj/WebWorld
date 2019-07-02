@@ -273,7 +273,8 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 			return;
 		}
 		int n = currentAvatarNum;
-		avatarNameText.setText(avatarProps.getProperty("name", ""));
+		final String avatarName = avatarFolders.get(currentAvatarNum - 1);
+		avatarNameText.setText(avatarProps.getProperty("name", avatarName) + " by "+ avatarProps.getProperty("author", "unknown"));
 		avatarDescriptionText.setText(avatarProps.getProperty("description", ""));
 		avatarImage.setImageBitmap(null);
 		AsyncTask.execute(new Runnable() {
@@ -281,7 +282,6 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 				HttpURLConnection connection = null;
 				InputStream inputStream = null;
 				try {
-					String avatarName = avatarFolders.get(currentAvatarNum - 1);
 					// First try file
 					File file = new File(clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + avatarProps.getProperty("picture"));
 					System.out.println(">> " + file);

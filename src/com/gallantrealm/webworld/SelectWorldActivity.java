@@ -312,7 +312,8 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 			return;
 		}
 		int n = currentWorldNum;
-		worldNameText.setText(worldProps.getProperty("name", ""));
+		final String worldName = worldFolders.get(currentWorldNum - 1);
+		worldNameText.setText(worldProps.getProperty("name", worldName) + " by " + worldProps.getProperty("author", "unknown"));
 		worldDescriptionText.setText(worldProps.getProperty("description", ""));
 		worldScoreText.setText(getScoreString(n));
 		worldImage.setImageBitmap(null);
@@ -321,7 +322,6 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 				HttpURLConnection connection = null;
 				InputStream inputStream = null;
 				try {
-					String worldName = worldFolders.get(currentWorldNum - 1);
 					// First try local
 					File file = new File(clientModel.getLocalFolder() + "/worlds/" + worldName + "/" + worldProps.getProperty("picture"));
 					System.out.println(">> " + file);

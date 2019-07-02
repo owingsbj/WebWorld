@@ -94,7 +94,7 @@
                 android:layout_gravity="center"
                 android:text="Loading..."
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textSize="35sp"
+                android:textSize="30sp"
                 android:textStyle="bold" />
 
             <LinearLayout
