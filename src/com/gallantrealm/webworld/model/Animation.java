@@ -1,9 +1,11 @@
 package com.gallantrealm.webworld.model;
 
+import java.io.Serializable;
+import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWVector;
 
-public class Animation {
+public class Animation implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String type;
@@ -54,21 +56,36 @@ public class Animation {
 		started = false;
 	}
 
+	// Note: this will be called for both the parent and child objects
 	public void animatePosition(WWObject object, WWVector position, long time) {
 		if (started) {
 			float animationTime = (int)(time - startTime) * speed;
 			if (type.equals("walk")) {
-
+				if ("leg1".equals(object.name)) {
+					System.out.println("walk leg1 "+ speed + " " + range);
+					position.y += 0.2f * object.sizeZ * FastMath.sin(animationTime * 0.01f)  * range;
+				}
+				if ("leg2".equals(object.name)) {
+					System.out.println("walk leg2 " + speed + " " + range);
+					position.y -= 0.2f * object.sizeZ * FastMath.sin(animationTime * 0.01f) * range;
+				}
 			} else {
 
 			}
 		}
 	}
 
+	// Note: this will be called for both the parent and child objects
 	public void animateRotation(WWObject object, WWVector rotation, long time) {
 		if (started) {
 			float animationTime = (int)(time - startTime) * speed;
 			if (type.equals("walk")) {
+				if ("leg1".equals(object.name)) {
+					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime * 0.01f) * range;
+				}
+				if ("leg2".equals(object.name)) {
+					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime * 0.01f) * range;
+				}
 
 			} else {
 
