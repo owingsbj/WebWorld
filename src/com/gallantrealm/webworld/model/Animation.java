@@ -12,7 +12,8 @@ public class Animation implements Serializable {
 	private float speed;
 	private float range;
 	private transient boolean started;
-	private transient long startTime;
+	private transient long lastTime;
+	private transient float animationTime;
 
 	public Animation(String type) {
 		this.type = type;
@@ -49,7 +50,8 @@ public class Animation implements Serializable {
 
 	public void start() {
 		started = true;
-		startTime = System.currentTimeMillis();
+		animationTime = 0;
+		lastTime = System.currentTimeMillis();
 	}
 
 	public void stop() {
@@ -59,15 +61,15 @@ public class Animation implements Serializable {
 	// Note: this will be called for both the parent and child objects
 	public void animatePosition(WWObject object, WWVector position, long time) {
 		if (started) {
-			float animationTime = (int)(time - startTime) * speed;
+			animationTime += (time - lastTime) / 1000.0f * speed;
+			lastTime = time;
 			if (type.equals("walk")) {
 				if ("leg1".equals(object.name)) {
-					System.out.println("walk leg1 "+ speed + " " + range);
-					position.y += 0.2f * object.sizeZ * FastMath.sin(animationTime * 0.01f)  * range;
+					position.y += 0.2f * object.sizeZ * FastMath.sin(animationTime / 2.0f / FastMath.PI)  * range;
+					//System.out.println("walk animation leg1.  animation time " +animationTime+" range "+range+" position.y "+position.y);
 				}
 				if ("leg2".equals(object.name)) {
-					System.out.println("walk leg2 " + speed + " " + range);
-					position.y -= 0.2f * object.sizeZ * FastMath.sin(animationTime * 0.01f) * range;
+					position.y -= 0.2f * object.sizeZ * FastMath.sin(animationTime / 2.0f / FastMath.PI) * range;
 				}
 			} else {
 
@@ -78,15 +80,13 @@ public class Animation implements Serializable {
 	// Note: this will be called for both the parent and child objects
 	public void animateRotation(WWObject object, WWVector rotation, long time) {
 		if (started) {
-			float animationTime = (int)(time - startTime) * speed;
 			if (type.equals("walk")) {
 				if ("leg1".equals(object.name)) {
-					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime * 0.01f) * range;
+					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime  / 2.0f / FastMath.PI) * range;
 				}
 				if ("leg2".equals(object.name)) {
-					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime * 0.01f) * range;
+					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime  / 2.0f / FastMath.PI) * range;
 				}
-
 			} else {
 
 			}
