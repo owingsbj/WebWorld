@@ -1,6 +1,4 @@
-- Add console overlay:
-   - include ability to roll console messages
-   - include option to show console log messages
+- Add swimming and falling animations
 - Improve screen control look and action
 - Add sharing of worlds to website
 - Add customize capability for avatars
