@@ -33,6 +33,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 	CheckBox powerSaverCheckBox;
 	TextView localFolderText;
 	Button changeLocalFolderButton;
+	CheckBox showDebugLoggingCheckBox;
 	Button okButton;
 
 	@Override
@@ -55,6 +56,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		powerSaverCheckBox = (CheckBox) findViewById(R.id.powerSaverCheckBox);
 		localFolderText = (TextView) findViewById(R.id.localFolderText);
 		changeLocalFolderButton = (Button) findViewById(R.id.changeLocalFolderButton);
+		showDebugLoggingCheckBox = (CheckBox)findViewById(R.id.showDebugLoggingCheckbox);
 		okButton = (Button) findViewById(R.id.okButton);
 
 		// shadows aren't working yet.
@@ -121,6 +123,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		simpleRenderingCheckBox.setOnClickListener(this);
 		powerSaverCheckBox.setOnClickListener(this);
 		changeLocalFolderButton.setOnClickListener(this);
+		showDebugLoggingCheckBox.setOnClickListener(this);
 		okButton.setOnClickListener(this);
 
 		clientModel.loadPreferences(this);
@@ -179,6 +182,10 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 					});
 				}
 			});
+		} else if (v.equals(showDebugLoggingCheckBox)) {
+			clientModel.setShowDebugLogging(showDebugLoggingCheckBox.isChecked());
+			clientModel.savePreferences(this);
+			updateSettings();
 		} else if (v.equals(okButton)) {
 			this.finish();
 		}
@@ -223,6 +230,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		simpleRenderingCheckBox.setChecked(clientModel.isSimpleRendering());
 		powerSaverCheckBox.setChecked(clientModel.isPowerSaver());
 		localFolderText.setText(clientModel.getLocalFolder());
+		showDebugLoggingCheckBox.setChecked(clientModel.isShowDebugLogging());
 	}
 
 	public void onItemSelected(AdapterView av, View view, int arg1, long arg2) {
