@@ -30,7 +30,9 @@ public class Console implements Serializable {
 	
 	public void assertt(boolean condition, String message) {
 		if (condition) {
-			log(message);
+			if (AndroidClientModel.getClientModel().isShowDebugLogging()) {
+				log("ASSERT: "+message);
+			}
 		}
 	}
 
