@@ -210,13 +210,25 @@ public class World extends WWWorld {
 		ScriptableObject.putProperty(scope, "SIDE_INSIDE4", 12);
 		ScriptableObject.putProperty(scope, "SIDE_CUTOUT1", 13);
 		ScriptableObject.putProperty(scope, "SIDE_CUTOUT2", 14);
+		
+		// Add console and built-in UI methods
+		Console console = new Console();
+		Object wrappedConsole = Context.javaToJS(console, scope);
+		ScriptableObject.putProperty(scope, "console", wrappedConsole);
+		scope.defineFunctionProperties(new String[] {"alert", "confirm", "prompt"}, GlobalFunctions.class, ScriptableObject.READONLY);
+
+		// make sure the world, some constants, and avatar are available to the world script
+		WWUser user = new WWUser();
+		user.setName(avatarName);
+		addUser(user);
+		Object wrappedWorld = Context.javaToJS(this, scope);
+		ScriptableObject.putProperty(scope, "world", wrappedWorld);
+		Object wrappedUser = Context.javaToJS(user, scope);
+		ScriptableObject.putProperty(scope, "user", wrappedUser);
 
 		// create the avatar
 		System.out.println("Opening avatar " + avatarName);
 		WWObject avatar = null;
-		WWUser user = new WWUser();
-		user.setName(avatarName);
-		addUser(user);
 		HttpURLConnection connection = null;
 		InputStream inputStream = null;
 		try {
@@ -312,12 +324,6 @@ public class World extends WWWorld {
 			Reader reader = new InputStreamReader(inputStream, "UTF-8");
 			System.out.println("Running world script..");
 
-			// make sure the world, some constants, and avatar are available to the world script
-			Object wrappedWorld = Context.javaToJS(this, scope);
-			ScriptableObject.putProperty(scope, "world", wrappedWorld);
-			Object wrappedUser = Context.javaToJS(user, scope);
-			ScriptableObject.putProperty(scope, "user", wrappedUser);
-
 			try {
 				cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
 			} catch (Exception e) {
@@ -380,10 +386,6 @@ public class World extends WWWorld {
 		return clientModel.getViewpoint() != 1;
 	}
 
-	public void alert(String message) {
-		clientModel.alert(message, null);
-	}
-
 	@Override
 	public boolean allowPicking() {
 		return true; // so touch event will work
@@ -432,6 +434,10 @@ public class World extends WWWorld {
 	public void setStatus(String status) {
 		super.setStatus(status);
 		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_WWMODEL_UPDATED);
+	}
+	
+	public final long getTime() {
+		return getWorldTime();
 	}
 	
 }
