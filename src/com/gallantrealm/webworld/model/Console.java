@@ -2,14 +2,13 @@ package com.gallantrealm.webworld.model;
 
 import java.io.Serializable;
 
+import com.gallantrealm.myworld.android.AndroidClientModel;
+
 public class Console implements Serializable {
 	private static final long serialVersionUID = 1L;
-
-	public Console() {
-	}
 	
 	public void log(String message) {
-		
+		AndroidClientModel.getClientModel().log(message);
 	}
 	
 	public void trace(String message) {
