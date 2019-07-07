@@ -5,6 +5,8 @@
 - Add support for world local sounds
 - Add particles
     - a list of predefined particle animations as JavaScript would be too slow
-- Add built-in editor and debugger
 
 - Add multi-user
+    
+- Add built-in editor and debugger
+
