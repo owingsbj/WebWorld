@@ -1,12 +1,12 @@
 package com.gallantrealm.webworld.model;
 
 import org.mozilla.javascript.Function;
-import com.gallantrealm.myworld.model.WWAnimation;
+import com.gallantrealm.myworld.model.WWBehavior;
 import com.gallantrealm.myworld.model.WWEntity;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWVector;
 
-public class EventBehavior extends WWAnimation {
+public class EventBehavior extends WWBehavior {
 	private static final long serialVersionUID = 1L;
 
 	public Function onTouch;
@@ -17,7 +17,6 @@ public class EventBehavior extends WWAnimation {
 	public Function onSlide;
 	public Function onStopSlide;
 	public Function onTimer;
-	public Animation[] animations;
 	
 	@Override
 	public boolean touchEvent(WWObject object, WWEntity toucher, int side, float x, float y) {
@@ -98,23 +97,5 @@ public class EventBehavior extends WWAnimation {
 		}
 		return false;
 	}
-
-	@Override
-	public void getAnimatedPosition(WWObject object, WWVector position, long time) {
-		if (animations != null) {
-			for (int i = 0; i < animations.length; i++) {
-				animations[i].animatePosition(object, position, time);
-			}
-		}
-	}
-
-	@Override
-	public void getAnimatedRotation(WWObject object, WWVector rotation, long time) {
-		if (animations != null) {
-			for (int i = 0; i < animations.length; i++) {
-				animations[i].animateRotation(object, rotation, time);
-			}
-		}
-	}
-
+	
 }

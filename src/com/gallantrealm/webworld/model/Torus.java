@@ -7,6 +7,7 @@ public class Torus extends WWTorus {
 	private static final long serialVersionUID = 1L;
 
 	private EventBehavior eventBehavior;
+	private AnimationBehavior animationBehavior;
 	
 	private EventBehavior getEventBehavior() {
 		if (eventBehavior == null) {
@@ -14,6 +15,14 @@ public class Torus extends WWTorus {
 			addBehavior(eventBehavior);
 		}
 		return eventBehavior;
+	}
+	
+	private AnimationBehavior getAnimationBehavior() {
+		if (animationBehavior == null) {
+			animationBehavior = new AnimationBehavior();
+			addBehavior(animationBehavior);
+		}
+		return animationBehavior;
 	}
 	
 	public void setOnTouch(Function f) {
@@ -88,12 +97,16 @@ public class Torus extends WWTorus {
 		return getEventBehavior().onTimer;
 	}
 
-	public void setAnimations(Animation[] animations) {
-		getEventBehavior().animations = animations;
+	public void animate(String type) {
+		getAnimationBehavior().start(type, 1.0f, 1.0f);
 	}
-
-	public Animation[] getAnimations() {
-		return getEventBehavior().animations;
+	
+	public void animate(String type, float speed, float range) {
+		getAnimationBehavior().start(type, speed, range);
+	}
+	
+	public void stopAnimation() {
+		getAnimationBehavior().stop();
 	}
 	
 }
