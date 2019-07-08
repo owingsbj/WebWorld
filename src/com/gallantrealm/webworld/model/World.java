@@ -100,6 +100,7 @@ public class World extends WWWorld {
 		clientModel.cameraDampRate = 0.5f;
 		clientModel.behindDistance = 3;
 		clientModel.behindTilt = 10;
+		clientModel.minCameraDistance = 0.01f;
 
 		runScripts();
 
@@ -440,4 +441,12 @@ public class World extends WWWorld {
 		return getWorldTime();
 	}
 	
+	public float[] getMoveXTurn() {
+		return new float[] { -90, -60, -30, -15, 0, 0, 0, 15, 30, 60, 90 };
+	}
+
+	public float[] getMoveYThrust() {
+		return new float[] { -2, -1.33f, -0.66f, 0, 1, 2, 3 };
+	}
+
 }
