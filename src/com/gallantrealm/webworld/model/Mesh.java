@@ -9,6 +9,10 @@ public class Mesh extends WWMesh {
 	private EventBehavior eventBehavior;
 	private AnimationBehavior animationBehavior;
 	
+	public Mesh() {
+		penetratable = true;
+	}
+	
 	private EventBehavior getEventBehavior() {
 		if (eventBehavior == null) {
 			eventBehavior = new EventBehavior();

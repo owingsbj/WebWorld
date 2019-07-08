@@ -9,6 +9,10 @@ public class Box extends WWBox {
 	private EventBehavior eventBehavior;
 	private AnimationBehavior animationBehavior;
 	
+	public Box() {
+		penetratable = true;
+	}
+	
 	private EventBehavior getEventBehavior() {
 		if (eventBehavior == null) {
 			eventBehavior = new EventBehavior();

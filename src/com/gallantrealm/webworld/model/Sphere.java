@@ -9,6 +9,10 @@ public class Sphere extends WWSphere {
 	private EventBehavior eventBehavior;
 	private AnimationBehavior animationBehavior;
 	
+	public Sphere() {
+		penetratable = true;
+	}
+	
 	private EventBehavior getEventBehavior() {
 		if (eventBehavior == null) {
 			eventBehavior = new EventBehavior();

@@ -9,6 +9,10 @@ public class Plant extends WWPlant {
 	private EventBehavior eventBehavior;
 	private AnimationBehavior animationBehavior;
 	
+	public Plant() {
+		penetratable = true;
+	}
+	
 	private EventBehavior getEventBehavior() {
 		if (eventBehavior == null) {
 			eventBehavior = new EventBehavior();

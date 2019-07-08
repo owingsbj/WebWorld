@@ -9,6 +9,10 @@ public class Cylinder extends WWCylinder {
 	private EventBehavior eventBehavior;
 	private AnimationBehavior animationBehavior;
 	
+	public Cylinder() {
+		penetratable = true;
+	}
+	
 	private EventBehavior getEventBehavior() {
 		if (eventBehavior == null) {
 			eventBehavior = new EventBehavior();
