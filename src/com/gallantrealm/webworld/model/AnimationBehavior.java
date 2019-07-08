@@ -49,34 +49,74 @@ public class AnimationBehavior extends WWAnimation {
 			lastTime = time;
 			if (type.equals("walking")) {
 				if ("left arm".equals(object.name)) {
-					position.y += 0.2f * object.sizeZ * FastMath.sin(animationTime / 2.0f / FastMath.PI)  * range;
+					position.y += 0.2f * object.sizeZ * FastMath.sin(2.0f * FastMath.PI * animationTime)  * range;
 				}
 				if ("right arm".equals(object.name)) {
-					position.y -= 0.2f * object.sizeZ * FastMath.sin(animationTime / 2.0f / FastMath.PI) * range;
+					position.y -= 0.2f * object.sizeZ * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("left leg".equals(object.name)) {
-					position.y += 0.2f * object.sizeZ * FastMath.sin(animationTime / 2.0f / FastMath.PI)  * range;
+					position.y += 0.2f * object.sizeZ * FastMath.sin(2.0f * FastMath.PI * animationTime)  * range;
 				}
 				if ("right leg".equals(object.name)) {
-					position.y -= 0.2f * object.sizeZ * FastMath.sin(animationTime / 2.0f / FastMath.PI) * range;
+					position.y -= 0.2f * object.sizeZ * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 			} else if (type.equals("swimming")) {
+				if ("torso".equals(object.name)) {
+					position.z += object.sizeY / 2.0f * FastMath.abs(range);
+				}
 				if ("left arm".equals(object.name)) {
-					position.y += 0.5f * object.sizeZ * FastMath.sin(animationTime / 2.0f / FastMath.PI) ;
-					position.z -= 0.5f * object.sizeZ * FastMath.cos(animationTime / 2.0f / FastMath.PI) ;
+					float rotationRadius = (object.sizeZ - object.sizeY/ 2.0f) / 2.0f;
+					position.y -= rotationRadius * FastMath.sin(FastMath.PI * animationTime) ;
+					position.z += -rotationRadius * FastMath.cos(FastMath.PI * animationTime) + object.sizeY;
 				}
 				if ("right arm".equals(object.name)) {
-					position.y -= 0.5f * object.sizeZ * FastMath.sin(animationTime / 2.0f / FastMath.PI);
-					position.z += 0.5f * object.sizeZ * FastMath.cos(animationTime / 2.0f / FastMath.PI);
+					float rotationRadius = (object.sizeZ - object.sizeY/ 2.0f) / 2.0f;
+					position.y -= rotationRadius * FastMath.sin(FastMath.PI * animationTime + FastMath.PI) ;
+					position.z += -rotationRadius * FastMath.cos(FastMath.PI * animationTime + FastMath.PI) + object.sizeY;
 				}
 				if ("left leg".equals(object.name)) {
-					position.y += 0.2f * object.sizeZ * FastMath.sin(animationTime / 2.0f / FastMath.PI)  * range;
+					position.y += 0.2f * object.sizeZ * FastMath.sin(2.0f * FastMath.PI * animationTime)  * range;
 				}
 				if ("right leg".equals(object.name)) {
-					position.y -= 0.2f * object.sizeZ * FastMath.sin(animationTime / 2.0f / FastMath.PI) * range;
+					position.y -= 0.2f * object.sizeZ * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				}
+			} else if (type.equals("treading")) {
+				if ("torso".equals(object.name)) {
+					position.y -= 0.1f * object.sizeY * FastMath.sin(2.0f * FastMath.PI * animationTime)  * range;
+				}
+				if ("left arm".equals(object.name)) {
+					position.x -= object.sizeX;
+					position.y += 0.2f * object.sizeZ * FastMath.sin(2.0f * FastMath.PI * animationTime)  * range;
+					position.z += 0.965 * (object.sizeZ / 2.0f - object.sizeX);
+				}
+				if ("right arm".equals(object.name)) {
+					position.x += object.sizeX;
+					position.y += 0.2f * object.sizeZ * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					position.z += 0.965 * (object.sizeZ / 2.0f - object.sizeX);
+				}
+				if ("left leg".equals(object.name)) {
+					position.y += 0.2f * object.sizeZ * FastMath.sin(2.0f * FastMath.PI * animationTime)  * range;
+				}
+				if ("right leg".equals(object.name)) {
+					position.y -= 0.2f * object.sizeZ * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 			} else if (type.equals("falling")) {
-				
+				if ("left arm".equals(object.name)) {
+//					rotation.y -= 75f * FastMath.abs(range);
+					position.x -= (object.sizeZ - object.sizeX) / 2.0 * FastMath.sin(75f * FastMath.abs(range) * FastMath.TORADIAN);
+					position.z += (object.sizeZ / 2.0 - object.sizeX) * FastMath.sin(75f * FastMath.abs(range) * FastMath.TORADIAN);
+				}
+				if ("right arm".equals(object.name)) {
+//					rotation.y += 75f * FastMath.abs(range);
+					position.x += (object.sizeZ - object.sizeX) / 2.0 * FastMath.sin(75f * FastMath.abs(range) * FastMath.TORADIAN);
+					position.z += (object.sizeZ / 2.0 - object.sizeX) * FastMath.sin(75f * FastMath.abs(range) * FastMath.TORADIAN);
+				}
+				if ("left leg".equals(object.name)) {
+					position.x += object.sizeZ / 2.0f * FastMath.sin(15  * FastMath.abs(range) * FastMath.TORADIAN);
+				}
+				if ("right leg".equals(object.name)) {
+					position.x  -= object.sizeZ / 2.0f * FastMath.sin(15  * FastMath.abs(range) * FastMath.TORADIAN);
+				}
 			}
 		}
 	}
@@ -87,39 +127,67 @@ public class AnimationBehavior extends WWAnimation {
 		if (started) {
 			if (type.equals("walking")) {
 				if ("left arm".equals(object.name)) {
-					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime  / 2.0f / FastMath.PI) * range;
+					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("right arm".equals(object.name)) {
-					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime  / 2.0f / FastMath.PI) * range;
+					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("left leg".equals(object.name)) {
-					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime  / 2.0f / FastMath.PI) * range;
+					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("right leg".equals(object.name)) {
-					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime  / 2.0f / FastMath.PI) * range;
+					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 			} else if (type.equals("swimming")) {
 				if ("torso".equals(object.name)) {
-					rotation.x += 60 * range;
+					rotation.x += 75 * range;
 				}
 				if ("head".equals(object.name)) {
 					rotation.x -= 45 * range;
 				}
 				if ("left arm".equals(object.name)) {
-					rotation.x += FastMath.TODEGREES * (animationTime  / 2.0f / FastMath.PI);
+					rotation.x += FastMath.TODEGREES * (FastMath.PI * animationTime);
 				}
 				if ("right arm".equals(object.name)) {
-					rotation.x += FastMath.TODEGREES * (animationTime  / 2.0f / FastMath.PI);
+					rotation.x += FastMath.TODEGREES * (FastMath.PI * animationTime) + 180;
 				}
 				if ("left leg".equals(object.name)) {
-					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime  / 2.0f / FastMath.PI) * range;
+					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("right leg".equals(object.name)) {
-					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(animationTime  / 2.0f / FastMath.PI) * range;
+					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
-
+			} else if (type.equals("treading")) {
+				if ("left arm".equals(object.name)) {
+					rotation.y -= 75f;
+					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				}
+				if ("right arm".equals(object.name)) {
+					rotation.y += 75f;
+					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime + FastMath.PI) * range;
+				}
+				if ("left leg".equals(object.name)) {
+					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				}
+				if ("right leg".equals(object.name)) {
+					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				}
 			} else if (type.equals("falling")) {
-				
+				if ("torso".equals(object.name)) {
+					rotation.x -= 30f * FastMath.abs(range);
+				}
+				if ("left arm".equals(object.name)) {
+					rotation.y -= 75f * FastMath.abs(range);
+				}
+				if ("right arm".equals(object.name)) {
+					rotation.y += 75f * FastMath.abs(range);
+				}
+				if ("left leg".equals(object.name)) {
+					rotation.y += 15f * FastMath.abs(range);
+				}
+				if ("right leg".equals(object.name)) {
+					rotation.y -= 15f * FastMath.abs(range);
+				}
 			}
 		}
 	}
