@@ -1,4 +1,4 @@
-- Add swimming and falling animations
+- Fix location of camera when using first-person view.
 - Improve screen control look and action
 - Add sharing of worlds to website
 - Add customize capability for avatars
