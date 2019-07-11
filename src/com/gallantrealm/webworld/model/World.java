@@ -259,6 +259,7 @@ public class World extends WWWorld {
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new Exception(scrubScriptError(e.getMessage()));
 			} finally {
 				World.runningAvatarScript = false;
@@ -278,6 +279,7 @@ public class World extends WWWorld {
 			this.addObject(avatar);
 			user.setAvatarId(avatar.getId());
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new Exception("Couldn't download avatar " + avatarName + ".  Are you connected to the internet?");
 		} finally {
 			if (inputStream != null) {
@@ -328,9 +330,11 @@ public class World extends WWWorld {
 			try {
 				cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new Exception(scrubScriptError(e.getMessage()));
 			}
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new Exception("Couldn't download world " + worldName + ".  Are you connected to the internet?");
 		} finally {
 			if (inputStream != null) {
