@@ -1,5 +1,6 @@
 package com.gallantrealm.webworld.model;
 
+import java.util.HashMap;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.model.WWAnimation;
 import com.gallantrealm.myworld.model.WWObject;
@@ -14,6 +15,18 @@ public class AnimationBehavior extends WWAnimation {
 	private boolean started;
 	private transient long lastTime;
 	private transient float animationTime;
+
+	// SmoothValues provides a place to remember the last animation size so it can be smoothed when switching
+	// animations.
+	private final class SmoothValues {
+		float rotationX;
+		float rotationY;
+		float rotationZ;
+		float positionX;
+		float positionY;
+		float positionZ;
+	}
+	private HashMap<String, SmoothValues> smoothAnimation = new HashMap<String, SmoothValues>();
 
 	public String getType() {
 		return type;
@@ -31,7 +44,7 @@ public class AnimationBehavior extends WWAnimation {
 		}
 		started = true;
 	}
-	
+
 	public void stop() {
 		started = false;
 		animationTime = 0;
@@ -82,7 +95,7 @@ public class AnimationBehavior extends WWAnimation {
 				}
 			} else if (type.equals("treading")) {
 				if ("torso".equals(object.name)) {
-					position.y -= 0.1f * object.sizeY * FastMath.sin(2.0f * FastMath.PI * animationTime)  * range;
+					position.y -= 0.1f * object.sizeY * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("left arm".equals(object.name)) {
 //					position.x -= object.sizeX;
@@ -117,6 +130,19 @@ public class AnimationBehavior extends WWAnimation {
 				}
 			}
 		}
+		if (object.name != null) {
+			SmoothValues smoothValues = smoothAnimation.get(object.name);
+			if (smoothValues == null) {
+				smoothValues = new SmoothValues();
+				smoothAnimation.put(object.name, smoothValues);
+			}
+			smoothValues.positionX = 0.1f * position.x + 0.9f * smoothValues.positionX;
+			smoothValues.positionY = 0.1f * position.y + 0.9f * smoothValues.positionY;
+			smoothValues.positionZ = 0.1f * position.z + 0.9f * smoothValues.positionZ;
+			position.x = smoothValues.positionX;
+			position.y = smoothValues.positionY;
+			position.z = smoothValues.positionZ;
+		}
 	}
 
 	// Note: this will be called for both the parent and child objects
@@ -136,12 +162,21 @@ public class AnimationBehavior extends WWAnimation {
 				if ("right leg".equals(object.name)) {
 					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
+				if ("left calf".equals(object.name)) {
+					rotation.x += Math.min(0.0f, -object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+				}
+				if ("right calf".equals(object.name)) {
+					rotation.x += Math.min(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+				}
 			} else if (type.equals("swimming")) {
 				if ("torso".equals(object.name)) {
 					rotation.x += 75 * range;
 				}
 				if ("head".equals(object.name)) {
 					rotation.x -= 45 * range;
+				}
+				if ("neck".equals(object.name)) {
+					rotation.x -= 15 * range;
 				}
 				if ("left arm".equals(object.name)) {
 					rotation.x += FastMath.TODEGREES * (FastMath.PI * animationTime);
@@ -154,6 +189,24 @@ public class AnimationBehavior extends WWAnimation {
 				}
 				if ("right leg".equals(object.name)) {
 					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				}
+				if ("left calf".equals(object.name)) {
+					rotation.x += Math.min(0.0f, -object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+				}
+				if ("right calf".equals(object.name)) {
+					rotation.x += Math.min(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+				}
+				if ("left foot".equals(object.name)) {
+					rotation.x -= 90f;
+				}
+				if ("right foot".equals(object.name)) {
+					rotation.x -= 90f;
+				}
+				if ("left hand".equals(object.name)) {
+					rotation.z += 90f;
+				}
+				if ("right hand".equals(object.name)) {
+					rotation.z += 90f;
 				}
 			} else if (type.equals("treading")) {
 				if ("left arm".equals(object.name)) {
@@ -169,6 +222,12 @@ public class AnimationBehavior extends WWAnimation {
 				}
 				if ("right leg".equals(object.name)) {
 					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				}
+				if ("left foot".equals(object.name)) {
+					rotation.x -= 90f;
+				}
+				if ("right foot".equals(object.name)) {
+					rotation.x -= 90f;
 				}
 			} else if (type.equals("falling")) {
 				if ("torso".equals(object.name)) {
@@ -187,6 +246,19 @@ public class AnimationBehavior extends WWAnimation {
 					rotation.y -= 15f * FastMath.abs(range);
 				}
 			}
+		}
+		if (object.name != null) {
+			SmoothValues smoothValues = smoothAnimation.get(object.name);
+			if (smoothValues == null) {
+				smoothValues = new SmoothValues();
+				smoothAnimation.put(object.name, smoothValues);
+			}
+			smoothValues.rotationX = (0.1f * rotation.x + 0.9f * smoothValues.rotationX) % 360;
+			smoothValues.rotationY = (0.1f * rotation.y + 0.9f * smoothValues.rotationY) % 360;
+			smoothValues.rotationZ = (0.1f * rotation.z + 0.9f * smoothValues.rotationZ) % 360;
+			rotation.x = smoothValues.rotationX;
+			rotation.y = smoothValues.rotationY;
+			rotation.z = smoothValues.rotationZ;
 		}
 	}
 
