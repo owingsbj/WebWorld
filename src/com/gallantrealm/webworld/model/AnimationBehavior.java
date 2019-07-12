@@ -22,11 +22,9 @@ public class AnimationBehavior extends WWAnimation {
 		float rotationX;
 		float rotationY;
 		float rotationZ;
-		float positionX;
-		float positionY;
-		float positionZ;
 	}
-	private HashMap<String, SmoothValues> smoothAnimation = new HashMap<String, SmoothValues>();
+
+	private transient HashMap<String, SmoothValues> smoothAnimation;
 
 	public String getType() {
 		return type;
@@ -129,19 +127,6 @@ public class AnimationBehavior extends WWAnimation {
 //					position.x  -= object.sizeZ / 2.0f * FastMath.sin(15  * FastMath.abs(range) * FastMath.TORADIAN);
 				}
 			}
-		}
-		if (object.name != null) {
-			SmoothValues smoothValues = smoothAnimation.get(object.name);
-			if (smoothValues == null) {
-				smoothValues = new SmoothValues();
-				smoothAnimation.put(object.name, smoothValues);
-			}
-			smoothValues.positionX = 0.1f * position.x + 0.9f * smoothValues.positionX;
-			smoothValues.positionY = 0.1f * position.y + 0.9f * smoothValues.positionY;
-			smoothValues.positionZ = 0.1f * position.z + 0.9f * smoothValues.positionZ;
-			position.x = smoothValues.positionX;
-			position.y = smoothValues.positionY;
-			position.z = smoothValues.positionZ;
 		}
 	}
 
@@ -247,19 +232,55 @@ public class AnimationBehavior extends WWAnimation {
 				}
 			}
 		}
+		
+		// Disabling smooth animation.  It worked nicely at high refresh rates but once
+		// the rate was too slow to cover a swim stroke it begins to mess up
+/*
 		if (object.name != null) {
+			if (smoothAnimation == null) {
+				smoothAnimation = new HashMap<String, SmoothValues>();
+			}
 			SmoothValues smoothValues = smoothAnimation.get(object.name);
 			if (smoothValues == null) {
 				smoothValues = new SmoothValues();
 				smoothAnimation.put(object.name, smoothValues);
+				smoothValues.rotationX = rotation.x;
+				smoothValues.rotationY = rotation.y;
+				smoothValues.rotationZ = rotation.z;
+			} else {
+				rotation.x = (rotation.x + 360) % 360;
+				if (FastMath.abs(smoothValues.rotationX - rotation.x) > 180) {
+					if (rotation.x > smoothValues.rotationX) {
+						smoothValues.rotationX += 360;
+					} else {
+						smoothValues.rotationX -= 360;
+					}
+				}
+				rotation.y = (rotation.y + 360) % 360;
+				if (FastMath.abs(smoothValues.rotationY - rotation.y) > 180) {
+					if (rotation.y > smoothValues.rotationY) {
+						smoothValues.rotationY += 360;
+					} else {
+						smoothValues.rotationY -= 360;
+					}
+				}
+				rotation.z = (rotation.z + 360) % 360;
+				if (FastMath.abs(smoothValues.rotationZ - rotation.z) > 180) {
+					if (rotation.z > smoothValues.rotationZ) {
+						smoothValues.rotationZ += 360;
+					} else {
+						smoothValues.rotationZ -= 360;
+					}
+				}
+				smoothValues.rotationX = (0.1f * rotation.x + 0.9f * smoothValues.rotationX);
+				smoothValues.rotationY = (0.1f * rotation.y + 0.9f * smoothValues.rotationY);
+				smoothValues.rotationZ = (0.1f * rotation.z + 0.9f * smoothValues.rotationZ);
+				rotation.x = smoothValues.rotationX;
+				rotation.y = smoothValues.rotationY;
+				rotation.z = smoothValues.rotationZ;
 			}
-			smoothValues.rotationX = (0.1f * rotation.x + 0.9f * smoothValues.rotationX) % 360;
-			smoothValues.rotationY = (0.1f * rotation.y + 0.9f * smoothValues.rotationY) % 360;
-			smoothValues.rotationZ = (0.1f * rotation.z + 0.9f * smoothValues.rotationZ) % 360;
-			rotation.x = smoothValues.rotationX;
-			rotation.y = smoothValues.rotationY;
-			rotation.z = smoothValues.rotationZ;
 		}
+*/
 	}
 
 }
