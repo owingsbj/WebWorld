@@ -136,16 +136,22 @@ public class AnimationBehavior extends WWAnimation {
 		if (started) {
 			if (type.equals("walking")) {
 				if ("left arm".equals(object.name)) {
-					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					rotation.x -= 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("right arm".equals(object.name)) {
-					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					rotation.x += 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				}
+				if ("left forearm".equals(object.name)) {
+					rotation.x += Math.max(0.0, - 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
+				}
+				if ("right forearm".equals(object.name)) {
+					rotation.x += Math.max(0.0, 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
 				if ("left leg".equals(object.name)) {
-					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					rotation.x -= 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("right leg".equals(object.name)) {
-					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					rotation.x += 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("left calf".equals(object.name)) {
 					rotation.x += Math.min(0.0f, -object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
@@ -170,10 +176,10 @@ public class AnimationBehavior extends WWAnimation {
 					rotation.x += FastMath.TODEGREES * (FastMath.PI * animationTime) + 180;
 				}
 				if ("left leg".equals(object.name)) {
-					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					rotation.x -= 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("right leg".equals(object.name)) {
-					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					rotation.x += 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("left calf".equals(object.name)) {
 					rotation.x += Math.min(0.0f, -object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
@@ -196,17 +202,23 @@ public class AnimationBehavior extends WWAnimation {
 			} else if (type.equals("treading")) {
 				if ("left arm".equals(object.name)) {
 					rotation.y -= 75f;
-					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					rotation.x -= 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("right arm".equals(object.name)) {
 					rotation.y += 75f;
-					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime + FastMath.PI) * range;
+					rotation.x += 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime + FastMath.PI) * range;
+				}
+				if ("left forearm".equals(object.name)) {
+					rotation.x += Math.max(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+				}
+				if ("right forearm".equals(object.name)) {
+					rotation.x += Math.max(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
 				}
 				if ("left leg".equals(object.name)) {
-					rotation.x -= 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					rotation.x -= 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("right leg".equals(object.name)) {
-					rotation.x += 0.5f * object.sizeZ * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					rotation.x += 0.5f  * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("left foot".equals(object.name)) {
 					rotation.x -= 90f;
