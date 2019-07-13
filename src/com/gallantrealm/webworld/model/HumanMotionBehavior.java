@@ -47,8 +47,10 @@ public final class HumanMotionBehavior extends WWAnimation {
 			if (lastSlidOnSolid > world.getWorldTime() - 500) {
 				if (FastMath.abs(velocityForward) < 0.25) {
 					webobject.stopAnimation();
-				} else {
+				} else if (FastMath.abs(velocityForward) <= 2.5) {
 					webobject.animate("walking", velocityForward, velocityForward / 2);
+				} else {
+					webobject.animate("running", velocityForward, 1);
 				}
 			} else if (lastSlidThruLiquid > world.getWorldTime() - 500) {
 				if (Math.abs(velocityForward) < 0.25) {

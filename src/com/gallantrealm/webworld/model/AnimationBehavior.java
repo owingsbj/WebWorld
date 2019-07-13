@@ -73,7 +73,7 @@ public class AnimationBehavior extends WWAnimation {
 				}
 			} else if (type.equals("running")) {
 				if ("torso".equals(object.name)) {
-					position.z += 0.5f * FastMath.TODEGREES * FastMath.sin(4.0f * FastMath.PI * animationTime) * range;
+					position.z += 0.1f * (FastMath.sin(4.0f * FastMath.PI * animationTime) + 1) / 2.0f;
 				}
 			} else if (type.equals("swimming")) {
 				if ("torso".equals(object.name)) {
@@ -158,23 +158,23 @@ public class AnimationBehavior extends WWAnimation {
 					rotation.x += 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("left calf".equals(object.name)) {
-					rotation.x += Math.min(0.0f, -object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+					rotation.x += Math.min(0.0f, -FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
 				}
 				if ("right calf".equals(object.name)) {
-					rotation.x += Math.min(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+					rotation.x += Math.min(0.0f, FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
 				}
 			} else if (type.equals("running")) {
 				if ("left arm".equals(object.name)) {
-					rotation.x -= 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					rotation.x += -0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range - 45;
 				}
 				if ("right arm".equals(object.name)) {
-					rotation.x += 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+					rotation.x += 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range - 45;
 				}
 				if ("left forearm".equals(object.name)) {
-					rotation.x += Math.max(0.0, -0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
+					rotation.x += 90;
 				}
 				if ("right forearm".equals(object.name)) {
-					rotation.x += Math.max(0.0, 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
+					rotation.x += 90;
 				}
 				if ("left leg".equals(object.name)) {
 					rotation.x -= 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
@@ -183,10 +183,10 @@ public class AnimationBehavior extends WWAnimation {
 					rotation.x += 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 				if ("left calf".equals(object.name)) {
-					rotation.x += Math.min(0.0f, -object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+					rotation.x += Math.max(-90, Math.min(0.0f, -3 * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
 				}
 				if ("right calf".equals(object.name)) {
-					rotation.x += Math.min(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+					rotation.x += Math.max(-90, Math.min(0.0f, 3 * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
 				}
 			} else if (type.equals("swimming")) {
 				if ("torso".equals(object.name)) {
