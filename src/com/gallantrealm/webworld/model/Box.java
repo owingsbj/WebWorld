@@ -3,7 +3,7 @@ package com.gallantrealm.webworld.model;
 import org.mozilla.javascript.Function;
 import com.gallantrealm.myworld.model.WWBox;
 
-public class Box extends WWBox {
+public class Box extends WWBox implements WebWorldObject {
 	private static final long serialVersionUID = 1L;
 	
 	private EventBehavior eventBehavior;

@@ -3,7 +3,7 @@ package com.gallantrealm.webworld.model;
 import org.mozilla.javascript.Function;
 import com.gallantrealm.myworld.model.WWTorus;
 
-public class Torus extends WWTorus {
+public class Torus extends WWTorus implements WebWorldObject {
 	private static final long serialVersionUID = 1L;
 
 	private EventBehavior eventBehavior;
