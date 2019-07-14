@@ -4,7 +4,7 @@ import org.mozilla.javascript.Function;
 import com.gallantrealm.myworld.model.WWColor;
 import com.gallantrealm.myworld.model.WWTranslucency;
 
-public class Translucency extends WWTranslucency implements WebWorldObject {
+public class Translucency extends WWTranslucency {
 	private static final long serialVersionUID = 1L;
 	
 	public Translucency() {

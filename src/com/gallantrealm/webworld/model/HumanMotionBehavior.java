@@ -1,11 +1,10 @@
 package com.gallantrealm.webworld.model;
 
 import com.gallantrealm.myworld.FastMath;
-import com.gallantrealm.myworld.model.WWAnimation;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWVector;
 
-public final class HumanMotionBehavior extends WWAnimation {
+public final class HumanMotionBehavior extends AnimationBehavior {
 	private static final long serialVersionUID = 1L;
 
 	private long lastSlidOnSolid = -1000;
@@ -17,10 +16,12 @@ public final class HumanMotionBehavior extends WWAnimation {
 
 	@Override
 	public void getAnimatedPosition(WWObject object, WWVector position, long time) {
+		super.getAnimatedPosition(object, position, time);
 	}
 
 	@Override
 	public void getAnimatedRotation(WWObject object, WWVector rotation, long time) {
+		super.getAnimatedRotation(object, rotation, time);
 	}
 
 	@Override
@@ -41,39 +42,36 @@ public final class HumanMotionBehavior extends WWAnimation {
 
 	@Override
 	public boolean timerEvent(WWObject object) {
-		if (object instanceof WebWorldObject) {
-			WebWorldObject webobject = (WebWorldObject) object;
-			float velocityForward = object.getVelocity().antirotate(object.getRotation()).y;
-			if (lastSlidOnSolid > world.getWorldTime() - 500) {
-				if (FastMath.abs(velocityForward) < 0.25) {
-					webobject.stopAnimation();
-				} else if (FastMath.abs(velocityForward) <= 2.5) {
-					webobject.animate("walking", velocityForward, velocityForward / 2);
-				} else {
-					webobject.animate("running", velocityForward, 1);
-				}
-			} else if (lastSlidThruLiquid > world.getWorldTime() - 500) {
-				if (Math.abs(velocityForward) < 0.25) {
-					webobject.animate("treading");
-				} else {
-					webobject.animate("swimming", velocityForward, velocityForward / 2);
-				}
+		float velocityForward = object.getVelocity().antirotate(object.getRotation()).y;
+		if (lastSlidOnSolid > world.getWorldTime() - 500) {
+			if (FastMath.abs(velocityForward) < 0.25) {
+				stop();
+			} else if (FastMath.abs(velocityForward) <= 2.5) {
+				start("walking", velocityForward, velocityForward / 2);
 			} else {
-				float velocityDown = FastMath.abs(object.getVelocity().clone().antirotate(object.getRotation()).z);
-				webobject.animate("falling", 1, velocityDown / 10);
+				start("running", velocityForward, 1);
 			}
-			WWObject head = object.getChild("head");
-			if (head != null) {
-				float turningForce = object.getTorque().clone().antirotate(object.getRotation()).z;
-				WWVector headRotation = head.getRotation();
-				if (velocityForward <= 0) { // negative means ahead
-					head.setRotation(headRotation.x, headRotation.y, turningForce / 2);
-				} else {
-					head.setRotation(headRotation.x, headRotation.y, -turningForce / 2);
-				}
+		} else if (lastSlidThruLiquid > world.getWorldTime() - 500) {
+			if (Math.abs(velocityForward) < 0.25) {
+				start("treading", 1, 1);
+			} else {
+				start("swimming", velocityForward, velocityForward / 2);
 			}
-			setTimer(100); // to repeat
+		} else {
+			float velocityDown = FastMath.abs(object.getVelocity().clone().antirotate(object.getRotation()).z);
+			start("falling", 1, velocityDown / 10);
 		}
+		WWObject head = object.getChild("head");
+		if (head != null) {
+			float turningForce = object.getTorque().clone().antirotate(object.getRotation()).z;
+			WWVector headRotation = head.getRotation();
+			if (velocityForward <= 0) { // negative means ahead
+				head.setRotation(headRotation.x, headRotation.y, turningForce / 2);
+			} else {
+				head.setRotation(headRotation.x, headRotation.y, -turningForce / 2);
+			}
+		}
+		setTimer(100); // to repeat
 		return false;
 	}
 }
