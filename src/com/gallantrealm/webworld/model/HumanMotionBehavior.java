@@ -46,7 +46,7 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 		if (lastSlidOnSolid > world.getWorldTime() - 500) {
 			if (FastMath.abs(velocityForward) < 0.25) {
 				stop();
-			} else if (FastMath.abs(velocityForward) <= 2.5) {
+			} else if (FastMath.abs(velocityForward) <= 2.75) {
 				start("walking", velocityForward, velocityForward / 2);
 			} else {
 				start("running", velocityForward, 1);
