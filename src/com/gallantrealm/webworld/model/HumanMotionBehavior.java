@@ -61,7 +61,7 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 			float velocityDown = FastMath.abs(object.getVelocity().clone().antirotate(object.getRotation()).z);
 			start("falling", 1, velocityDown / 10);
 		}
-		WWObject head = object.getChild("head");
+		WWObject head = object.getDescendant("head");
 		if (head != null) {
 			float turningForce = object.getTorque().clone().antirotate(object.getRotation()).z;
 			WWVector headRotation = head.getRotation();
