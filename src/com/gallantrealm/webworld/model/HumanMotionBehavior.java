@@ -9,6 +9,7 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 
 	private long lastSlidOnSolid = -1000;
 	private long lastSlidThruLiquid = -1000;
+	private WWObject lastSlidOnObject;
 
 	public HumanMotionBehavior() {
 		setTimer(100);
@@ -28,8 +29,10 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 	public boolean slideEvent(WWObject object, WWObject nearObject, WWVector proximity) {
 		if (nearObject.solid) {
 			lastSlidOnSolid = world.getWorldTime();
+			lastSlidOnObject = nearObject;
 		} else if (nearObject.density > object.density) {
 			lastSlidThruLiquid = world.getWorldTime();
+			lastSlidOnObject = nearObject;
 		}
 		return false;
 	}
@@ -50,6 +53,10 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 				start("walking", velocityForward, velocityForward / 2);
 			} else {
 				start("running", velocityForward, 1);
+			}
+			if (stepped && lastSlidOnObject.getImpactSound() != null) {
+				world.playSound(lastSlidOnObject.getImpactSound(), 0.25f);
+				stepped = false;
 			}
 		} else if (lastSlidThruLiquid > world.getWorldTime() - 500) {
 			if (Math.abs(velocityForward) < 0.25) {
