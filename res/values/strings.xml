@@ -16,5 +16,5 @@
 	<string name="amazonappkey">393941414236534a4b515531334c5745</string>
 	<string name="showPopupAds">false</string>
 	<string name="showBannerAds">true</string>
-	<string name="usedSounds">grass,movingGrass,water,movingWater,concrete,bonk4,loosingSound,winningSound,winningSound2,car,carScrape,carSlide,carCrash,wood,thruster,skate,beep,thruster,thud,success</string>
+	<string name="usedSounds">grass,movingGrass,splash,movingWater,concrete,bonk4,loosingSound,winningSound,winningSound2,car,carScrape,carSlide,carCrash,wood,thruster,skate,beep,thruster,thud,success</string>
 </resources>

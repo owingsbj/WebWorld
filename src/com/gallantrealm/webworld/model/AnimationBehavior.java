@@ -17,6 +17,8 @@ public class AnimationBehavior extends WWAnimation {
 	private transient float animationTime;
 	transient float lastStepSine;
 	transient boolean stepped;
+	transient float lastStrokeSine;
+	transient boolean stroked;
 
 	// SmoothValues provides a place to remember the last animation size so it can be smoothed when switching
 	// animations.
@@ -80,6 +82,11 @@ public class AnimationBehavior extends WWAnimation {
 				}
 			} else if (type.equals("swimming")) {
 				if ("torso".equals(object.name)) {
+					float strokeSine = FastMath.sin(2.0f * FastMath.PI * animationTime + FastMath.PI);
+					if (lastStrokeSine > 0 && strokeSine < 0) {
+						stroked = true;
+					}
+					lastStrokeSine = strokeSine;
 					position.z += object.sizeY / 2.0f * FastMath.abs(range);
 				}
 			} else if (type.equals("treading")) {
