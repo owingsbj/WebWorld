@@ -55,7 +55,7 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 				start("running", velocityForward, 1);
 			}
 			if (stepped && lastSlidOnObject.getImpactSound() != null) {
-				object.playSound(lastSlidOnObject.getImpactSound(), 0.01f * FastMath.abs(velocityForward));
+				object.playSound(lastSlidOnObject.getImpactSound(), 0.05f * FastMath.abs(velocityForward));
 				stepped = false;
 			}
 		} else if (lastSlidThruLiquid > world.getWorldTime() - 500) {
@@ -64,7 +64,7 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 			} else {
 				start("swimming", velocityForward, velocityForward / 2);
 				if (stroked && lastSlidOnObject.getImpactSound() != null) {
-					object.playSound(lastSlidOnObject.getImpactSound(), 0.01f * FastMath.abs(velocityForward));
+					object.playSound(lastSlidOnObject.getImpactSound(), 0.05f * FastMath.abs(velocityForward));
 					stroked = false;
 				}
 			}
