@@ -32,9 +32,14 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>DevWorlds</name>
+			<type>2</type>
+			<location>C:/Users/owingsbj/Google Drive/DevWorlds</location>
+		</link>
+		<link>
 			<name>web</name>
 			<type>2</type>
-			<location>/Volumes/gallantrealm.com/public_html/webworld</location>
+			<location>Z:/public_html/webworld</location>
 		</link>
 	</linkedResources>
 </projectDescription>

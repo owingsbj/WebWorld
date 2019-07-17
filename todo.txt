@@ -1,4 +1,5 @@
 - Fix "slipping" avatar.
+- Fix remembering of selections on avatar and world.
 - Improve screen control look and action
 - Add sharing of worlds to website
 - Add customize capability for avatars
@@ -10,3 +11,6 @@
     
 - Add built-in editor and debugger
 
+- Additional built-in behaviors for animals (4 legged, 8 legged, snakes, fish, birds)
+
+- Improve physics for rolling motion.
