@@ -22,8 +22,6 @@ import com.gallantrealm.myworld.android.MessageDialog;
 import com.gallantrealm.myworld.android.PauseAction;
 import com.gallantrealm.myworld.android.renderer.AndroidRenderer;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
-import com.gallantrealm.myworld.model.OldPhysicsThread;
-import com.gallantrealm.myworld.model.PhysicsThread;
 import com.gallantrealm.myworld.model.WWAction;
 import com.gallantrealm.myworld.model.WWBehavior;
 import com.gallantrealm.myworld.model.WWObject;
@@ -382,9 +380,9 @@ public class World extends WWWorld {
 		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_AVATAR_ACTIONS_CHANGED);
 	}
 
-	public PhysicsThread makePhysicsThread() {
-		return new OldPhysicsThread(this, 10);
-	}
+//	public PhysicsThread makePhysicsThread() {
+//		return new OldPhysicsThread(this, 10);
+//	}
 
 	@Override
 	public boolean dampenCamera() {
