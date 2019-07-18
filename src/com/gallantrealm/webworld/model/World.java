@@ -444,7 +444,7 @@ public class World extends WWWorld {
 	}
 	
 	public float[] getMoveXTurn() {
-		return new float[] { -90, -60, -30, -15, 0, 0, 0, 15, 30, 60, 90 };
+		return new float[] { -180, -120, -60, -30, -15, 0, 15, 30, 60, 120, 180 };
 	}
 
 	public float[] getMoveYThrust() {
