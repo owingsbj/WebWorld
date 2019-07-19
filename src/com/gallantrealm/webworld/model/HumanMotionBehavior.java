@@ -74,12 +74,12 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 		}
 		WWObject head = object.getDescendant("head");
 		if (head != null) {
-			float turningForce = object.getTorque().clone().antirotate(object.getRotation()).z;
+			float turningForce = object.getTorqueVelocity().clone().antirotate(object.getRotation()).z;
 			WWVector headRotation = head.getRotation();
 			if (velocityForward <= 0) { // negative means ahead
-				head.setRotation(headRotation.x, headRotation.y, turningForce / 2);
+				head.setRotation(headRotation.x, headRotation.y, FastMath.range(turningForce / 2, -45, 45));
 			} else {
-				head.setRotation(headRotation.x, headRotation.y, -turningForce / 2);
+				head.setRotation(headRotation.x, headRotation.y, -FastMath.range(turningForce / 2, -45, 45));
 			}
 		}
 		setTimer(50); // to repeat
