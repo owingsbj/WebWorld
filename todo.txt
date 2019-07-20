@@ -1,11 +1,11 @@
-- Fix "slipping" avatar.
-- Fix remembering of selections on avatar and world.
 - Improve screen control look and action
 - Add sharing of worlds to website
 - Add customize capability for avatars
 - Add support for world local sounds
 - Add particles
     - a list of predefined particle animations as JavaScript would be too slow
+- More sample worlds!
+- Improve rolling physics (quarternions)
 
 - Add multi-user
     
