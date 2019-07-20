@@ -148,7 +148,7 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 				navatars = avatarFolders.size();
 				currentAvatarNum = 1;
 				for (int i = 0; i < avatarFolders.size(); i++) {
-					if (avatarFolders.get(i).equals(clientModel.getWorldName())) {
+					if (avatarFolders.get(i).equals(clientModel.getAvatarName())) {
 						currentAvatarNum = i + 1;
 					}
 				}
