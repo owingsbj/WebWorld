@@ -30,6 +30,13 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 		if (nearObject.solid) {
 			lastSlidOnSolid = world.getWorldTime();
 			lastSlidOnObject = nearObject;
+			
+			// when the avatar comes to a steep area, allow it to climb
+			float verticle = proximity.clone().normalize().cross(new WWVector(0, 0, 1)).length();
+			if (verticle > 0.5) {
+				object.velocityZ += 0.15f * verticle;
+			}
+			
 		} else if (nearObject.density > object.density) {
 			lastSlidThruLiquid = world.getWorldTime();
 			lastSlidOnObject = nearObject;
@@ -85,5 +92,5 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 		setTimer(50); // to repeat
 		return false;
 	}
-	
+
 }
