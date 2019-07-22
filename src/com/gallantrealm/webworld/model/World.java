@@ -358,6 +358,7 @@ public class World extends WWWorld {
 	@Override
 	public void restored() {
 		clientModel = AndroidClientModel.getClientModel();
+		clientModel.setSelectedObject(clientModel.getAvatar());
 		if (onRestored != null) {
 			callFunction(onRestored, this, new Object[] {});
 		}
