@@ -117,8 +117,8 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 					}
 
 					// Next look in gallanrealm.com
-					System.out.println(">> http://gallantrealm.com/webworld/listAvatars.jsp");
-					connection = (HttpURLConnection) (new URL("http://gallantrealm.com/webworld/listAvatars.jsp")).openConnection();
+					System.out.println(">> https://gallantrealm.com/webworld/listAvatars.jsp");
+					connection = (HttpURLConnection) (new URL("https://gallantrealm.com/webworld/listAvatars.jsp")).openConnection();
 					connection.setConnectTimeout(5000);
 					inputStream = connection.getInputStream();
 					Reader reader = new InputStreamReader(inputStream, "UTF-8");
@@ -239,7 +239,7 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 						inputStream = new FileInputStream(file);
 					} else {
 						// Then try gallantrealm.com
-						URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/avatar.properties");
+						URL url = new URL("https://gallantrealm.com/webworld/avatars/" + avatarName + "/avatar.properties");
 						System.out.println(">> " + url);
 						connection = (HttpURLConnection) (url.openConnection());
 						inputStream = connection.getInputStream();
@@ -289,7 +289,7 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 						inputStream = new FileInputStream(file);
 					} else {
 						// Then try gallantrealm.com
-						URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/" + avatarProps.getProperty("picture"));
+						URL url = new URL("https://gallantrealm.com/webworld/avatars/" + avatarName + "/" + avatarProps.getProperty("picture"));
 						System.out.println(">> " + url);
 						connection = (HttpURLConnection) (url.openConnection());
 						inputStream = connection.getInputStream();

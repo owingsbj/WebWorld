@@ -117,7 +117,7 @@ public class World extends WWWorld {
 				inputStream = new FileInputStream(file);
 			} else {
 				// Then try gallantrealm.com
-				URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/avatar.properties");
+				URL url = new URL("https://gallantrealm.com/webworld/avatars/" + avatarName + "/avatar.properties");
 				System.out.println(">> " + url);
 				connection = (HttpURLConnection) (url.openConnection());
 				inputStream = connection.getInputStream();
@@ -156,7 +156,7 @@ public class World extends WWWorld {
 				inputStream = new FileInputStream(file);
 			} else {
 				// Then try gallantrealm.com
-				URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/world.properties");
+				URL url = new URL("https://gallantrealm.com/webworld/worlds/" + worldName + "/world.properties");
 				System.out.println(">> " + url);
 				connection = (HttpURLConnection) (url.openConnection());
 				inputStream = connection.getInputStream();
@@ -239,7 +239,7 @@ public class World extends WWWorld {
 				World.runningLocalAvatarScript = true;
 			} else {
 				// Then try gallantrealm.com
-				URL url = new URL("http://gallantrealm.com/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("script"));
+				URL url = new URL("https://gallantrealm.com/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("script"));
 				System.out.println(">> " + url);
 				connection = (HttpURLConnection) (url.openConnection());
 				inputStream = connection.getInputStream();
@@ -316,7 +316,7 @@ public class World extends WWWorld {
 				World.runningLocalWorldScript = true;
 			} else {
 				// Then try gallantrealm.com
-				URL url = new URL("http://gallantrealm.com/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
+				URL url = new URL("https://gallantrealm.com/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
 				System.out.println(">> " + url);
 				connection = (HttpURLConnection) (url.openConnection());
 				inputStream = connection.getInputStream();
