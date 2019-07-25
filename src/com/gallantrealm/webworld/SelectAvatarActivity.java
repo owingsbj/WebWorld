@@ -274,7 +274,11 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 		}
 		int n = currentAvatarNum;
 		final String avatarName = avatarFolders.get(currentAvatarNum - 1);
-		avatarNameText.setText(avatarProps.getProperty("name", avatarName) + " by "+ avatarProps.getProperty("author", "unknown"));
+		if (avatarProps.containsKey("name")) {
+			avatarNameText.setText(avatarProps.getProperty("name") + " by "+ avatarProps.getProperty("author", "unknown"));
+		} else {
+			avatarNameText.setText("");
+		}
 		avatarDescriptionText.setText(avatarProps.getProperty("description", ""));
 		avatarImage.setImageBitmap(null);
 		AsyncTask.execute(new Runnable() {

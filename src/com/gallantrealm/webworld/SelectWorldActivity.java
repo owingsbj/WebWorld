@@ -313,7 +313,11 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 		}
 		int n = currentWorldNum;
 		final String worldName = worldFolders.get(currentWorldNum - 1);
-		worldNameText.setText(worldProps.getProperty("name", worldName) + " by " + worldProps.getProperty("author", "unknown"));
+		if (worldProps.containsKey("name")) {
+			worldNameText.setText(worldProps.getProperty("name") + " by " + worldProps.getProperty("author", "unknown"));
+		} else {
+			worldNameText.setText("");
+		}
 		worldDescriptionText.setText(worldProps.getProperty("description", ""));
 		worldScoreText.setText(getScoreString(n));
 		worldImage.setImageBitmap(null);
