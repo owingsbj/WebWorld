@@ -28,6 +28,8 @@ import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWWorld;
 
+import android.os.Build;
+
 public class World extends WWWorld {
 	private static final long serialVersionUID = 1L;
 
@@ -117,7 +119,7 @@ public class World extends WWWorld {
 				inputStream = new FileInputStream(file);
 			} else {
 				// Then try gallantrealm.com
-				URL url = new URL("https://gallantrealm.com/webworld/avatars/" + avatarName + "/avatar.properties");
+				URL url = new URL(clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/avatar.properties");
 				System.out.println(">> " + url);
 				connection = (HttpURLConnection) (url.openConnection());
 				inputStream = connection.getInputStream();
@@ -156,7 +158,7 @@ public class World extends WWWorld {
 				inputStream = new FileInputStream(file);
 			} else {
 				// Then try gallantrealm.com
-				URL url = new URL("https://gallantrealm.com/webworld/worlds/" + worldName + "/world.properties");
+				URL url = new URL(clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/world.properties");
 				System.out.println(">> " + url);
 				connection = (HttpURLConnection) (url.openConnection());
 				inputStream = connection.getInputStream();
@@ -239,7 +241,7 @@ public class World extends WWWorld {
 				World.runningLocalAvatarScript = true;
 			} else {
 				// Then try gallantrealm.com
-				URL url = new URL("https://gallantrealm.com/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("script"));
+				URL url = new URL(clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("script"));
 				System.out.println(">> " + url);
 				connection = (HttpURLConnection) (url.openConnection());
 				inputStream = connection.getInputStream();
@@ -316,7 +318,7 @@ public class World extends WWWorld {
 				World.runningLocalWorldScript = true;
 			} else {
 				// Then try gallantrealm.com
-				URL url = new URL("https://gallantrealm.com/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
+				URL url = new URL(clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
 				System.out.println(">> " + url);
 				connection = (HttpURLConnection) (url.openConnection());
 				inputStream = connection.getInputStream();
