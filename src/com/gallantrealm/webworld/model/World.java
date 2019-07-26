@@ -28,8 +28,6 @@ import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWWorld;
 
-import android.os.Build;
-
 public class World extends WWWorld {
 	private static final long serialVersionUID = 1L;
 
@@ -211,12 +209,12 @@ public class World extends WWWorld {
 		ScriptableObject.putProperty(scope, "SIDE_INSIDE4", 12);
 		ScriptableObject.putProperty(scope, "SIDE_CUTOUT1", 13);
 		ScriptableObject.putProperty(scope, "SIDE_CUTOUT2", 14);
-		
+
 		// Add console and built-in UI methods
 		Console console = new Console();
 		Object wrappedConsole = Context.javaToJS(console, scope);
 		ScriptableObject.putProperty(scope, "console", wrappedConsole);
-		scope.defineFunctionProperties(new String[] {"alert", "confirm", "prompt"}, GlobalFunctions.class, ScriptableObject.READONLY);
+		scope.defineFunctionProperties(new String[] { "alert", "confirm", "prompt" }, GlobalFunctions.class, ScriptableObject.READONLY);
 
 		// make sure the world, some constants, and avatar are available to the world script
 		WWUser user = new WWUser();
@@ -268,14 +266,6 @@ public class World extends WWWorld {
 				throw new Exception("Avatar script " + avatarProperties.getProperty("script") + " didn't set an object to use for an avatar.");
 			}
 
-			// make the avatar pickable and physical (can be overwritten by world)
-			avatar.setPickable(true);
-			avatar.setPhysical(true);
-			avatar.setFreedomMoveZ(true);
-			avatar.setFreedomRotateX(false);
-			avatar.setFreedomRotateY(false);
-			avatar.setFreedomRotateZ(true);
-
 			this.addObject(avatar);
 			user.setAvatarId(avatar.getId());
 		} catch (IOException e) {
@@ -290,59 +280,126 @@ public class World extends WWWorld {
 			}
 		}
 
-		// add a behavior to the avatar so it is facing user for a while
-		if (clientModel.cameraInitiallyFacingAvatar) {
-			WWBehavior avatarCameraBehavior = new WWBehavior() {
-				private static final long serialVersionUID = 1L;
+		if (clientModel.isCustomizeMode()) {
+			
+			// make the avatar pickable and physical, but give it no freedom to move
+			avatar.setPickable(true);
+			avatar.setPhysical(true);
+			avatar.setFreedomMoveX(false);
+			avatar.setFreedomMoveY(false);
+			avatar.setFreedomMoveZ(false);
+			avatar.setFreedomRotateX(false);
+			avatar.setFreedomRotateY(false);
+			avatar.setFreedomRotateZ(false);
 
-				@Override
-				public boolean timerEvent() {
-					clientModel.setViewpoint(clientModel.getViewpoint());
-					return true;
-				}
-			};
-			avatar.addBehavior(avatarCameraBehavior);
-			avatarCameraBehavior.setTimer(5000);
-		}
-
-		// create the world
-		System.out.println("Opening world " + worldName);
-		connection = null;
-		inputStream = null;
-		try {
-			// First try local
-			File file = new File(clientModel.getLocalFolder() + "/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
-			System.out.println(">> " + file);
-			if (file.exists()) {
-				inputStream = new FileInputStream(file);
-				World.runningLocalWorldScript = true;
-			} else {
-				// Then try gallantrealm.com
-				URL url = new URL(clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
-				System.out.println(">> " + url);
-				connection = (HttpURLConnection) (url.openConnection());
-				inputStream = connection.getInputStream();
-				World.runningLocalWorldScript = false;
-			}
-			Reader reader = new InputStreamReader(inputStream, "UTF-8");
-			System.out.println("Running world script..");
-
+			setPersistent(false);
+			setUsesController(false);
+			
+			// Create the customizer world
+			System.out.println("Opening customizer for " + avatarName);
+			connection = null;
+			inputStream = null;
 			try {
-				cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new Exception(scrubScriptError(e.getMessage()));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new Exception("Couldn't download world " + worldName + ".  Are you connected to the internet?");
-		} finally {
-			if (inputStream != null) {
+				// First try local
+				File file = new File(clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer"));
+				System.out.println(">> " + file);
+				if (file.exists()) {
+					inputStream = new FileInputStream(file);
+					World.runningLocalWorldScript = true;
+				} else {
+					// Then try gallantrealm.com
+					URL url = new URL(clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer"));
+					System.out.println(">> " + url);
+					connection = (HttpURLConnection) (url.openConnection());
+					inputStream = connection.getInputStream();
+					World.runningLocalWorldScript = false;
+				}
+				Reader reader = new InputStreamReader(inputStream, "UTF-8");
+				System.out.println("Running customizer script..");
+
 				try {
-					inputStream.close();
-				} catch (IOException e) {
+					cx.evaluateReader(scope, reader, avatarProperties.getProperty("customizer"), 1, null);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new Exception(scrubScriptError(e.getMessage()));
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new Exception("Couldn't download customizer for " + avatarName + ".  Are you connected to the internet?");
+			} finally {
+				if (inputStream != null) {
+					try {
+						inputStream.close();
+					} catch (IOException e) {
+					}
 				}
 			}
+
+		} else {
+
+			// make the avatar pickable and physical (can be overwritten by world)
+			avatar.setPickable(true);
+			avatar.setPhysical(true);
+			avatar.setFreedomMoveZ(true);
+			avatar.setFreedomRotateX(false);
+			avatar.setFreedomRotateY(false);
+			avatar.setFreedomRotateZ(true);
+
+			// add a behavior to the avatar so it is facing user for a while
+			if (clientModel.cameraInitiallyFacingAvatar) {
+				WWBehavior avatarCameraBehavior = new WWBehavior() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public boolean timerEvent() {
+						clientModel.setViewpoint(clientModel.getViewpoint());
+						return true;
+					}
+				};
+				avatar.addBehavior(avatarCameraBehavior);
+				avatarCameraBehavior.setTimer(5000);
+			}
+
+			// create the world
+			System.out.println("Opening world " + worldName);
+			connection = null;
+			inputStream = null;
+			try {
+				// First try local
+				File file = new File(clientModel.getLocalFolder() + "/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
+				System.out.println(">> " + file);
+				if (file.exists()) {
+					inputStream = new FileInputStream(file);
+					World.runningLocalWorldScript = true;
+				} else {
+					// Then try gallantrealm.com
+					URL url = new URL(clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
+					System.out.println(">> " + url);
+					connection = (HttpURLConnection) (url.openConnection());
+					inputStream = connection.getInputStream();
+					World.runningLocalWorldScript = false;
+				}
+				Reader reader = new InputStreamReader(inputStream, "UTF-8");
+				System.out.println("Running world script..");
+
+				try {
+					cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new Exception(scrubScriptError(e.getMessage()));
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new Exception("Couldn't download world " + worldName + ".  Are you connected to the internet?");
+			} finally {
+				if (inputStream != null) {
+					try {
+						inputStream.close();
+					} catch (IOException e) {
+					}
+				}
+			}
+
 		}
 
 		// Exit the top-level scope
@@ -441,11 +498,25 @@ public class World extends WWWorld {
 		super.setStatus(status);
 		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_WWMODEL_UPDATED);
 	}
-	
+
 	public final long getTime() {
 		return getWorldTime();
 	}
 	
+	private boolean usesController = true;
+	
+	public void setUsesController(boolean usesController) {
+		this.usesController = usesController;
+	}
+	
+	public boolean getUsesController() {
+		return usesController;
+	}
+	
+	public boolean usesController() {
+		return usesController;
+	}
+
 	public float[] getMoveXTurn() {
 		return new float[] { -180, -120, -60, -30, -15, 0, 15, 30, 60, 120, 180 };
 	}

@@ -280,6 +280,11 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 			avatarNameText.setText("");
 		}
 		avatarDescriptionText.setText(avatarProps.getProperty("description", ""));
+		if (avatarProps.getProperty("customizer") != null) {
+			customizeButton.setVisibility(View.VISIBLE);
+		} else {
+			customizeButton.setVisibility(View.GONE);
+		}
 		avatarImage.setImageBitmap(null);
 		AsyncTask.execute(new Runnable() {
 			public void run() {
@@ -332,11 +337,6 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 			nextButton.setVisibility(View.VISIBLE);
 		}
 		countText.setText("" + n + " of " + navatars);
-		if (clientModel.isCustomizable(n)) {
-			customizeButton.setVisibility(View.VISIBLE);
-		} else {
-			customizeButton.setVisibility(View.GONE);
-		}
 	}
 
 	public String getScoreString(int i) {
