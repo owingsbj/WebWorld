@@ -281,6 +281,7 @@ public class World extends WWWorld {
 		}
 
 		if (clientModel.isCustomizeMode()) {
+			World.runningAvatarScript = true;
 			
 			// make the avatar pickable and physical, but give it no freedom to move
 			avatar.setPickable(true);
