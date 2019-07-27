@@ -224,6 +224,11 @@ public class World extends WWWorld {
 		ScriptableObject.putProperty(scope, "world", wrappedWorld);
 		Object wrappedUser = Context.javaToJS(user, scope);
 		ScriptableObject.putProperty(scope, "user", wrappedUser);
+		
+		// restore or create the avatar customization object
+		AvatarCustomization avatarCustomization = new AvatarCustomization();
+		Object wrappedAvatarCustomization = Context.javaToJS(avatarCustomization, scope);
+		ScriptableObject.putProperty(scope, "avatarCustomization", wrappedAvatarCustomization);
 
 		// create the avatar
 		System.out.println("Opening avatar " + avatarName);
