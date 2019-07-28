@@ -306,6 +306,8 @@ public class World extends WWWorld {
 			connection = null;
 			inputStream = null;
 			try {
+				setName(avatarProperties.getProperty("name"));  // to override
+				
 				// First try local
 				File file = new File(clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer"));
 				System.out.println(">> " + file);
