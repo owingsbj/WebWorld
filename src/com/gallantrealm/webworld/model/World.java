@@ -214,7 +214,7 @@ public class World extends WWWorld {
 		Console console = new Console();
 		Object wrappedConsole = Context.javaToJS(console, scope);
 		ScriptableObject.putProperty(scope, "console", wrappedConsole);
-		scope.defineFunctionProperties(new String[] { "alert", "confirm", "prompt" }, GlobalFunctions.class, ScriptableObject.READONLY);
+		scope.defineFunctionProperties(new String[] { "alert", "confirm", "prompt", "select"}, GlobalFunctions.class, ScriptableObject.READONLY);
 
 		// make sure the world, some constants, and avatar are available to the world script
 		WWUser user = new WWUser();
