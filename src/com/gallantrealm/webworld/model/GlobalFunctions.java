@@ -1,11 +1,7 @@
 package com.gallantrealm.webworld.model;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-
 import org.mozilla.javascript.NativeArray;
-
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.client.model.InputResponseHandler;
 import com.gallantrealm.myworld.client.model.SelectResponseHandler;
@@ -52,10 +48,14 @@ public class GlobalFunctions implements Serializable {
 	}
 	
 	static String[] selections;
+	static String[] imageFileNames;
 	
 	static class Selection1 {
 		public static String getStaticName() {
 			return selections[0];
+		}
+		public static String getStaticImageFileName() {
+			return imageFileNames[0];
 		}
 	}
 	
@@ -63,11 +63,17 @@ public class GlobalFunctions implements Serializable {
 		public static String getStaticName() {
 			return selections[1];
 		}
+		public static String getStaticImageFileName() {
+			return imageFileNames[1];
+		}
 	}
 	
 	static class Selection3 {
 		public static String getStaticName() {
 			return selections[2];
+		}
+		public static String getStaticImageFileName() {
+			return imageFileNames[2];
 		}
 	}
 	
@@ -75,11 +81,17 @@ public class GlobalFunctions implements Serializable {
 		public static String getStaticName() {
 			return selections[3];
 		}
+		public static String getStaticImageFileName() {
+			return imageFileNames[3];
+		}
 	}
 	
 	static class Selection5 {
 		public static String getStaticName() {
 			return selections[4];
+		}
+		public static String getStaticImageFileName() {
+			return imageFileNames[4];
 		}
 	}
 	
@@ -87,12 +99,20 @@ public class GlobalFunctions implements Serializable {
 		public static String getStaticName() {
 			return selections[5];
 		}
+		public static String getStaticImageFileName() {
+			return imageFileNames[5];
+		}
 	}
 	
-	public static String select(String message, NativeArray jsSelections) {
+	public static String select(String message, NativeArray jsSelections, NativeArray jsImageFileNames) {
+		AndroidClientModel clientModel = AndroidClientModel.getClientModel();
 		selections = new String[jsSelections.size()];
 		for (int i = 0; i < selections.length; i++) {
 			selections[i] = String.valueOf(jsSelections.get(i));
+		}
+		imageFileNames = new String[jsImageFileNames.size()];
+		for (int i = 0; i < imageFileNames.length; i++) {
+			imageFileNames[i] = Texture.worldPrefixUrl(String.valueOf(jsImageFileNames.get(i)));
 		}
 		Class[] availableItems = new Class[selections.length];
 		for (int i = 0; i < selections.length; i++) {
@@ -110,14 +130,13 @@ public class GlobalFunctions implements Serializable {
 				availableItems[i] = Selection6.class;
 			}
 		}
-		AndroidClientModel clientModel = AndroidClientModel.getClientModel();
 		returnedValue = null;
 		final Thread thisThread = Thread.currentThread();
 		clientModel.selectAlert(message, availableItems, new String[] { "OK", "Cancel" }, new SelectResponseHandler() {
 			public void handleSelect(Class selectedItem, int option) {
 				if (option == 0) {
 					try {
-					returnedValue = (String)selectedItem.getMethod("getStaticName").invoke(null);
+						returnedValue = (String)selectedItem.getMethod("getStaticName").invoke(null);
 					} catch (Exception e) {
 						returnedValue = null;;
 					}

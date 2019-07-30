@@ -29,7 +29,7 @@ public class Texture extends WWTexture {
 		super(worldPrefixUrl(url), scaleX, scaleY, rotation, offsetX, offsetY, pixelate);
 	}
 
-	private static String worldPrefixUrl(String url) {
+	public static String worldPrefixUrl(String url) {
 		if (url != null) {
 			if (!url.contains(":") && url.contains(".")) { // a file in the world or avatar
 				AndroidClientModel clientModel = AndroidClientModel.getClientModel();
