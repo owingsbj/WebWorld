@@ -90,7 +90,11 @@ public class World extends WWWorld {
 		avatarProperties = getAvatarProperties(clientModel.getAvatarName());
 		worldProperties = getWorldProperties(clientModel.getWorldName());
 		setName(worldProperties.getProperty("name"));
-		setActions(new WWAction[] { new PauseAction(), new ChangeViewAction() });
+		if (!clientModel.isCustomizeMode()) {
+			setActions(new WWAction[] { new PauseAction(), new ChangeViewAction() });
+		} else {
+			//setActions(new WWAction[] {new QuitAction()});
+		}
 
 		// TODO make this work in BlockWorld.js clientModel.cameraInitiallyFacingAvatar = true;
 		clientModel.cameraDampRate = 0;
