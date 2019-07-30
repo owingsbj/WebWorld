@@ -32,8 +32,7 @@
         android:id="@+id/item_row_image"
         android:layout_width="100dp"
         android:layout_height="60dp"
-        android:layout_gravity="center"
-        android:src="@raw/world1" />
+        android:layout_gravity="center" />
 
     <TextView
         android:id="@+id/item_row_description"
