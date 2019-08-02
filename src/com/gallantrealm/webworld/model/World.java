@@ -455,6 +455,38 @@ public class World extends WWWorld {
 //	public PhysicsThread makePhysicsThread() {
 //		return new OldPhysicsThread(this, 10);
 //	}
+	
+	public void playSong(String url) {
+		super.playSong(worldPrefixUrl(url), 1.0f);
+	}
+
+	public void playSong(String url, float volume) {
+		super.playSong(worldPrefixUrl(url), volume);
+	}
+
+	public static String worldPrefixUrl(String url) {
+		if (url != null) {
+			if (!url.contains(":") && url.contains(".")) { // a file in the world or avatar
+				AndroidClientModel clientModel = AndroidClientModel.getClientModel();
+				if (World.runningAvatarScript) {
+					String avatarName = clientModel.getAvatarName();
+					if (World.runningLocalAvatarScript) {
+						return clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + url;
+					} else {
+						return clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + url;
+					}
+				} else {
+					String worldName = clientModel.getWorldName();
+					if (World.runningLocalWorldScript) {
+						return clientModel.getLocalFolder() + "/worlds/" + worldName + "/" + url;
+					} else {
+						return clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/" + url;
+					}
+				}
+			}
+		}
+		return url;
+	}
 
 	@Override
 	public boolean dampenCamera() {
