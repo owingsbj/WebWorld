@@ -4,7 +4,6 @@ import com.gallantrealm.android.FolderSelectorDialog;
 import com.gallantrealm.myworld.android.GallantActivity;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
 import com.gallantrealm.myworld.client.model.ClientModelChangedListener;
-import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
@@ -85,14 +84,17 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		// power saver no longer featured
 		powerSaverCheckBox.setVisibility(View.GONE);
 
-		if (clientModel.useMoga(this) || clientModel.useGamepad(this) || !clientModel.canUseSensors()) {
+		if (clientModel.useMoga(this)) {
 			controlTypeLabel.setVisibility(View.GONE);
 			controlType.setVisibility(View.GONE);
 		} else {
-			if (getString(R.string.supportsScreenController).equals("true") && getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
-				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Screen Right", "Screen Left", "Tilt", "Gamepad" });
+			if (clientModel.canUseScreenControl() && clientModel.canUseSensors()) {
+				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Screen Left", "Screen Right", "Tilt", "Controller" });
+			} else if (clientModel.canUseScreenControl()) {
+				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Screen Left", "Screen Right", "Controller" });
 			} else {
-				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Tilt", "Gamepad" });
+				controlTypeLabel.setVisibility(View.GONE);
+				controlType.setVisibility(View.GONE);
 			}
 			controlTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			controlType.setAdapter(controlTypeAdapter);
@@ -222,7 +224,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 			} else if (clientModel.useZeemote()) {
 				controlType.setSelection(controlTypeAdapter.getPosition("Zeemote"));
 			} else {
-				controlType.setSelection(controlTypeAdapter.getPosition("Gamepad"));
+				controlType.setSelection(controlTypeAdapter.getPosition("Controller"));
 			}
 		}
 // }
@@ -235,7 +237,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 
 	public void onItemSelected(AdapterView av, View view, int arg1, long arg2) {
 		String type = (String) controlType.getSelectedItem();
-		// "Tilt", "Screen Left", "Screen Right", "Zeemote", "Gamepad"
+		// "Screen Left", "Screen Right", "Tilt","Zeemote", "Controller"
 		if (type == null) {
 			return;
 		} else if (type.equals("Tilt")) { // tilt
@@ -262,7 +264,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 			clientModel.setUseSensors(false);
 			clientModel.setUseZeemote(true);
 			clientModel.savePreferences(this);
-		} else if (type.equals("Gamepad")) { // gamepad
+		} else if (type.equals("Controller")) { // gamepad
 			clientModel.setUseScreenControl(false);
 			clientModel.setControlOnLeft(false);
 			clientModel.setUseSensors(false);
