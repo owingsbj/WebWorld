@@ -456,6 +456,26 @@ public class World extends WWWorld {
 //		return new OldPhysicsThread(this, 10);
 //	}
 	
+	@Override
+	public void preloadTexture(String textureName) {
+		super.preloadTexture(worldPrefixUrl(textureName));
+	}
+	
+	@Override
+	public void preloadSound(String soundName) {
+		super.preloadSound(worldPrefixUrl(soundName));
+	}
+	
+	@Override
+	public void playSound(String soundName, float volume) {
+		super.playSound(worldPrefixUrl(soundName), volume);
+	}
+	
+	@Override
+	public void playSound(String soundName, float volume, float pitch) {
+		super.playSound(worldPrefixUrl(soundName), volume, pitch);
+	}
+	
 	public void playSong(String url) {
 		super.playSong(worldPrefixUrl(url), 1.0f);
 	}
