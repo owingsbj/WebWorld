@@ -3,12 +3,20 @@ package com.gallantrealm.webworld.model;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.model.WWParticleAnimation;
 import com.gallantrealm.myworld.model.WWParticleEmitter;
+import com.gallantrealm.myworld.model.WWVector;
 
 public class ParticleEmitter extends WWParticleEmitter {
 	private static final long serialVersionUID = 1L;
 	
 	public String animationName;
 	public int particleRate = 3;
+	
+	public WWVector startLocation = new WWVector(0, 0, 0);
+	public WWVector startLocationRandom = new WWVector(0, 0, 0);
+	public WWVector startVelocity = new WWVector(0, 0, 0);
+	public WWVector startVelocityRandom = new WWVector(0, 0, 0);
+	public float drag = 0.1f;
+	public float gravityInfluence = 1.0f;
 	
 	class ParticleAnimation extends WWParticleAnimation {
 		private static final long serialVersionUID = 1L;
