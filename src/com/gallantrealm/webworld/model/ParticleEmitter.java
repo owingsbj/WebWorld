@@ -10,8 +10,8 @@ public class ParticleEmitter extends WWParticleEmitter {
 
 	private float particleRate = 100.0f;
 	private float particleRateRandom = 0.0f;
-	private float particleDrag = 0.1f;
-	private float particleGravity = 1.0f;
+	private float particleDrag = 0.0f;
+	private float particleGravity = 0.0f;
 	private float particleGrowthRate = 0.0f;
 	private String particleImage = "";
 	private float particleTransparency = 0.0f;
@@ -24,8 +24,8 @@ public class ParticleEmitter extends WWParticleEmitter {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public int getParticleRate() {
-			return (int)((particleRate + particleRateRandom * FastMath.random(-0.5f, 0.5f))*15.0f/1000.0f);
+		public float getParticleRate() {
+			return (particleRate + particleRate * FastMath.random(-particleRateRandom, particleRateRandom))*15.0f/1000.0f;
 		}
 
 		@Override
@@ -52,6 +52,8 @@ public class ParticleEmitter extends WWParticleEmitter {
 					particle.velocity.z * 0.01f);
 			particle.size *= (1.0f + particleGrowthRate);
 			particle.alpha /= (1.0f + particleFadeRate);
+			particle.velocity.scale(1.0f - particleDrag* 15.0f / 1000.0f);
+			particle.velocity.z -= particleGravity * world.getGravity() * 15.0f / 1000.0f;
 		}
 	}
 
