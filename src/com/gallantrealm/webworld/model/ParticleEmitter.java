@@ -8,7 +8,7 @@ import com.gallantrealm.myworld.model.WWVector;
 public class ParticleEmitter extends WWParticleEmitter {
 	private static final long serialVersionUID = 1L;
 
-	private float particleRate = 1;
+	private float particleRate = 100.0f;
 	private float particleRateRandom = 0.0f;
 	private float particleDrag = 0.1f;
 	private float particleGravity = 1.0f;
@@ -25,7 +25,7 @@ public class ParticleEmitter extends WWParticleEmitter {
 
 		@Override
 		public int getParticleRate() {
-			return 3;
+			return (int)((particleRate + particleRateRandom * FastMath.random(-0.5f, 0.5f))*15.0f/1000.0f);
 		}
 
 		@Override
