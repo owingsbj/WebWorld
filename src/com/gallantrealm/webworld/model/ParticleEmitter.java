@@ -7,73 +7,154 @@ import com.gallantrealm.myworld.model.WWVector;
 
 public class ParticleEmitter extends WWParticleEmitter {
 	private static final long serialVersionUID = 1L;
-	
-	public String animationName;
-	public int particleRate = 3;
-	
-	public WWVector startLocation = new WWVector(0, 0, 0);
-	public WWVector startLocationRandom = new WWVector(0, 0, 0);
-	public WWVector startVelocity = new WWVector(0, 0, 0);
-	public WWVector startVelocityRandom = new WWVector(0, 0, 0);
-	public float drag = 0.1f;
-	public float gravityInfluence = 1.0f;
-	
+
+	private float particleRate = 1;
+	private float particleRateRandom = 0.0f;
+	private float particleDrag = 0.1f;
+	private float particleGravity = 1.0f;
+	private float particleGrowthRate = 0.0f;
+	private String particleImage = "";
+	private float particleTransparency = 0.0f;
+	private float particleFadeRate = 0.0f;
+	private WWVector particlePositionRandom = new WWVector(0, 0, 0);
+	private WWVector particleVelocity = new WWVector(0, 0, 0);
+	private WWVector particleVelocityRandom = new WWVector(0, 0, 0);
+
 	class ParticleAnimation extends WWParticleAnimation {
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public int getParticleRate() {
-			return particleRate;
+			return 3;
 		}
-		
+
 		@Override
 		public void startParticle(WWParticleEmitter emitter, Particle particle, long worldTime) {
-			if ("exhaust".equals(animationName)) {
-				particle.position =  emitter.getAbsolutePosition(worldTime -(long)FastMath.random(0, 5));
-				particle.position.add( //
-						emitter.sizeX * FastMath.random(-0.05f, 0.05f), //
-						emitter.sizeY * FastMath.random(-0.05f, 0.05f), //
-						emitter.sizeZ * FastMath.random(-0.05f, 0.05f));
-				particle.size = 0.5f;
-				particle.alpha = 0.5f;
-			}
+			emitter.getAbsolutePosition(particle.position, worldTime);
+			particle.position.add( //
+					particlePositionRandom.x * FastMath.random(-0.5f, 0.5f), //
+					particlePositionRandom.y * FastMath.random(-0.5f, 0.5f), //
+					particlePositionRandom.z * FastMath.random(-0.5f, 0.5f));
+			particle.size = particleSize;
+			particle.alpha = 1.0f - particleTransparency;
+			particleVelocity.copyInto(particle.velocity);
+			particle.velocity.add( //
+					particleVelocityRandom.x * FastMath.random(-0.5f, 0.5f), //
+					particleVelocityRandom.y * FastMath.random(-0.5f, 0.5f), //
+					particleVelocityRandom.z * FastMath.random(-0.5f, 0.5f));
 		}
-		
+
 		@Override
 		public void updateParticle(WWParticleEmitter emitter, Particle particle, long worldTime) {
-			if ("exhaust".equals(animationName)) {
-				particle.position.add( //
-						emitter.sizeX * FastMath.random(-0.01f, 0.01f), //
-						emitter.sizeY * FastMath.random(-0.01f, 0.01f), //
-						emitter.sizeZ * FastMath.random(-0.01f, 0.01f));
-				particle.size += 0.25f;
-				particle.alpha -= 0.1f;
-			}
+			particle.position.add( //
+					particle.velocity.x * 0.01f,
+					particle.velocity.y * 0.01f,
+					particle.velocity.z * 0.01f);
+			particle.size *= (1.0f + particleGrowthRate);
+			particle.alpha /= (1.0f + particleFadeRate);
 		}
 	}
 
 	public ParticleEmitter() {
 		animation = new ParticleAnimation();
 	}
-	
-	public void setType(String type) {
-		animationName = type;
-	}
-	
-	public String getType() {
-		return animationName;
-	}
-	
+
 	public void startAnimation() {
 		super.startAnimation(world.getWorldTime());
 	}
-	
-	public int getParticleRate() {
+
+	public float getParticleRate() {
 		return particleRate;
 	}
-	
-	public void setParticleRate(int particleRate) {
+
+	public void setParticleRate(float particleRate) {
 		this.particleRate = particleRate;
 	}
-	
+
+	public WWVector getParticlePositionRandom() {
+		return particlePositionRandom;
+	}
+
+	public void setParticlePositionRandom(WWVector particlePositionRandom) {
+		this.particlePositionRandom = particlePositionRandom;
+	}
+
+	public WWVector getParticleVelocity() {
+		return particleVelocity;
+	}
+
+	public void setParticleVelocity(WWVector particleVelocity) {
+		this.particleVelocity = particleVelocity;
+	}
+
+	public WWVector getParticleVelocityRandom() {
+		return particleVelocityRandom;
+	}
+
+	public void setParticleVelocityRandom(WWVector particleVelocityRandom) {
+		this.particleVelocityRandom = particleVelocityRandom;
+	}
+
+	public float getParticleDrag() {
+		return particleDrag;
+	}
+
+	public void setParticleDrag(float particleDrag) {
+		this.particleDrag = particleDrag;
+	}
+
+	public float getParticleGravity() {
+		return particleGravity;
+	}
+
+	public void setParticleGravity(float particleGravity) {
+		this.particleGravity = particleGravity;
+	}
+
+	public float getParticleRateRandom() {
+		return particleRateRandom;
+	}
+
+	public void setParticleRateRandom(float particleRateRandom) {
+		this.particleRateRandom = particleRateRandom;
+	}
+
+	public float getParticleGrowthRate() {
+		return particleGrowthRate;
+	}
+
+	public void setParticleGrowthRate(float particleGrowthRate) {
+		this.particleGrowthRate = particleGrowthRate;
+	}
+
+	public String getParticleImage() {
+		return particleImage;
+	}
+
+	public void setParticleImage(String particleImage) {
+		System.out.println(particleImage);
+		this.particleImage = particleImage;
+		//temporary
+		setTextureURL(SIDE_ALL, Texture.worldPrefixUrl(particleImage));
+		setTextureAlphaTest(SIDE_ALL, true);
+	}
+
+	public float getParticleTransparency() {
+		return particleTransparency;
+	}
+
+	public void setParticleTransparency(float particleTransparency) {
+		this.particleTransparency = particleTransparency;
+		// temporary
+		setTransparency(SIDE_ALL, particleTransparency);
+	}
+
+	public float getParticleFadeRate() {
+		return particleFadeRate;
+	}
+
+	public void setParticleFadeRate(float particleFadeRate) {
+		this.particleFadeRate = particleFadeRate;
+	}
+
 }
