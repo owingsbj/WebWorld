@@ -594,7 +594,7 @@ public class World extends WWWorld {
 	public int getMoveXType() {
 		if (moveType == null || moveType.equals("explore")) {
 			return MOVE_TYPE_TURN;
-		} else if (moveType.equals("court")) {
+		} else if (moveType.equals("confront")) {
 			return MOVE_TYPE_SLIDE;
 		} else if (moveType.equals("drive")) {
 			return MOVE_TYPE_TURN;
@@ -607,7 +607,7 @@ public class World extends WWWorld {
 	public int getMoveYType() {
 		if (moveType == null || moveType.equals("explore")) {
 			return MOVE_TYPE_THRUST;
-		} else if (moveType.equals("court")) {
+		} else if (moveType.equals("confront")) {
 			return MOVE_TYPE_THRUST;
 		} else if (moveType.equals("drive")) {
 			return MOVE_TYPE_THRUST;
