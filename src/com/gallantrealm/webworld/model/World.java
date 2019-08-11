@@ -35,18 +35,20 @@ public class World extends WWWorld {
 	public static boolean runningLocalAvatarScript; // another side effect: used by Texture to decide to load local file
 	public static boolean runningLocalWorldScript; // another side effect: used by Texture to decide to load local file
 
-	protected float thrust;
-	protected float torque;
-	protected float lift;
-	protected float lean;
-	protected float tilt;
-
-	transient AndroidClientModel clientModel;
 	Properties worldProperties;
 	Properties avatarProperties;
 	TopLevel scope;
 	Function onRestored;
+	String moveType;
 
+	transient float thrust;
+	transient float torque;
+	transient float lift;
+	transient float lean;
+	transient float tilt;
+
+	transient AndroidClientModel clientModel;
+	
 	public class ChangeViewAction extends WWAction implements Serializable {
 		private static final long serialVersionUID = 1L;
 
@@ -581,12 +583,62 @@ public class World extends WWWorld {
 		return usesController;
 	}
 
+	public String getMoveType() {
+		return moveType == null ? "explore" : moveType;
+	}
+	
+	public void setMoveType(String moveType) {
+		this.moveType = moveType;
+	}
+
+	public int getMoveXType() {
+		if (moveType == null || moveType.equals("explore")) {
+			return MOVE_TYPE_TURN;
+		} else if (moveType.equals("court")) {
+			return MOVE_TYPE_SLIDE;
+		} else if (moveType.equals("drive")) {
+			return MOVE_TYPE_TURN;
+		} else if (moveType.equals("fly")) {
+			return MOVE_TYPE_LEAN;
+		}
+		return MOVE_TYPE_TURN;
+	}
+
+	public int getMoveYType() {
+		if (moveType == null || moveType.equals("explore")) {
+			return MOVE_TYPE_THRUST;
+		} else if (moveType.equals("court")) {
+			return MOVE_TYPE_THRUST;
+		} else if (moveType.equals("drive")) {
+			return MOVE_TYPE_THRUST;
+		} else if (moveType.equals("fly")) {
+			return MOVE_TYPE_TILT;
+		}
+		return MOVE_TYPE_THRUST;
+	}
+
+	public float[] getMoveXSlide() {
+		return new float[] { 3, 2, 1, 0, -1, -2, -3 };
+	}
+
 	public float[] getMoveXTurn() {
 		return new float[] { -180, -120, -60, -30, -15, 0, 15, 30, 60, 120, 180 };
 	}
 
+	public float[] getMoveXLean() {
+		return new float[] { -15, -5, 0, 5, 15 };
+	}
+
 	public float[] getMoveYThrust() {
 		return new float[] { -2, -1.33f, -0.66f, 0, 1, 2, 3 };
+	}
+	
+	public float[] getMoveYTilt() {
+		return new float[] { 30, 10, 0, -5, -10 };
+	}
+
+	public float[] getMoveYLift() {
+		return new float[] { -8, -4, -2, 0, 2, 4, 8 };
 	}
 
 }
