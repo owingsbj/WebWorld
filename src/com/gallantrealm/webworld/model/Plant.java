@@ -11,6 +11,7 @@ public class Plant extends WWPlant {
 	
 	public Plant() {
 		penetratable = true;
+		setTextureAlphaTest(SIDE_ALL, true);
 	}
 	
 	private EventBehavior getEventBehavior() {

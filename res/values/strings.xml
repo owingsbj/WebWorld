@@ -5,16 +5,16 @@
 	<string name="selectAvatarClassName">com.gallantrealm.webworld.SelectAvatarActivity</string>
 	<string name="selectWorldClassName">com.gallantrealm.webworld.SelectWorldActivity</string>
 	<string name="defaultWorldClassName">com.gallantrealm.webworld.model.World</string>
-	<string name="defaultWorldName">Blocks</string>
+	<string name="defaultWorldName">BlockWorld</string>
 	<string name="defaultAvatarName">Egg</string>
 	<string name="chooseAvatarButton">Choose Avatar</string>
 	<string name="chooseWorldButton">Choose World</string>
 	<string name="selectWorldPrompt">Select a world:</string>
 	<string name="selectAvatarPrompt">Select an avatar and customize:</string>
 	<string name="scoreLabel">Level:</string>
-	<string name="admobid">a151468afd9849c</string>
-	<string name="amazonappkey">393941414236534a4b515531334c5745</string>
+	<string name="admobid"></string>
+	<string name="amazonappkey"></string>
 	<string name="showPopupAds">false</string>
-	<string name="showBannerAds">true</string>
+	<string name="showBannerAds">false</string>
 	<string name="usedSounds"></string>
 </resources>
