@@ -20,6 +20,7 @@ import org.mozilla.javascript.TopLevel;
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.android.MessageDialog;
 import com.gallantrealm.myworld.android.PauseAction;
+import com.gallantrealm.myworld.android.QuitAction;
 import com.gallantrealm.myworld.android.renderer.AndroidRenderer;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
 import com.gallantrealm.myworld.model.WWAction;
@@ -93,9 +94,9 @@ public class World extends WWWorld {
 		worldProperties = getWorldProperties(clientModel.getWorldName());
 		setName(worldProperties.getProperty("name"));
 		if (!clientModel.isCustomizeMode()) {
-			setActions(new WWAction[] { new PauseAction(), new ChangeViewAction() });
+			setActions(new WWAction[] { new PauseAction(), new ChangeViewAction(), new QuitAction() });
 		} else {
-			//setActions(new WWAction[] {new QuitAction()});
+			setActions(new WWAction[] {new QuitAction()});
 		}
 
 		// TODO make this work in BlockWorld.js clientModel.cameraInitiallyFacingAvatar = true;
