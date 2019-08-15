@@ -590,7 +590,7 @@ public class World extends WWWorld {
 	
 	public void setMoveType(String moveType) {
 		this.moveType = moveType;
-		if (moveType == "confront") {
+		if (moveType.equals("confront")) {
 			setConfrontMode(true);
 		} else {
 			setConfrontMode(false);
