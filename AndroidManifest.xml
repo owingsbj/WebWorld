@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gallantrealm.webworld"
     android:installLocation="auto"
-    android:versionCode="009"
-    android:versionName="0.9" >
+    android:versionCode="010"
+    android:versionName="0.10" >
 
     <uses-sdk
         android:minSdkVersion="14"
