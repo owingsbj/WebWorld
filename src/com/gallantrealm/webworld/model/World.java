@@ -17,6 +17,8 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.TopLevel;
+
+import com.gallantrealm.android.HttpFileCache;
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.android.MessageDialog;
 import com.gallantrealm.myworld.android.PauseAction;
@@ -125,10 +127,10 @@ public class World extends WWWorld {
 				inputStream = new FileInputStream(file);
 			} else {
 				// Then try gallantrealm.com
-				URL url = new URL(clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/avatar.properties");
-				System.out.println(">> " + url);
-				connection = (HttpURLConnection) (url.openConnection());
-				inputStream = connection.getInputStream();
+				String urlString = clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/avatar.properties";
+				System.out.println(">> " + urlString);
+				file = HttpFileCache.getFile(urlString, clientModel.getContext());
+				inputStream = new FileInputStream(file);
 			}
 			properties.load(inputStream);
 			properties.list(System.out);
@@ -164,10 +166,10 @@ public class World extends WWWorld {
 				inputStream = new FileInputStream(file);
 			} else {
 				// Then try gallantrealm.com
-				URL url = new URL(clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/world.properties");
-				System.out.println(">> " + url);
-				connection = (HttpURLConnection) (url.openConnection());
-				inputStream = connection.getInputStream();
+				String urlString = clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/world.properties";
+				System.out.println(">> " + urlString);
+				file = HttpFileCache.getFile(urlString, clientModel.getContext());
+				inputStream = new FileInputStream(file);
 			}
 			properties.load(inputStream);
 			properties.list(System.out);
@@ -252,10 +254,10 @@ public class World extends WWWorld {
 				World.runningLocalAvatarScript = true;
 			} else {
 				// Then try gallantrealm.com
-				URL url = new URL(clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("script"));
-				System.out.println(">> " + url);
-				connection = (HttpURLConnection) (url.openConnection());
-				inputStream = connection.getInputStream();
+				String urlString = clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("script");
+				System.out.println(">> " + urlString);
+				file = HttpFileCache.getFile(urlString, clientModel.getContext());
+				inputStream = new FileInputStream(file);
 				World.runningLocalAvatarScript = false;
 			}
 			Reader reader = new InputStreamReader(inputStream, "UTF-8");
@@ -324,10 +326,10 @@ public class World extends WWWorld {
 					World.runningLocalWorldScript = true;
 				} else {
 					// Then try gallantrealm.com
-					URL url = new URL(clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer"));
-					System.out.println(">> " + url);
-					connection = (HttpURLConnection) (url.openConnection());
-					inputStream = connection.getInputStream();
+					String urlString = clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer");
+					System.out.println(">> " + urlString);
+					file = HttpFileCache.getFile(urlString, clientModel.getContext());
+					inputStream = new FileInputStream(file);
 					World.runningLocalWorldScript = false;
 				}
 				Reader reader = new InputStreamReader(inputStream, "UTF-8");
@@ -389,10 +391,10 @@ public class World extends WWWorld {
 					World.runningLocalWorldScript = true;
 				} else {
 					// Then try gallantrealm.com
-					URL url = new URL(clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
-					System.out.println(">> " + url);
-					connection = (HttpURLConnection) (url.openConnection());
-					inputStream = connection.getInputStream();
+					String urlString = clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script");
+					System.out.println(">> " + urlString);
+					file = HttpFileCache.getFile(urlString, clientModel.getContext());
+					inputStream = new FileInputStream(file);
 					World.runningLocalWorldScript = false;
 				}
 				Reader reader = new InputStreamReader(inputStream, "UTF-8");
