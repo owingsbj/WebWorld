@@ -41,6 +41,7 @@ public class World extends WWWorld {
 	TopLevel scope;
 	Function onRestored;
 	String moveType;
+	private boolean allowCameraPositioning = true;
 
 	transient float thrust;
 	transient float torque;
@@ -517,8 +518,21 @@ public class World extends WWWorld {
 	}
 
 	@Override
-	public boolean allowPicking() {
+	public boolean isAllowPicking() {
 		return true; // so touch event will work
+	}
+	
+	@Override
+	public boolean isAllowCameraPositioning() {
+		return allowCameraPositioning;
+	}
+	
+	public void setAllowCameraPositioning(boolean allowCameraPositioning) {
+		this.allowCameraPositioning = allowCameraPositioning;
+	}
+
+	public boolean allowObjectMoving() {
+		return false;
 	}
 
 	public void callFunction(Function fun, Object thisObj, Object[] params) {
