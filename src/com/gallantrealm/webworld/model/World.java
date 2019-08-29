@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Properties;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -17,7 +16,6 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.TopLevel;
-
 import com.gallantrealm.android.HttpFileCache;
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.android.MessageDialog;
@@ -44,6 +42,7 @@ public class World extends WWWorld {
 	Function onRestored;
 	String moveType;
 	private boolean allowCameraPositioning = true;
+	private boolean allowObjectMoving = false;
 
 	transient float thrust;
 	transient float torque;
@@ -533,8 +532,13 @@ public class World extends WWWorld {
 		this.allowCameraPositioning = allowCameraPositioning;
 	}
 
-	public boolean allowObjectMoving() {
-		return false;
+	@Override
+	public boolean isAllowObjectMoving() {
+		return allowObjectMoving;
+	}
+	
+	public void setAllowObjectMoving(boolean allowObjectMoving) {
+		this.allowObjectMoving = allowObjectMoving;
 	}
 
 	public void callFunction(Function fun, Object thisObj, Object[] params) {
