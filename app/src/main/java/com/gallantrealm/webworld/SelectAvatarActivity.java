@@ -118,7 +118,7 @@ public class SelectAvatarActivity extends GallantActivity implements View.OnClic
 
 					// Next look in gallanrealm.com
 					System.out.println(">> https://gallantrealm.com/webworld/listAvatars.jsp");
-					connection = (HttpURLConnection) (new URL(clientModel.getGallantUrl() + "/webworld/listAvatars.jsp")).openConnection();
+					connection = (HttpURLConnection) (new URL(clientModel.getGallantUrl() + "/webworld/listAvatars.php")).openConnection();
 					connection.setConnectTimeout(5000);
 					inputStream = connection.getInputStream();
 					Reader reader = new InputStreamReader(inputStream, "UTF-8");

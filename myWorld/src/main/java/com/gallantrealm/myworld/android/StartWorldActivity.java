@@ -117,7 +117,7 @@ public class StartWorldActivity extends GallantActivity {
 	}
 		
 	public void startupTheWorld(final String worldClassName, final String worldName, boolean reset) {
-		System.out.println(">StartWorldActivity.startupTheWorld");
+		System.out.println(">StartWorldActivity.startupTheWorld: " + worldClassName + " " + worldName);
 		try {
 
 			clientModel.initializeCameraPosition(); // doing it here so world can override initial camera position

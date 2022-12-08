@@ -1,6 +1,9 @@
 package com.gallantrealm.webworld;
 
 import com.gallantrealm.myworld.android.GallantActivity;
+import com.gallantrealm.myworld.android.ShowWorldActivity;
+import com.gallantrealm.myworld.android.StartWorldActivity;
+
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.media.AudioManager;
@@ -166,6 +169,13 @@ public class MainMenuActivity extends GallantActivity {
 		chooseWorldButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Intent intent = new Intent(MainMenuActivity.this, SelectWorldActivity.class);
+				startActivity(intent);
+			}
+		});
+		playButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(MainMenuActivity.this, StartWorldActivity.class);
 				startActivity(intent);
 			}
 		});

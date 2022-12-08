@@ -25,7 +25,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 	CheckBox vibrationCheckBox;
 	TextView controlTypeLabel;
 	Spinner controlType;
-	ArrayAdapter<CharSequence> controlTypeAdapter;
+	ArrayAdapter controlTypeAdapter;
 	SeekBar controlSensitivity;
 	CheckBox viewIn3dCheckBox;
 	CheckBox simpleRenderingCheckBox;
