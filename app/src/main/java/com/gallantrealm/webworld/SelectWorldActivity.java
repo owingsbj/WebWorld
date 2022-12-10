@@ -128,7 +128,7 @@ public class SelectWorldActivity extends GallantActivity implements View.OnClick
 
 					// Next look in gallanrealm.com
 					System.out.println(">> https://gallantrealm.com/webworld/listWorlds.jsp");
-					connection = (HttpURLConnection) (new URL(clientModel.getGallantUrl() + "/webworld/listWorlds.php")).openConnection();
+					connection = (HttpURLConnection) (new URL(clientModel.getGallantUrl() + "/webworld/listWorlds.jsp")).openConnection();
 					connection.setConnectTimeout(5000);
 					inputStream = connection.getInputStream();
 					Reader reader = new InputStreamReader(inputStream, "UTF-8");
