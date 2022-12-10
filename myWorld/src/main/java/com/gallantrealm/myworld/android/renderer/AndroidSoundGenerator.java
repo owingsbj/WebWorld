@@ -1,6 +1,7 @@
 package com.gallantrealm.myworld.android.renderer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import com.gallantrealm.android.HttpFileCache;
 import com.gallantrealm.myworld.FastMath;
@@ -16,6 +17,8 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 public final class AndroidSoundGenerator implements ISoundGenerator {
 
@@ -44,14 +47,15 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 
 	Context context;
 
+	@SuppressWarnings("deprecation")
 	public AndroidSoundGenerator(Context context) {
 		System.out.println("AndroidSoundGenerator.constructor");
 		this.context = context;
 
 		// Initialize the sound pool
 		if (Build.VERSION.SDK_INT >= 21) {
-		AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
-		soundPool = new SoundPool.Builder().setMaxStreams(8).setAudioAttributes(audioAttributes).build();
+			AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
+			soundPool = new SoundPool.Builder().setMaxStreams(8).setAudioAttributes(audioAttributes).build();
 		} else {
 			soundPool = new SoundPool(8, AudioManager.STREAM_MUSIC, 0);
 		}
@@ -116,9 +120,14 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 
 	public void loadSound(String urlString) {
 		System.out.println("loading sound " + urlString);
-		File soundFile = HttpFileCache.getFile(urlString, context);
-		int soundId = soundPool.load(soundFile.getPath(), 1);
-		soundMap.put(urlString, soundId);
+		File soundFile = null;
+		try {
+			soundFile = HttpFileCache.getFile(urlString, context);
+			int soundId = soundPool.load(soundFile.getPath(), 1);
+			soundMap.put(urlString, soundId);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
