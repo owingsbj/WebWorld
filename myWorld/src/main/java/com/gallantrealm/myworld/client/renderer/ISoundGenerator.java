@@ -6,6 +6,8 @@ public interface ISoundGenerator {
 	
 	void loadSound(String urlString);
 
+	boolean areSoundsLoaded();
+
 	void playSound(String sound, int priority, WWVector position, float volume, float pitch);
 
 	int startPlayingSound(String sound, int priority, WWVector position, float volume, float pitch);

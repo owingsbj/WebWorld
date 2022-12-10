@@ -3,6 +3,8 @@ package com.gallantrealm.myworld.android.renderer;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.gallantrealm.android.HttpFileCache;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.android.AndroidClientModel;
@@ -18,8 +20,6 @@ import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
-
 public final class AndroidSoundGenerator implements ISoundGenerator {
 
 	static MediaPlayer song;
@@ -27,9 +27,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 	final HashMap<String, Integer> soundMap;
 	final HashMap<Integer, StreamInfo> playingStreams = new HashMap<Integer, StreamInfo>();
 
-	final SoundGeneratorThread soundGeneratorThread = new SoundGeneratorThread();
-
-	class StreamInfo {
+	static class StreamInfo {
 		StreamInfo(String soundName, int streamId, float volume, int priority, float rate) {
 			this.soundName = soundName;
 			this.streamId = streamId;
@@ -46,10 +44,11 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 	}
 
 	Context context;
+	AtomicInteger loadingCount = new AtomicInteger();
 
 	@SuppressWarnings("deprecation")
 	public AndroidSoundGenerator(Context context) {
-		System.out.println("AndroidSoundGenerator.constructor");
+		System.out.println(">AndroidSoundGenerator.constructor");
 		this.context = context;
 
 		// Initialize the sound pool
@@ -59,6 +58,11 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 		} else {
 			soundPool = new SoundPool(8, AudioManager.STREAM_MUSIC, 0);
 		}
+		soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+			public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+				loadingCount.decrementAndGet();
+			}
+		});
 		soundMap = new HashMap<String, Integer>();
 
 		// load all the predefined sounds
@@ -109,25 +113,33 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 		loadSound("musicbox", R.raw.sound_musicbox);
 
 		// soundGeneratorThread.start();
+		System.out.println("<AndroidSoundGenerator.constructor");
 	}
 
-	final void loadSound(String soundName, int resId) {
-		String usedSounds = context.getString(R.string.usedSounds);
-		if (usedSounds.length() == 0 || usedSounds.contains(soundName)) {
-			soundMap.put(soundName, soundPool.load(context, resId, 0));
-		}
+	void loadSound(String soundName, int resId) {
+		loadingCount.incrementAndGet();
+		soundMap.put(soundName, soundPool.load(context, resId, 0));
+		System.out.println("AndroidSoundGenerator.loadSound loading sound " + soundName);
 	}
 
 	public void loadSound(String urlString) {
-		System.out.println("loading sound " + urlString);
 		File soundFile = null;
 		try {
 			soundFile = HttpFileCache.getFile(urlString, context);
+			loadingCount.incrementAndGet();
 			int soundId = soundPool.load(soundFile.getPath(), 1);
 			soundMap.put(urlString, soundId);
+			System.out.println("AndroidSoundGenerator.loadSound loading sound " + urlString);
 		} catch (IOException e) {
 			e.printStackTrace();
+			loadingCount.decrementAndGet();
 		}
+
+	}
+
+	@Override
+	public boolean areSoundsLoaded() {
+		return loadingCount.intValue() == 0;
 	}
 
 	@Override
@@ -160,7 +172,10 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 				float currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC) / 15.0f;
 				float level = FastMath.min(1.0f, volume * currentVolume / distanceFrom);
 				if (AndroidClientModel.getClientModel().isPlaySoundEffects()) {
-					soundPool.play(soundId, level, level, priority, 0, pitch);
+					if (loadingCount.intValue() <= 0) {
+						soundPool.play(soundId, level, level, priority, 0, pitch);
+						System.out.println("AndroidSoundGenerator.playSound " + sound + " playing");
+					}
 				}
 			}
 		}
@@ -190,12 +205,14 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 			float currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC) / 15.0f;
 			float level = FastMath.min(1.0f, volume * currentVolume / distanceFrom);
 			pitch = FastMath.max(0.6f, FastMath.min(1.9f, pitch));
-			// System.out.println("Starting: " + sound);
-			int streamId = soundPool.play(soundId, level, level, priority, 10000, pitch);
-			synchronized (playingStreams) {
-				playingStreams.put(streamId, new StreamInfo(sound, streamId, level, priority, pitch));
+			if (loadingCount.intValue() <= 0) {
+				int streamId = soundPool.play(soundId, level, level, priority, 10000, pitch);
+				synchronized (playingStreams) {
+					playingStreams.put(streamId, new StreamInfo(sound, streamId, level, priority, pitch));
+				}
+				System.out.println("AndroidSoundGenerator.startPlayingSound " + sound + " playing, stream id is " + streamId);
+				return streamId;
 			}
-			return streamId;
 		}
 //		}
 		return 0;
@@ -243,6 +260,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 
 	@Override
 	public void stopPlayingSound(int streamId) {
+		System.out.println("AndroidSoundGenerator.stopPlayingSound " + streamId);
 		synchronized (playingStreams) {
 			soundPool.stop(streamId);
 			StreamInfo info = playingStreams.get(new Integer(streamId));
@@ -257,7 +275,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 
 	@Override
 	public void pause() {
-		System.out.println("AndroidSoundGenerator.pause");
+		System.out.println(">AndroidSoundGenerator.pause");
 		paused = true;
 		soundPool.autoPause();
 		if (song != null) {
@@ -266,11 +284,12 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 			} catch (IllegalStateException e) {
 			}
 		}
+		System.out.println("<AndroidSoundGenerator.pause");
 	}
 
 	@Override
 	public void resume() {
-		System.out.println("AndroidSoundGenerator.resume");
+		System.out.println(">AndroidSoundGenerator.resume");
 		soundPool.autoResume();
 		if (song != null) {
 			try {
@@ -279,6 +298,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 			}
 		}
 		paused = false;
+		System.out.println("<AndroidSoundGenerator.resume");
 	}
 
 	@Override
@@ -309,7 +329,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 
 	@Override
 	public void stop() {
-		System.out.println("AndroidSoundGenerator.stop");
+		System.out.println(">AndroidSoundGenerator.stop");
 		synchronized (playingStreams) {
 			for (int i : playingStreams.keySet()) {
 				StreamInfo info = playingStreams.get(i);
@@ -321,11 +341,12 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 			playingStreams.clear();
 		}
 		stopPlayingSong();
+		System.out.println("<AndroidSoundGenerator.stop");
 	}
 
 	@Override
 	public void destroy() {
-		System.out.println("AndroidSoundGenerator.destroy");
+		System.out.println(">AndroidSoundGenerator.destroy");
 		synchronized (playingStreams) {
 			for (int i : playingStreams.keySet()) {
 				StreamInfo info = playingStreams.get(i);
@@ -340,43 +361,12 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 		soundPool.release();
 		soundPool = null;
 		soundMap.clear();
-	}
-
-	// Need a thread because android drags on soundpool calls
-	class SoundGeneratorThread extends Thread {
-
-		public SoundGeneratorThread() {
-			super("SoundGeneratorThread");
-		}
-
-		@Override
-		public void run() {
-			try {
-				while (true) {
-					Thread.sleep(100);
-					try {
-						synchronized (playingStreams) {
-							if (!paused) {
-								for (int i : playingStreams.keySet()) {
-									StreamInfo info = playingStreams.get(i);
-									if (info != null) {
-										soundPool.setVolume(info.streamId, info.volume, info.volume);
-										soundPool.setRate(info.streamId, info.rate);
-									}
-								}
-							}
-						}
-					} catch (Exception e) {
-					}
-				}
-			} catch (InterruptedException e) {
-			}
-		}
-
+		System.out.println("<AndroidSoundGenerator.destroy");
 	}
 
 	@Override
 	public void playSong(String songname, float volume) {
+		System.out.println("AndroidSoundGenerator.playSong "+ songname + " " + volume);
 		stopPlayingSong();
 		if (AndroidClientModel.getClientModel().isPlayMusic()) {
 			try {
@@ -404,6 +394,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 
 	@Override
 	public void stopPlayingSong() {
+		System.out.println("AndroidSoundGenerator.stopPlayingSong");
 		if (song != null) {
 			try {
 				song.stop();
