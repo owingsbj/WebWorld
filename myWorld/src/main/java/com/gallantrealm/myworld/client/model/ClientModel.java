@@ -2153,9 +2153,6 @@ public abstract class ClientModel {
 
 	/**
 	 * Saves an object to app-local files. The object needs to be serializable
-	 * 
-	 * @param bitmap
-	 * @param fileName
 	 */
 	public void saveObject(Object object, String fileName, boolean external) {
 		boolean saved = false;
@@ -2334,9 +2331,11 @@ public abstract class ClientModel {
 
 	public String getGallantUrl() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			return "https://gallantrealm.com";
+			// return "https://gallantrealm.com";
+			return "http://190.92.190.206";
 		} else {
-			return "http://gallantrealm.com";
+			// return "http://gallantrealm.com";
+			return "http://190.92.190.206";
 		}
 	}
 
