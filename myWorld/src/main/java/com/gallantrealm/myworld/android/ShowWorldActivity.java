@@ -122,7 +122,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		wakelock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "My Tag");
+		wakelock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "ShowWorldActivity:WakeLock");
 
 		worldView = (GLSurfaceView) findViewById(R.id.worldView);
 		worldView.setEGLContextClientVersion(2);
