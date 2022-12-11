@@ -151,7 +151,7 @@ public class MainMenuActivity extends GallantActivity {
 					@Override
 					public void onClick(View v) {
 						try {
-							clientModel.buyFullVersion();
+							clientModel.buyFullVersion(MainMenuActivity.this);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}

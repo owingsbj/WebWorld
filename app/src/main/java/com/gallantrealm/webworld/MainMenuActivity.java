@@ -145,7 +145,7 @@ public class MainMenuActivity extends GallantActivity {
 				buyButton.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						try {
-							clientModel.buyFullVersion();
+							clientModel.buyFullVersion(MainMenuActivity.this);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}

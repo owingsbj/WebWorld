@@ -18,16 +18,25 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import com.amazon.device.ads.AdRegistration;
-import com.example.android.trivialdrivesample.util.IabHelper;
-import com.example.android.trivialdrivesample.util.IabHelper.OnIabPurchaseFinishedListener;
-import com.example.android.trivialdrivesample.util.IabResult;
-import com.example.android.trivialdrivesample.util.Purchase;
+import com.android.billingclient.api.AcknowledgePurchaseParams;
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClient.BillingResponseCode;
+import com.android.billingclient.api.BillingClient.SkuType;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingFlowParams;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.android.billingclient.api.SkuDetails;
+import com.android.billingclient.api.SkuDetailsParams;
+import com.android.billingclient.api.SkuDetailsResponseListener;
+import com.gallantrealm.android.MessageDialog;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.android.AdDialog;
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.android.BuildConfig;
 import com.gallantrealm.myworld.android.GallantActivity;
-import com.gallantrealm.myworld.android.MessageDialog;
 import com.gallantrealm.myworld.android.PauseAction;
 import com.gallantrealm.myworld.android.R;
 import com.gallantrealm.myworld.android.ShowWorldActivity;
@@ -85,6 +94,7 @@ import android.os.Environment;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.InputDevice;
 import uk.co.labbookpages.WavFile;
 
@@ -1225,7 +1235,6 @@ public abstract class ClientModel {
 	public boolean goggleDogPass;
 	private String localFolder;
 	private boolean showDebugLogging;
-	IabHelper purchaseHelper;
 	boolean testedOpenGL;
 	boolean supportsOpenGLES20;
 	int songId;
@@ -1274,23 +1283,7 @@ public abstract class ClientModel {
 	}
 
 	public void setContext(Activity context) {
-		// if (this.context != null && purchaseObserver != null) {
-		// ResponseHandler.unregister(purchaseObserver);
-		// purchaseObserver = null;
-		// }
 		this.context = context;
-		if (purchaseHelper == null) {
-			try {
-				purchaseHelper = new IabHelper(context, context.getString(R.string.googleappkey));
-				purchaseHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
-					public void onIabSetupFinished(IabResult result) {
-					}
-				});
-			} catch (Exception e) {
-				System.out.println("No in-app purchase, the app isn't setup correctly for it: " + e.getMessage());
-			}
-		}
-
 	}
 
 	public Activity getContext() {
@@ -1735,40 +1728,123 @@ public abstract class ClientModel {
 	private Theme theme = new DefaultTheme();
 	Typeface typeface;
 
-	public void buyFullVersion() {
+	BillingClient billingClient;
+	boolean billingClientConnected;
+
+	public void buyFullVersion(Activity activity) {
 		try {
-			purchaseHelper.flagEndAsync();
-			purchaseHelper.launchPurchaseFlow(context, SKU_FULL_VERSION, IabHelper.ITEM_TYPE_SUBS, RC_REQUEST, new OnIabPurchaseFinishedListener() {
-				public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
-					if (purchaseHelper == null) { // shutdown
-						return;
+			//		if (billingClient == null) {
+			Log.d("ClientModel", "initializing billing client");
+			billingClient = BillingClient.newBuilder(this.context).setListener(new PurchasesUpdatedListener() {
+				public void onPurchasesUpdated(final BillingResult billingResult, final List<Purchase> purchases) {
+					Log.d("ClientModel", ">> onPurchasesUpdated");
+					if (billingResult.getResponseCode() == BillingResponseCode.OK  && purchases != null && purchases.size() >= 1) {
+						activity.runOnUiThread(new Runnable() {
+							public void run() {
+								setFullVersion(true);
+								savePreferences(activity.getBaseContext());
+								Purchase purchase = purchases.get(0);
+								AcknowledgePurchaseParams acknowledgePurchaseParams =
+										AcknowledgePurchaseParams.newBuilder()
+												.setPurchaseToken(purchase.getPurchaseToken())
+												.build();
+								billingClient.acknowledgePurchase(acknowledgePurchaseParams, new AcknowledgePurchaseResponseListener() {
+									public void onAcknowledgePurchaseResponse(BillingResult billingResult) {
+										Log.d("ClientModel", "Purchase acknowledged: "+billingResult.getResponseCode());
+									}
+								});
+								if (context != null) {
+									new MessageDialog(context, "Purchase Success", "Thanks for purchasing!  Restart the app to enable all features.", null).show();
+								}
+							}
+						});
+					} else if (billingResult.getResponseCode() == BillingResponseCode.ITEM_ALREADY_OWNED) {
+						activity.runOnUiThread(new Runnable() {
+							public void run() {
+								setFullVersion(true);
+								savePreferences(activity.getBaseContext());
+								if (context != null) {
+									new MessageDialog(context, "Purchase Success", "You already own the full version!  Restart the app to enable all features.", null).show();
+								}
+							}
+						});
+					} else if (billingResult.getResponseCode() == BillingResponseCode.USER_CANCELED) {
+						// nothing to do.. user cancelled
+					} else {
+						Log.d("ClientModel", "Purchase Failed: " + billingResult.getResponseCode() + " " + billingResult.getDebugMessage());
+//							// Note: No need to show an error as Google Play's error dialog is better.
 					}
-					if (result.isFailure()) {
-						System.err.println("Purchase Failed: " + result.getMessage());
-						// new MessageDialog(context, "Purchase Failed", "There was an error purchasing. Check your internet connection and try again later.", null).show();
-						// Note: No need to show an error as Google Play's error dialog is better.
-						return;
-					}
-					setFullVersion(true);
-					savePreferences(context);
-					new MessageDialog(context, "Purchase Success", "Thanks for purchasing!  Restart the app to enable all features and remove ads.", null).show();
+					Log.d("ClientModel", "<< onPurchasesUpdated");
 				}
-			}, PAYLOAD);
+			}).enablePendingPurchases().build();
+			//		}
+//			if (!billingClientConnected) {
+			Log.d("ClientModel", "connecting to google play billing");
+			billingClient.startConnection(new BillingClientStateListener() {
+				public void onBillingSetupFinished(BillingResult arg0) {
+					billingClientConnected = true;
+					querySkuDetails(activity);
+				}
+				public void onBillingServiceDisconnected() {
+					billingClientConnected = false;
+				}
+			});
+//			} else {
+//				querySkuDetails();
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			new MessageDialog(context, "Purchase Failed", "There was an error launching Google Play for purchasing.  Please make sure Google Play is installed and working.", null).show();
+			if (context != null) {
+				new MessageDialog(context, "Purchase Failed", "There was an error launching Google Play for purchasing.  Please make sure Google Play is installed and working.", null).show();
+			}
 		}
 	}
 
-	public boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
-		if (purchaseHelper != null) {
-			try {
-				purchaseHelper.handleActivityResult(requestCode, resultCode, data);
-			} catch (Exception e) {
+	private void querySkuDetails(Activity activity) {
+		Log.d("ClientModel", "querying sku details");
+		List<String> skuList = new ArrayList<>();
+		skuList.add(SKU_FULL_VERSION);
+		SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
+		params.setSkusList(skuList).setType(SkuType.INAPP);
+		billingClient.querySkuDetailsAsync(params.build(), new SkuDetailsResponseListener() {
+			public void onSkuDetailsResponse(final BillingResult billingResult, List<SkuDetails> skuDetailsList) {
+				if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+					SkuDetails skuDetails = skuDetailsList.get(0);
+					Log.d("ClientModel", "sku details:");
+					Log.d("ClientModel", "  Title: " + skuDetails.getTitle());
+					Log.d("ClientModel", "  Description: " + skuDetails.getDescription());
+					launchPurchaseFlow(activity, skuDetails);
+				} else {
+					Log.d("ClientModel", "Purchase Failed: " + billingResult.getDebugMessage());
+					activity.runOnUiThread(new Runnable() {
+						public void run() {
+							if (context != null) {
+								new MessageDialog(context, "Purchase Failed", billingResult.getDebugMessage(), null).show();
+							}
+						}
+					});
+				}
 			}
-		}
-		return false;
+		});
 	}
+
+	private void launchPurchaseFlow(Activity activity, SkuDetails skuDetails) {
+		try {
+			Log.d("ClientModel", "launching purchase flow");
+			BillingFlowParams purchaseParams = BillingFlowParams.newBuilder().setSkuDetails(skuDetails).build();
+			billingClient.launchBillingFlow(activity, purchaseParams);
+		} catch (Exception e) {
+			e.printStackTrace();
+			activity.runOnUiThread(new Runnable() {
+				public void run() {
+					if (context != null) {
+						new MessageDialog(context, "Purchase Failed", "There was an error launching Google Play for purchasing.  Please make sure Google Play is installed and working.", null).show();
+					}
+				}
+			});
+		}
+	}
+
 
 	public boolean isGoggleDogPass() {
 		return goggleDogPass;
