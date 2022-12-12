@@ -1354,7 +1354,10 @@ public abstract class ClientModel {
 	public void playSong(int songId) {
 		if (this.songId != songId) {
 			if (songPlayer != null) {
-				songPlayer.stop();
+				if (songPlayer.isPlaying()) {
+					songPlayer.stop();
+				}
+				songPlayer.reset();
 				songPlayer.release();
 				songPlayer = null;
 			}
@@ -1380,7 +1383,10 @@ public abstract class ClientModel {
 		if (songPlayer != null) {
 			nSongPlayers--;
 			if (nSongPlayers == 0) {
-				songPlayer.stop();
+				if (songPlayer.isPlaying()) {
+					songPlayer.stop();
+				}
+				songPlayer.reset();
 				songPlayer.release();
 				songPlayer = null;
 			}

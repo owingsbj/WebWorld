@@ -335,7 +335,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 			for (int i : playingStreams.keySet()) {
 				StreamInfo info = playingStreams.get(i);
 				if (info != null) {
-					System.out.println("Stopping: " + info.soundName);
+					System.out.println("AndroidSoundGenerator.stop: Stopping: " + info.soundName);
 					soundPool.stop(info.streamId);
 				}
 			}
@@ -352,7 +352,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 			for (int i : playingStreams.keySet()) {
 				StreamInfo info = playingStreams.get(i);
 				if (info != null) {
-					System.out.println("Stopping: " + info.soundName);
+					System.out.println("AndroidSoundGenerator.destroy: Stopping: " + info.soundName);
 					soundPool.stop(info.streamId);
 				}
 			}
@@ -398,7 +398,10 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 		System.out.println("AndroidSoundGenerator.stopPlayingSong");
 		if (song != null) {
 			try {
-				song.stop();
+				if (song.isPlaying()) {
+					song.stop();
+				}
+				song.reset();
 				song.release();
 			} catch (Exception e) {
 			}
