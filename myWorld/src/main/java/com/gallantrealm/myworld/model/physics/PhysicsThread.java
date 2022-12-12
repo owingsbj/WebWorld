@@ -31,15 +31,15 @@ public abstract class PhysicsThread extends Thread {
 		if (iterationTime == 0) {
 			return;
 		}
-		System.out.println("PhysicsThread: starting");
+		System.out.println(">PhysicsThread.run");
 		long timeSinceLastSoundUpdate = 0;
 		try {
 			Thread.sleep(500); // let things settle before starting physics
 			while (world.onClient && !world.rendered) {
-				System.out.println("PhysicsThread: waiting for first rendering");
+				System.out.println("PhysicsThread.run: waiting for first rendering");
 				Thread.sleep(500); // let things settle before starting physics
 			}
-			System.out.println("PhysicsThread: starting performIteration loop");
+			System.out.println("PhysicsThread.run: starting performIteration loop");
 			long lastStartTime = System.currentTimeMillis();
 			while (!safeStop && world.physicsThread == this) {
 				try {
@@ -63,17 +63,18 @@ public abstract class PhysicsThread extends Thread {
 						timeSinceLastSoundUpdate = 0;
 					}
 				} catch (InterruptedException e) {
-					System.out.println("PhysicsThread: stopping physics loop -- interrupted");
+					System.out.println("PhysicsThread.run: stopping physics loop -- interrupted");
 					return;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-			System.out.println("PhysicsThread: stopping physics loop -- safestop");
+			System.out.println("PhysicsThread.run: stopping physics loop -- safestop");
 
 		} catch (InterruptedException e) {
-			System.out.println("PhysicsThread: stopping physics loop -- interrupted before first iteration");
+			System.out.println("PhysicsThread.run: stopping physics loop -- interrupted before first iteration");
 		}
+		System.out.println("<PhysicsThread.run");
 	}
 
 	public abstract void performIteration(long timeIncrement);

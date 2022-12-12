@@ -91,6 +91,7 @@ public class World extends WWWorld {
 	}
 
 	private void initializeWorld() throws Exception {
+		System.out.println(">World.initializeWorld");
 		clientModel = AndroidClientModel.getClientModel();
 		avatarProperties = getAvatarProperties(clientModel.getAvatarName());
 		worldProperties = getWorldProperties(clientModel.getWorldName());
@@ -112,22 +113,22 @@ public class World extends WWWorld {
 		runScripts();
 
 		clientModel.setSelectedObject(clientModel.getAvatar());
+		System.out.println("<World.initializeWorld");
 	}
 
 	private Properties getAvatarProperties(final String avatarName) {
+		System.out.println(">World.getAvatarProperties " + avatarName);
 		Properties properties = new Properties();
 		HttpURLConnection connection = null;
 		InputStream inputStream = null;
 		try {
 			// First try file
 			File file = new File(clientModel.getLocalFolder() + "/avatars/" + avatarName + "/avatar.properties");
-			System.out.println(">> " + file);
 			if (file.exists()) {
 				inputStream = new FileInputStream(file);
 			} else {
 				// Then try gallantrealm.com
 				String urlString = clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/avatar.properties";
-				System.out.println(">> " + urlString);
 				file = HttpFileCache.getFile(urlString, clientModel.getContext());
 				inputStream = new FileInputStream(file);
 			}
@@ -150,23 +151,23 @@ public class World extends WWWorld {
 				}
 			}
 		}
+		System.out.println("<World.getAvatarProperties");
 		return properties;
 	}
 
 	private Properties getWorldProperties(final String worldName) {
+		System.out.println(">World.getWorldProperties " + worldName);
 		Properties properties = new Properties();
 		HttpURLConnection connection = null;
 		InputStream inputStream = null;
 		try {
 			// First try local
 			File file = new File(clientModel.getLocalFolder() + "/worlds/" + worldName + "/world.properties");
-			System.out.println(">> " + file);
 			if (file.exists()) {
 				inputStream = new FileInputStream(file);
 			} else {
 				// Then try gallantrealm.com
 				String urlString = clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/world.properties";
-				System.out.println(">> " + urlString);
 				file = HttpFileCache.getFile(urlString, clientModel.getContext());
 				inputStream = new FileInputStream(file);
 			}
@@ -189,15 +190,18 @@ public class World extends WWWorld {
 				}
 			}
 		}
+		System.out.println("<World.getWorldProperties");
 		return properties;
 	}
 
 	private void runScripts() throws Exception {
+		System.out.println(">World.runScripts");
+
 		final String worldName = clientModel.getWorldName();
 		final String avatarName = clientModel.getAvatarName();
 
 		// create toplevel scope
-		System.out.println("Creating toplevel scope");
+		System.out.println("World.runScripts: Creating toplevel scope");
 		Context cx = Context.enter();
 		cx.setOptimizationLevel(-1);
 		scope = new ImporterTopLevel(cx);
@@ -240,27 +244,25 @@ public class World extends WWWorld {
 		ScriptableObject.putProperty(scope, "avatarCustomization", wrappedAvatarCustomization);
 
 		// create the avatar
-		System.out.println("Opening avatar " + avatarName);
+		System.out.println("World.runScripts: Opening avatar " + avatarName);
 		WWObject avatar = null;
 		HttpURLConnection connection = null;
 		InputStream inputStream = null;
 		try {
 			// First try local
 			File file = new File(clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + avatarProperties.getProperty("script"));
-			System.out.println(">> " + file);
 			if (file.exists()) {
 				inputStream = new FileInputStream(file);
 				World.runningLocalAvatarScript = true;
 			} else {
 				// Then try gallantrealm.com
 				String urlString = clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("script");
-				System.out.println(">> " + urlString);
 				file = HttpFileCache.getFile(urlString, clientModel.getContext());
 				inputStream = new FileInputStream(file);
 				World.runningLocalAvatarScript = false;
 			}
 			Reader reader = new InputStreamReader(inputStream, "UTF-8");
-			System.out.println("Running avatar script..");
+			System.out.println("World.runScripts: Running avatar script..");
 			try {
 				World.runningAvatarScript = true;
 				cx.evaluateReader(scope, reader, avatarProperties.getProperty("script"), 1, null);
@@ -311,7 +313,7 @@ public class World extends WWWorld {
 			setUsesController(false);
 			
 			// Create the customizer world
-			System.out.println("Opening customizer for " + avatarName);
+			System.out.println("World.runScripts: Opening customizer for " + avatarName);
 			connection = null;
 			inputStream = null;
 			try {
@@ -319,20 +321,18 @@ public class World extends WWWorld {
 				
 				// First try local
 				File file = new File(clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer"));
-				System.out.println(">> " + file);
 				if (file.exists()) {
 					inputStream = new FileInputStream(file);
 					World.runningLocalWorldScript = true;
 				} else {
 					// Then try gallantrealm.com
 					String urlString = clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer");
-					System.out.println(">> " + urlString);
 					file = HttpFileCache.getFile(urlString, clientModel.getContext());
 					inputStream = new FileInputStream(file);
 					World.runningLocalWorldScript = false;
 				}
 				Reader reader = new InputStreamReader(inputStream, "UTF-8");
-				System.out.println("Running customizer script..");
+				System.out.println("World.runScripts: Running customizer script..");
 
 				try {
 					cx.evaluateReader(scope, reader, avatarProperties.getProperty("customizer"), 1, null);
@@ -378,26 +378,24 @@ public class World extends WWWorld {
 			}
 
 			// create the world
-			System.out.println("Opening world " + worldName);
+			System.out.println("World.runScripts: Opening world " + worldName);
 			connection = null;
 			inputStream = null;
 			try {
 				// First try local
 				File file = new File(clientModel.getLocalFolder() + "/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
-				System.out.println(">> " + file);
 				if (file.exists()) {
 					inputStream = new FileInputStream(file);
 					World.runningLocalWorldScript = true;
 				} else {
 					// Then try gallantrealm.com
 					String urlString = clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script");
-					System.out.println(">> " + urlString);
 					file = HttpFileCache.getFile(urlString, clientModel.getContext());
 					inputStream = new FileInputStream(file);
 					World.runningLocalWorldScript = false;
 				}
 				Reader reader = new InputStreamReader(inputStream, "UTF-8");
-				System.out.println("Running world script..");
+				System.out.println("World.runScripts: Running world script..");
 
 				try {
 					cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
@@ -421,6 +419,8 @@ public class World extends WWWorld {
 
 		// Exit the top-level scope
 		Context.exit();
+
+		System.out.println("<World.runScripts");
 	}
 
 	private String scrubScriptError(String scriptErrorMessage) {

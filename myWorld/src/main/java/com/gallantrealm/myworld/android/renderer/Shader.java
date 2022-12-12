@@ -412,9 +412,8 @@ public abstract class Shader {
 		GLES20.glLinkProgram(program);
 		int[] linkStatus = new int[1];
 		GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0);
-		System.err.println("  link status = " + linkStatus[0]);
 		if (linkStatus[0] != GLES20.GL_TRUE) {
-			System.err.println("Linking of " + this.getClass().getSimpleName() + " failed: " + GLES20.glGetProgramInfoLog(program));
+			System.err.println(this.getClass().getSimpleName() + ": Linking failed: " + GLES20.glGetProgramInfoLog(program));
 			GLES20.glDeleteProgram(program);
 		}
 		AndroidRenderer.checkGlError();
@@ -441,7 +440,7 @@ public abstract class Shader {
 			int[] compiled = new int[1];
 			GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, 0);
 			if (compiled[0] == 0) {
-				System.err.println("Could not compile shader " + shaderType + ":" + GLES20.glGetShaderInfoLog(shader));
+				System.err.println(this.getClass().getSimpleName() + " compile failed for shader type " + shaderType + ":" + GLES20.glGetShaderInfoLog(shader));
 				AndroidRenderer.checkGlError();
 			}
 		}

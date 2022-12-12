@@ -461,7 +461,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 					originalJoyButtonLayoutParams = (RelativeLayout.LayoutParams) joyButton.getLayoutParams();
 				}
 				if (clientModel.world.usesController() && clientModel.useScreenControl()) {
-					System.out.println("Using JoyButton");
+					System.out.println("ShowWorldActivity.placeButtonsBasedOnPres: Using JoyButton");
 					joyButton.setVisibility(Button.VISIBLE);
 					joyThumb.setVisibility(View.VISIBLE);
 					try {
@@ -504,7 +504,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 					joyThumb.bringToFront();
 					joyButton.bringToFront();
 				} else {
-					System.out.println("Not using JoyButton");
+					System.out.println("ShowWorldActivity.placeButtonsBasedOnPres: Not using JoyButton");
 					joyButton.setVisibility(Button.GONE);
 					joyThumb.setVisibility(View.GONE);
 					RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(avatarActionsView.getLayoutParams());
@@ -611,9 +611,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			}
 		}
 		if (clientModel.isLocalWorld()) {
-			System.out.println("onStop -- is local world");
 			if (clientModel.world != null) {
-				System.out.println("onStop -- pausing the local world");
 				clientModel.world.pause();
 			}
 			if (clientModel.getLocalServer() != null) {
@@ -1792,6 +1790,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 	}
 
 	public void doQuit() {
+		System.out.println(">ShowWorldActivity.doQuit");
 		if (clientModel != null && clientModel.world != null && clientModel.world.needsSaving()) {
 			final MessageDialog dialog;
 			if (clientModel.world.supportsSaveAndQuit()) {
@@ -1841,5 +1840,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			});
 		}
 		clientModel.pauseWorld();
+		System.out.println("<ShowWorldActivity.doQuit");
 	}
 }
