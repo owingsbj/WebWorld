@@ -449,10 +449,10 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		rendering = renderer.createWorldRendering(this, worldTime);
 		if (playingSongname != null) {
 			if (rendering != null && rendering.getRenderer() != null && rendering.getRenderer().getSoundGenerator() != null) {
-				System.out.println("Resuming playing of song " + playingSongname);
+				System.out.println("WWWorld.createRendering: Resuming playing of song " + playingSongname);
 				rendering.getRenderer().getSoundGenerator().playSong(playingSongname, playingSongVolume);
 			} else {
-				System.out.println("Could not resume playing of song " + playingSongname + " because renderer not available.");
+				System.out.println("WWWorld.createRendering: Could not resume playing of song " + playingSongname + " because renderer not available.");
 			}
 		}
 		if (preloadedTextures != null) {
@@ -465,6 +465,18 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 				((AndroidRenderer)renderer).getSoundGenerator().loadSound(preloadedSounds.get(i));
 			}
 		}
+
+		// wait for pre-loaded and built-in sounds to all load
+		try {
+			int waitCount = 0;
+			while (!world.rendering.getRenderer().getSoundGenerator().areSoundsLoaded() && waitCount < 100000) {
+				Thread.sleep(1);
+				waitCount++;
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
@@ -683,9 +695,6 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	/**
 	 * Called when two objects first hit each other
 	 * 
-	 * @param object
-	 * @param collidingObject
-	 * @param overlapVector
 	 */
 	public void collideObject(ObjectCollision collision) {
 		if (behaviorThread != null) {
@@ -1170,10 +1179,10 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		}
 		if (playingSongname != null) {
 			if (rendering != null && rendering.getRenderer() != null && rendering.getRenderer().getSoundGenerator() != null) {
-				System.out.println("Resuming playing of song " + playingSongname);
+				System.out.println("WWWorld.restartSounds: Resuming playing of song " + playingSongname);
 				rendering.getRenderer().getSoundGenerator().playSong(playingSongname, playingSongVolume);
 			} else {
-				System.out.println("Could not resume playing of song " + playingSongname + " because renderer not available.");
+				System.out.println("WWWorld.restartSounds: Could not resume playing of song " + playingSongname + " because renderer not available.");
 			}
 		}
 		System.out.println("<WWWorld.restartSounds");
@@ -1212,17 +1221,21 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	public void playSong(String songname, float volume) {
 		if (rendering != null && rendering.getRenderer() != null && rendering.getRenderer().getSoundGenerator() != null) {
 			rendering.getRenderer().getSoundGenerator().playSong(songname, volume);
+			System.out.println("WWWorld.playSong: Playing song " + songname);
+		} else {
+			System.out.println("WWWorld.playSong: Could not play song " + songname + " because renderer/soundgenerator do not exist");
 		}
 		playingSongname = songname;
 		playingSongVolume = volume;
-		System.out.println("Playing song " + songname);
 	}
 
 	public void stopPlayingSong() {
 		if (rendering != null && rendering.getRenderer() != null && rendering.getRenderer().getSoundGenerator() != null) {
 			rendering.getRenderer().getSoundGenerator().stopPlayingSong();
+			System.out.println("WWWorld.stopPlayingSong:: Stopped playing song " + playingSongname);
+		} else {
+			System.out.println("WWWorld.stopPlayingSong:: Could not stop playing song " + playingSongname + " because renderer/soundgenerator do not exist");
 		}
-		System.out.println("Stopped playing song " + playingSongname);
 		playingSongname = null;
 	}
 
@@ -1328,9 +1341,10 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		if (!determinedShadowSupport) {
 			IntBuffer depthBufferBits = IntBuffer.allocate(1);
 			GLES20.glGetIntegerv(GLES20.GL_DEPTH_BITS, depthBufferBits);
-			System.out.println("DEPTH BUFFER BITS = " + depthBufferBits.get(0));
-			shadowSupport = depthBufferBits.get(0) >= 16;
+			int depthBufferBitsInt = depthBufferBits.get(0);
+			shadowSupport = depthBufferBitsInt >= 16;
 			determinedShadowSupport = true;
+			System.out.println("WWWorld.supportsShadows: depthBufferBits = " + depthBufferBitsInt + " so shadowSupport = " + shadowSupport);
 		}
 		return shadowSupport;
 	}
