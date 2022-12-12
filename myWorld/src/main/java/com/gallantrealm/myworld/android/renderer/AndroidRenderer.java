@@ -104,11 +104,12 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	public static HashMap<String, Integer> normalTextureCache = new HashMap<String, Integer>();
 
 	public AndroidRenderer(Context context, GLSurfaceView view, boolean simpleRendering) {
-		System.out.println("AndroidRenderer.constructor");
+		System.out.println(">AndroidRenderer.constructor");
 		this.context = context;
 		this.view = view;
 		this.simpleRendering = simpleRendering;
 		this.soundGenerator = new AndroidSoundGenerator(context);
+		System.out.println("<AndroidRenderer.constructor");
 	}
 
 	public static AndroidRenderer getAndroidRenderer(Context context) {
@@ -228,7 +229,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			InputStream is = null;
 			boolean isPkm = false;
 			try {
-				System.out.println("loading bitmap " + textureName);
+				System.out.println("AndroidRenderer.getNormalTexture loading bitmap " + textureName);
 				Bitmap bitmap = null;
 				if (textureName.contains(":")) { // a url
 					Uri uri = Uri.parse(textureName);
@@ -421,7 +422,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			InputStream is = null;
 			boolean isPkm = false;
 			try {
-				System.out.println("loading bitmap " + textureName);
+				System.out.println("AndroidRenderer.getTexture loading bitmap " + textureName);
 				Bitmap bitmap = null;
 				if (textureName.equals("surface_select")) { // a special bitmap
 					bitmap = Bitmap.createBitmap(512, 512, Config.RGB_565);
@@ -506,7 +507,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	}
 
 	final int genTexture(Bitmap bitmap, String textureName, boolean pixelate) {
-		System.out.println("generating texture " + textureName);
+		System.out.println("AndroidRenderer.genTexture " + textureName);
 		int[] textureIds = new int[1];
 		GLES20.glGenTextures(1, textureIds, 0);
 		int textureId = textureIds[0];
@@ -564,7 +565,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	}
 
 	final int genCompressedTexture(String textureName) {
-		System.out.println("generating compressed texture " + textureName);
+		System.out.println("AndroidRenderer.genCompressedTexture " + textureName);
 
 		int[] textureIds = new int[1];
 		GLES20.glGenTextures(1, textureIds, 0);
@@ -603,7 +604,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 	@Override
 	public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-		System.out.println(">onSurfaceCreated");
+		System.out.println(">AndroidRenderer.onSurfaceCreated");
 		if (clientModel.isStereoscopic()) {
 			try {
 				is3DDevice = DisplaySetting.setStereoscopic3DFormat(view.getHolder().getSurface(), DisplaySetting.STEREOSCOPIC_3D_FORMAT_SIDE_BY_SIDE);
@@ -638,7 +639,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 		if (hasDepthTexture) {
 			shadowMapShader = new ShadowMapShader();
-			setupShadowMap();
+			// setupShadowMap();	// note: skipped because it is done in onSurfaceChanged
 		}
 		GLES20.glReleaseShaderCompiler();
 		GLES20.glGetError(); // to clear as releaseShaderCompiler might not be supported
@@ -651,7 +652,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		initializeStandardDraw();
 	
 		surfaceCreated = true;
-		System.out.println("<onSurfaceCreated");
+		System.out.println("<AndroidRenderer.onSurfaceCreated");
 	}
 
 	final void updateTexture(Bitmap bitmap, int textureId) {
@@ -677,7 +678,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 	@Override
 	public void onSurfaceChanged(GL10 unused, int width, int height) {
-		System.out.println(">onSurfaceChanged");
+		System.out.println(">AndroidRenderer.onSurfaceChanged");
 	
 		clearTextureCache();
 	
@@ -689,7 +690,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 		initializeStandardDraw();
 	
-		System.out.println("<onSurfaceChanged");
+		System.out.println("<AndroidRenderer.onSurfaceChanged");
 	}
 
 	/**
@@ -1395,7 +1396,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	 * Creates a texture and frame buffer object (FBO) used for a shadow map. Returns the texture id for it.
 	 */
 	private void setupShadowMap() {
-			System.out.println(">setupShadowMap");
+			System.out.println(">AndroidRenderer.setupShadowMap");
 			int texW = SHADOW_MAP_WIDTH;
 			int texH = SHADOW_MAP_HEIGHT;
 	
@@ -1437,7 +1438,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 	
-			System.out.println("<setupShadowMap");
+			System.out.println("<AndroidRenderer.setupShadowMap");
 		}
 
 	/**
