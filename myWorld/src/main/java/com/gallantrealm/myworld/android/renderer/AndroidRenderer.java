@@ -179,12 +179,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 	Bitmap regenBitmap;
 	String regenTextureName;
-	int[] staticShadowMapFb;
-	int[] shadowMapFb;
-	int[] depthRb;
-	int staticShadowMapTextureId;
+	int shadowMapFrameBufId;
 	int shadowMapTextureId;
-	int staticShadowMapDrawCount;
 	WWVector lastShadowCameraViewPosition = new WWVector();
 	boolean surfaceCreated;
 	boolean is3DDevice;
@@ -192,7 +188,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	private long lastDrawFrameTime = 0;
 	int viewportWidth;
 	int viewportHeight;
-	int drawFrameCount;
 	public Thread threadWaitingForPick;
 	public int pickX;
 	public int pickY;
@@ -200,14 +195,20 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 	public static void checkGlError() {
 		int error;
-		while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-			throw new RuntimeException("GLES20 Error " + error + ": " + GLU.gluErrorString(error));
+		RuntimeException exception = null;
+		while ((error = GLES30.glGetError()) != GLES30.GL_NO_ERROR) {
+			exception = new RuntimeException("GLES error " + error + ": " + GLU.gluErrorString(error));
+			exception.printStackTrace();
+		}
+		if (exception != null) {
+			throw exception;
 		}
 	}
 
 	public static void ignoreGlError() {
 		int error;
 		while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+			System.out.println("AndroidRenderer.ignoreGlError " + error + ": " + GLU.gluErrorString(error));
 		}
 	}
 
@@ -345,8 +346,12 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		return null;
 	}
 
+	/**
+	 * Perform setup that only needs to be done whenever the rendering surface changes.
+	 * This speeds up the drawing frame rate.
+	 */
 	private void initializeStandardDraw() {
-	
+
 		// Select appropriate final scene rendering shaders
 		if (clientModel.isSimpleRendering()) {
 			textureShader = simpleTextureShader;
@@ -389,8 +394,9 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		// set shadow map texture properties
 		if (!clientModel.isSimpleRendering() && shadowMapTextureId != 0) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
-			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+			GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_COMPARE_MODE, GLES30.GL_COMPARE_REF_TO_TEXTURE);
+			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT); // GL_CLAMP_TO_EDGE);
 			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT); // GL_CLAMP_TO_EDGE);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMapTextureId);
@@ -1393,53 +1399,50 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	}
 
 	/**
-	 * Creates a texture and frame buffer object (FBO) used for a shadow map. Returns the texture id for it.
+	 * Creates a texture and frame buffer object (FBO) used for a shadow map. Returns the framebuffer id for it.
 	 */
 	private void setupShadowMap() {
-			System.out.println(">AndroidRenderer.setupShadowMap");
-			int texW = SHADOW_MAP_WIDTH;
-			int texH = SHADOW_MAP_HEIGHT;
-	
-			// create the ints for the framebuffer, depth render buffer and texture
-			shadowMapFb = new int[1];
-			int[] depthRb = new int[1];
-			int[] renderTex = new int[1];
-	
-			// generate and bind the frame buffer
-			GLES20.glGenFramebuffers(1, shadowMapFb, 0);
-			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, shadowMapFb[0]);
-	
-			// generate and bind the depth texture
-			GLES20.glGenTextures(1, renderTex, 0);
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, renderTex[0]);
-	
-			// generate the textures
-			GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES30.GL_DEPTH_COMPONENT, texW, texH, 0, GLES20.GL_DEPTH_COMPONENT, GLES20.GL_UNSIGNED_INT, null);
-	
-			// create render buffer and bind 16-bit depth buffer
-	//		GLES20.glGenRenderbuffers(1, depthRb, 0);
-	//		GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, depthRb[0]);
-	//		GLES20.glRenderbufferStorage(GLES20.GL_RENDERBUFFER, GLES20.GL_DEPTH_COMPONENT16, texW, texH);
-	//		GLES20.glFramebufferRenderbuffer(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT, GLES20.GL_RENDERBUFFER, depthRb[0]);
-	
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
-			GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT, GLES20.GL_TEXTURE_2D, renderTex[0], 0);
-	
-			shadowMapTextureId = renderTex[0];
-	
-			// set shadow map texture properties
-			GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
-			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT); // GL_CLAMP_TO_EDGE);
-			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT); // GL_CLAMP_TO_EDGE);
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMapTextureId);
-	
-			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-	
-			System.out.println("<AndroidRenderer.setupShadowMap");
-		}
+		System.out.println(">AndroidRenderer.setupShadowMap");
+		int texW = SHADOW_MAP_WIDTH;
+		int texH = SHADOW_MAP_HEIGHT;
+
+		// generate and bind a frame buffer for the shadow map
+		int[] shadowMapFb = new int[1];
+		GLES20.glGenFramebuffers(1, shadowMapFb, 0);
+		shadowMapFrameBufId = shadowMapFb[0];
+		GLES20.glBindFramebuffer(GLES30.GL_DRAW_FRAMEBUFFER, shadowMapFrameBufId);
+
+		// texture 1 is used for the shadow map so make it active now
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+
+		// generate and bind a depth texture for the shadow map
+		int[] shadowMapTex = new int[1];
+		GLES20.glGenTextures(1, shadowMapTex, 0);
+		shadowMapTextureId = shadowMapFb[0];
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMapTextureId);
+
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_DEPTH_COMPONENT, texW, texH, 0, GLES20.GL_DEPTH_COMPONENT, GLES30.GL_UNSIGNED_INT, null);
+
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+		GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT, GLES20.GL_TEXTURE_2D, shadowMapTextureId, 0);
+
+		// configure the depth texture for optimal shadow mapping
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+		GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_COMPARE_MODE, GLES30.GL_COMPARE_REF_TO_TEXTURE);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT); // GL_CLAMP_TO_EDGE);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT); // GL_CLAMP_TO_EDGE);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMapTextureId);
+
+		// restore back to the default framebuffer and texture 0
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+
+		System.out.println("<AndroidRenderer.setupShadowMap");
+	}
+
+	protected float[] tempMatrix = new float[16];
 
 	/**
 	 * Generates a shadow map for the moving objects.
@@ -1447,7 +1450,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	private void generateShadowMap(long time, float[] viewMatrix) {
 	
 		// bind the shadow framebuffer
-		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, shadowMapFb[0]);
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, shadowMapFrameBufId);
 	
 		// Cull front faces for shadow generation
 		GLES20.glCullFace(GLES20.GL_FRONT);

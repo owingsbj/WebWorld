@@ -3,6 +3,8 @@ package com.gallantrealm.myworld.android;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
+
+import android.opengl.EGLExt;
 import android.opengl.GLSurfaceView;
 
 /**
@@ -19,7 +21,7 @@ public class MyWorldConfigChooser implements GLSurfaceView.EGLConfigChooser {
 		mValue = new int[1];
 
 		int[] configSpec = { //
-				EGL10.EGL_RENDERABLE_TYPE, 4 /* EGL_OPENGL_ES2_BIT */, //
+				EGL10.EGL_RENDERABLE_TYPE, EGLExt.EGL_OPENGL_ES3_BIT_KHR, //
 				EGL10.EGL_CONFIG_CAVEAT, EGL10.EGL_NONE, //
 				EGL10.EGL_TRANSPARENT_TYPE, EGL10.EGL_NONE, //
 				EGL10.EGL_DEPTH_SIZE, 24, //

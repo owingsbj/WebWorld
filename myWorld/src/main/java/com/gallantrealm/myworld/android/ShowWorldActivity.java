@@ -126,8 +126,9 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 
 		worldView = (GLSurfaceView) findViewById(R.id.worldView);
 		worldView.setEGLContextClientVersion(2);
+		worldView.setEGLContextFactory(new MyWorldContextFactory());
 			// Note: setEGLConfigChooser fails on different systems, no matter what I do. So going with defaults (usually 8,8,8,16 but not necessarily)
-//			worldView.setEGLConfigChooser(new MyWorldConfigChooser());
+			worldView.setEGLConfigChooser(new MyWorldConfigChooser());
 //			worldView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 		worldRenderer = AndroidRenderer.createAndroidRenderer(this, worldView, clientModel.isSimpleRendering());
 		worldView.setRenderer(worldRenderer);
