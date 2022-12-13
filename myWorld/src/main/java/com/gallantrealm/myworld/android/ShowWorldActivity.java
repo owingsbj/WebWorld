@@ -623,6 +623,10 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 
 		worldRenderer.getSoundGenerator().stop();
 
+		if (clientModel.isCustomizeMode()) {
+			clientModel.setCustomizeMode(false);
+		}
+
 		System.out.println("<ShowWorldActivity.onStop");
 	}
 
