@@ -47,11 +47,6 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import yuku.ambilwarna.AmbilWarnaDialog;
-//import com.google.android.gms.ads.AdRequest;
-//import com.google.android.gms.ads.AdSize;
-//import com.google.android.gms.ads.AdView;
-//import com.google.android.gms.common.ConnectionResult;
-//import com.google.android.gms.common.GooglePlayServicesUtil;
 
 public class ShowWorldActivity extends GallantActivity implements OnTouchListener, ClientModelChangedListener, AlertListener, SensorEventListener, com.bda.controller.ControllerListener {
 
@@ -1717,7 +1712,8 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 
 	@SuppressLint("NewApi")
 	public boolean onGenericMotionEvent(MotionEvent event) {
-		if (event.getSource() == InputDevice.SOURCE_JOYSTICK) {
+		//System.out.println("ShowWorldActiity.onGenericMotionEvent: " + event.getSource() + " " + event.getAction());
+		if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) != 0) {
 			// get changes in value from left joystick
 			float x = event.getAxisValue(MotionEvent.AXIS_X);
 			float y = event.getAxisValue(MotionEvent.AXIS_Y);
@@ -1729,6 +1725,16 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 				controller(-rx * 50, -ry * 50);
 			}
 			return true;
+		} else if ((event.getSource() & InputDevice.SOURCE_MOUSE) != 0) {
+			if (event.getAction() == MotionEvent.ACTION_SCROLL) {
+				if (event.getAxisValue(MotionEvent.AXIS_VSCROLL) < 0.0f)
+					clientModel.setCameraDistance(1.1f * clientModel.getCameraDistance());
+				else
+					clientModel.setCameraDistance(0.9f * clientModel.getCameraDistance());
+				return true;
+			} else {
+				return super.onGenericMotionEvent(event);
+			}
 		} else {
 			return super.onGenericMotionEvent(event);
 		}
