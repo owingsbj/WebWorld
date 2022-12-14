@@ -10,10 +10,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/myAndroid" />
             <option value="$PROJECT_DIR$/myScript" />
             <option value="$PROJECT_DIR$/myWorld" />
+            <option value="$PROJECT_DIR$/webWorld" />
           </set>
         </option>
       </GradleProjectSettings>
