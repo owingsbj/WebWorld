@@ -34,7 +34,6 @@ dependencies {
     implementation files('libs/com.bda.controller.jar')
     implementation files('libs/HTCSDK.jar')
     implementation files('libs/real3d.jar')
-    implementation files('libs/zdk-1.9.2.jar')
     implementation project(path: ':myAndroid')
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'

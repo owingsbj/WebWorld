@@ -3,8 +3,6 @@ package com.gallantrealm.myworld.android;
 import com.gallantrealm.android.Translator;
 import com.gallantrealm.myworld.android.renderer.AndroidRenderer;
 import com.gallantrealm.myworld.client.model.ClientModel;
-import com.zeemote.zc.event.ButtonEvent;
-import com.zeemote.zc.event.IButtonListener;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -28,7 +26,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class SelectObjectDialog extends Dialog implements IButtonListener {
+public class SelectObjectDialog extends Dialog {
 	ClientModel clientModel = AndroidClientModel.getClientModel();
 
 	TextView messageText;
@@ -241,25 +239,12 @@ public class SelectObjectDialog extends Dialog implements IButtonListener {
 
 		});
 
-		if (clientModel.useZeemote() && clientModel.getZeeController() != null) {
-			clientModel.getZeeController().addButtonListener(this);
-		}
-
 		Translator.getTranslator().translate(this.getWindow().getDecorView());
-
 	}
 
 	@Override
 	public void show() {
 		super.show();
-	}
-
-	@Override
-	public void dismiss() {
-		super.dismiss();
-		if (clientModel.useZeemote() && clientModel.getZeeController() != null) {
-			clientModel.getZeeController().removeButtonListener(this);
-		}
 	}
 
 	public int getButtonPressed() {
@@ -268,29 +253,6 @@ public class SelectObjectDialog extends Dialog implements IButtonListener {
 
 	public Object getItemSelected() {
 		return selectedItem;
-	}
-
-	boolean controllerWasPressed;
-
-	@Override
-	public void buttonPressed(ButtonEvent buttonEvent) {
-		controllerWasPressed = true;
-	}
-
-	@Override
-	public void buttonReleased(ButtonEvent buttonEvent) {
-		if (controllerWasPressed) {
-			controllerWasPressed = false;
-			if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_A) {
-				buttonPressed = 0;
-				SelectObjectDialog.this.dismiss();
-				SelectObjectDialog.this.cancel();
-			} else if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_B) {
-				buttonPressed = options.length - 1;
-				SelectObjectDialog.this.dismiss();
-				SelectObjectDialog.this.cancel();
-			}
-		}
 	}
 
 }

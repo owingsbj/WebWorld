@@ -54,7 +54,6 @@ dependencies {
     implementation project(path: ':myWorld')
     implementation project(path: ':myScript')
     implementation files('../myWorld/libs/com.bda.controller.jar')
-    implementation files('../myWorld/libs/zdk-1.9.2.jar')
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'

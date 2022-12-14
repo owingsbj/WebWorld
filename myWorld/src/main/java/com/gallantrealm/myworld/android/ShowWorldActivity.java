@@ -16,10 +16,6 @@ import com.gallantrealm.myworld.model.WWColor;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
-import com.zeemote.zc.event.ButtonEvent;
-import com.zeemote.zc.event.IButtonListener;
-import com.zeemote.zc.event.IJoystickListener;
-import com.zeemote.zc.event.JoystickEvent;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.Instrumentation;
@@ -57,7 +53,7 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 //import com.google.android.gms.common.ConnectionResult;
 //import com.google.android.gms.common.GooglePlayServicesUtil;
 
-public class ShowWorldActivity extends GallantActivity implements OnTouchListener, ClientModelChangedListener, AlertListener, SensorEventListener, IButtonListener, IJoystickListener, com.bda.controller.ControllerListener {
+public class ShowWorldActivity extends GallantActivity implements OnTouchListener, ClientModelChangedListener, AlertListener, SensorEventListener, com.bda.controller.ControllerListener {
 
 	PowerManager.WakeLock wakelock;
 	SensorManager sensorManager;
@@ -238,11 +234,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 				magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 			}
 		}
-		if (clientModel.useZeemote()) {
-			clientModel.getZeeController().addButtonListener(this);
-			clientModel.getZeeController().addJoystickListener(this);
-		}
-
 		updateAvatarActions(false);
 		updateWorldActions(false);
 		placeButtonsBasedOnPrefs();
@@ -602,15 +593,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			rerenderThread.safeStop();
 		}
 		mogaController.exit();
-		if (clientModel.useZeemote()) {
-			try {
-				clientModel.getZeeController().removeButtonListener(this);
-				clientModel.getZeeController().removeJoystickListener(this);
-				clientModel.getZeeController().disconnect();
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-		}
 		if (clientModel.isLocalWorld()) {
 			if (clientModel.world != null) {
 				clientModel.world.pause();
@@ -933,48 +915,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			e.printStackTrace();
 		}
 		return true;
-	}
-
-	/**
-	 * Zeemote button pressed
-	 */
-	@Override
-	public void buttonPressed(ButtonEvent buttonEvent) {
-		if (hasWindowFocus()) {
-			if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_A) {
-				clientModel.startAvatarAction(0, 0, 0);
-			} else if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_B) {
-				clientModel.startAvatarAction(1, 0, 0);
-			} else if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_C) {
-				clientModel.startWorldAction(1);
-			} else if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_D) {
-				clientModel.startWorldAction(0);
-			}
-		}
-	}
-
-	/**
-	 * Zeemote button release
-	 */
-	@Override
-	public void buttonReleased(ButtonEvent buttonEvent) {
-		if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_A) {
-			clientModel.stopAvatarAction(0);
-		} else if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_B) {
-			clientModel.stopAvatarAction(1);
-		} else if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_C) {
-			clientModel.stopWorldAction(1);
-		} else if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_D) {
-			clientModel.stopWorldAction(0);
-		}
-	}
-
-	/**
-	 * Zeemote joystick move
-	 */
-	@Override
-	public void joystickMoved(JoystickEvent joystickEvent) {
-		controller(-joystickEvent.getScaledX(-50, 50), -joystickEvent.getScaledY(-50, 50));
 	}
 
 	/**

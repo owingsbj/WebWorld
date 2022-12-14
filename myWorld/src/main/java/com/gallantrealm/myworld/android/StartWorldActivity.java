@@ -183,9 +183,6 @@ public class StartWorldActivity extends GallantActivity {
 			Timer t = new Timer();
 			t.schedule(new TimerTask() {
 				public void run() {
-					if (clientModel.useZeemote()) {
-						clientModel.connectToZeemote(StartWorldActivity.this);
-					}
 					Intent intent = new Intent(StartWorldActivity.this, ShowWorldActivity.class);
 					startActivity(intent);
 					StartWorldActivity.this.finish();
@@ -245,25 +242,9 @@ public class StartWorldActivity extends GallantActivity {
 			t.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					if (clientModel.useZeemote()) {
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								startupHintText.setText("Trying to connect to Zeemote controller.  Please make sure it is turned on.");
-								startupHintText.setVisibility(View.VISIBLE);
-							}
-						});
-						boolean connected = clientModel.connectToZeemote(StartWorldActivity.this);
-						if (connected) {
-							Intent intent = new Intent(StartWorldActivity.this, ShowWorldActivity.class);
-							startActivity(intent);
-							StartWorldActivity.this.finish();
-						}
-					} else {
-						Intent intent = new Intent(StartWorldActivity.this, ShowWorldActivity.class);
-						startActivity(intent);
-						StartWorldActivity.this.finish();
-					}
+					Intent intent = new Intent(StartWorldActivity.this, ShowWorldActivity.class);
+					startActivity(intent);
+					StartWorldActivity.this.finish();
 				}
 			}, 2500l);
 		} catch (final Exception e) {
@@ -292,9 +273,6 @@ public class StartWorldActivity extends GallantActivity {
 	@Override
 	protected void onStop() {
 		System.out.println(">StartWorldActivity.onStop");
-		if (clientModel.useZeemote()) {
-			clientModel.cancelZeemoteConnect();
-		}
 		super.onStop();
 		System.out.println("<StartWorldActivity.onStop");
 	}

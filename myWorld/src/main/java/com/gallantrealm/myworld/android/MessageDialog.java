@@ -2,8 +2,6 @@ package com.gallantrealm.myworld.android;
 
 import com.gallantrealm.android.Translator;
 import com.gallantrealm.myworld.client.model.ClientModel;
-import com.zeemote.zc.event.ButtonEvent;
-import com.zeemote.zc.event.IButtonListener;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -12,7 +10,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class MessageDialog extends GallantDialog implements IButtonListener {
+public class MessageDialog extends GallantDialog {
 	ClientModel clientModel = AndroidClientModel.getClientModel();
 
 	public TextView titleText;
@@ -141,10 +139,6 @@ public class MessageDialog extends GallantDialog implements IButtonListener {
 			}
 		});
 
-		if (clientModel.useZeemote() && clientModel.getZeeController() != null) {
-			clientModel.getZeeController().addButtonListener(this);
-		}
-		
 		Translator.getTranslator().translate(this.getWindow().getDecorView());
 	}
 
@@ -153,39 +147,8 @@ public class MessageDialog extends GallantDialog implements IButtonListener {
 		super.show();
 	}
 
-	@Override
-	public void dismiss() {
-		super.dismiss();
-		if (clientModel.useZeemote() && clientModel.getZeeController() != null) {
-			clientModel.getZeeController().removeButtonListener(this);
-		}
-	}
-
 	public int getButtonPressed() {
 		return buttonPressed;
-	}
-
-	boolean controllerWasPressed;
-
-	@Override
-	public void buttonPressed(ButtonEvent buttonEvent) {
-		controllerWasPressed = true;
-	}
-
-	@Override
-	public void buttonReleased(ButtonEvent buttonEvent) {
-		if (controllerWasPressed) {
-			controllerWasPressed = false;
-			if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_A) {
-				buttonPressed = 0;
-				MessageDialog.this.dismiss();
-				MessageDialog.this.cancel();
-			} else if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_B) {
-				buttonPressed = options.length - 1;
-				MessageDialog.this.dismiss();
-				MessageDialog.this.cancel();
-			}
-		}
 	}
 
 	@Override

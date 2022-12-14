@@ -19,10 +19,8 @@ import com.amazon.device.ads.AdProperties;
 import com.amazon.device.ads.AdRegistration;
 import com.amazon.device.ads.AdTargetingOptions;
 import com.gallantrealm.myworld.client.model.ClientModel;
-import com.zeemote.zc.event.ButtonEvent;
-import com.zeemote.zc.event.IButtonListener;
 
-public class AdDialog extends GallantDialog implements IButtonListener {
+public class AdDialog extends GallantDialog {
 	ClientModel clientModel = AndroidClientModel.getClientModel();
 
 	TextView titleText;
@@ -108,44 +106,11 @@ public class AdDialog extends GallantDialog implements IButtonListener {
 				AdDialog.this.cancel();
 			}
 		});
-		if (clientModel.useZeemote() && clientModel.getZeeController() != null) {
-			clientModel.getZeeController().addButtonListener(this);
-		}
 	}
 	
 	@Override
 	public void show() {
 		super.show();
-	}
-
-	@Override
-	public void dismiss() {
-		super.dismiss();
-		if (clientModel.useZeemote() && clientModel.getZeeController() != null) {
-			clientModel.getZeeController().removeButtonListener(this);
-		}
-	}
-
-	boolean controllerWasPressed;
-
-	@Override
-	public void buttonPressed(ButtonEvent buttonEvent) {
-		controllerWasPressed = true;
-	}
-
-	@Override
-	public void buttonReleased(ButtonEvent buttonEvent) {
-		if (controllerWasPressed) {
-			controllerWasPressed = false;
-			if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_A) {
-				// TODO visit ad somehow
-				AdDialog.this.dismiss();
-				AdDialog.this.cancel();
-			} else if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_B) {
-				AdDialog.this.dismiss();
-				AdDialog.this.cancel();
-			}
-		}
 	}
 
 	@Override

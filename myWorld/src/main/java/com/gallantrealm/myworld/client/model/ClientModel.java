@@ -68,11 +68,6 @@ import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 import com.gallantrealm.myworld.server.MyWorldServer;
-import com.zeemote.zc.Controller;
-import com.zeemote.zc.DeviceFactory;
-import com.zeemote.zc.IDeviceSearch;
-import com.zeemote.zc.IProgressMonitor;
-import com.zeemote.zc.IStreamConnector;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -112,13 +107,6 @@ public abstract class ClientModel {
 	}
 
 	public static AndroidClientModel clientModel;
-
-	public class ZeeProgressMonitor implements IProgressMonitor {
-		@Override
-		public void setMessage(String arg0) {
-			System.out.println(arg0);
-		}
-	}
 
 	public class ReturnValue {
 		public int rc;
@@ -345,9 +333,9 @@ public abstract class ClientModel {
 
 	public final int getRefreshRate() {
 		if (((ClientModel) this).isPowerSaver()) {
-			return 100;
+			return 100;  // 10 fps
 		} else {
-			return 33;
+			return 33;   // 30 fps
 		}
 	}
 
@@ -1195,7 +1183,6 @@ public abstract class ClientModel {
 	private boolean playSoundEffects;
 	private boolean vibration;
 	private boolean useSensors;
-	private boolean useZeemote;
 	private boolean useScreenControl;
 	private boolean controlOnLeft;
 	public boolean usingMoga;
@@ -1254,7 +1241,6 @@ public abstract class ClientModel {
 		playSoundEffects = preferences.getBoolean("playSoundEffects", true);
 		vibration = preferences.getBoolean("vibration", true);
 		useSensors = preferences.getBoolean("useSensors", false);
-		useZeemote = preferences.getBoolean("useZeemote", false);
 		useScreenControl = preferences.getBoolean("showScreenControls", true);
 		controlOnLeft = preferences.getBoolean("controlOnLeft", true);
 		usingMoga = false; // this is determined dynamically now, by querying for a moga controller
@@ -1301,7 +1287,6 @@ public abstract class ClientModel {
 		editor.putBoolean("playSoundEffects", playSoundEffects);
 		editor.putBoolean("vibration", vibration);
 		editor.putBoolean("useSensors", useSensors);
-		editor.putBoolean("useZeemote", useZeemote);
 		editor.putBoolean("showScreenControls", useScreenControl);
 		editor.putBoolean("controlOnLeft", controlOnLeft);
 		editor.putFloat("controlSensitivity", controlSensitivity);
@@ -1328,7 +1313,6 @@ public abstract class ClientModel {
 	}
 
 	MediaPlayer songPlayer;
-	private Controller zeeController;
 
 	public int getPlayCount() {
 		return playCount;
@@ -1347,9 +1331,6 @@ public abstract class ClientModel {
 		lastPlayTime = System.currentTimeMillis();
 		savePreferences(context);
 	}
-
-	private boolean zeeConnected;
-	private boolean cancelZee;
 
 	public void playSong(int songId) {
 		if (this.songId != songId) {
@@ -1504,10 +1485,6 @@ public abstract class ClientModel {
 		this.useSensors = useSensors;
 	}
 
-	public boolean useZeemote() {
-		return useZeemote && !useMoga(context) && !useGamepad(context);
-	}
-
 	public boolean useGamepad(Context context) {
 		int[] deviceIds = InputDevice.getDeviceIds();
 		for (int deviceId : deviceIds) {
@@ -1572,10 +1549,6 @@ public abstract class ClientModel {
 		fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_CALIBRATE_SENSORS);
 	}
 
-	public void setUseZeemote(boolean useZeemote) {
-		this.useZeemote = useZeemote;
-	}
-
 	public boolean useScreenControl() {
 		return useScreenControl && !useMoga(context); // && hasTouchScreen();
 	}
@@ -1601,7 +1574,7 @@ public abstract class ClientModel {
 	}
 
 	public boolean useDPad() {
-		return !useScreenControl() && !useSensors() && !useZeemote();
+		return !useScreenControl() && !useSensors();
 	}
 
 	public void setAlertListener(AlertListener listener) {
@@ -1616,46 +1589,6 @@ public abstract class ClientModel {
 
 	public void setStereoscopic(boolean stereo) {
 		this.stereoscopic = stereo;
-	}
-
-	public boolean connectToZeemote(Context context) {
-		if (zeeController == null) {
-			zeeController = new Controller(1, Controller.TYPE_JS1);
-		}
-		cancelZee = false;
-		try {
-			while (!cancelZee) {
-				try {
-					if (zeeController.isConnected()) {
-						return true;
-					}
-					System.out.println("getting devices");
-					IDeviceSearch deviceSearch = DeviceFactory.getDeviceSearch();
-					deviceSearch.findDevices(new ZeeProgressMonitor());
-					Vector<IStreamConnector> deviceStreams = deviceSearch.getStreamConnectorList();
-					System.out.println("connecting to device");
-					zeeController.connect(deviceStreams.get(0));
-					System.out.println("connected");
-					zeeConnected = true;
-					if (zeeController.isConnected()) {
-						return true;
-					}
-				} catch (Exception e) {
-					System.err.println("Exception accessing zeeMote: " + e.getMessage());
-				}
-				Thread.sleep(1000);
-			}
-		} catch (InterruptedException e) {
-		}
-		return false;
-	}
-
-	public void cancelZeemoteConnect() {
-		cancelZee = true;
-	}
-
-	public Controller getZeeController() {
-		return zeeController;
 	}
 
 	public void setScore(int game, int score) {

@@ -218,8 +218,6 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 				} else {
 					controlType.setSelection(controlTypeAdapter.getPosition("Screen Right"));
 				}
-			} else if (clientModel.useZeemote()) {
-				controlType.setSelection(controlTypeAdapter.getPosition("Zeemote"));
 			} else {
 				controlType.setSelection(controlTypeAdapter.getPosition("Controller"));
 			}
@@ -234,38 +232,28 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 
 	public void onItemSelected(AdapterView av, View view, int arg1, long arg2) {
 		String type = (String) controlType.getSelectedItem();
-		// "Screen Left", "Screen Right", "Tilt","Zeemote", "Controller"
+		// "Screen Left", "Screen Right", "Tilt","Controller"
 		if (type == null) {
 			return;
 		} else if (type.equals("Tilt")) { // tilt
 			clientModel.setUseScreenControl(false);
 			clientModel.setControlOnLeft(false);
 			clientModel.setUseSensors(true);
-			clientModel.setUseZeemote(false);
 			clientModel.savePreferences(this);
 		} else if (type.equals("Screen Left")) { // left screen
 			clientModel.setUseScreenControl(true);
 			clientModel.setControlOnLeft(true);
 			clientModel.setUseSensors(false);
-			clientModel.setUseZeemote(false);
 			clientModel.savePreferences(this);
 		} else if (type.equals("Screen Right")) { // right screen
 			clientModel.setUseScreenControl(true);
 			clientModel.setControlOnLeft(false);
 			clientModel.setUseSensors(false);
-			clientModel.setUseZeemote(false);
-			clientModel.savePreferences(this);
-		} else if (type.equals("Zeemote")) { // zeemote
-			clientModel.setUseScreenControl(false);
-			clientModel.setControlOnLeft(false);
-			clientModel.setUseSensors(false);
-			clientModel.setUseZeemote(true);
 			clientModel.savePreferences(this);
 		} else if (type.equals("Controller")) { // gamepad
 			clientModel.setUseScreenControl(false);
 			clientModel.setControlOnLeft(false);
 			clientModel.setUseSensors(false);
-			clientModel.setUseZeemote(false);
 			clientModel.savePreferences(this);
 		}
 	}

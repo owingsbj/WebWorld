@@ -16,10 +16,8 @@ import android.widget.TextView;
 
 import com.gallantrealm.android.Translator;
 import com.gallantrealm.myworld.client.model.ClientModel;
-import com.zeemote.zc.event.ButtonEvent;
-import com.zeemote.zc.event.IButtonListener;
 
-public class InputDialog extends Dialog implements IButtonListener {
+public class InputDialog extends Dialog {
 	ClientModel clientModel = AndroidClientModel.getClientModel();
 
 	TextView titleText;
@@ -143,10 +141,6 @@ public class InputDialog extends Dialog implements IButtonListener {
 
 		});
 
-		if (clientModel.useZeemote() && clientModel.getZeeController() != null) {
-			clientModel.getZeeController().addButtonListener(this);
-		}
-		
 		Translator.getTranslator().translate(this.getWindow().getDecorView());
 	}
 
@@ -155,43 +149,12 @@ public class InputDialog extends Dialog implements IButtonListener {
 		super.show();
 	}
 
-	@Override
-	public void dismiss() {
-		super.dismiss();
-		if (clientModel.useZeemote() && clientModel.getZeeController() != null) {
-			clientModel.getZeeController().removeButtonListener(this);
-		}
-	}
-
 	public int getButtonPressed() {
 		return buttonPressed;
 	}
 
 	public String getValue() {
 		return inputText.getText().toString();
-	}
-
-	boolean controllerWasPressed;
-
-	@Override
-	public void buttonPressed(ButtonEvent buttonEvent) {
-		controllerWasPressed = true;
-	}
-
-	@Override
-	public void buttonReleased(ButtonEvent buttonEvent) {
-		if (controllerWasPressed) {
-			controllerWasPressed = false;
-			if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_A) {
-				buttonPressed = 0;
-				InputDialog.this.dismiss();
-				InputDialog.this.cancel();
-			} else if (buttonEvent.getButtonGameAction() == ButtonEvent.BUTTON_B) {
-				buttonPressed = options.length - 1;
-				InputDialog.this.dismiss();
-				InputDialog.this.cancel();
-			}
-		}
 	}
 
 }

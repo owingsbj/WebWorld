@@ -79,9 +79,9 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		} else {
 			ArrayAdapter<CharSequence> controlTypeAdapter;
 			if (getString(R.string.supportsScreenController).equals("true") && getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
-				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Tilt", "Screen Left", "Screen Right", "Gamepad", "Zeemote" });
+				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Tilt", "Screen Left", "Screen Right", "Gamepad" });
 			} else {
-				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Tilt", "Gamepad", "Zeemote" });
+				controlTypeAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "Tilt", "Gamepad" });
 			}
 			controlTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			controlType.setAdapter(controlTypeAdapter);
@@ -190,8 +190,6 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 			} else {
 				controlType.setSelection(2);
 			}
-		} else if (clientModel.useZeemote()) {
-			controlType.setSelection(4);
 		} else {
 			controlType.setSelection(3);
 		}
@@ -204,38 +202,28 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 	@Override
 	public void onItemSelected(AdapterView av, View view, int arg1, long arg2) {
 		String type = (String)controlType.getSelectedItem();
-		// "Tilt", "Screen Left", "Screen Right", "Zeemote", "Gamepad"
+		// "Tilt", "Screen Left", "Screen Right", "Gamepad"
 		if (type == null) {
 			return;
 		} else if  (type.equals("Tilt")) { // tilt
 			clientModel.setUseScreenControl(false);
 			clientModel.setControlOnLeft(false);
 			clientModel.setUseSensors(true);
-			clientModel.setUseZeemote(false);
 			clientModel.savePreferences(this);
 		} else if (type.equals("Screen Left")) { // left screen
 			clientModel.setUseScreenControl(true);
 			clientModel.setControlOnLeft(true);
 			clientModel.setUseSensors(false);
-			clientModel.setUseZeemote(false);
 			clientModel.savePreferences(this);
 		} else if (type.equals("Screen Right")) { // right screen
 			clientModel.setUseScreenControl(true);
 			clientModel.setControlOnLeft(false);
 			clientModel.setUseSensors(false);
-			clientModel.setUseZeemote(false);
-			clientModel.savePreferences(this);
-		} else if (type.equals("Zeemote")) { // zeemote
-			clientModel.setUseScreenControl(false);
-			clientModel.setControlOnLeft(false);
-			clientModel.setUseSensors(false);
-			clientModel.setUseZeemote(true);
 			clientModel.savePreferences(this);
 		} else if (type.equals("Gamepad")) { // gamepad
 			clientModel.setUseScreenControl(false);
 			clientModel.setControlOnLeft(false);
 			clientModel.setUseSensors(false);
-			clientModel.setUseZeemote(false);
 			clientModel.savePreferences(this);
 		}
 	}
