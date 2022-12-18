@@ -1,6 +1,6 @@
 package com.gallantrealm.myworld.android;
 
-import java.io.IOException;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import com.gallantrealm.myworld.FastMath;
@@ -17,16 +17,19 @@ import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ConfigurationInfo;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -94,11 +97,86 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 
 	RerenderThread rerenderThread;
 
-	Timer dPadTimer;
-	TimerTask dPadTimerTask;
+	Timer controllerTimer;
+	TimerTask controllerTimerTask;
+
+	boolean usingDPad;
+	boolean dPadLeftDown;
+	boolean dPadRightDown;
+	boolean dPadUpDown;
+	boolean dPadDownDown;
+
+	boolean repeatController2;
+	float controller2X;
+	float controller2Y;
+
+	/**
+	 * A thread to provide repeated actions on controller buttons
+	 */
+	class ControllerTask extends TimerTask {
+
+		@Override
+		public void run() {
+			if (usingDPad) {
+				float dPadX;
+				float dPadY;
+				if (dPadLeftDown) {
+					dPadX = 50;
+				} else if (dPadRightDown) {
+					dPadX = -50;
+				} else {
+					dPadX = 0;
+				}
+				if (dPadUpDown) {
+					dPadY = 50;
+				} else if (dPadDownDown) {
+					dPadY = -50;
+				} else {
+					dPadY = 0;
+				}
+				controller(dPadX, dPadY);
+			}
+			if (repeatController2) {
+				controller2(controller2X, controller2Y);
+			}
+		}
+
+	}
 
 	/** Moga support. */
 	public com.bda.controller.Controller mogaController;
+
+	private boolean isGamepadConnected() {
+		InputManager inputManager = (InputManager) this.getSystemService(Context.INPUT_SERVICE);
+		int[] inputDeviceIds = inputManager.getInputDeviceIds();
+		for (int inputDeviceId : inputDeviceIds) {
+			InputDevice inputDevice = inputManager.getInputDevice(inputDeviceId);
+			List<InputDevice.MotionRange> motionRanges = inputDevice.getMotionRanges();
+			if ((inputDevice.getSources() & InputDevice.SOURCE_JOYSTICK) != 0 && inputDevice.getMotionRanges().size() >= 2) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isFourAxisGamepadConnected() {
+		InputManager inputManager = (InputManager) this.getSystemService(Context.INPUT_SERVICE);
+		int[] inputDeviceIds = inputManager.getInputDeviceIds();
+		for (int inputDeviceId : inputDeviceIds) {
+			InputDevice inputDevice = inputManager.getInputDevice(inputDeviceId);
+			List<InputDevice.MotionRange> motionRanges = inputDevice.getMotionRanges();
+			if ((inputDevice.getSources() & InputDevice.SOURCE_JOYSTICK) != 0 && inputDevice.getMotionRanges().size() >= 4) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean supportsOpenGLES30() {
+		ActivityManager am = (ActivityManager)this.getSystemService(Context.ACTIVITY_SERVICE);
+		ConfigurationInfo info = am.getDeviceConfigurationInfo();
+		return ( info.reqGlEsVersion >= 0x30000 );
+	}
 
 	/** Called when the activity is first created. */
 	@SuppressLint("NewApi")
@@ -107,6 +185,14 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		System.out.println(">ShowWorldActivity.onCreate");
 		super.onCreate(savedInstanceState);
 		clientModel.setContext(this);
+
+		if (isGamepadConnected()) {
+			System.out.println(" ShowWorldActiity.onCreate A gamepad is connected.");
+		}
+		if (isFourAxisGamepadConnected()) {
+			System.out.println(" ShowWorldActiity.onCreate The gamepad is four axis.");
+		}
+
 		setContentView(R.layout.show_world);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -116,10 +202,18 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		wakelock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "ShowWorldActivity:WakeLock");
 
 		worldView = (GLSurfaceView) findViewById(R.id.worldView);
-		worldView.setEGLContextClientVersion(2);
-		worldView.setEGLContextFactory(new MyWorldContextFactory());
+		if (!clientModel.isSimpleRendering() && supportsOpenGLES30()) {
+			worldView.setEGLContextClientVersion(3);   // to use the shadowing shaders, requiring es3
+			System.out.println(" ShowWorldActivity.onCreate using OpenGL ES 3");
+		} else {
+			worldView.setEGLContextClientVersion(2);	// use the non-shadowing shaders, only requiring es2
+			clientModel.setSimpleRendering(true);	// override to simple rendering
+			clientModel.savePreferences(this);
+			System.out.println(" ShowWorldActivity.onCreate using OpenGL ES 2");
+		}
+//		worldView.setEGLContextFactory(new MyWorldContextFactory());
 			// Note: setEGLConfigChooser fails on different systems, no matter what I do. So going with defaults (usually 8,8,8,16 but not necessarily)
-			worldView.setEGLConfigChooser(new MyWorldConfigChooser());
+//			worldView.setEGLConfigChooser(new MyWorldConfigChooser());
 //			worldView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 		worldRenderer = AndroidRenderer.createAndroidRenderer(this, worldView, clientModel.isSimpleRendering());
 		worldView.setRenderer(worldRenderer);
@@ -549,9 +643,9 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 				// sensorManager.registerListener(this, magneticFieldSensor, SensorManager.SENSOR_DELAY_GAME);
 			}
 			// if (clientModel.useDPad()) {
-			dPadTimerTask = new DPadTimerTask();
-			dPadTimer = new Timer();
-			dPadTimer.schedule(dPadTimerTask, 50, 50); // same time as sensor delay game (40ms)
+			controllerTimerTask = new ControllerTask();
+			controllerTimer = new Timer();
+			controllerTimer.schedule(controllerTimerTask, 50, 50); // same time as sensor delay game (40ms)
 			// }
 		}
 		super.onResume();
@@ -566,11 +660,11 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		if (sensorManager != null && clientModel.useSensors()) {
 			sensorManager.unregisterListener(this);
 		}
-		if (dPadTimer != null) {
-			dPadTimer.cancel();
-			dPadTimer = null;
-			dPadTimerTask.cancel();
-			dPadTimerTask = null;
+		if (controllerTimer != null) {
+			controllerTimer.cancel();
+			controllerTimer = null;
+			controllerTimerTask.cancel();
+			controllerTimerTask = null;
 		}
 		mogaController.onPause();
 
@@ -892,13 +986,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 										startingCameraTilt = clientModel.getCameraTilt();
 										dragging = true;
 									}
-									if (clientModel.world.isConfrontMode() && clientModel.getAvatar() == clientModel.getCameraObject()) {
-										WWVector avatarRotation = clientModel.getAvatar().getRotation();
-										clientModel.getAvatar().setRotation(avatarRotation.x, avatarRotation.y, avatarRotation.z + (startingX - x) / 2.5f / 10.0f);
-										// TODO the above won't work with remote worlds
-									} else {
-										clientModel.setCameraPan(startingCameraPan + (startingX - x) / 2.5f);
-									}
+									clientModel.setCameraPan(startingCameraPan + (startingX - x) / 2.5f);
 									clientModel.setCameraTilt(Math.max(startingCameraTilt - (startingY - y) / 2.5f, -30.0f));
 								}
 							}
@@ -987,6 +1075,34 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			lift = clientModel.getAvatarLift();
 		}
 		clientModel.forceAvatar(thrust, turn, lift, tilt, lean, slide);
+	}
+
+	/**
+	 * Use of a second joystick comes here.  This controls the camera.
+	 *
+	 * @param deltaX
+	 *            the movement in the x dimension, from -50 to 50
+	 * @param deltaY
+	 *            the movement in the y dimension, from -50 to 50
+	 */
+	private void controller2(float deltaX, float deltaY) {
+		WWWorld world = clientModel.world;
+		if (world == null || !world.isRunning()) {
+			return;
+		}
+		if (deltaX != 0) {
+			clientModel.setCameraPan(clientModel.getCameraPan() + 0.1f * deltaX);
+		}
+		if (deltaY != 0) {
+			clientModel.setCameraTilt(clientModel.getCameraTilt() + 0.1f * deltaY);
+		}
+		if (deltaX != 0 || deltaY != 0) {
+			controller2X = deltaX;
+			controller2Y = deltaY;
+			repeatController2 = true;
+		} else {
+			repeatController2 = false;
+		}
 	}
 
 	/**
@@ -1346,39 +1462,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		});
 	}
 
-	boolean usingDPad;
-	float dPadX;
-	float dPadY;
-	boolean dPadLeftDown;
-	boolean dPadRightDown;
-	boolean dPadUpDown;
-	boolean dPadDownDown;
-
-	class DPadTimerTask extends TimerTask {
-
-		@Override
-		public void run() {
-			if (usingDPad) {
-				if (dPadLeftDown) {
-					dPadX = 50;
-				} else if (dPadRightDown) {
-					dPadX = -50;
-				} else {
-					dPadX = 0;
-				}
-				if (dPadUpDown) {
-					dPadY = 50;
-				} else if (dPadDownDown) {
-					dPadY = -50;
-				} else {
-					dPadY = 0;
-				}
-				controller(dPadX, dPadY);
-			}
-		}
-
-	}
-
 	/**
 	 * Override to make sure key events go directly to the listeners (and not handled by buttons on interface).
 	 */
@@ -1719,10 +1802,11 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			float y = event.getAxisValue(MotionEvent.AXIS_Y);
 			float rx = event.getAxisValue(MotionEvent.AXIS_Z);
 			float ry = event.getAxisValue(MotionEvent.AXIS_RZ);
-			if (Math.abs(x) > Math.abs(rx)) {
+			if (x != 0 || y != 0) {
 				controller(-x * 50, -y * 50);
-			} else {
-				controller(-rx * 50, -ry * 50);
+			}
+			if (rx != 0 || ry != 0) {
+				controller2(-rx * 50, -ry * 50);
 			}
 			return true;
 		} else if ((event.getSource() & InputDevice.SOURCE_MOUSE) != 0) {

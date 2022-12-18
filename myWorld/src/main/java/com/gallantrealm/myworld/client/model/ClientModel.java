@@ -82,6 +82,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.hardware.input.InputManager;
 import android.media.MediaPlayer;
 import android.opengl.GLES20;
 import android.os.Build;
@@ -201,7 +202,7 @@ public abstract class ClientModel {
 	public float dampedCameraLean;
 	public float dampedCameraPan;
 
-	public float cameraDampRate = 0f; // higher moves camera slower
+	public float cameraDampRate; // higher moves camera slower
 
 	private AlertListener alertListener;
 
@@ -745,6 +746,11 @@ public abstract class ClientModel {
 		int avatarId = world.getUser(userId).getAvatarId();
 		WWObject avatar = world.objects[avatarId];
 		if (avatarId != 0 && avatar != null) {
+			if (FastMath.abs(cameraPan) > 5 && (world.getMoveXType() == WWWorld.MOVE_TYPE_TURN || world.getMoveXType() == WWWorld.MOVE_TYPE_THRUST) && getAvatar() == getCameraObject()) {
+				WWVector avatarRotation = avatar.getRotation();
+				avatar.setRotation(avatarRotation.x, avatarRotation.y, avatarRotation.z + cameraPan);
+				// TODO the above won't work with remote worlds, but something should be done
+			}
 			cameraToViewpoint();
 
 			// move and turn avatar
@@ -1223,7 +1229,6 @@ public abstract class ClientModel {
 	private String localFolder;
 	private boolean showDebugLogging;
 	boolean testedOpenGL;
-	boolean supportsOpenGLES20;
 	int songId;
 
 	public void loadPreferences(Activity context) {
@@ -2345,13 +2350,7 @@ public abstract class ClientModel {
 	}
 
 	public String getGallantUrl() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			// return "https://gallantrealm.com";
-			return "http://190.92.190.206";
-		} else {
-			// return "http://gallantrealm.com";
-			return "http://190.92.190.206";
-		}
+		return "https://gallantrealm.com";
 	}
 
 	public void log(String message) {
