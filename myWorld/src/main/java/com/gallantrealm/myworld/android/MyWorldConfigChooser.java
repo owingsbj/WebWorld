@@ -17,14 +17,11 @@ public class MyWorldConfigChooser implements GLSurfaceView.EGLConfigChooser {
 
 	@Override
 	public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
-		System.out.println(">chooseConfig");
+		System.out.println(">MyWorldConfigChooser.chooseConfig");
 		mValue = new int[1];
 
 		int[] configSpec = { //
 				EGL10.EGL_RENDERABLE_TYPE, EGLExt.EGL_OPENGL_ES3_BIT_KHR, //
-				EGL10.EGL_CONFIG_CAVEAT, EGL10.EGL_NONE, //
-				EGL10.EGL_TRANSPARENT_TYPE, EGL10.EGL_NONE, //
-				EGL10.EGL_DEPTH_SIZE, 24, //
 				EGL10.EGL_NONE //
 		};
 		if (!egl.eglChooseConfig(display, configSpec, null, 0, mValue)) {
@@ -36,7 +33,7 @@ public class MyWorldConfigChooser implements GLSurfaceView.EGLConfigChooser {
 			throw new IllegalArgumentException("data eglChooseConfig failed");
 		}
 
-		System.out.println(" chooseConfig - choosing from " + configs.length + " configs:");
+		System.out.println("MyWorldConfigChooser.chooseConfig - choosing from " + configs.length + " configs:");
 		int bestScore = -1;
 		int index = -1;
 		for (int i = 0; i < configs.length; ++i) {
@@ -75,12 +72,12 @@ public class MyWorldConfigChooser implements GLSurfaceView.EGLConfigChooser {
 
 		// Choose the best configuration.
 		if (index == -1) {
-			System.out.println(" chooseConfig - Did not find sane config, using first");
+			System.out.println("MyWorldConfigChooser.chooseConfig - Did not find sane config, using first");
 			index = 0;
 		}
-		System.out.println("  chooseConfig - Using config #" + index);
+		System.out.println("MyWorldConfigChooser.chooseConfig - Using config #" + index);
 		EGLConfig config = configs[index];
-		System.out.println("<chooseConfig");
+		System.out.println("<MyWorldConfigChooser.chooseConfig");
 		return config;
 	}
 
