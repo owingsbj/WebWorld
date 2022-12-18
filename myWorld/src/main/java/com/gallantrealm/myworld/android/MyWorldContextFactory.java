@@ -15,8 +15,9 @@ public final class MyWorldContextFactory implements GLSurfaceView.EGLContextFact
 
     public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig config) {
         final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
-        int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 3, EGL10.EGL_NONE };
+        int[] attrib_list = new int[] {EGL_CONTEXT_CLIENT_VERSION, 3, EGL10.EGL_NONE};
         EGLContext context = egl.eglCreateContext(display, config, EGL10.EGL_NO_CONTEXT, attrib_list);
+        System.out.println("MyWorldContextFactory.createContext returning a context for client version 3");
         return context;
     }
 
