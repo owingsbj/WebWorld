@@ -103,9 +103,8 @@ public class World extends WWWorld {
 		}
 
 		// TODO make this work in BlockWorld.js clientModel.cameraInitiallyFacingAvatar = true;
-		clientModel.cameraDampRate = 0;
 		clientModel.calibrateSensors();
-		clientModel.cameraDampRate = 0.5f;
+		clientModel.cameraDampRate = 5.0f;
 		clientModel.behindDistance = 3;
 		clientModel.behindTilt = 10;
 		clientModel.minCameraDistance = 0.01f;
@@ -135,7 +134,7 @@ public class World extends WWWorld {
 			properties.load(inputStream);
 			properties.list(System.out);
 			System.out.println();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			System.err.println(e);
 			clientModel.getContext().runOnUiThread(new Runnable() {
 				public void run() {
@@ -174,7 +173,7 @@ public class World extends WWWorld {
 			properties.load(inputStream);
 			properties.list(System.out);
 			System.out.println();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			System.err.println(e);
 			clientModel.getContext().runOnUiThread(new Runnable() {
 				public void run() {
@@ -284,7 +283,7 @@ public class World extends WWWorld {
 
 			this.addObject(avatar);
 			user.setAvatarId(avatar.getId());
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("Couldn't download avatar " + avatarName + ".  Are you connected to the internet?");
 		} finally {
@@ -340,7 +339,7 @@ public class World extends WWWorld {
 					e.printStackTrace();
 					throw new Exception(scrubScriptError(e.getMessage()));
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				throw new Exception("Couldn't download customizer for " + avatarName + ".  Are you connected to the internet?");
 			} finally {
@@ -403,7 +402,7 @@ public class World extends WWWorld {
 					e.printStackTrace();
 					throw new Exception(scrubScriptError(e.getMessage()));
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				throw new Exception("Couldn't download world " + worldName + ".  Are you connected to the internet?");
 			} finally {
