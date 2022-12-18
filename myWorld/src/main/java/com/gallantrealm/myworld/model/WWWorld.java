@@ -52,7 +52,6 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	int nextGroup;
 	public WWAction[] actions;
 	boolean persistent; // if true the world is saved by a background thread
-	boolean confrontMode;  // the world's avatar turns automatically on camera pan
 
 	// Game related properties
 	int level;
@@ -1076,7 +1075,6 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	public static final int MOVE_TYPE_THRUST = 2;
 	public static final int MOVE_TYPE_LEAN = 3;
 	public static final int MOVE_TYPE_TILT = 4;
-	public static final int MOVE_TYPE_THRUSTX = 5;
 	public static final int MOVE_TYPE_LIFT = 6;
 	public static final int MOVE_TYPE_SLIDE = 7;
 
@@ -1356,12 +1354,14 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	public boolean isPersistent() {
 		return persistent;
 	}
-	
-	public boolean isConfrontMode() {
-		return confrontMode;
+
+	/**
+	 * Override to return true if the avatar should turn automatically to point to where the camera
+	 * is panned.  (This behavior should be avoided for machine-type avatars like cars and planes
+	 * as these need to be turned via world physics.  Default is false.
+	 */
+	public boolean isAutoTurnOnCameraPan() {
+		return false;
 	}
 	
-	public void setConfrontMode(boolean confrontMode) {
-		this.confrontMode = confrontMode;
-	}
 }

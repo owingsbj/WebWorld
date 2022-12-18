@@ -746,7 +746,7 @@ public abstract class ClientModel {
 		int avatarId = world.getUser(userId).getAvatarId();
 		WWObject avatar = world.objects[avatarId];
 		if (avatarId != 0 && avatar != null) {
-			if (FastMath.abs(cameraPan) > 5 && (world.getMoveXType() == WWWorld.MOVE_TYPE_TURN || world.getMoveXType() == WWWorld.MOVE_TYPE_THRUST) && getAvatar() == getCameraObject()) {
+			if (FastMath.abs(cameraPan) > 5 && getAvatar() == getCameraObject() && world.isAutoTurnOnCameraPan()) {
 				WWVector avatarRotation = avatar.getRotation();
 				avatar.setRotation(avatarRotation.x, avatarRotation.y, avatarRotation.z + cameraPan);
 				// TODO the above won't work with remote worlds, but something should be done

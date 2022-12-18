@@ -609,11 +609,10 @@ public class World extends WWWorld {
 	
 	public void setMoveType(String moveType) {
 		this.moveType = moveType;
-		if (moveType.equals("confront")) {
-			setConfrontMode(true);
-		} else {
-			setConfrontMode(false);
-		}
+	}
+
+	public boolean isAutoTurnOnCameraPan() {
+		return moveType == null || moveType.equals("explore") || moveType.equals("confront");
 	}
 
 	public int getMoveXType() {
