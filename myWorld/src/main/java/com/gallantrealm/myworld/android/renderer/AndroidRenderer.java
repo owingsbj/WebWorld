@@ -170,8 +170,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	public DepthShader depthShader;
 	public ShadowMapShader shadowMapShader;
 	public Shader textureShader;
-	public Shader simpleTextureShader;
-	public Shader shadowingTextureShader;
 
 	protected float[] projectionMatrix = new float[16];
 	protected float[] viewMatrix = new float[16];
@@ -352,13 +350,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	 */
 	private void initializeStandardDraw() {
 
-		// Select appropriate final scene rendering shaders
-		if (clientModel.isSimpleRendering()) {
-			textureShader = simpleTextureShader;
-		} else {
-			textureShader = shadowingTextureShader;
-		}
-	
 		// bind default framebuffer
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 	
@@ -638,8 +629,11 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 	
 		// Initialize shaders
-		simpleTextureShader = new SimpleTextureShader();
-		shadowingTextureShader = new ShadowingTextureShader();
+		if (clientModel.isSimpleRendering()) {
+			textureShader = new SimpleTextureShader();
+		} else {
+			textureShader = new ShadowingTextureShader();
+		}
 		if (USE_DEPTH_SHADER) {
 			depthShader = new DepthShader();
 		}
