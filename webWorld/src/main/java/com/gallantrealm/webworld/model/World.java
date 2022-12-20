@@ -283,7 +283,7 @@ public class World extends WWWorld {
 
 			this.addObject(avatar);
 			user.setAvatarId(avatar.getId());
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new Exception("Couldn't download avatar " + avatarName + ".  Are you connected to the internet?");
 		} finally {
@@ -339,7 +339,7 @@ public class World extends WWWorld {
 					e.printStackTrace();
 					throw new Exception(scrubScriptError(e.getMessage()));
 				}
-			} catch (Exception e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 				throw new Exception("Couldn't download customizer for " + avatarName + ".  Are you connected to the internet?");
 			} finally {
@@ -402,7 +402,7 @@ public class World extends WWWorld {
 					e.printStackTrace();
 					throw new Exception(scrubScriptError(e.getMessage()));
 				}
-			} catch (Exception e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 				throw new Exception("Couldn't download world " + worldName + ".  Are you connected to the internet?");
 			} finally {
