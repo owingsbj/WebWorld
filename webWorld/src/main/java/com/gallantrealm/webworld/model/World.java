@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.util.Properties;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.NativeJavaObject;
@@ -43,12 +44,6 @@ public class World extends WWWorld {
 	String moveType;
 	private boolean allowCameraPositioning = true;
 	private boolean allowObjectMoving = false;
-
-	transient float thrust;
-	transient float torque;
-	transient float lift;
-	transient float lean;
-	transient float tilt;
 
 	transient AndroidClientModel clientModel;
 	
@@ -201,6 +196,20 @@ public class World extends WWWorld {
 
 		// create toplevel scope
 		System.out.println("World.runScripts: Creating toplevel scope");
+		if (!ContextFactory.hasExplicitGlobal()) {
+			ContextFactory.initGlobal(new ContextFactory() {
+				@Override
+				protected boolean hasFeature(Context cx, int featureIndex) {
+					if (featureIndex == Context.FEATURE_STRICT_MODE) {
+						return true;
+					}
+					if (featureIndex == Context.FEATURE_WARNING_AS_ERROR) {
+						return true;
+					}
+					return super.hasFeature(cx, featureIndex);
+				}
+			});
+		}
 		Context cx = Context.enter();
 		cx.setOptimizationLevel(-1);
 		scope = new ImporterTopLevel(cx);
@@ -422,11 +431,19 @@ public class World extends WWWorld {
 		System.out.println("<World.runScripts");
 	}
 
+	/**
+	 * This attempts to make the script error message more palatable for a javascript programmer.
+	 */
 	private String scrubScriptError(String scriptErrorMessage) {
 		scriptErrorMessage = scriptErrorMessage.replace("Java class", "Class");
+		scriptErrorMessage = scriptErrorMessage.replace("java.lang.", "");
+		scriptErrorMessage = scriptErrorMessage.replace("org.mozilla.javascript.", "");
+		scriptErrorMessage = scriptErrorMessage.replaceAll("@.......", "");
+		scriptErrorMessage = scriptErrorMessage.replace("com.gallantrealm.myworld.model.", "");
 		scriptErrorMessage = scriptErrorMessage.replace("com.gallantrealm.webworld.model.", "");
 		scriptErrorMessage = scriptErrorMessage.replace("public instance field or method", "property");
 		scriptErrorMessage = scriptErrorMessage.replace("Java method", "Method");
+		scriptErrorMessage = scriptErrorMessage.replace("Wrapped ", "");
 		return scriptErrorMessage;
 	}
 
