@@ -484,8 +484,8 @@ public class GLTranslucency extends GLObject  {
 			return;
 		}
 		WWVector cameraPosition = getRenderer().getAdjustedCameraPosition(); //AndroidClientModel.getClientModel().getDampedCameraLocation();
-		float cameraPan = AndroidClientModel.getClientModel().getDampedCameraRotation().z;
-//		float cameraTilt = AndroidClientModel.getClientModel().getDampedCameraRotation().x;
+		float cameraPan = AndroidClientModel.getClientModel().getDampedCameraPan();
+		float cameraTilt = AndroidClientModel.getClientModel().getDampedCameraTilt();
 		WWVector position = new WWVector();
 		object.getAnimatedPosition(position, worldTime);
 		modelMatrix = getModelMatrix(worldTime);

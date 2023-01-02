@@ -2,6 +2,7 @@ package com.gallantrealm.webworld.model;
 
 import com.gallantrealm.myworld.model.WWAnimation;
 import com.gallantrealm.myworld.model.WWObject;
+import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
 
 public class Behavior extends WWAnimation {
@@ -14,7 +15,7 @@ public class Behavior extends WWAnimation {
 	}
 
 	@Override
-	public void getAnimatedRotation(WWObject object, WWVector rotation, long time) {
+	public void getAnimatedRotation(WWObject object, WWQuaternion rotation, long time) {
 	}
 
 }

@@ -31,6 +31,7 @@ import com.gallantrealm.myworld.model.WWMesh;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWParticleEmitter;
 import com.gallantrealm.myworld.model.WWPlant;
+import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWSculpty;
 import com.gallantrealm.myworld.model.WWSphere;
 import com.gallantrealm.myworld.model.WWTorus;
@@ -68,14 +69,11 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	public float dampCameraVelocityX;
 	public float dampCameraVelocityY;
 	public float dampCameraVelocityZ;
-	public float dampCameraPan;
-	public float dampCameraTilt;
-	public float dampCameraLean;
 	public float dampCameraDistance;
+	public float absoluteCameraPan;	// including avatar tracking
+	public float absoluteCameraTilt;
 
 	public long lastCameraAdjustTime = 0;
-
-	public WWVector cameraPoint = new WWVector();
 
 	public int pickedSide;
 	public float pickedOffsetX;
@@ -128,7 +126,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		if (!object.renderit) {
 			return false;
 		}
-		if (Math.abs(dampCameraTilt) > 45) {
+		if (Math.abs(clientModel.getDampedCameraTilt()) > 45) {
 			return true;
 		}
 
@@ -140,15 +138,15 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 
 		float theta = TODEGREES * FastMath.atan2(temp.y, temp.x);
-		float offpan = Math.abs(theta + dampCameraPan + 36000) % 360 - 270;
+		float offpan = Math.abs(theta + clientModel.getDampedCameraPan() + 36000) % 360 - 270;
 
 		return offpan > -viswindow && offpan < viswindow;
 	}
 
 	public final WWVector getAdjustedCameraPosition() {
-		float x = dampXCamera + dampCameraDistance * (float) Math.sin(TORADIAN * dampCameraPan) * (float) Math.cos(TORADIAN * dampCameraTilt);
-		float y = dampYCamera + dampCameraDistance * (float) Math.cos(TORADIAN * dampCameraPan) * (float) Math.cos(TORADIAN * dampCameraTilt);
-		float z = dampZCamera + (float) Math.sin(TORADIAN * dampCameraTilt) * dampCameraDistance;
+		float x = dampXCamera + dampCameraDistance * (float) Math.sin(TORADIAN * absoluteCameraPan) * (float) Math.cos(TORADIAN * absoluteCameraTilt);
+		float y = dampYCamera + dampCameraDistance * (float) Math.cos(TORADIAN * absoluteCameraPan) * (float) Math.cos(TORADIAN * absoluteCameraTilt);
+		float z = dampZCamera + (float) Math.sin(TORADIAN * absoluteCameraTilt) * dampCameraDistance;
 		WWVector adjustedCameraPosition = new WWVector(x, y, z);
 // if (Math.abs(dampCameraTilt) < 45) {
 // adjustedCameraPosition.add(-clientModel.world.renderingThreshold * FastMath.sin(TORADIAN * dampCameraPan), -clientModel.world.renderingThreshold * FastMath.cos(TORADIAN * dampCameraPan), 0);
@@ -825,16 +823,15 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				if (hasDepthTexture && !clientModel.isSimpleRendering() && world.supportsShadows() && worldRendering.drawnOnce) {
 					// generate view matrix for perspective shadow map
 					WWVector dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
-					WWVector dampCameraRotationVector = new WWVector(-dampCameraTilt, -dampCameraLean, dampCameraPan);
+					WWVector dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, clientModel.getDampedCameraPan());
 					rotate(dampCameraDistanceVector, dampCameraRotationVector);
 					float x = dampXCamera + dampCameraDistanceVector.x;
 					float y = dampYCamera + dampCameraDistanceVector.y;
 					float z = dampZCamera + dampCameraDistanceVector.z;
 					clientModel.setDampedCameraLocation(x, y, z);
 					Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, dampCameraTilt, 1, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, dampCameraLean, 0, 0, 1);
-					Matrix.rotateM(viewMatrix, 0, -dampCameraPan, 0, 1, 0);
+					Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
+					Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
 					Matrix.translateM(viewMatrix, 0, -x, -z, -y);
 					shadowMapShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
 					generateShadowMap(time, viewMatrix);
@@ -869,7 +866,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					// transform according to camera - left eye
 					WWVector dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
 					dampCameraDistanceVector.add(stereoAmount * -0.02f * dampCameraDistance, 0, 0);
-					WWVector dampCameraRotationVector = new WWVector(-dampCameraTilt, -dampCameraLean, dampCameraPan);
+					WWVector dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, absoluteCameraPan);
 					rotate(dampCameraDistanceVector, dampCameraRotationVector);
 					float x = dampXCamera + dampCameraDistanceVector.x;
 					float y = dampYCamera + dampCameraDistanceVector.y;
@@ -877,9 +874,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					clientModel.setDampedCameraLocation(x, y, z);
 					Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
 					Matrix.rotateM(viewMatrix, 0, stereoAmount * 1.0f, 0, 1, 0);
-					Matrix.rotateM(viewMatrix, 0, dampCameraTilt, 1, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, dampCameraLean, 0, 0, 1);
-					Matrix.rotateM(viewMatrix, 0, -dampCameraPan, 0, 1, 0);
+					Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
+					Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
 					Matrix.translateM(viewMatrix, 0, -x, -z, -y);
 					textureShader.setViewMatrix(viewMatrix);
 					textureShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
@@ -892,7 +888,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					// transform according to camera - right eye
 					dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
 					dampCameraDistanceVector.add(stereoAmount * 0.02f * dampCameraDistance, 0, 0);
-					dampCameraRotationVector = new WWVector(-dampCameraTilt, -dampCameraLean, dampCameraPan);
+					dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, absoluteCameraPan);
 					rotate(dampCameraDistanceVector, dampCameraRotationVector);
 					x = dampXCamera + dampCameraDistanceVector.x;
 					y = dampYCamera + dampCameraDistanceVector.y;
@@ -900,9 +896,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					clientModel.setDampedCameraLocation(x, y, z);
 					Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
 					Matrix.rotateM(viewMatrix, 0, stereoAmount * -1.0f, 0, 1, 0);
-					Matrix.rotateM(viewMatrix, 0, dampCameraTilt, 1, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, dampCameraLean, 0, 0, 1);
-					Matrix.rotateM(viewMatrix, 0, -dampCameraPan, 0, 1, 0);
+					Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
+					Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
 					Matrix.translateM(viewMatrix, 0, -x, -z, -y);
 					textureShader.setViewMatrix(viewMatrix);
 					textureShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
@@ -919,16 +914,15 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	
 					// transform according to camera
 					WWVector dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
-					WWVector dampCameraRotationVector = new WWVector(-dampCameraTilt, -dampCameraLean, dampCameraPan);
+					WWVector dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, absoluteCameraPan);
 					rotate(dampCameraDistanceVector, dampCameraRotationVector);
 					float x = dampXCamera + dampCameraDistanceVector.x;
 					float y = dampYCamera + dampCameraDistanceVector.y;
 					float z = dampZCamera + dampCameraDistanceVector.z;
 					clientModel.setDampedCameraLocation(x, y, z);
 					Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, dampCameraTilt, 1, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, dampCameraLean, 0, 0, 1);
-					Matrix.rotateM(viewMatrix, 0, -dampCameraPan, 0, 1, 0);
+					Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
+					Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
 					Matrix.translateM(viewMatrix, 0, -x, -z, -y);
 					textureShader.setViewMatrix(viewMatrix);
 					textureShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
@@ -962,18 +956,18 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 
 	public final void rotate(WWVector point, WWVector rotation) {
-	
+
 		float x = point.x;
 		float y = point.y;
 		float z = point.z;
 		float r;
 		float theta;
 		float newTheta;
-	
+
 		float rotationX = rotation.x;
 		float rotationY = rotation.y;
 		float rotationZ = rotation.z;
-	
+
 		// Rotate around x axis
 		if (rotationX != 0.0) {
 			r = (float) Math.sqrt(y * y + z * z);
@@ -982,7 +976,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			y = r * (float) Math.sin(newTheta);
 			z = r * (float) Math.cos(newTheta);
 		}
-	
+
 		// Rotate around y axis
 		if (rotationY != 0.0) {
 			r = (float) Math.sqrt(x * x + z * z);
@@ -991,7 +985,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			x = r * (float) Math.sin(newTheta);
 			z = r * (float) Math.cos(newTheta);
 		}
-	
+
 		// Rotate around z axis
 		if (rotationZ != 0.0) {
 			r = (float) Math.sqrt(x * x + y * y);
@@ -1000,7 +994,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			x = r * (float) Math.sin(newTheta);
 			y = r * (float) Math.cos(newTheta);
 		}
-	
+
 		point.x = x;
 		point.y = y;
 		point.z = z;
@@ -1115,7 +1109,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 										// clientModel.setCameraDistance(2.0f);
 										// clientModel.setCameraTilt(5.0f);
 										// clientModel.setCameraPan(0.0f);
-										// clientModel.setCameraLean(0.0f);
 									}
 								}
 	
@@ -1133,8 +1126,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	
 								// If it is a translucency, reorient the translucency layers to face the camera
 								if (object instanceof WWTranslucency) {
-									float transparencyTilt = dampCameraTilt;
-									float transparencyPan = dampCameraPan;
+									float transparencyTilt = clientModel.getDampedCameraTilt();
+									float transparencyPan = clientModel.getDampedCameraPan();
 									// Primitive primitive = ((WWTranslucency) object).getJava3dPrimitive();
 									// ((TranslucencyPrimitive) primitive).adjustTranslucencyForPerspective((float) transparencyPan, (float) transparencyTilt, clientModel.getCameraLocation(time), time);
 								}
@@ -1191,23 +1184,21 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		if (clientModel.world == null) {
 			return;
 		}
-		clientModel.getCameraPoint(cameraPoint);
+		WWVector cameraPoint = new WWVector();
 		float cameraPan = clientModel.getCameraPan();
 		float cameraPanVelocity = clientModel.getCameraPanVelocity();
 		float cameraTilt = clientModel.getCameraTilt();
 		float cameraTiltVelocity = clientModel.getCameraTiltVelocity();
-		float cameraLean = clientModel.getCameraLean();
-		float cameraLeanVelocity = clientModel.getCameraLeanVelocity();
 		float cameraDistance = clientModel.getCameraDistance();
 		float cameraDistanceVelocity = clientModel.getCameraDistanceVelocity();
 		WWObject cameraObject = clientModel.getCameraObject();
 
 		WWObject avatar = clientModel.getAvatar();
-		WWVector cameraObjectRotation;
+		WWQuaternion cameraObjectRotation;
 		if (cameraObject != null) {
 			cameraObjectRotation = cameraObject.getAbsoluteAnimatedRotation(time);
 		} else {
-			cameraObjectRotation = new WWVector();
+			cameraObjectRotation = new WWQuaternion();
 		}
 		float cameraSlideX = clientModel.getCameraSlideX();
 		float cameraSlideY = clientModel.getCameraSlideY();
@@ -1225,12 +1216,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			cameraPan += cameraPanVelocity * timeDelta;
 			cameraTilt += cameraTiltVelocity * timeDelta;
 			cameraTilt = FastMath.min(89, FastMath.max(-89, cameraTilt));
-			cameraLean += cameraLeanVelocity * timeDelta;
 			cameraDistance += (cameraDistance * cameraDistanceVelocity) * timeDelta;
 			clientModel.setCameraSlide(cameraSlideX, cameraSlideY, cameraSlideZ);
 			clientModel.setCameraPan(cameraPan);
 			clientModel.setCameraTilt(cameraTilt);
-			clientModel.setCameraLean(cameraLean);
 			clientModel.setCameraDistance(cameraDistance);
 		}
 		lastCameraAdjustTime = time;
@@ -1264,7 +1253,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			int lastObjectIndex = clientModel.world.lastObjectIndex;
 			WWVector cameraLocation = new WWVector();
 			WWVector position = new WWVector();
-			WWVector rotation = new WWVector();
+			WWQuaternion rotation = new WWQuaternion();
 			WWVector tempPoint = new WWVector();
 			WWVector penetrationVector = new WWVector();
 			boolean penetrated = true;
@@ -1274,9 +1263,9 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					WWObject object = objects[i];
 					if (object != null && !object.deleted && !object.penetratable && object.solid && !object.phantom) {
 						if (cameraObject != null && avatar != null && (cameraObject == avatar || avatar.isDescendant(cameraObject))) {
-							cameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * (cameraPan + cameraObjectRotation.z)) * (float) Math.cos(TORADIAN * (cameraTilt + cameraObjectRotation.x));
+							cameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * (cameraPan + cameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + cameraObjectRotation.getPitch()));
 							if (cameraDistance < 10) {
-								cameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * (cameraPan + cameraObjectRotation.z)) * (float) Math.cos(TORADIAN * (cameraTilt + cameraObjectRotation.x));
+								cameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * (cameraPan + cameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + cameraObjectRotation.getPitch()));
 								cameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
 							} else {
 								cameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
@@ -1339,37 +1328,35 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			dampZCamera = slideCameraPointZ; // to avoid shaky's
 		}
 
+		float dampCameraPan = (cameraPan + clientModel.cameraDampRate * clientModel.getDampedCameraPan()) / (clientModel.cameraDampRate + 1);
+		float dampCameraTilt = (cameraTilt + clientModel.cameraDampRate * clientModel.getDampedCameraTilt()) / (clientModel.cameraDampRate + 1);
 		if (cameraObject != null && avatar != null && (avatar == cameraObject || avatar.isDescendant(cameraObject))) {
-			dampCameraPan = ((cameraPan + cameraObjectRotation.z) + clientModel.cameraDampRate * dampCameraPan) / (clientModel.cameraDampRate + 1);
+			absoluteCameraPan = dampCameraPan + cameraObjectRotation.getYaw();
 			if (cameraDistance < 10) {
 				if (avatar == cameraObject) {
-					dampCameraTilt = ((cameraTilt - cameraObjectRotation.x) + 4 * clientModel.cameraDampRate * dampCameraTilt) / (4 * clientModel.cameraDampRate + 1);
-					dampCameraLean = ((cameraLean - cameraObjectRotation.y) + 4 * clientModel.cameraDampRate * dampCameraLean) / (4 * clientModel.cameraDampRate + 1);
+					absoluteCameraTilt = dampCameraTilt - cameraObjectRotation.getPitch();
 				} else {
-					dampCameraTilt = cameraTilt - cameraObjectRotation.x;
-					dampCameraLean = cameraLean - cameraObjectRotation.y;
+					absoluteCameraTilt = cameraTilt - cameraObjectRotation.getPitch();
 				}
 			} else {
-				dampCameraTilt = (cameraTilt + clientModel.cameraDampRate * dampCameraTilt) / (clientModel.cameraDampRate + 1);
-				dampCameraLean = (cameraLean + clientModel.cameraDampRate * dampCameraLean) / (clientModel.cameraDampRate + 1);
+				absoluteCameraTilt = dampCameraTilt;
 			}
 		} else {
-			dampCameraPan = (cameraPan + clientModel.cameraDampRate * dampCameraPan) / (clientModel.cameraDampRate + 1);
-			dampCameraTilt = (cameraTilt + clientModel.cameraDampRate * dampCameraTilt) / (clientModel.cameraDampRate + 1);
-			dampCameraLean = (cameraLean + clientModel.cameraDampRate * dampCameraLean) / (clientModel.cameraDampRate + 1);
+			absoluteCameraPan = dampCameraPan;
+			absoluteCameraTilt = dampCameraTilt;
 		}
 		dampCameraDistance = (limitedCameraDistance + clientModel.cameraDampRate * dampCameraDistance) / (clientModel.cameraDampRate + 1);
 		clientModel.setDampedCameraLocation(dampXCamera, dampYCamera, dampZCamera);
-		clientModel.setDampedCameraRotation(dampCameraTilt, dampCameraLean, dampCameraPan);
+		clientModel.setDampedCameraTilt(dampCameraTilt);
+		clientModel.setDampedCameraPan(dampCameraPan);
 	}
 
 	public void initializeCameraPosition() {
 		dampXCamera = clientModel.getCameraSlideX();
 		dampYCamera = clientModel.getCameraSlideY();
 		dampZCamera = clientModel.getCameraSlideZ();
-		dampCameraPan = clientModel.getCameraPan();
-		dampCameraTilt = clientModel.getCameraTilt();
-		dampCameraLean = clientModel.getCameraLean();
+		clientModel.setDampedCameraPan(clientModel.getCameraPan());
+		clientModel.setDampedCameraTilt(clientModel.getCameraTilt());
 		dampCameraDistance = clientModel.getCameraDistance();
 		lastCameraAdjustTime = 0;
 		lastLimitedCameraDistance = clientModel.getCameraDistance();
@@ -1466,8 +1453,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		WWObject cameraObject = clientModel.getCameraObject();
 		if (cameraObject != null) {
 			lastShadowCameraViewPosition = cameraObject.getPosition();
-			lastShadowCameraViewPosition.x -= FastMath.sinDeg(clientModel.getCameraPan() + cameraObject.getRotation().z) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
-			lastShadowCameraViewPosition.y -= FastMath.cosDeg(clientModel.getCameraPan() + cameraObject.getRotation().z) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
+			lastShadowCameraViewPosition.x -= FastMath.sinDeg(clientModel.getCameraPan() + cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
+			lastShadowCameraViewPosition.y -= FastMath.cosDeg(clientModel.getCameraPan() + cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
 			Matrix.setLookAtM(sunViewMatrix, 0, //
 					lastShadowCameraViewPosition.x + sunPosition.x, sunPosition.z + lastShadowCameraViewPosition.z, lastShadowCameraViewPosition.y + sunPosition.y, // sun position
 					lastShadowCameraViewPosition.x, lastShadowCameraViewPosition.z, lastShadowCameraViewPosition.y, // center (where the light is looking at)
@@ -1523,16 +1510,15 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	
 		// transform according to camera
 		WWVector dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
-		WWVector dampCameraRotationVector = new WWVector(-dampCameraTilt, -dampCameraLean, dampCameraPan);
+		WWVector dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, absoluteCameraPan);
 		rotate(dampCameraDistanceVector, dampCameraRotationVector);
 		float x = dampXCamera + dampCameraDistanceVector.x;
 		float y = dampYCamera + dampCameraDistanceVector.y;
 		float z = dampZCamera + dampCameraDistanceVector.z;
 		clientModel.setDampedCameraLocation(x, y, z);
 		Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-		Matrix.rotateM(viewMatrix, 0, dampCameraTilt, 1, 0, 0);
-		Matrix.rotateM(viewMatrix, 0, dampCameraLean, 0, 0, 1);
-		Matrix.rotateM(viewMatrix, 0, -dampCameraPan, 0, 1, 0);
+		Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
+		Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
 		Matrix.translateM(viewMatrix, 0, -x, -z, -y);
 	
 		GLWorld worldRendering = (GLWorld) clientModel.world.getRendering();

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.model.WWBehavior;
 import com.gallantrealm.myworld.model.WWObject;
+import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
@@ -32,10 +33,13 @@ public class NewPhysicsThread extends PhysicsThread {
 
 	class QueuedUpdate {
 		public WWObject object;
-		public WWVector position, rotation, velocity, aMomentum;
+		public WWVector position;
+		public WWQuaternion rotation;
+		public WWVector velocity;
+		public WWVector aMomentum;
 		public long worldTime;
 
-		public QueuedUpdate(WWObject object, WWVector position, WWVector rotation, WWVector velocity, WWVector aMomentum, long worldTime) {
+		public QueuedUpdate(WWObject object, WWVector position, WWQuaternion rotation, WWVector velocity, WWVector aMomentum, long worldTime) {
 			this.object = object;
 			this.position = position;
 			this.rotation = rotation;
@@ -62,11 +66,11 @@ public class NewPhysicsThread extends PhysicsThread {
 		newCollidedObjects = new ArrayList<ObjectCollision>();
 
 		WWVector position = new WWVector();
-		WWVector rotation = new WWVector();
+		WWQuaternion rotation = new WWQuaternion();
 		WWVector velocity = new WWVector();
 		WWVector aMomentum = new WWVector();
 		WWVector position2 = new WWVector();
-		WWVector rotation2 = new WWVector();
+		WWQuaternion rotation2 = new WWQuaternion();
 		WWVector tempPoint = new WWVector();
 		WWVector tempPoint2 = new WWVector();
 		WWVector overlapPoint = new WWVector();
@@ -99,7 +103,7 @@ public class NewPhysicsThread extends PhysicsThread {
 				WWVector torqueVelocity = object.getTorqueVelocity();
 
 				WWVector originalPosition = position.clone();
-				WWVector originalRotation = rotation.clone();
+				WWQuaternion originalRotation = rotation.clone();
 				WWVector originalVelocity = velocity.clone();
 				WWVector originalAMomentum = aMomentum.clone();
 
@@ -107,8 +111,8 @@ public class NewPhysicsThread extends PhysicsThread {
 				// note that these are attenuated (by thrust and torque velocity) if the velocity
 				// and torque are already high.
 				WWVector totalForce = thrust.clone();
-				WWObject.rotate(totalForce, rotation, worldTime);
-				WWObject.rotate(thrustVelocity, rotation, worldTime);
+				rotation.rotateVector(totalForce);
+				rotation.rotateVector(thrustVelocity);
 				if (thrustVelocity.x > 0 && velocity.x > thrustVelocity.x) {
 					totalForce.x = 0;
 				} else if (thrustVelocity.x < 0 && velocity.x < thrustVelocity.x) {
@@ -360,29 +364,14 @@ public class NewPhysicsThread extends PhysicsThread {
 				// Update the position, rotation, velocity and angular momentum values on the object if any have changed due to
 				// physical interaction with another object, but only if the object has not been moved by some other thread
 				if (object.lastMoveTime == originalLastMoveTime && (!position.equals(originalPosition) || !rotation.equals(originalRotation) || !velocity.equals(originalVelocity) || !aMomentum.equals(originalAMomentum))) {
-
-//						// Cap the movements, to cure possible physics ills
-//						if (position.x - originalPosition.x > 1f) {
-//							position.x = originalPosition.x + 1f;
-//						} else if (position.x - originalPosition.x < -0.5f) {
-//							position.x = originalPosition.x - 0.5f;
-//						}
-//						if (position.y - originalPosition.y > 0.5f) {
-//							position.y = originalPosition.y + 0.5f;
-//						} else if (position.y - originalPosition.y < -0.5f) {
-//							position.y = originalPosition.y - 0.5f;
-//						}
-//						if (position.z - originalPosition.z > 0.5f) {
-//							position.z = originalPosition.z + 0.5f;
-//						} else if (position.z - originalPosition.z < -0.5f) {
-//							position.z = originalPosition.z - 0.5f;
-//						}
-
-					if (queueUpdates) {
-						queuedUpdates.add(new QueuedUpdate(object, position.clone().subtract(originalPosition), rotation.clone().subtract(originalRotation), velocity.clone().subtract(originalVelocity),
-								aMomentum.clone().subtract(originalAMomentum), worldTime));
+					if (position.length() > 10000) {
+						System.err.println("NewPhysicsThread blew object out of range.  Object: "+object.getName());
 					} else {
-						object.setOrientation(position, rotation, velocity, aMomentum, worldTime);
+						if (queueUpdates) {
+							queuedUpdates.add(new QueuedUpdate(object, position.clone(), rotation.clone(), velocity.clone(), aMomentum.clone(), worldTime));
+						} else {
+							object.setOrientation(position, rotation, velocity, aMomentum, worldTime);
+						}
 					}
 				}
 
@@ -397,19 +386,11 @@ public class NewPhysicsThread extends PhysicsThread {
 		// performed queued updates. This done with world locked so that the updates are "instantaneous"
 		if (queueUpdates) {
 			synchronized (world) {
-				WWVector tposition = new WWVector();
-				WWVector trotation = new WWVector();
-				WWVector tvelocity = new WWVector();
-				WWVector tmomentum = new WWVector();
 				int qsize = queuedUpdates.size();
 				for (int i = 0; i < qsize; i++) {
 					QueuedUpdate queuedUpdate = queuedUpdates.get(i);
 					if (queuedUpdate.worldTime > queuedUpdate.object.lastMoveTime) { // don't update if changed externally
-						queuedUpdate.object.getPosition(tposition, worldTime);
-						queuedUpdate.object.getRotation(trotation, worldTime);
-						queuedUpdate.object.getVelocity(tvelocity);
-						queuedUpdate.object.getAMomentum(tmomentum);
-						queuedUpdate.object.setOrientation(queuedUpdate.position.add(tposition), queuedUpdate.rotation.add(trotation), queuedUpdate.velocity.add(tvelocity), queuedUpdate.aMomentum.add(tmomentum), queuedUpdate.worldTime);
+						queuedUpdate.object.setOrientation(queuedUpdate.position, queuedUpdate.rotation, queuedUpdate.velocity, queuedUpdate.aMomentum, queuedUpdate.worldTime);
 					}
 				}
 			}

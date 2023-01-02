@@ -2,6 +2,7 @@ package com.gallantrealm.webworld.model;
 
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.model.WWObject;
+import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
 
 public final class HumanMotionBehavior extends AnimationBehavior {
@@ -21,7 +22,7 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 	}
 
 	@Override
-	public void getAnimatedRotation(WWObject object, WWVector rotation, long time) {
+	public void getAnimatedRotation(WWObject object, WWQuaternion rotation, long time) {
 		super.getAnimatedRotation(object, rotation, time);
 	}
 
@@ -82,11 +83,11 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 		WWObject head = object.getDescendant("head");
 		if (head != null) {
 			float turningForce = object.getTorqueVelocity().clone().antirotate(object.getRotation()).z;
-			WWVector headRotation = head.getRotation();
+			WWQuaternion headRotation = head.getRotation();
 			if (velocityForward > 0.1) { // positive means moving backwards
-				head.setRotation(headRotation.x, headRotation.y, -FastMath.range(turningForce / 2, -45, 45));
+				head.setRotation(headRotation.getPitch(), headRotation.getRoll(), -FastMath.range(turningForce / 2, -45, 45));
 			} else {
-				head.setRotation(headRotation.x, headRotation.y, FastMath.range(turningForce / 2, -45, 45));
+				head.setRotation(headRotation.getPitch(), headRotation.getRoll(), FastMath.range(turningForce / 2, -45, 45));
 			}
 		}
 		setTimer(50); // to repeat

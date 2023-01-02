@@ -14,6 +14,7 @@ import com.gallantrealm.myworld.client.model.SelectColorHandler;
 import com.gallantrealm.myworld.client.model.SelectResponseHandler;
 import com.gallantrealm.myworld.model.WWColor;
 import com.gallantrealm.myworld.model.WWObject;
+import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 import android.annotation.SuppressLint;
@@ -872,11 +873,11 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 										if (avatar == previouslyPickedObject && avatar != pickedObject) {
 											clientModel.setCameraObject(pickedObject);
 											clientModel.setCameraDistance(FastMath.max(clientModel.getCameraDistance(), pickedObject.extent * 4));
-											clientModel.setCameraPan(clientModel.getCameraPan() + avatar.getRotation(clientModel.world.getWorldTime()).getZ());
+											clientModel.setCameraPanUndamped(clientModel.getCameraPan() + avatar.getRotation(clientModel.world.getWorldTime()).getYaw());
 										} else if (avatar != previouslyPickedObject && avatar == pickedObject) {
 											clientModel.setCameraObject(pickedObject);
 											clientModel.setCameraDistance(FastMath.max(clientModel.getCameraDistance(), pickedObject.extent * 4));
-											clientModel.setCameraPan(clientModel.getCameraPan() - avatar.getRotation(clientModel.world.getWorldTime()).getZ());
+											clientModel.setCameraPanUndamped(clientModel.getCameraPan() - avatar.getRotation(clientModel.world.getWorldTime()).getYaw());
 										}
 									}
 								}

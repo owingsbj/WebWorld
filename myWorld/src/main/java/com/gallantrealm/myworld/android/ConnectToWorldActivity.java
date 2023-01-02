@@ -301,7 +301,7 @@ public class ConnectToWorldActivity extends GallantActivity {
 		sky.setCutoutStart(0.5f); // half dome
 		sky.setSolid(false); // for now.. otherwise physical objects pushed out of world
 		sky.setFriction(0); // for now.. otherwise physical objects slowed down in hollowed area
-		sky.setRotation(new WWVector(0, 90, 0));
+		sky.setRotation(0, 90, 0);
 		sky.setHollow(0.99f);
 		sky.setTextureURL(WWSimpleShape.SIDE_INSIDE1, "sky");
 		sky.setTextureScaleX(WWSimpleShape.SIDE_INSIDE1, 0.25f);
@@ -327,7 +327,7 @@ public class ConnectToWorldActivity extends GallantActivity {
 		air.setTransparency(WWSimpleShape.SIDE_ALL, 1.0f);
 		air.setCutoutStart(0.5f); // half dome
 		air.setSolid(false);
-		air.setRotation(new WWVector(0, 90, 0));
+		air.setRotation(0, 90, 0);
 		air.setFriction(0.01f);
 		air.setDensity(0.0001f);
 		world.addObject(air);
@@ -354,7 +354,7 @@ public class ConnectToWorldActivity extends GallantActivity {
 			overallSize = overallSize * overallSize;
 			overallSize = overallSize * overallSize;
 			object.setSize(new WWVector(FastMath.random() * overallSize, FastMath.random() * overallSize, FastMath.random() * overallSize));
-			object.setRotation(new WWVector(FastMath.random() * 360.0f, FastMath.random() * 360.0f, FastMath.random() * 360.0f));
+			object.setRotation(FastMath.random() * 360.0f, FastMath.random() * 360.0f, FastMath.random() * 360.0f);
 			if (FastMath.random() < 0.1) {
 				object.setAMomentum(new WWVector(FastMath.random() * 180.0f - 90.0f, FastMath.random() * 180.0f - 90.0f, FastMath.random() * 180.0f - 90.0f));
 			}

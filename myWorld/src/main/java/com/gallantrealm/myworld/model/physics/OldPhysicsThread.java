@@ -4,6 +4,7 @@ import java.util.Vector;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.model.WWBehavior;
 import com.gallantrealm.myworld.model.WWObject;
+import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
@@ -38,11 +39,11 @@ public class OldPhysicsThread extends PhysicsThread {
 		newCollidedObjects = new Vector<ObjectCollision>();
 
 		WWVector position = new WWVector();
-		WWVector rotation = new WWVector();
+		WWQuaternion rotation = new WWQuaternion();
 		WWVector velocity = new WWVector();
 		WWVector aMomentum = new WWVector();
 		WWVector position2 = new WWVector();
-		WWVector rotation2 = new WWVector();
+		WWQuaternion rotation2 = new WWQuaternion();
 		WWVector tempPoint = new WWVector();
 		WWVector tempPoint2 = new WWVector();
 		WWVector overlapPoint = new WWVector();
@@ -75,7 +76,7 @@ public class OldPhysicsThread extends PhysicsThread {
 				WWVector torqueVelocity = object.getTorqueVelocity();
 
 				WWVector originalPosition = position.clone();
-				WWVector originalRotation = rotation.clone();
+				WWQuaternion originalRotation = rotation.clone();
 				WWVector originalVelocity = velocity.clone();
 				WWVector originalAMomentum = aMomentum.clone();
 

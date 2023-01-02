@@ -81,7 +81,7 @@ public class WWSculpty extends WWSimpleShape {
 	}
 
 	@Override
-	public void getPenetration(WWVector point, WWVector position, WWVector rotation, long worldTime, WWVector tempPoint, WWVector penetration) {
+	public void getPenetration(WWVector point, WWVector position, WWQuaternion rotation, long worldTime, WWVector tempPoint, WWVector penetration) {
 
 		// This is copied from WWBox.  It could use tuning if ever a very large box mesh is needed.
 

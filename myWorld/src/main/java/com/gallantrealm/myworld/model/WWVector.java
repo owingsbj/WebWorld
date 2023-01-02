@@ -8,7 +8,8 @@ import com.gallantrealm.myworld.communication.DataOutputStreamX;
 import com.gallantrealm.myworld.communication.Sendable;
 
 /**
- * This class provides a simple fixed vector (starts at the origin). It is used for position and size information.
+ * This class provides a simple fixed vector (starts at the origin). It is used for position, size, velocity, angular velocity, acceleration, torque.
+ * It is NOT used for rotation -- see WWQuaternion for that.
  */
 public class WWVector implements Cloneable, Serializable, Sendable {
 	static final long serialVersionUID = 1L;
@@ -35,6 +36,15 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 		this.x = v.x;
 		this.y = v.y;
 		this.z = v.z;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof WWVector)) {
+			return false;
+		}
+		WWVector v = (WWVector) obj;
+		return x == v.x && y == v.y && z == v.z;
 	}
 
 	@Override
@@ -192,191 +202,6 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 		return this;
 	}
 
-	public final WWVector addRotation(WWVector v) {
-		addRotation(v.x, v.y, v.z);
-		return this;
-	}
-
-//	public final void addRotation(float vattitude, float vbank, float vheading) {
-	public final WWVector addRotation(float vheading, float vbank, float vattitude) {
-
-		// Note: heading = z, attitude = x, bank = y
-
-//		float theading = z;
-//		float tattitude = x;
-//		float tbank = y;
-		float theading = x;
-		float tattitude = z;
-		float tbank = y;
-
-		// convert this to quaternion
-		double c1 = Math.cos(Math.toRadians(theading / 2));
-		double s1 = Math.sin(Math.toRadians(theading / 2));
-		double c2 = Math.cos(Math.toRadians(tattitude / 2));
-		double s2 = Math.sin(Math.toRadians(tattitude / 2));
-		double c3 = Math.cos(Math.toRadians(tbank / 2));
-		double s3 = Math.sin(Math.toRadians(tbank / 2));
-		double c1c2 = c1 * c2;
-		double s1s2 = s1 * s2;
-		double qaw = c1c2 * c3 - s1s2 * s3;
-		double qax = c1c2 * s3 + s1s2 * c3;
-		double qay = c1 * s2 * c3 + s1 * c2 * s3;
-		double qaz = s1 * c2 * c3 - c1 * s2 * s3;
-
-		// convert v to quaternion
-		c1 = Math.cos(Math.toRadians(vheading / 2));
-		s1 = Math.sin(Math.toRadians(vheading / 2));
-		c2 = Math.cos(Math.toRadians(vattitude / 2));
-		s2 = Math.sin(Math.toRadians(vattitude / 2));
-		c3 = Math.cos(Math.toRadians(vbank / 2));
-		s3 = Math.sin(Math.toRadians(vbank / 2));
-		c1c2 = c1 * c2;
-		s1s2 = s1 * s2;
-		double qbw = c1c2 * c3 - s1s2 * s3;
-		double qbx = c1c2 * s3 + s1s2 * c3;
-		double qby = c1 * s2 * c3 + s1 * c2 * s3;
-		double qbz = s1 * c2 * c3 - c1 * s2 * s3;
-
-		// multiply the quaternions (to "add")
-		double qcw = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
-		double qcx = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
-		double qcy = qaw * qby - qax * qbz + qay * qbw + qaz * qbx;
-		double qcz = qaw * qbz + qax * qby - qay * qbx + qaz * qbw;
-
-//		qcw = qbw;
-//		qcx = qbx;
-//		qcy = qby;
-//		qcz = qbz;
-
-//		// add quaternions
-//		double qcw = qaw + qbw;
-//		double qcx = qax + qbx;
-//		double qcy = qay + qby;
-//		double qcz = qaz + qbz;
-
-//		// convert to euler
-//		double qcw2 = qcw * qcw;
-//		double qcx2 = qcx * qcx;
-//		double qcy2 = qcy * qcy;
-//		double qcz2 = qcz * qcz;
-//		double unitLength = qcw2 + qcx2 + qcy2 + qcz2; // Normalised == 1, otherwise correction divisor.
-//		double abcd = qcw * qcx + qcy * qcz;
-//		double eps = 1e-7; // TODO: pick from your math lib instead of hardcoding.
-//		double pi = 3.14159265358979323846; // TODO: pick from your math lib instead of hardcoding.
-//		if (abcd > (0.5 - eps) * unitLength) {
-//			theading = (float) Math.toDegrees(2 * Math.atan2(qcy, qcw));
-//			tattitude = (float) Math.toDegrees(pi);
-//			tbank = 0;
-//		} else if (abcd < (-0.5 + eps) * unitLength) {
-//			theading = (float) Math.toDegrees(-2 * Math.atan2(qcy, qcw));
-//			tattitude = (float) Math.toDegrees(-pi);
-//			tbank = 0;
-//		} else {
-//			double adbc = qcw * qcz - qcx * qcy;
-//			double acbd = qcw * qcy - qcx * qcz;
-//			theading = (float) Math.toDegrees(Math.atan2(2 * adbc, 1 - 2 * (qcz2 + qcx2)));
-//			tattitude = (float) Math.toDegrees(Math.asin(2 * abcd / unitLength));
-//			tbank = (float) Math.toDegrees(Math.atan2(2 * acbd, 1 - 2 * (qcy2 + qcx2)));
-//		}
-
-		// next try at conversion
-		double sqw = qcw * qcw;
-		double sqx = qcx * qcx;
-		double sqy = qcy * qcy;
-		double sqz = qcz * qcz;
-		double unit = sqx + sqy + sqz + sqw; // if normalised is one, otherwise is correction factor
-		double test = qcx * qcy + qcz * qcw;
-		if (test > 0.499 * unit) { // singularity at north pole
-			theading = (float) Math.toDegrees(2 * Math.atan2(qcx, qcw));
-			tattitude = (float) Math.toDegrees(Math.PI / 2);
-			tbank = 0;
-		} else if (test < -0.499 * unit) { // singularity at south pole
-			theading = (float) Math.toDegrees(-2 * Math.atan2(qcx, qcw));
-			tattitude = (float) Math.toDegrees(-Math.PI / 2);
-			tbank = (float) Math.toDegrees(0);
-		} else {
-			theading = (float) Math.toDegrees(Math.atan2(2 * qcy * qcw - 2 * qcx * qcz, sqx - sqy - sqz + sqw));
-			tattitude = (float) Math.toDegrees(Math.asin(2 * test / unit));
-			tbank = (float) Math.toDegrees(Math.atan2(2 * qcx * qcw - 2 * qcy * qcz, -sqx + sqy - sqz + sqw));
-		}
-
-		z = theading;
-		x = tattitude;
-		y = tbank;
-		return this;
-	}
-	
-	public final WWVector rotate(WWVector rotation) {
-		float r;
-		float theta;
-		float newTheta;
-
-		// Rotate around x axis
-		if (rotation.x != 0.0) {
-			r = (float) Math.sqrt(y * y + z * z);
-			theta = FastMath.atan2(y, z);
-			newTheta = theta + TORADIAN * rotation.x;
-			y = r * FastMath.sin(newTheta);
-			z = r * FastMath.cos(newTheta);
-		}
-
-		// Rotate around y axis
-		if (rotation.y != 0.0) {
-			r = (float) Math.sqrt(x * x + z * z);
-			theta = FastMath.atan2(x, z);
-			newTheta = theta + TORADIAN * -rotation.y;
-			x = r * FastMath.sin(newTheta);
-			z = r * FastMath.cos(newTheta);
-		}
-
-		// Rotate around z axis
-		if (rotation.z != 0.0) {
-			r = (float) Math.sqrt(x * x + y * y);
-			theta = FastMath.atan2(x, y);
-			newTheta = theta + TORADIAN * rotation.z;
-			x = r * FastMath.sin(newTheta);
-			y = r * FastMath.cos(newTheta);
-		}
-
-		return this;
-	}
-
-	public final WWVector antirotate(WWVector rotation) {
-
-		float r;
-		float theta;
-		float newTheta;
-
-		// Anti-rotate around z axis
-		if (rotation.z != 0.0f) {
-			r = (float) Math.sqrt(x * x + y * y);
-			theta = FastMath.atan2(x, y);
-			newTheta = theta - TORADIAN * rotation.z;
-			x = r * FastMath.sin(newTheta);
-			y = r * FastMath.cos(newTheta);
-		}
-
-		// Anti-rotate around y axis
-		if (rotation.y != 0.0f) {
-			r = (float) Math.sqrt(x * x + z * z);
-			theta = FastMath.atan2(x, z);
-			newTheta = theta - TORADIAN * -rotation.y;
-			x = r * FastMath.sin(newTheta);
-			z = r * FastMath.cos(newTheta);
-		}
-
-		// Anti-rotate around x axis
-		if (rotation.x != 0.0f) {
-			r = (float) Math.sqrt(y * y + z * z);
-			theta = FastMath.atan2(y, z);
-			newTheta = theta - TORADIAN * rotation.x;
-			y = r * FastMath.sin(newTheta);
-			z = r * FastMath.cos(newTheta);
-		}
-
-		return this;
-	}
-
 	public final WWVector scale(float s) {
 		x *= s;
 		y *= s;
@@ -398,22 +223,26 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 		return this;
 	}
 
-	public final void set(float x, float y, float z) {
+	public final WWVector set(float x, float y, float z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		return this;
 	}
 
-	public final void setX(float x) {
+	public final WWVector setX(float x) {
 		this.x = x;
+		return this;
 	}
 
-	public final void setY(float y) {
+	public final WWVector setY(float y) {
 		this.y = y;
+		return this;
 	}
 
-	public final void setZ(float z) {
+	public final WWVector setZ(float z) {
 		this.z = z;
+		return this;
 	}
 
 	@Override
@@ -427,10 +256,11 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 		v.z = z;
 	}
 
-	public final void zero() {
+	public final WWVector zero() {
 		x = 0;
 		y = 0;
 		z = 0;
+		return this;
 	}
 
 	public final boolean isZero() {
@@ -471,6 +301,16 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 		x = x * (1.0f - amount.x) + v.x * amount.x;
 		y = y * (1.0f - amount.y) + v.y * amount.y;
 		z = z * (1.0f - amount.z) + v.z * amount.z;
+		return this;
+	}
+
+	public final WWVector rotate(WWQuaternion q) {
+		q.rotateVector(this);
+		return this;
+	}
+
+	public final WWVector antirotate(WWQuaternion q) {
+		q.clone().invert().rotateVector(this);
 		return this;
 	}
 

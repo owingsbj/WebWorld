@@ -4,6 +4,7 @@ import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.model.SideAttributes;
 import com.gallantrealm.myworld.model.WWObject;
+import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
@@ -108,10 +109,10 @@ public abstract class GLObject extends GLRendering {
 		}
 	}
 
+	private static float[] tempMatrix = new float[16];
+
 	/**
 	 * Adjust position and rotations for GL according to parent(s)
-	 * 
-	 * @param parent
 	 */
 	private void parentalAdjust(float[] modelMatrix, int parentId, long worldTime) {
 		WWObject parent = object.world.objects[parentId];
@@ -123,24 +124,14 @@ public abstract class GLObject extends GLRendering {
 		parent.getAnimatedPosition(position, worldTime);
 		// GLES20.glTranslatef(position.x, position.z, position.y);
 		Matrix.translateM(modelMatrix, 0, position.x, position.z, position.y);
-		WWVector rotation = new WWVector();
+		WWQuaternion rotation = new WWQuaternion();
 		parent.getAnimatedRotation(rotation, worldTime);
-		if (rotation.z != 0) {
-			// GLES20.glRotatef(rotation.z, 0.0f, 1.0f, 0.0f);
-			Matrix.rotateM(modelMatrix, 0, rotation.z, 0, 1, 0);
-		}
-		if (rotation.y != 0) {
-			// GLES20.glRotatef(rotation.y, 0.0f, 0.0f, 1.0f);
-			Matrix.rotateM(modelMatrix, 0, rotation.y, 0, 0, 1);
-		}
-		if (rotation.x != 0) {
-			// GLES20.glRotatef(rotation.x, 1.0f, 0.0f, 0.0f);
-			Matrix.rotateM(modelMatrix, 0, rotation.x, 1, 0, 0);
-		}
+		rotation.toMatrix(tempMatrix);
+		Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, tempMatrix, 0);
 	}
 
 	private final WWVector position = new WWVector();
-	private final WWVector rotation = new WWVector();
+	private final WWQuaternion rotation = new WWQuaternion();
 
 	float[] modelMatrix;
 	static float[] textureMatrix = new float[16];
@@ -148,21 +139,14 @@ public abstract class GLObject extends GLRendering {
 	public void snap(long worldTime) {
 		if (modelMatrix == null || !object.fixed) {
 			// To snap the object we'll create the model matrix
+			object.getAnimatedPosition(position, worldTime);
+			object.getAnimatedRotation(rotation, worldTime);
 			modelMatrix = new float[16];
 			Matrix.setIdentityM(modelMatrix, 0);
-			object.getAnimatedPosition(position, worldTime);
 			Matrix.translateM(modelMatrix, 0, position.x, position.z, position.y);
 			Matrix.translateM(modelMatrix, 0, object.rotationPoint.x, object.rotationPoint.z, object.rotationPoint.y);
-			object.getAnimatedRotation(rotation, worldTime);
-			if (rotation.z != 0) {
-				Matrix.rotateM(modelMatrix, 0, rotation.z, 0, 1, 0);
-			}
-			if (rotation.y != 0) {
-				Matrix.rotateM(modelMatrix, 0, rotation.y, 0, 0, 1);
-			}
-			if (rotation.x != 0) {
-				Matrix.rotateM(modelMatrix, 0, rotation.x, 1, 0, 0);
-			}
+			rotation.toMatrix(tempMatrix);
+			Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, tempMatrix, 0);
 			Matrix.translateM(modelMatrix, 0, -object.rotationPoint.x, -object.rotationPoint.z, -object.rotationPoint.y);
 			object.lastRenderingTime = worldTime;
 		}

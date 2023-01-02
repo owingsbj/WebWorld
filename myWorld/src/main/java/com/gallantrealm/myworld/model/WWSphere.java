@@ -49,7 +49,7 @@ public class WWSphere extends WWSimpleShape {
 	 * penetrate.
 	 */
 	@Override
-	public void getPenetration(WWVector point, WWVector position, WWVector rotation, long worldTime, WWVector tempPoint, WWVector penetration) {
+	public void getPenetration(WWVector point, WWVector position, WWQuaternion rotation, long worldTime, WWVector tempPoint, WWVector penetration) {
 
 		// Anti-transform
 		tempPoint.x = point.x;

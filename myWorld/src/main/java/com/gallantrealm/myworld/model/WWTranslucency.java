@@ -2,7 +2,6 @@ package com.gallantrealm.myworld.model;
 
 import java.io.IOException;
 
-import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.communication.DataInputStreamX;
 import com.gallantrealm.myworld.communication.DataOutputStreamX;
@@ -74,7 +73,7 @@ public class WWTranslucency extends WWObject {
 	}
 
 	@Override
-	public void getPenetration(WWVector point, WWVector position, WWVector rotation, long worldTime, WWVector tempPoint, WWVector penetrationVector) {
+	public void getPenetration(WWVector point, WWVector position, WWQuaternion rotation, long worldTime, WWVector tempPoint, WWVector penetrationVector) {
 
 		// Anti-transform
 		tempPoint = point.clone();

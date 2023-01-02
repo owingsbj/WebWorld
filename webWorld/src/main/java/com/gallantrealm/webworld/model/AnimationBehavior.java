@@ -4,6 +4,7 @@ import java.util.HashMap;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.model.WWAnimation;
 import com.gallantrealm.myworld.model.WWObject;
+import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
 
 public class AnimationBehavior extends WWAnimation {
@@ -63,7 +64,7 @@ public class AnimationBehavior extends WWAnimation {
 			animationTime += (time - lastTime) / 1000.0f * speed;
 			lastTime = time;
 			if (type.equals("walking")) {
-				if ("torso".equals(object.name)) {
+				if ("torso".equals(object.getName())) {
 					float stepSine = FastMath.sin(4.0f * FastMath.PI * animationTime);
 					position.z += 0.025f * (stepSine + 1) / 2.0f * FastMath.abs(range);
 					if (lastStepSine > 0 && stepSine < 0) {
@@ -72,7 +73,7 @@ public class AnimationBehavior extends WWAnimation {
 					lastStepSine = stepSine;
 				}
 			} else if (type.equals("running")) {
-				if ("torso".equals(object.name)) {
+				if ("torso".equals(object.getName())) {
 					float stepSine = FastMath.sin(4.0f * FastMath.PI * animationTime);
 					position.z += 0.1f * (stepSine + 1) / 2.0f;
 					if (lastStepSine > 0 && stepSine < 0) {
@@ -81,7 +82,7 @@ public class AnimationBehavior extends WWAnimation {
 					lastStepSine = stepSine;
 				}
 			} else if (type.equals("swimming")) {
-				if ("torso".equals(object.name)) {
+				if ("torso".equals(object.getName())) {
 					float strokeSine = FastMath.sin(2.0f * FastMath.PI * animationTime + FastMath.PI);
 					if (lastStrokeSine > 0 && strokeSine < 0) {
 						stroked = true;
@@ -90,7 +91,7 @@ public class AnimationBehavior extends WWAnimation {
 					position.z += object.sizeY / 2.0f * FastMath.abs(range);
 				}
 			} else if (type.equals("treading")) {
-				if ("torso".equals(object.name)) {
+				if ("torso".equals(object.getName())) {
 					position.y -= 0.1f * object.sizeY * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
 				}
 			} else if (type.equals("falling")) {
@@ -100,151 +101,151 @@ public class AnimationBehavior extends WWAnimation {
 
 	// Note: this will be called for both the parent and child objects
 	@Override
-	public void getAnimatedRotation(WWObject object, WWVector rotation, long time) {
+	public void getAnimatedRotation(WWObject object, WWQuaternion rotation, long time) {
 		if (started) {
 			if (type.equals("walking")) {
-				if ("left arm".equals(object.name)) {
-					rotation.x -= 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("left arm".equals(object.getName())) {
+					rotation.roll(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
-				if ("right arm".equals(object.name)) {
-					rotation.x += 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("right arm".equals(object.getName())) {
+					rotation.roll(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
-				if ("left forearm".equals(object.name)) {
-					rotation.x += Math.max(0.0, -0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
+				if ("left forearm".equals(object.getName())) {
+					rotation.roll(Math.max(0.0f, -0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range));
 				}
-				if ("right forearm".equals(object.name)) {
-					rotation.x += Math.max(0.0, 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
+				if ("right forearm".equals(object.getName())) {
+					rotation.roll(Math.max(0.0f, 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range));
 				}
-				if ("left leg".equals(object.name)) {
-					rotation.x -= 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("left leg".equals(object.getName())) {
+					rotation.roll(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
-				if ("right leg".equals(object.name)) {
-					rotation.x += 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("right leg".equals(object.getName())) {
+					rotation.roll(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
-				if ("left calf".equals(object.name)) {
-					rotation.x += Math.min(0.0f, -FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+				if ("left calf".equals(object.getName())) {
+					rotation.roll(Math.min(0.0f, -FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
 				}
-				if ("right calf".equals(object.name)) {
-					rotation.x += Math.min(0.0f, FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+				if ("right calf".equals(object.getName())) {
+					rotation.roll(Math.min(0.0f, FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
 				}
 			} else if (type.equals("running")) {
-				if ("left arm".equals(object.name)) {
-					rotation.x += -0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("left arm".equals(object.getName())) {
+					rotation.roll(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 					if (object.getChild("left forearm") != null) {
-						rotation.x += -45;
+						rotation.roll(-45);
 					}
 				}
-				if ("right arm".equals(object.name)) {
-					rotation.x += 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("right arm".equals(object.getName())) {
+					rotation.roll(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 					if (object.getChild("right forearm") != null) {
-						rotation.x += -45;
+						rotation.roll(-45);
 					}
 				}
-				if ("left forearm".equals(object.name)) {
-					rotation.x += 90;
+				if ("left forearm".equals(object.getName())) {
+					rotation.roll(90);
 				}
-				if ("right forearm".equals(object.name)) {
-					rotation.x += 90;
+				if ("right forearm".equals(object.getName())) {
+					rotation.roll(90);
 				}
-				if ("left leg".equals(object.name)) {
-					rotation.x -= 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("left leg".equals(object.getName())) {
+					rotation.roll(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
-				if ("right leg".equals(object.name)) {
-					rotation.x += 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("right leg".equals(object.getName())) {
+					rotation.roll(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
-				if ("left calf".equals(object.name)) {
-					rotation.x += Math.max(-90, Math.min(0.0f, -3 * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
+				if ("left calf".equals(object.getName())) {
+					rotation.roll(Math.max(-90, Math.min(0.0f, -3 * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range)));
 				}
-				if ("right calf".equals(object.name)) {
-					rotation.x += Math.max(-90, Math.min(0.0f, 3 * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
+				if ("right calf".equals(object.getName())) {
+					rotation.roll(Math.max(-90, Math.min(0.0f, 3 * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range)));
 				}
 			} else if (type.equals("swimming")) {
-				if ("torso".equals(object.name)) {
-					rotation.x += 75 * range;
+				if ("torso".equals(object.getName())) {
+					rotation.roll(75 * range);
 				}
-				if ("head".equals(object.name)) {
-					if ("neck".equals(world.getObject(object.getParent()).name)) {
-						rotation.x -= 45 * range;
+				if ("head".equals(object.getName())) {
+					if ("neck".equals(world.getObject(object.getParent()).getName())) {
+						rotation.roll(-45 * range);
 					} else {
 						// bend head more when there's no neck to see horizon when swimming
-						rotation.x -= 60 * range;
+						rotation.roll(-60 * range);
 					}
 				}
-				if ("neck".equals(object.name)) {
-					rotation.x -= 15 * range;
+				if ("neck".equals(object.getName())) {
+					rotation.roll(-15 * range);
 				}
-				if ("left arm".equals(object.name)) {
-					rotation.x += FastMath.TODEGREES * (FastMath.PI * animationTime);
+				if ("left arm".equals(object.getName())) {
+					rotation.roll(FastMath.TODEGREES * (FastMath.PI * animationTime));
 				}
-				if ("right arm".equals(object.name)) {
-					rotation.x += FastMath.TODEGREES * (FastMath.PI * animationTime) + 180;
+				if ("right arm".equals(object.getName())) {
+					rotation.roll(FastMath.TODEGREES * (FastMath.PI * animationTime) + 180);
 				}
-				if ("left leg".equals(object.name)) {
-					rotation.x -= 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("left leg".equals(object.getName())) {
+					rotation.roll(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
-				if ("right leg".equals(object.name)) {
-					rotation.x += 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("right leg".equals(object.getName())) {
+					rotation.roll(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
-				if ("left calf".equals(object.name)) {
-					rotation.x += Math.min(0.0f, -object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+				if ("left calf".equals(object.getName())) {
+					rotation.roll(Math.min(0.0f, -object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
 				}
-				if ("right calf".equals(object.name)) {
-					rotation.x += Math.min(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+				if ("right calf".equals(object.getName())) {
+					rotation.roll(Math.min(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
 				}
-				if ("left foot".equals(object.name)) {
-					rotation.x -= 90f;
+				if ("left foot".equals(object.getName())) {
+					rotation.roll(-90);
 				}
-				if ("right foot".equals(object.name)) {
-					rotation.x -= 90f;
+				if ("right foot".equals(object.getName())) {
+					rotation.roll(-90);
 				}
-				if ("left hand".equals(object.name)) {
-					rotation.z += 90f;
+				if ("left hand".equals(object.getName())) {
+					rotation.yaw(90);
 				}
-				if ("right hand".equals(object.name)) {
-					rotation.z += 90f;
+				if ("right hand".equals(object.getName())) {
+					rotation.yaw(90);
 				}
 			} else if (type.equals("treading")) {
-				if ("left arm".equals(object.name)) {
-					rotation.y -= 75f;
-					rotation.x -= 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("left arm".equals(object.getName())) {
+					rotation.pitch(-75);
+					rotation.roll(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
-				if ("right arm".equals(object.name)) {
-					rotation.y += 75f;
-					rotation.x += 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime + FastMath.PI) * range;
+				if ("right arm".equals(object.getName())) {
+					rotation.pitch(75f);
+					rotation.roll(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime + FastMath.PI) * range);
 				}
-				if ("left forearm".equals(object.name)) {
-					rotation.x += Math.max(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+				if ("left forearm".equals(object.getName())) {
+					rotation.roll(Math.max(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
 				}
-				if ("right forearm".equals(object.name)) {
-					rotation.x += Math.max(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range);
+				if ("right forearm".equals(object.getName())) {
+					rotation.roll(Math.max(0.0f, object.sizeZ * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
 				}
-				if ("left leg".equals(object.name)) {
-					rotation.x -= 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("left leg".equals(object.getName())) {
+					rotation.roll(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
-				if ("right leg".equals(object.name)) {
-					rotation.x += 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range;
+				if ("right leg".equals(object.getName())) {
+					rotation.roll(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
-				if ("left foot".equals(object.name)) {
-					rotation.x -= 90f;
+				if ("left foot".equals(object.getName())) {
+					rotation.roll(-90);
 				}
-				if ("right foot".equals(object.name)) {
-					rotation.x -= 90f;
+				if ("right foot".equals(object.getName())) {
+					rotation.roll(-90);
 				}
 			} else if (type.equals("falling")) {
-				if ("torso".equals(object.name)) {
-					rotation.x -= 30f * FastMath.abs(range);
+				if ("torso".equals(object.getName())) {
+					rotation.roll(-30 * FastMath.abs(range));
 				}
-				if ("left arm".equals(object.name)) {
-					rotation.y -= 75f * FastMath.abs(range);
+				if ("left arm".equals(object.getName())) {
+					rotation.pitch(-75 * FastMath.abs(range));
 				}
-				if ("right arm".equals(object.name)) {
-					rotation.y += 75f * FastMath.abs(range);
+				if ("right arm".equals(object.getName())) {
+					rotation.pitch(75 * FastMath.abs(range));
 				}
-				if ("left leg".equals(object.name)) {
-					rotation.y += 15f * FastMath.abs(range);
+				if ("left leg".equals(object.getName())) {
+					rotation.pitch(15 * FastMath.abs(range));
 				}
-				if ("right leg".equals(object.name)) {
-					rotation.y -= 15f * FastMath.abs(range);
+				if ("right leg".equals(object.getName())) {
+					rotation.pitch(-15 * FastMath.abs(range));
 				}
 			}
 		}
@@ -252,48 +253,48 @@ public class AnimationBehavior extends WWAnimation {
 		// Disabling smooth animation. It worked nicely at high refresh rates but once
 		// the rate was too slow to cover a swim stroke it begins to mess up
 		/*
-		if (object.name != null) {
+		if (object.getName() != null) {
 			if (smoothAnimation == null) {
 				smoothAnimation = new HashMap<String, SmoothValues>();
 			}
-			SmoothValues smoothValues = smoothAnimation.get(object.name);
+			SmoothValues smoothValues = smoothAnimation.get(object.getName());
 			if (smoothValues == null) {
 				smoothValues = new SmoothValues();
-				smoothAnimation.put(object.name, smoothValues);
-				smoothValues.rotationX = rotation.x;
-				smoothValues.rotationY = rotation.y;
-				smoothValues.rotationZ = rotation.z;
+				smoothAnimation.put(object.getName(), smoothValues);
+				smoothValues.rotationX = rotation.getRoll();
+				smoothValues.rotationY = rotation.getPitch();
+				smoothValues.rotationZ = rotation.getYaw();
 			} else {
-				rotation.x = (rotation.x + 360) % 360;
-				if (FastMath.abs(smoothValues.rotationX - rotation.x) > 180) {
-					if (rotation.x > smoothValues.rotationX) {
+				rotation.getRoll() = (rotation.getRoll() + 360) % 360;
+				if (FastMath.abs(smoothValues.rotationX - rotation.getRoll()) > 180) {
+					if (rotation.getRoll() > smoothValues.rotationX) {
 						smoothValues.rotationX += 360;
 					} else {
 						smoothValues.rotationX -= 360;
 					}
 				}
-				rotation.y = (rotation.y + 360) % 360;
-				if (FastMath.abs(smoothValues.rotationY - rotation.y) > 180) {
-					if (rotation.y > smoothValues.rotationY) {
+				rotation.getPitch() = (rotation.getPitch() + 360) % 360;
+				if (FastMath.abs(smoothValues.rotationY - rotation.getPitch()) > 180) {
+					if (rotation.getPitch() > smoothValues.rotationY) {
 						smoothValues.rotationY += 360;
 					} else {
 						smoothValues.rotationY -= 360;
 					}
 				}
-				rotation.z = (rotation.z + 360) % 360;
-				if (FastMath.abs(smoothValues.rotationZ - rotation.z) > 180) {
-					if (rotation.z > smoothValues.rotationZ) {
+				rotation.getYaw() = (rotation.getYaw() + 360) % 360;
+				if (FastMath.abs(smoothValues.rotationZ - rotation.getYaw()) > 180) {
+					if (rotation.getYaw() > smoothValues.rotationZ) {
 						smoothValues.rotationZ += 360;
 					} else {
 						smoothValues.rotationZ -= 360;
 					}
 				}
-				smoothValues.rotationX = (0.1f * rotation.x + 0.9f * smoothValues.rotationX);
-				smoothValues.rotationY = (0.1f * rotation.y + 0.9f * smoothValues.rotationY);
-				smoothValues.rotationZ = (0.1f * rotation.z + 0.9f * smoothValues.rotationZ);
-				rotation.x = smoothValues.rotationX;
-				rotation.y = smoothValues.rotationY;
-				rotation.z = smoothValues.rotationZ;
+				smoothValues.rotationX = (0.1f * rotation.getRoll() + 0.9f * smoothValues.rotationX);
+				smoothValues.rotationY = (0.1f * rotation.getPitch() + 0.9f * smoothValues.rotationY);
+				smoothValues.rotationZ = (0.1f * rotation.getYaw() + 0.9f * smoothValues.rotationZ);
+				rotation.getRoll() = smoothValues.rotationX;
+				rotation.getPitch() = smoothValues.rotationY;
+				rotation.getYaw() = smoothValues.rotationZ;
 			}
 		}
 		 */

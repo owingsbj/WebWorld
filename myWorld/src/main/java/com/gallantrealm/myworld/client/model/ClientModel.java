@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -64,16 +63,14 @@ import com.gallantrealm.myworld.communication.UpdateObjectRequest;
 import com.gallantrealm.myworld.communication.UpdateWorldPropertiesRequest;
 import com.gallantrealm.myworld.model.WWEntity;
 import com.gallantrealm.myworld.model.WWObject;
+import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 import com.gallantrealm.myworld.server.MyWorldServer;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -82,10 +79,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.hardware.input.InputManager;
 import android.media.MediaPlayer;
-import android.opengl.GLES20;
-import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.os.Vibrator;
@@ -95,7 +89,8 @@ import android.view.InputDevice;
 import uk.co.labbookpages.WavFile;
 
 /**
- * This class maintains information shared within the client. Controls and actions in the client act upon the data in this model. Other views, control panels, actions will listen on events from this model and update their state accordingly.
+ * This class maintains information shared within the client. Controls and actions in the client act upon the data in this model. Other views, control panels,
+ * actions will listen on events from this model and update their state accordingly.
  * This provides a clean separation of model from view, implementing the Document-View design pattern.
  */
 public abstract class ClientModel {
@@ -108,10 +103,6 @@ public abstract class ClientModel {
 	}
 
 	public static AndroidClientModel clientModel;
-
-	public class ReturnValue {
-		public int rc;
-	}
 
 	// General settings for camera perspectives
 	public float initiallyFacingDistance = 6;
@@ -131,12 +122,9 @@ public abstract class ClientModel {
 	public static final int FREEVERSION = 3;
 	public static final int market = GOOGLE;
 
-	private static final float TORADIAN = 0.0174532925f;
 	private static final int NSCORES = 24;
 	private static final int NAVATARS = 24;
-	static final int RC_REQUEST = 10001;
 	static final String SKU_FULL_VERSION = "fullversion";
-	static final String PAYLOAD = "DontSteal.IWorkedHardToMakeThisApp";
 	public static final int MAX_LOG_LINES = 5;
 
 	public Logger logger = Logger.getLogger("com.gallantrealm.myworld.client");
@@ -176,17 +164,12 @@ public abstract class ClientModel {
 
 	// Camera position information
 	public WWObject cameraObject;
-	public float xcamera = 0.0f;
-	public float ycamera = 0.0f;
-	public float zcamera = 10.0f;
 	public float cameraPan = 0.0f;
 	public float cameraTilt = 5.0f;
-	public float cameraLean = 0.0f;
 	public float cameraDistance = 1.0f;
 	// TODO Have default distance, height, and tilt selectable by the user
 	public float cameraPanVelocity = 0.0f;
 	public float cameraTiltVelocity = 0.0f;
-	public float cameraLeanVelocity = 0.0f;
 	public float cameraDistanceVelocity = 0.0f;
 	public float cameraSlideX = 0.0f;
 	public float cameraSlideY = 0.0f;
@@ -199,7 +182,6 @@ public abstract class ClientModel {
 	public float dampedCameraLocationY;
 	public float dampedCameraLocationZ;
 	public float dampedCameraTilt;
-	public float dampedCameraLean;
 	public float dampedCameraPan;
 
 	public float cameraDampRate; // higher moves camera slower
@@ -251,16 +233,11 @@ public abstract class ClientModel {
 	}
 
 	public void initializeCameraPosition() {
-		xcamera = 0.0f;
-		ycamera = 0.0f;
-		zcamera = 10.0f;
 		cameraPan = 0.0f;
 		cameraTilt = 5.0f;
-		cameraLean = 0.0f;
 		cameraDistance = 1.0f;
 		cameraPanVelocity = 0.0f;
 		cameraTiltVelocity = 0.0f;
-		cameraLeanVelocity = 0.0f;
 		cameraDistanceVelocity = 0.0f;
 		cameraSlideX = 0.0f;
 		cameraSlideY = 0.0f;
@@ -692,7 +669,6 @@ public abstract class ClientModel {
 				if (focus != null) {
 					setCameraObject(focus);
 					setCameraDistance(0.0f);
-					setCameraPoint(new WWVector(0, 0, 0));
 					setCameraTilt(0);
 					setCameraPan(0.0f);
 				} else {
@@ -746,11 +722,16 @@ public abstract class ClientModel {
 		int avatarId = world.getUser(userId).getAvatarId();
 		WWObject avatar = world.objects[avatarId];
 		if (avatarId != 0 && avatar != null) {
+
+			// It is nice to move the avatar to face away from the camera so camera pan becomes a poor man's rotate
 			if (FastMath.abs(cameraPan) > 5 && getAvatar() == getCameraObject() && world.isAutoTurnOnCameraPan()) {
-				WWVector avatarRotation = avatar.getRotation();
-				avatar.setRotation(avatarRotation.x, avatarRotation.y, avatarRotation.z + cameraPan);
+				WWQuaternion avatarRotation = avatar.getRotation();
+				avatar.setRotation(avatar.getRotation().yaw(cameraPan));
+				setCameraPanUndamped(0);
 				// TODO the above won't work with remote worlds, but something should be done
 			}
+
+			// Now move the camera back onto the avatar if it was away
 			cameraToViewpoint();
 
 			// move and turn avatar
@@ -822,32 +803,17 @@ public abstract class ClientModel {
 		this.cameraPan = cameraPan;
 	}
 
+	public void setCameraPanUndamped(float cameraPan) {
+		this.cameraPan = cameraPan;
+		this.dampedCameraPan = cameraPan;
+	}
+
 	public float getCameraTilt() {
 		return cameraTilt;
 	}
 
 	public void setCameraTilt(float cameraTilt) {
 		this.cameraTilt = cameraTilt;
-	}
-
-	public float getCameraLean() {
-		return cameraLean;
-	}
-
-	public void setCameraLean(float cameraLean) {
-		this.cameraLean = cameraLean;
-	}
-
-	public void getCameraPoint(WWVector cameraPoint) {
-		cameraPoint.x = xcamera;
-		cameraPoint.y = ycamera;
-		cameraPoint.z = zcamera;
-	}
-
-	public void setCameraPoint(WWVector point) {
-		xcamera = point.getX();
-		ycamera = point.getY();
-		zcamera = point.getZ();
 	}
 
 	public float getCameraDistanceVelocity() {
@@ -872,14 +838,6 @@ public abstract class ClientModel {
 
 	public void setCameraTiltVelocity(float cameraTiltVelocity) {
 		this.cameraTiltVelocity = cameraTiltVelocity;
-	}
-
-	public float getCameraLeanVelocity() {
-		return cameraLeanVelocity;
-	}
-
-	public void setCameraLeanVelocity(float cameraLeanVelocity) {
-		this.cameraLeanVelocity = cameraLeanVelocity;
 	}
 
 	public float getCameraSlideX() {
@@ -912,32 +870,6 @@ public abstract class ClientModel {
 		this.cameraSlideZ = cameraSlideZ;
 	}
 
-	/**
-	 * This value is calculated from the camera point, distance, tilt and pan.
-	 */
-	public WWVector getCameraLocation(long worldTime) {
-		float x;
-		float y;
-		float z;
-		if (cameraObject != null) {
-			WWVector pos = cameraObject.getAbsolutePosition(worldTime);
-			if (cameraObject == getAvatar() || getAvatar().isDescendant(cameraObject)) {
-				x = xcamera + pos.x + cameraDistance * FastMath.sin(TORADIAN * cameraPan + cameraObject.getAbsoluteRotation(worldTime).getZ()) * FastMath.cos(TORADIAN * cameraTilt);
-				y = ycamera + pos.y + cameraDistance * FastMath.cos(TORADIAN * cameraPan + cameraObject.getAbsoluteRotation(worldTime).getZ()) * FastMath.cos(TORADIAN * cameraTilt);
-				z = zcamera + pos.z + FastMath.sin(TORADIAN * cameraTilt) * cameraDistance;
-			} else {
-				x = xcamera + pos.x + cameraDistance * FastMath.sin(TORADIAN * cameraPan) * FastMath.cos(TORADIAN * cameraTilt);
-				y = ycamera + pos.y + cameraDistance * FastMath.cos(TORADIAN * cameraPan) * FastMath.cos(TORADIAN * cameraTilt);
-				z = zcamera + pos.z + FastMath.sin(TORADIAN * cameraTilt) * cameraDistance;
-			}
-		} else {
-			x = xcamera + cameraDistance * FastMath.sin(TORADIAN * cameraPan) * FastMath.cos(TORADIAN * cameraTilt);
-			y = ycamera + cameraDistance * FastMath.cos(TORADIAN * cameraPan) * FastMath.cos(TORADIAN * cameraTilt);
-			z = zcamera + FastMath.sin(TORADIAN * cameraTilt) * cameraDistance;
-		}
-		return new WWVector(x, y, z);
-	}
-
 	public WWVector getDampedCameraLocation() {
 		return new WWVector(dampedCameraLocationX, dampedCameraLocationY, dampedCameraLocationZ);
 	}
@@ -948,14 +880,20 @@ public abstract class ClientModel {
 		dampedCameraLocationZ = z;
 	}
 
-	public void setDampedCameraRotation(float x, float y, float z) {
-		dampedCameraTilt = x;
-		dampedCameraLean = y;
-		dampedCameraPan = z;
+	public void setDampedCameraTilt(float tilt) {
+		dampedCameraTilt = tilt;
 	}
 
-	public WWVector getDampedCameraRotation() {
-		return new WWVector(dampedCameraTilt, dampedCameraLean, dampedCameraPan);
+	public float getDampedCameraTilt() {
+		return dampedCameraTilt;
+	}
+
+	public void setDampedCameraPan(float pan) {
+		dampedCameraPan = pan;
+	}
+
+	public float getDampedCameraPan() {
+		return dampedCameraPan;
 	}
 
 	public float getCameraSlideXVelocity() {

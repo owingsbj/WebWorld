@@ -91,7 +91,7 @@ public class WWParticleEmitter extends WWObject {
 	}
 
 	@Override
-	public void getPenetration(WWVector point, WWVector position, WWVector rotation, long worldTime, WWVector tempPoint, WWVector penetrationVector) {
+	public void getPenetration(WWVector point, WWVector position, WWQuaternion rotation, long worldTime, WWVector tempPoint, WWVector penetrationVector) {
 
 		// Anti-transform
 		tempPoint = point.clone();
