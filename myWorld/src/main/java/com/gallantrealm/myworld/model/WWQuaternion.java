@@ -178,18 +178,16 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
         return FastMath.toDegrees(yaw);
     }
 
-    private final WWQuaternion normalize() {
-        float n = (float)(1.0 / Math.sqrt(norm()));
+    private final void normalize() {
+        float norm = (float) Math.sqrt(w * w + x * x + y * y + z * z);
+        if (norm == 0) {
+            w = 1.0f; // reset back to zero'd quarternion
+        }
+        float n = (float)(1.0 / Math.sqrt(norm));
         w *= n;
         x *= n;
         y *= n;
         z *= n;
-        return this;
-    }
-
-    // return the quaternion norm
-    public final float norm() {
-        return (float) Math.sqrt(w * w + x * x + y * y + z * z);
     }
 
     @Override
@@ -238,15 +236,35 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
 //    }
 
     /**
-     * Adds the rotation effects of quarternion q to this quaternion.
+     * Adds the rotation effects of quarternion q to this quaternion
+     * in such a way that it is as if this quarternion had initially
+     * been turned by q.
      * (This is the same as quaternion multiplication where
      * the parameter q is the left-hand-side.)
      */
-    public final WWQuaternion rotate(WWQuaternion q) {
+    public final WWQuaternion prerotate(WWQuaternion q) {
         float tw = q.w * this.w - q.x * this.x - q.y * this.y - q.z * this.z;
         float tx = q.w * this.x + q.x * this.w + q.y * this.z - q.z * this.y;
         float ty = q.w * this.y - q.x * this.z + q.y * this.w + q.z * this.x;
         float tz = q.w * this.z + q.x * this.y - q.y * this.x + q.z * this.w;
+        w = tw;
+        x = tx;
+        y = ty;
+        z = tz;
+        return this;
+    }
+
+    /**
+     * Adds the rotation effects of quarternion q to this quaternion.
+     * (This is the same as quaternion multiplication where
+     * the parameter q is the right-hand-side.)
+     */
+    public final WWQuaternion rotate(WWQuaternion q) {
+        WWQuaternion r = this;
+        float tw = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
+        float tx = r.w * q.x + r.x * q.w + r.y * q.z - r.z * q.y;
+        float ty = r.w * q.y - r.x * q.z + r.y * q.w + r.z * q.x;
+        float tz = r.w * q.z + r.x * q.y - r.y * q.x + r.z * q.w;
         w = tw;
         x = tx;
         y = ty;
@@ -281,6 +299,9 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
      * Modifies the vector, rotating it by the rotation in this quaternion.
      */
     public final void rotateVector(WWVector v) {
+        if (v.isZero()) {
+            return;
+        }
         float w = this.w, x = this.x, y = this.z, z = this.y;
         float vx = v.x, vy = v.z, vz = v.y;
         v.x = w * w * vx + 2 * y * w * vz - 2 * z * w * vy + x * x * vx + 2 * y * x * vy + 2 * z * x * vz - z * z * vx - y * y * vx;
