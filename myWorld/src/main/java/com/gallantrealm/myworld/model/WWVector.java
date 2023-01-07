@@ -223,6 +223,13 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 		return this;
 	}
 
+	public final WWVector negate() {
+		x = -x;
+		y = -y;
+		z = -z;
+		return this;
+	}
+
 	public final WWVector set(float x, float y, float z) {
 		this.x = x;
 		this.y = y;
