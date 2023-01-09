@@ -93,9 +93,11 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 				controlTypeLabel.setVisibility(View.GONE);
 				controlType.setVisibility(View.GONE);
 			}
-			controlTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-			controlType.setAdapter(controlTypeAdapter);
-			controlType.setOnItemSelectedListener(this);
+			if (controlTypeAdapter != null) {
+				controlTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+				controlType.setAdapter(controlTypeAdapter);
+				controlType.setOnItemSelectedListener(this);
+			}
 		}
 
 		controlSensitivity.setProgress((int) (clientModel.getControlSensitivity() * 100));
