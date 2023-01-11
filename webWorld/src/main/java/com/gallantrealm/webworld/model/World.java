@@ -230,6 +230,7 @@ public class World extends WWWorld {
 		ScriptableObject.putProperty(scope, "SIDE_INSIDE4", 12);
 		ScriptableObject.putProperty(scope, "SIDE_CUTOUT1", 13);
 		ScriptableObject.putProperty(scope, "SIDE_CUTOUT2", 14);
+		ScriptableObject.putProperty(scope, "avatar", null);
 
 		// Add console and built-in UI methods
 		Console console = new Console();
