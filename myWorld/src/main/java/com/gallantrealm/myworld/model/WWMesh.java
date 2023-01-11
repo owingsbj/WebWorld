@@ -6,7 +6,8 @@ import com.gallantrealm.myworld.communication.DataInputStreamX;
 import com.gallantrealm.myworld.communication.DataOutputStreamX;
 
 /**
- * A mesh is a shape with an uneven surface which is formed using a grid of values. A mesh can be a box, where only the top is uneven, a cylinder, where the sides are uneven, or a sphere, where the entire surface is uneven.
+ * A mesh is a shape with an uneven surface which is formed using a grid of values. A mesh can be a box, where only the top is uneven,
+ * a cylinder, where the sides are uneven, or a sphere, where the entire surface is uneven.
  */
 public class WWMesh extends WWObject {
 	static final long serialVersionUID = 1L;
@@ -94,11 +95,15 @@ public class WWMesh extends WWObject {
 		return mesh[cx][cy];
 	}
 
+	/**
+	 * Set a point on the mesh.  The range is from 0.01 to 1.0.  Any value
+	 * outside this range is constrained into the range.
+	 */
 	public final void setMeshPoint(int cx, int cy, float value) {
 		if (value > 1.0f) {
 			value = 1.0f;
-		} else if (value < 0.0f) {
-			value = 0.0f;
+		} else if (value < 0.01f) {
+			value = 0.01f;
 		}
 		mesh[cx][cy] = value;
 	}
