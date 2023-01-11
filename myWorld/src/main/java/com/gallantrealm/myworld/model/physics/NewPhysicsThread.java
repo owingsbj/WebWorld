@@ -129,6 +129,8 @@ public class NewPhysicsThread extends PhysicsThread {
 					totalForce.z = 0;
 				}
 				WWVector totalTorque = torque.clone();
+				rotation.rotateVector(totalTorque);
+				rotation.rotateVector(torqueVelocity);
 				if (torqueVelocity.x > 0 && aMomentum.x > torqueVelocity.x) {
 					totalTorque.x = 0;
 				} else if (torqueVelocity.x < 0 && aMomentum.x < torqueVelocity.x) {
@@ -231,10 +233,9 @@ public class NewPhysicsThread extends PhysicsThread {
 											velocity.y = mirrorForceVector.y * elasticity;
 											velocity.z = mirrorForceVector.z * elasticity;
 										} else { // simple bounce-back
-											WWVector velocityVector = new WWVector(velocity.x, velocity.y, velocity.z);
 											WWVector mirrorVector = unitOverlapVector.clone();
 											mirrorVector.scale(-1.0f);
-											WWVector mirrorVelocityVector = velocityVector.getReflection(mirrorVector);
+											WWVector mirrorVelocityVector = velocity.getReflection(mirrorVector);
 											float elasticity = Math.max(object.elasticity, object2.elasticity);
 											velocity.x = mirrorVelocityVector.x * elasticity;
 											velocity.y = mirrorVelocityVector.y * elasticity;
@@ -269,10 +270,11 @@ public class NewPhysicsThread extends PhysicsThread {
 									}
 
 									// Adjust angular momentum as well
-									// TODO implement angular momentum adjustment
 									// take cross product of unitoverlapvector and vector of overlappoint->centerpoint
 									// then combine with velocity in some way to form an addition to the torque
-									totalTorque.add(position.clone().subtract(overlapPoint).cross(unitOverlapVector).scale(1000f));
+									totalTorque.add(originalPosition.clone().subtract(overlapPoint).normalize().cross(unitOverlapVector).scale(-10000));
+
+									// TODO implement angular momentum adjustment to the torque to make physics of tops
 
 								} // solid
 
