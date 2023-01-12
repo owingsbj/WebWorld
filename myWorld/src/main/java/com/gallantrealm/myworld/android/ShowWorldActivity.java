@@ -208,8 +208,11 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			System.out.println(" ShowWorldActivity.onCreate using OpenGL ES 3");
 		} else {
 			worldView.setEGLContextClientVersion(2);	// use the non-shadowing shaders, only requiring es2
-			clientModel.setSimpleRendering(true);	// override to simple rendering
-			clientModel.savePreferences(this);
+			if (!clientModel.isSimpleRendering()) {
+				System.out.println(" ShowWorldActivity.onCreate forcing simple rendering due to lack of OpenGL ES 3 support");
+				clientModel.setSimpleRendering(true);    // override to simple rendering
+				clientModel.savePreferences(this);
+			}
 			System.out.println(" ShowWorldActivity.onCreate using OpenGL ES 2");
 		}
 //		worldView.setEGLContextFactory(new MyWorldContextFactory());
