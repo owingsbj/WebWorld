@@ -20,10 +20,17 @@ public class MyWorldConfigChooser implements GLSurfaceView.EGLConfigChooser {
 		System.out.println(">MyWorldConfigChooser.chooseConfig");
 		mValue = new int[1];
 
-		int[] configSpec = { //
-				EGL10.EGL_RENDERABLE_TYPE, EGLExt.EGL_OPENGL_ES3_BIT_KHR, //
-				EGL10.EGL_NONE //
-		};
+		int[] configSpec;
+		if (AndroidClientModel.getClientModel().isSimpleRendering()) {
+			configSpec = new int[] {
+					EGL10.EGL_NONE //
+			};
+		} else {
+			configSpec = new int[] {
+					EGL10.EGL_RENDERABLE_TYPE, EGLExt.EGL_OPENGL_ES3_BIT_KHR, //
+					EGL10.EGL_NONE //
+			};
+		}
 		if (!egl.eglChooseConfig(display, configSpec, null, 0, mValue)) {
 			throw new IllegalArgumentException("eglChooseConfig failed");
 		}
