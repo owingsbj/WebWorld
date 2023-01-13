@@ -1135,6 +1135,14 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	/**
+	 * This extent is the distance from the centerpoint
+	 * of the object to the farthest edge of the object.
+	 */
+	public final float getExtent() {
+		return extent;
+	}
+
+	/**
 	 * Determines if this object overlaps the give object. If so, return a vector pointing directly to the location of the overlap. The length of the vector
 	 * depends on the depth of penetration of the object. This vector can be used to apply physical properties to the object as a result of the two objects
 	 * making contact.
