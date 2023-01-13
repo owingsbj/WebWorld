@@ -48,7 +48,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public float aMomentumX;
 	public float aMomentumY;
 	public float aMomentumZ;
-	public float density = 0.0f;
+	public float density = 1.0f;
 	public boolean solid = true;
 	public float elasticity;
 	public float friction = 0.9f;
