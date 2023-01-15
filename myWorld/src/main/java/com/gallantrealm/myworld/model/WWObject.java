@@ -3,6 +3,7 @@ package com.gallantrealm.myworld.model;
 import java.io.IOException;
 import java.io.Serializable;
 
+import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.client.renderer.IRenderable;
 import com.gallantrealm.myworld.client.renderer.IRendering;
 import com.gallantrealm.myworld.client.renderer.IVideoTextureRenderer;
@@ -401,8 +402,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		} else {
 			this.rotation.copyInto(r);
 			float deltaTime = (worldTime - lastMoveTime) / 1000.0f;
-
-			r.spin(deltaTime, aMomentumX, aMomentumY, aMomentumZ);
+			float angle = getAMomentumLength() * deltaTime;
+			r.spin(angle, aMomentumX, aMomentumY, aMomentumZ);
 
 			// Apply start and stop rotation limits if any
 			// TODO this logic can't be supported with quaternions.  Replace with slerp?

@@ -85,7 +85,6 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
         x = x / mag;
         y = y / mag;
         z = z / mag;
-        angle *= mag;
         if (angle < 0.01) {
             return;
         }
