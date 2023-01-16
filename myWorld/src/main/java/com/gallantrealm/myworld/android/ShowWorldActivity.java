@@ -14,17 +14,14 @@ import com.gallantrealm.myworld.client.model.SelectColorHandler;
 import com.gallantrealm.myworld.client.model.SelectResponseHandler;
 import com.gallantrealm.myworld.model.WWColor;
 import com.gallantrealm.myworld.model.WWObject;
-import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ConfigurationInfo;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -173,12 +170,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		return false;
 	}
 
-	private boolean supportsOpenGLES30() {
-		ActivityManager am = (ActivityManager)this.getSystemService(Context.ACTIVITY_SERVICE);
-		ConfigurationInfo info = am.getDeviceConfigurationInfo();
-		return ( info.reqGlEsVersion >= 0x30000 );
-	}
-
 	/** Called when the activity is first created. */
 	@SuppressLint("NewApi")
 	@Override
@@ -203,16 +194,15 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		wakelock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "ShowWorldActivity:WakeLock");
 
 		worldView = (GLSurfaceView) findViewById(R.id.worldView);
-		if (!clientModel.isSimpleRendering() && supportsOpenGLES30()) {
+		try {
 			worldView.setEGLContextClientVersion(3);   // to use the shadowing shaders, requiring es3
 			System.out.println(" ShowWorldActivity.onCreate using OpenGL ES 3");
-		} else {
+		} catch (Exception e) {
+			System.out.println(" ShowWorldActivity.onCreate forcing simple rendering due to lack of OpenGL ES 3 support");
+			clientModel.setSimpleRendering(true);    // override to simple rendering
+		}
+		if (!clientModel.isSimpleRendering()) {
 			worldView.setEGLContextClientVersion(2);	// use the non-shadowing shaders, only requiring es2
-			if (!clientModel.isSimpleRendering()) {
-				System.out.println(" ShowWorldActivity.onCreate forcing simple rendering due to lack of OpenGL ES 3 support");
-				clientModel.setSimpleRendering(true);    // override to simple rendering
-				clientModel.savePreferences(this);
-			}
 			System.out.println(" ShowWorldActivity.onCreate using OpenGL ES 2");
 		}
 //		worldView.setEGLContextFactory(new MyWorldContextFactory());
