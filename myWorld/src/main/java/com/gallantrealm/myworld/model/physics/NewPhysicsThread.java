@@ -111,45 +111,51 @@ public class NewPhysicsThread extends PhysicsThread {
 				// note that these are attenuated (by thrust and torque velocity) if the velocity
 				// and torque are already high.
 				WWVector totalForce = thrust.clone();
-				rotation.rotateVector(totalForce);
-				rotation.rotateVector(thrustVelocity);
-				if (thrustVelocity.x > 0 && velocity.x > thrustVelocity.x) {
-					totalForce.x = 0;
-				} else if (thrustVelocity.x < 0 && velocity.x < thrustVelocity.x) {
-					totalForce.x = 0;
-				}
-				if (thrustVelocity.y > 0 && velocity.y > thrustVelocity.y) {
-					totalForce.y = 0;
-				} else if (thrustVelocity.y < 0 && velocity.y < thrustVelocity.y) {
-					totalForce.y = 0;
-				}
-				if (thrustVelocity.z > 0 && velocity.z > thrustVelocity.z) {
-					totalForce.z = 0;
-				} else if (thrustVelocity.z < 0 && velocity.z < thrustVelocity.z) {
-					totalForce.z = 0;
+				if (totalForce.length() > 0) {
+					rotation.rotateVector(totalForce);
+					rotation.rotateVector(thrustVelocity);
+					if (thrustVelocity.x > 0 && velocity.x > thrustVelocity.x) {
+						totalForce.x = 0;
+					} else if (thrustVelocity.x < 0 && velocity.x < thrustVelocity.x) {
+						totalForce.x = 0;
+					}
+					if (thrustVelocity.y > 0 && velocity.y > thrustVelocity.y) {
+						totalForce.y = 0;
+					} else if (thrustVelocity.y < 0 && velocity.y < thrustVelocity.y) {
+						totalForce.y = 0;
+					}
+					if (thrustVelocity.z > 0 && velocity.z > thrustVelocity.z) {
+						totalForce.z = 0;
+					} else if (thrustVelocity.z < 0 && velocity.z < thrustVelocity.z) {
+						totalForce.z = 0;
+					}
 				}
 				WWVector totalTorque = torque.clone();
-				rotation.rotateVector(totalTorque);
-				rotation.rotateVector(torqueVelocity);
-				if (torqueVelocity.x > 0 && aMomentum.x > torqueVelocity.x) {
-					totalTorque.x = 0;
-				} else if (torqueVelocity.x < 0 && aMomentum.x < torqueVelocity.x) {
-					totalTorque.x = 0;
+				if (totalTorque.length() > 0) {
+					rotation.rotateVector(totalTorque);
+					rotation.rotateVector(torqueVelocity);
+					if (torqueVelocity.x > 0 && aMomentum.x > torqueVelocity.x) {
+						totalTorque.x = 0;
+					} else if (torqueVelocity.x < 0 && aMomentum.x < torqueVelocity.x) {
+						totalTorque.x = 0;
+					}
+					if (torqueVelocity.y > 0 && aMomentum.y > torqueVelocity.y) {
+						totalTorque.y = 0;
+					} else if (torqueVelocity.y < 0 && aMomentum.y < torqueVelocity.y) {
+						totalTorque.y = 0;
+					}
+					if (torqueVelocity.z > 0 && aMomentum.z > torqueVelocity.z) {
+						totalTorque.z = 0;
+					} else if (torqueVelocity.z < 0 && aMomentum.z < torqueVelocity.z) {
+						totalTorque.z = 0;
+					}
 				}
-				if (torqueVelocity.y > 0 && aMomentum.y > torqueVelocity.y) {
-					totalTorque.y = 0;
-				} else if (torqueVelocity.y < 0 && aMomentum.y < torqueVelocity.y) {
-					totalTorque.y = 0;
-				}
-				if (torqueVelocity.z > 0 && aMomentum.z > torqueVelocity.z) {
-					totalTorque.z = 0;
-				} else if (torqueVelocity.z < 0 && aMomentum.z < torqueVelocity.z) {
-					totalTorque.z = 0;
-				}
+
+				WWVector gravityForce = world.getGravityForce(position.x, position.y, position.z);
 
 				// sum in gravitational force only if object has mass
 				if (object.getDensity() > 0.0) {
-					totalForce.add(world.getGravityForce(position.x, position.y, position.z));
+					totalForce.add(gravityForce);
 				}
 
 				// - Next, apply interactions of other objects that overlap the physical object
@@ -269,12 +275,17 @@ public class NewPhysicsThread extends PhysicsThread {
 
 									}
 
-									// Adjust angular momentum as well
-									// take cross product of unitoverlapvector and vector of overlappoint->centerpoint
-									// then combine with velocity in some way to form an addition to the torque
-									totalTorque.add(originalPosition.clone().subtract(overlapPoint).normalize().cross(unitOverlapVector).scale(-10000));
+									// Adjust angular momentum due to the collision.
+									// This is the cross product of the unitoverlapvector and the unit overlappoint->centerpoint,
+									// scaled by the velocity into the collided object
+									WWVector collisionRelativePosition = originalPosition.clone().subtract(overlapPoint).normalize();
+									WWVector collisionVelocity = unitOverlapVector.clone().cross(collisionRelativePosition);
+									totalTorque.add(collisionVelocity.scale(1/deltaTime));
 
-									// TODO implement angular momentum adjustment to the torque to make physics of tops
+									// Place torque on the object as well due to the gravitaional force.
+									totalTorque.add(collisionRelativePosition.clone().cross(gravityForce).scale(-1/deltaTime));
+
+									// TODO implement physics of tops
 
 								} // solid
 
@@ -296,22 +307,45 @@ public class NewPhysicsThread extends PhysicsThread {
 
 								// Depending on friction forces, slow the object movement
 								if (object2.isSolid() && object.getElasticity() + object2.getElasticity() > 0) {
-									// no friction for solids touching with elasticity
+									// friction for solids touching with elasticity only impacts angular velocity
+									// TODO determine appropriate angular velocity change for solids colliding with elasticity
 								} else {
 									float friction = FastMath.min(object.friction, object2.friction);
 									if (friction > 0) {
+										if (object2.isSolid()) {  // solid-against-solid friction
 
-										// Friction is a force acting opposite of relative velocity/amomentum of the two items colliding.
-										WWVector frictionVForce = object2.getVelocity(); // TODO include object2 amomentum (if object2 is large)
-										frictionVForce.subtract(velocity);
-										frictionVForce.scale(10 * friction / FastMath.range(frictionVForce.length(), 0.01f, 1f));
-										totalForce.add(frictionVForce);
+											WWVector collisionDirection = originalPosition.clone().subtract(overlapPoint).normalize();
 
-										WWVector frictionAForce = object2.getAMomentum(); // TODO include object2 position (if object2 is large)
-										frictionAForce.subtract(aMomentum);
-										frictionAForce.scale(10 * friction / FastMath.range(frictionAForce.length() / 10.0f, 0.01f, 1f));
-										totalTorque.add(frictionAForce);
+											// Determine the relative speed of the two object surfaces.  This is a factor
+											// of both the linear velocity and the angular velocity of the two objects.
+											WWVector relativeVelocity = velocity.clone().subtract(object2.getVelocity()).scale(10);    // need to add scale 10 to avoid sliding too much
+											// TODO remove scale 10 factor above
+											relativeVelocity.add(aMomentum.clone().cross(collisionDirection).subtract(object2.getAMomentum().cross(collisionDirection)).scale(object.getExtent() / FastMath.PI / 2));
 
+											// Determine the relative angular momentum of the two objects at the impact point as well.
+											// The angular momentum of the object is tempered, averaging over these two momenta over time
+											WWVector relativeAMomentum = aMomentum.clone().subtract(object2.getAMomentum()).scale(collisionDirection).scale(10);
+
+											relativeVelocity.scale(friction);
+											relativeAMomentum.scale(friction);
+
+											totalForce.subtract(relativeVelocity);
+											totalTorque.subtract(relativeVelocity);
+											totalTorque.subtract(relativeAMomentum);
+
+										} else { // solid-in-liquid/gas friction
+
+											WWVector frictionVForce = object2.getVelocity().subtract(velocity);
+											frictionVForce.scale(friction);
+											totalForce.add(frictionVForce);
+											// TODO: Add angular velocity effect on force in liquids, to emulate paddlewheels
+
+											WWVector frictionAForce = new WWVector();
+											frictionAForce.subtract(aMomentum);
+											frictionAForce.scale(friction);
+											totalTorque.add(frictionAForce);
+
+										}
 									}
 								} // friction
 
@@ -320,14 +354,6 @@ public class NewPhysicsThread extends PhysicsThread {
 
 					} // if object != object2
 				} // for object2
-
-				// Cap forces to avoid really bad behaviors
-				if (totalForce.length() > 10) {
-					totalForce.scale(10 / totalForce.length());
-				}
-				if (totalTorque.length() > 360) {
-					totalTorque.scale(360 / totalTorque.length());
-				}
 
 				// Apply forces to object's velocity
 				velocity.x += totalForce.x * deltaTime;
