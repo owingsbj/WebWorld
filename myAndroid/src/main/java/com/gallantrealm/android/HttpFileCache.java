@@ -119,4 +119,15 @@ public final class HttpFileCache {
 		return file;
 	}
 
+	/**
+	 * Checks to make sure a cached file is most recent version and recaches if not, then returns
+	 * that cached file.
+	 */
+	public static File getUpToDateFile(String urlString, Context context) throws IOException {
+		if (isCacheStale(urlString, context)) {
+			clearCache(urlString, context);
+		}
+		return getFile(urlString, context);
+	}
+
 }
