@@ -66,7 +66,7 @@ public final class HttpFileCache {
 		String cacheFileName = getCacheFileName(urlStringPrefix);
 		File[] cacheFiles = context.getCacheDir().listFiles();
 		for (File cacheFile : cacheFiles) {
-			if (cacheFile.getName().startsWith(urlStringPrefix)) {
+			if (cacheFile.getName().startsWith(cacheFileName)) {
 				System.out.println("HttpFileCache.clearCache: deleting cache file " + cacheFile.getName());
 				cacheFile.delete();
 			}
