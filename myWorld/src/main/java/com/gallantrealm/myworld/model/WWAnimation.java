@@ -37,7 +37,7 @@ public abstract class WWAnimation extends WWBehavior {
 
 	/**
 	 * Allows adjusting of the rotation according to animation. The object passed in is either the owner object or a
-	 * child of the owner. The rotation vector is modified to reflect adjustment by the animation.
+	 * child of the owner. The rotation quaternion is modified to reflect adjustment by the animation.
 	 */
 	public abstract void getAnimatedRotation(WWObject object, WWQuaternion rotation, long time);
 
