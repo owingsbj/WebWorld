@@ -198,6 +198,9 @@ public class FolderSelectorDialog extends Dialog {
 		}
 		File[] files = folderFile.listFiles();
 		if (files == null) {
+			if (folder.endsWith("emulated/")) {
+				fileNames.add("0/");
+			}
 			return fileNames;
 		}
 		for (File file : files) {
