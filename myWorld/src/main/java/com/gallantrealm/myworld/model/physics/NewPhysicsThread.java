@@ -312,6 +312,11 @@ public class NewPhysicsThread extends PhysicsThread {
 								} else {
 									float friction = FastMath.min(object.friction, object2.friction);
 									if (friction > 0) {
+
+										// Note: the scale 10 factors below are fudged so objects will have greater friction.
+										// This is just a fudge factor that needs to be better modelled
+										// TODO better model friction to avoid the scale 10 fudge factors
+
 										if (object2.isSolid()) {  // solid-against-solid friction
 
 											WWVector collisionDirection = originalPosition.clone().subtract(overlapPoint).normalize();
@@ -319,7 +324,6 @@ public class NewPhysicsThread extends PhysicsThread {
 											// Determine the relative speed of the two object surfaces.  This is a factor
 											// of both the linear velocity and the angular velocity of the two objects.
 											WWVector relativeVelocity = velocity.clone().subtract(object2.getVelocity()).scale(10);    // need to add scale 10 to avoid sliding too much
-											// TODO remove scale 10 factor above
 											relativeVelocity.add(aMomentum.clone().cross(collisionDirection).subtract(object2.getAMomentum().cross(collisionDirection)).scale(object.getExtent() / FastMath.PI / 2));
 
 											// Determine the relative angular momentum of the two objects at the impact point as well.
@@ -336,13 +340,13 @@ public class NewPhysicsThread extends PhysicsThread {
 										} else { // solid-in-liquid/gas friction
 
 											WWVector frictionVForce = object2.getVelocity().subtract(velocity);
-											frictionVForce.scale(friction);
+											frictionVForce.scale(10 * friction);
 											totalForce.add(frictionVForce);
 											// TODO: Add angular velocity effect on force in liquids, to emulate paddlewheels
 
 											WWVector frictionAForce = new WWVector();
 											frictionAForce.subtract(aMomentum);
-											frictionAForce.scale(friction);
+											frictionAForce.scale(10 * friction);
 											totalTorque.add(frictionAForce);
 
 										}
