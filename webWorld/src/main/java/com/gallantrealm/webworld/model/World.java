@@ -116,14 +116,14 @@ public class World extends WWWorld {
 		HttpURLConnection connection = null;
 		InputStream inputStream = null;
 		try {
-			// First try file
+			// First try local
 			File file = new File(clientModel.getLocalFolder() + "/avatars/" + avatarName + "/avatar.properties");
 			if (file.exists()) {
 				inputStream = new FileInputStream(file);
 			} else {
 				// Then try gallantrealm.com
-				String urlString = clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/avatar.properties";
-				file = HttpFileCache.getFile(urlString, clientModel.getContext());
+				String urlString = clientModel.getSharedServer() + "/avatars/" + avatarName + "/avatar.properties";
+				file = HttpFileCache.getUpToDateFile(urlString, clientModel.getContext());
 				inputStream = new FileInputStream(file);
 			}
 			properties.load(inputStream);
@@ -161,8 +161,8 @@ public class World extends WWWorld {
 				inputStream = new FileInputStream(file);
 			} else {
 				// Then try gallantrealm.com
-				String urlString = clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/world.properties";
-				file = HttpFileCache.getFile(urlString, clientModel.getContext());
+				String urlString = clientModel.getSharedServer() + "/worlds/" + worldName + "/world.properties";
+				file = HttpFileCache.getUpToDateFile(urlString, clientModel.getContext());
 				inputStream = new FileInputStream(file);
 			}
 			properties.load(inputStream);
@@ -265,8 +265,8 @@ public class World extends WWWorld {
 				World.runningLocalAvatarScript = true;
 			} else {
 				// Then try gallantrealm.com
-				String urlString = clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("script");
-				file = HttpFileCache.getFile(urlString, clientModel.getContext());
+				String urlString = clientModel.getSharedServer() + "/avatars/" + avatarName + "/" + avatarProperties.getProperty("script");
+				file = HttpFileCache.getUpToDateFile(urlString, clientModel.getContext());
 				inputStream = new FileInputStream(file);
 				World.runningLocalAvatarScript = false;
 			}
@@ -335,8 +335,8 @@ public class World extends WWWorld {
 					World.runningLocalWorldScript = true;
 				} else {
 					// Then try gallantrealm.com
-					String urlString = clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer");
-					file = HttpFileCache.getFile(urlString, clientModel.getContext());
+					String urlString = clientModel.getSharedServer() + "/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer");
+					file = HttpFileCache.getUpToDateFile(urlString, clientModel.getContext());
 					inputStream = new FileInputStream(file);
 					World.runningLocalWorldScript = false;
 				}
@@ -398,8 +398,8 @@ public class World extends WWWorld {
 					World.runningLocalWorldScript = true;
 				} else {
 					// Then try gallantrealm.com
-					String urlString = clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/" + worldProperties.getProperty("script");
-					file = HttpFileCache.getFile(urlString, clientModel.getContext());
+					String urlString = clientModel.getSharedServer() + "/worlds/" + worldName + "/" + worldProperties.getProperty("script");
+					file = HttpFileCache.getUpToDateFile(urlString, clientModel.getContext());
 					inputStream = new FileInputStream(file);
 					World.runningLocalWorldScript = false;
 				}
@@ -515,14 +515,14 @@ public class World extends WWWorld {
 					if (World.runningLocalAvatarScript) {
 						return clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + url;
 					} else {
-						return clientModel.getGallantUrl() + "/webworld/avatars/" + avatarName + "/" + url;
+						return clientModel.getSharedServer() + "/avatars/" + avatarName + "/" + url;
 					}
 				} else {
 					String worldName = clientModel.getWorldName();
 					if (World.runningLocalWorldScript) {
 						return clientModel.getLocalFolder() + "/worlds/" + worldName + "/" + url;
 					} else {
-						return clientModel.getGallantUrl() + "/webworld/worlds/" + worldName + "/" + url;
+						return clientModel.getSharedServer() + "/worlds/" + worldName + "/" + url;
 					}
 				}
 			}
