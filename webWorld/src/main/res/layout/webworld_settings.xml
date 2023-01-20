@@ -24,17 +24,18 @@
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:scrollbarAlwaysDrawVerticalTrack="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView3"
@@ -51,7 +52,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="10sp" >
+                    android:layout_marginLeft="10sp">
 
                     <CheckBox
                         android:id="@+id/playMusicCheckBox"
@@ -94,7 +95,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView2"
@@ -111,7 +112,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10sp" >
+                    android:layout_marginLeft="10sp">
 
                     <TextView
                         android:id="@+id/controlTypeLabel"
@@ -161,7 +162,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/countText"
@@ -178,7 +179,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="10sp" >
+                    android:layout_marginLeft="10sp">
 
                     <CheckBox
                         android:id="@+id/viewIn3dCheckbox"
@@ -220,7 +221,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/TextView01"
@@ -230,18 +231,18 @@
                     android:shadowDx="1"
                     android:shadowDy="1"
                     android:shadowRadius="1"
-                    android:text="Developer:"
+                    android:text="Developer Settings:"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textSize="16sp" />
 
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="10dp" >
+                    android:layout_marginLeft="10dp">
 
                     <TextView
                         android:id="@+id/TextView04"
-                        android:layout_width="wrap_content"
+                        android:layout_width="150dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0"
                         android:shadowColor="#444444"
@@ -275,9 +276,41 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp">
+
+                    <TextView
+                        android:layout_width="150dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:shadowColor="#444444"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="1"
+                        android:text="WebWorld Server:  "
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textSize="16sp" />
+
+                    <EditText
+                        android:id="@+id/webserverEdit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:shadowColor="#444444"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="1"
+                        android:text="https://gallantrealm.com/webworlds"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="32dp"
-                    android:layout_marginLeft="10dp" >
+                    android:layout_marginLeft="10dp">
 
                     <CheckBox
                         android:id="@+id/showDebugLoggingCheckbox"

@@ -1165,6 +1165,7 @@ public abstract class ClientModel {
 	public boolean cameraInitiallyFacingAvatar;
 	public boolean goggleDogPass;
 	private String localFolder;
+	private String sharedServer;
 	private boolean showDebugLogging;
 	boolean testedOpenGL;
 	int songId;
@@ -1207,7 +1208,8 @@ public abstract class ClientModel {
 		for (int i = 0; i < NAVATARS; i++) {
 			avatarDisplayNames[i] = preferences.getString("avatarDisplayName" + i, null);
 		}
-		localFolder = preferences.getString("localFolder", Environment.getExternalStorageDirectory().toString() + "/DevWorlds");
+		localFolder = preferences.getString("localFolder", Environment.getExternalStorageDirectory().toString() + "/webworlds");
+		sharedServer = preferences.getString("sharedServer", "http://10.0.0.2:8080"); // "https://gallantrealm.com/webworlds");
 		showDebugLogging = preferences.getBoolean("showDebugLogging", false);
 	}
 
@@ -2287,8 +2289,13 @@ public abstract class ClientModel {
 		properties.put(propertyName, value);
 	}
 
-	public String getGallantUrl() {
-		return "https://gallantrealm.com";
+	public void setSharedServer(String sharedServer) {
+		this.sharedServer = sharedServer;
+		savePreferences(this.context);
+	}
+
+	public String getSharedServer() {
+		return sharedServer;
 	}
 
 	public void log(String message) {

@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
@@ -32,6 +33,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 	CheckBox powerSaverCheckBox;
 	TextView localFolderText;
 	Button changeLocalFolderButton;
+	EditText webserverEdit;
 	CheckBox showDebugLoggingCheckBox;
 	Button okButton;
 
@@ -55,6 +57,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		powerSaverCheckBox = (CheckBox) findViewById(R.id.powerSaverCheckBox);
 		localFolderText = (TextView) findViewById(R.id.localFolderText);
 		changeLocalFolderButton = (Button) findViewById(R.id.changeLocalFolderButton);
+		webserverEdit = (EditText) findViewById(R.id.webserverEdit);
 		showDebugLoggingCheckBox = (CheckBox)findViewById(R.id.showDebugLoggingCheckbox);
 		okButton = (Button) findViewById(R.id.okButton);
 
@@ -193,6 +196,13 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 	}
 
 	@Override
+	public void finish() {
+		clientModel.setSharedServer(webserverEdit.getText().toString());
+		clientModel.savePreferences(this);
+		super.finish();
+	}
+
+	@Override
 	protected void onStart() {
 		super.onStart();
 	}
@@ -230,6 +240,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		powerSaverCheckBox.setChecked(clientModel.isPowerSaver());
 		localFolderText.setText(clientModel.getLocalFolder());
 		showDebugLoggingCheckBox.setChecked(clientModel.isShowDebugLogging());
+		webserverEdit.setText(clientModel.getSharedServer());
 	}
 
 	public void onItemSelected(AdapterView av, View view, int arg1, long arg2) {
