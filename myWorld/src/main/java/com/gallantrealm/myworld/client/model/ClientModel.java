@@ -984,12 +984,13 @@ public abstract class ClientModel {
 	}
 
 	public void startAvatarAction(int actionId, float x, float y) {
-		if (world != null && actionId < world.getAvatarActions().length && world.getAvatarActions()[actionId] instanceof PauseAction) {
+		if (world == null || world.getAvatarActions() == null || actionId >= world.getAvatarActions().length) {
+			return;
+		}
+		if (world.getAvatarActions()[actionId] instanceof PauseAction) {
 			world.getAvatarActions()[actionId].start();
 		} else {
-			if (world == null || actionId >= world.getAvatarActions().length) {
-				return;
-			} else if (world.getAvatarActions()[actionId] == null) {
+			if (world.getAvatarActions()[actionId] == null) {
 				return;
 			}
 			world.startAvatarAction(actionId, x, y);
