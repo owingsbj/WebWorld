@@ -210,7 +210,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 	public synchronized final int getNormalTexture(String textureName, boolean pixelate) {
 		if (textureName == null) {
-			textureName = "white";
+			textureName = "flat";
 		}
 		if (textureName.endsWith(".png")) {
 			textureName = textureName.substring(0, textureName.length() - 4) + "_nrm.png";
@@ -238,35 +238,27 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 						}
 					}
 				} else {
-					int id = 0;
-					if (textureName.equals("white_nrm.png")) {
-						id = R.raw.white_nrm;
-					}
 					if (isPkm) {
 						return genCompressedTexture(textureName);
 					} else {
-						if (id != 0) { // open a resource
-							is = context.getResources().openRawResource(id); // raw resource
-						} else { // open an asset or local file
+						try {
+							is = context.getAssets().open(textureName); // asset
+						} catch (Exception e) {
 							try {
-								is = context.getAssets().open(textureName); // asset
-							} catch (Exception e) {
-								try {
-									File file = new File(context.getFilesDir(), textureName); // local file
-									is = new BufferedInputStream(new FileInputStream(file), 65536);
-								} catch (Exception e2) {
-									// not there
-								}
+								File file = new File(context.getFilesDir(), textureName); // local file
+								is = new BufferedInputStream(new FileInputStream(file), 65536);
+							} catch (Exception e2) {
+								// not there
 							}
 						}
-						if (is == null) {
-							is = context.getResources().openRawResource(R.raw.white_nrm); // raw resource
+						if (is != null) {
+							bitmap = BitmapFactory.decodeStream(is);
 						}
-						bitmap = BitmapFactory.decodeStream(is);
 					}
 				}
 				if (bitmap == null) { // a failure
-					int textureId = getNormalTexture("white", true); // use white
+					System.out.println("AndroidRenderer.getNormalTexture couldn't find " + textureName + " so will use flat_nrm.png");
+					int textureId = getNormalTexture("flat", true);
 					normalTextureCache.put(textureName, textureId);
 					return textureId;
 				}
@@ -440,21 +432,14 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 						}
 					}
 				} else {
-					int id = 0;
-					if (textureName.equals("surface_select")) {
-						id = R.raw.surface_select;
-					} else if (textureName.equals("white")) {
-						id = R.raw.white;
-					}
 					if (isPkm) {
 						return genCompressedTexture(textureName);
 					} else {
-						if (id != 0) { // open a resource
-							is = context.getResources().openRawResource(id); // raw resource
-						} else if (textureName.startsWith("/")) { // fully qualified file name
+						if (textureName.startsWith("/")) { // fully qualified file name
 							try {
 								File file = new File(textureName);
 								is = new BufferedInputStream(new FileInputStream(file), 65536);
+								bitmap = BitmapFactory.decodeStream(is);
 							} catch (Exception e2) {
 								// not there
 							}
@@ -465,20 +450,18 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 //									return genCompressedTexture(textureName);
 //								} catch (Exception e) {
 								is = context.getAssets().open(textureName + ".png"); // asset
+								bitmap = BitmapFactory.decodeStream(is);
 //								}
 							} catch (Exception e) {
 								try {
 									File file = new File(context.getFilesDir(), textureName + ".png"); // local file
 									is = new BufferedInputStream(new FileInputStream(file), 65536);
+									bitmap = BitmapFactory.decodeStream(is);
 								} catch (Exception e2) {
 									// not there
 								}
 							}
 						}
-						if (is == null) {
-							return 0;
-						}
-						bitmap = BitmapFactory.decodeStream(is);
 					}
 				}
 				if (bitmap == null) { // problems
