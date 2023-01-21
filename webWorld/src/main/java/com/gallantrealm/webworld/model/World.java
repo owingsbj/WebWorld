@@ -200,9 +200,9 @@ public class World extends WWWorld {
 			ContextFactory.initGlobal(new ContextFactory() {
 				@Override
 				protected boolean hasFeature(Context cx, int featureIndex) {
-					if (featureIndex == Context.FEATURE_STRICT_MODE) {
-						return true;
-					}
+//					if (featureIndex == Context.FEATURE_STRICT_MODE) {
+//						return true;
+//					}
 					if (featureIndex == Context.FEATURE_WARNING_AS_ERROR) {
 						return true;
 					}
