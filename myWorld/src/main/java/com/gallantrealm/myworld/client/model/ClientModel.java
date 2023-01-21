@@ -1254,6 +1254,7 @@ public abstract class ClientModel {
 			editor.putString("avatarDisplayName" + i, avatarDisplayNames[i]);
 		}
 		editor.putString("localFolder", localFolder);
+		editor.putString("sharedServer", sharedServer);
 		editor.putBoolean("showDebugLogging", showDebugLogging);
 		editor.commit();
 	}
