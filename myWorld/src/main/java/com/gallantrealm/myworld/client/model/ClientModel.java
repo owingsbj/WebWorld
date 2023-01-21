@@ -1210,7 +1210,7 @@ public abstract class ClientModel {
 			avatarDisplayNames[i] = preferences.getString("avatarDisplayName" + i, null);
 		}
 		localFolder = preferences.getString("localFolder", Environment.getExternalStorageDirectory().toString() + "/webworlds");
-		sharedServer = preferences.getString("sharedServer", "http://10.0.0.2:8080"); // "https://gallantrealm.com/webworlds");
+		sharedServer = preferences.getString("sharedServer", "https://gallantrealm.com/webworld");
 		showDebugLogging = preferences.getBoolean("showDebugLogging", false);
 	}
 
