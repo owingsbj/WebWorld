@@ -93,8 +93,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 
 	private Dialog currentDialog;
 
-	RerenderThread rerenderThread;
-
 	Timer controllerTimer;
 	TimerTask controllerTimerTask;
 
@@ -672,9 +670,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		super.onStop();
 		wakelock.release();
 		worldView.onPause();
-		if (rerenderThread != null) {
-			rerenderThread.safeStop();
-		}
 		mogaController.exit();
 		if (clientModel.isLocalWorld()) {
 			if (clientModel.world != null) {
@@ -1237,37 +1232,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			status += " " + getString(R.string.scoreLabel) + " " + clientModel.world.getScore();
 		}
 		setStatus(status);
-	}
-
-	public class RerenderThread extends Thread {
-
-		public RerenderThread() {
-			setName("RerenderThread");
-		}
-
-		boolean stopit;
-
-		public void safeStop() {
-			stopit = true;
-		}
-
-		@Override
-		public void run() {
-			while (!stopit) {
-				long startTime = System.currentTimeMillis();
-				worldView.requestRender();
-				long loopTime = System.currentTimeMillis() - startTime;
-				updatePosition();
-				try {
-					if (clientModel.getRefreshRate() - loopTime > 0) {
-						Thread.sleep(Math.max(0, clientModel.getRefreshRate() - loopTime));
-					}
-				} catch (InterruptedException e) {
-					return;
-				}
-			}
-			stopit = false;
-		}
 	}
 
 	public void setTitle(final String title) {
