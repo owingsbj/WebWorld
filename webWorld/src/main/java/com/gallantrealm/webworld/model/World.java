@@ -597,12 +597,6 @@ public class World extends WWWorld {
 		}
 	}
 
-	@Override
-	public void setStatus(String status) {
-		super.setStatus(status);
-		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_WWMODEL_UPDATED);
-	}
-
 	public final long getTime() {
 		return getWorldTime();
 	}

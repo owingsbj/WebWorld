@@ -1138,6 +1138,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	public void setStatus(String status) {
 		this.status = status;
 		this.setLastModifyTime(getWorldTime());
+		ClientModel.getClientModel().fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_WWMODEL_UPDATED);
 	}
 
 	public float getRenderingThreshold() {
