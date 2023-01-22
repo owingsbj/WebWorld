@@ -16,4 +16,8 @@ local.properties
 keystore.properties
 /todo.txt
 /release/
-/webWorld/release/*
+/myAndroid/build/
+/myScript/build/
+/myWorld/build/
+/webWorld/build/
+/webWorld/release/
