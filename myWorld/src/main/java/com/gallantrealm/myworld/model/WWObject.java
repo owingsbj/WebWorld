@@ -2090,6 +2090,21 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		setTexture(SIDE_ALL, texture);
 	}
 
+	/**
+	 * This is a simple texture setter, that uses the same texture
+	 * on all sides of the object, and scales the texture so that it looks
+	 * uniform on all sides.
+	 */
+	public final void setTexture(String textureName) {
+		setTextureURL(SIDE_ALL, textureName);
+		setTextureScale(SIDE_TOP, 10 / sizeX, 10 / sizeY);
+		setTextureScale(SIDE_BOTTOM, 10 / sizeX, 10 / sizeY);
+		setTextureScale(SIDE_SIDE1, 10 / sizeX, 10 / sizeZ);
+		setTextureScale(SIDE_SIDE2, 10 / sizeY, 10 / sizeZ);
+		setTextureScale(SIDE_SIDE3, 10 / sizeX, 10 / sizeZ);
+		setTextureScale(SIDE_SIDE4, 10 / sizeY, 10 / sizeZ);
+	}
+
 	public final void setTextureTop(WWTexture texture) {
 		setTexture(SIDE_TOP, texture);
 	}
