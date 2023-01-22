@@ -14,7 +14,7 @@ public class ClientModelChangedEvent {
 	public static int EVENT_TYPE_RENDERING_UPDATED = 7;
 	public static int EVENT_TYPE_FIELD_OF_VIEW_CHANGED = 8;
 	public static int EVENT_TYPE_STYLE_CHANGED = 9;
-	public static int EVENT_TYPE_REFRESH_RATE_CHANGED = 10;
+	public static int EVENT_TYPE_FRAME_RATE_CHANGED = 10;
 	public static int EVENT_TYPE_ANTIALIAS_CHANGED = 11;
 	public static int EVENT_TYPE_RENDERING_THRESHOLD_CHANGED = 12;
 	public static int EVENT_TYPE_SELECTED_GAME_CHANGED = 13;

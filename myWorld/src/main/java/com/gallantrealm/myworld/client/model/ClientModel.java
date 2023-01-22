@@ -158,7 +158,7 @@ public abstract class ClientModel {
 	// Static will allow them to be shared across all instances of client applets in the browser session
 	public static boolean localPhysicsThread = true;
 	public static float fieldOfView = 90;
-	public static int refreshRate = 100;
+	public static int frameRate = 60;
 	public static boolean antialias = false;
 	public static String[] logMessages = new String[MAX_LOG_LINES];
 
@@ -219,13 +219,13 @@ public abstract class ClientModel {
 	protected void initFromPreferences() {
 		String fieldOfViewString = preferences.get("FieldOfView", "90.0");
 		setFieldOfView(Float.parseFloat(fieldOfViewString));
-		String refreshRateString;
+		String frameRateString;
 		if (Runtime.getRuntime().availableProcessors() > 1) {
-			refreshRateString = preferences.get("RefreshRate", "16"); // 60 fps
+			frameRateString = preferences.get("FrameRate", "16"); // 60 fps
 		} else {
-			refreshRateString = preferences.get("RefreshRate", "33"); // 30 fps
+			frameRateString = preferences.get("FrameRate", "33"); // 30 fps
 		}
-		setRefreshRate(Integer.parseInt(refreshRateString));
+		setFrameRate(Integer.parseInt(frameRateString));
 		String antialiasString = preferences.get("Antialias", "false");
 		setAntialias(Boolean.parseBoolean(antialiasString));
 		String localPhysicsThreadString = preferences.get("LocalPhysicsThread", "true");
@@ -309,20 +309,17 @@ public abstract class ClientModel {
 		fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_NAVIGATOR_FIELD_UPDATED);
 	}
 
-	public final int getRefreshRate() {
+	public final int getFrameRate() {
 		if (((ClientModel) this).isPowerSaver()) {
 			return 100;  // 10 fps
 		} else {
-			return 33;   // 30 fps
+			return 1000 / frameRate;
 		}
 	}
 
-	public void setRefreshRate(int r) {
-		refreshRate = r;
-		if (preferences != null) {
-			preferences.put("RefreshRate", String.valueOf(refreshRate));
-		}
-		fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_REFRESH_RATE_CHANGED);
+	public void setFrameRate(int r) {
+		frameRate = r;
+		fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_FRAME_RATE_CHANGED);
 	}
 
 	public boolean getAntialias() {
@@ -1212,6 +1209,7 @@ public abstract class ClientModel {
 		localFolder = preferences.getString("localFolder", Environment.getExternalStorageDirectory().toString() + "/webworlds");
 		sharedServer = preferences.getString("sharedServer", "https://gallantrealm.com/webworld");
 		showDebugLogging = preferences.getBoolean("showDebugLogging", false);
+		frameRate = preferences.getInt("frameRate", 60);
 	}
 
 	public void setContext(Activity context) {
@@ -1256,6 +1254,7 @@ public abstract class ClientModel {
 		editor.putString("localFolder", localFolder);
 		editor.putString("sharedServer", sharedServer);
 		editor.putBoolean("showDebugLogging", showDebugLogging);
+		editor.putInt("frameRate", frameRate);
 		editor.commit();
 	}
 

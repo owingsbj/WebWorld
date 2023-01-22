@@ -1148,7 +1148,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			this.finish();
 		} else if (event.getEventType() == ClientModelChangedEvent.EVENT_TYPE_FIELD_OF_VIEW_CHANGED) {
 			// getView().setFieldOfView(Math.toRadians(clientModel.getFieldOfView()));
-		} else if (event.getEventType() == ClientModelChangedEvent.EVENT_TYPE_REFRESH_RATE_CHANGED) {
+		} else if (event.getEventType() == ClientModelChangedEvent.EVENT_TYPE_FRAME_RATE_CHANGED) {
 			// universe.getViewer().getView().setMinimumFrameCycleTime(clientModel.getRefreshRate());
 		} else if (event.getEventType() == ClientModelChangedEvent.EVENT_TYPE_ANTIALIAS_CHANGED) {
 			// universe.getViewer().getView().setSceneAntialiasingEnable(clientModel.getAntialias());
