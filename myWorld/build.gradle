@@ -31,7 +31,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.7.0'
     implementation files('libs/amazon-ads-5.4.227.jar')
-    implementation files('libs/com.bda.controller.jar')
     implementation files('libs/HTCSDK.jar')
     implementation files('libs/real3d.jar')
     implementation project(path: ':myAndroid')

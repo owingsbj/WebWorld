@@ -1146,7 +1146,6 @@ public abstract class ClientModel {
 	private boolean useSensors;
 	private boolean useScreenControl;
 	private boolean controlOnLeft;
-	public boolean usingMoga;
 	private float controlSensitivity = 1.0f;
 
 	public void selectAlert(final String message, final Object[] availableItems, final String[] options, SelectResponseHandler handler) {
@@ -1204,7 +1203,6 @@ public abstract class ClientModel {
 		useSensors = preferences.getBoolean("useSensors", false);
 		useScreenControl = preferences.getBoolean("showScreenControls", true);
 		controlOnLeft = preferences.getBoolean("controlOnLeft", true);
-		usingMoga = false; // this is determined dynamically now, by querying for a moga controller
 		controlSensitivity = preferences.getFloat("controlSensitivity", 0.5f);
 		stereoscopic = preferences.getBoolean("stereoscopic", false);
 		if (preferencesVersion == 0) {
@@ -1445,7 +1443,7 @@ public abstract class ClientModel {
 	}
 
 	public boolean useSensors() {
-		return useSensors && canUseSensors() && !useMoga(context) && !useGamepad(context);
+		return useSensors && canUseSensors() && !useGamepad(context);
 	}
 
 	public void setUseSensors(boolean useSensors) {
@@ -1466,58 +1464,12 @@ public abstract class ClientModel {
 		return false;
 	}
 
-	public boolean useMoga(Context context) {
-		if (usingMoga) { // if ever moga was found, use it
-			return true;
-		}
-		if (context instanceof GallantActivity) {
-			com.bda.controller.Controller mogaController = ((GallantActivity) context).mogaController;
-			if (mogaController == null) {
-				return false;
-			}
-			usingMoga = mogaController.getState(com.bda.controller.Controller.STATE_CONNECTION) == com.bda.controller.Controller.ACTION_CONNECTED;
-			return usingMoga;
-		} else if (context instanceof ShowWorldActivity) {
-			com.bda.controller.Controller mogaController = ((ShowWorldActivity) context).mogaController;
-			if (mogaController == null) {
-				return false;
-			}
-			usingMoga = mogaController.getState(com.bda.controller.Controller.STATE_CONNECTION) == com.bda.controller.Controller.ACTION_CONNECTED;
-			return usingMoga;
-		} else {
-			return false;
-		}
-	}
-
-	public boolean isMogaPocket() {
-		if (!useMoga(context)) {
-			return false;
-		}
-		if (context instanceof GallantActivity) {
-			com.bda.controller.Controller mogaController = ((GallantActivity) context).mogaController;
-			if (mogaController == null) {
-				return false;
-			} else {
-				return mogaController.getState(com.bda.controller.Controller.STATE_CURRENT_PRODUCT_VERSION) == com.bda.controller.Controller.ACTION_VERSION_MOGA;
-			}
-		} else if (context instanceof ShowWorldActivity) {
-			com.bda.controller.Controller mogaController = ((ShowWorldActivity) context).mogaController;
-			if (mogaController == null) {
-				return false;
-			}
-			boolean isMogaPocket = mogaController.getState(com.bda.controller.Controller.STATE_CURRENT_PRODUCT_VERSION) == com.bda.controller.Controller.ACTION_VERSION_MOGA;
-			return isMogaPocket;
-		} else {
-			return false;
-		}
-	}
-
 	public void calibrateSensors() {
 		fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_CALIBRATE_SENSORS);
 	}
 
 	public boolean useScreenControl() {
-		return useScreenControl && !useMoga(context); // && hasTouchScreen();
+		return useScreenControl;
 	}
 
 	public void setUseScreenControl(boolean useScreenControl) {
@@ -1867,7 +1819,7 @@ public abstract class ClientModel {
 	}
 
 	public void showPopupAd() {
-		if (context.getString(R.string.showPopupAds).equals("true") && !isFullVersion() && !useMoga(context)) {
+		if (context.getString(R.string.showPopupAds).equals("true") && !isFullVersion()) {
 			System.out.println("POPUP AD!!!!!");
 			new AdDialog(context).show();
 		}

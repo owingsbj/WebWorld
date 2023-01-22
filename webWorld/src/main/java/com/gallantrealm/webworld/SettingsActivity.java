@@ -80,23 +80,18 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		// power saver no longer featured
 		powerSaverCheckBox.setVisibility(View.GONE);
 
-		if (clientModel.useMoga(this)) {
+		if (clientModel.canUseScreenControl() && clientModel.canUseSensors()) {
+			controlTypeAdapter = new ArrayAdapter(this, com.gallantrealm.android.R.layout.spinner_item, new String[] { "Screen Left", "Screen Right", "Tilt", "Controller" });
+		} else if (clientModel.canUseScreenControl()) {
+			controlTypeAdapter = new ArrayAdapter(this, com.gallantrealm.android.R.layout.spinner_item, new String[] { "Screen Left", "Screen Right", "Controller" });
+		} else {
 			controlTypeLabel.setVisibility(View.GONE);
 			controlType.setVisibility(View.GONE);
-		} else {
-			if (clientModel.canUseScreenControl() && clientModel.canUseSensors()) {
-				controlTypeAdapter = new ArrayAdapter(this, com.gallantrealm.android.R.layout.spinner_item, new String[] { "Screen Left", "Screen Right", "Tilt", "Controller" });
-			} else if (clientModel.canUseScreenControl()) {
-				controlTypeAdapter = new ArrayAdapter(this, com.gallantrealm.android.R.layout.spinner_item, new String[] { "Screen Left", "Screen Right", "Controller" });
-			} else {
-				controlTypeLabel.setVisibility(View.GONE);
-				controlType.setVisibility(View.GONE);
-			}
-			if (controlTypeAdapter != null) {
-				controlTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-				controlType.setAdapter(controlTypeAdapter);
-				controlType.setOnItemSelectedListener(this);
-			}
+		}
+		if (controlTypeAdapter != null) {
+			controlTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+			controlType.setAdapter(controlTypeAdapter);
+			controlType.setOnItemSelectedListener(this);
 		}
 
 		controlSensitivity.setProgress((int) (clientModel.getControlSensitivity() * 100));

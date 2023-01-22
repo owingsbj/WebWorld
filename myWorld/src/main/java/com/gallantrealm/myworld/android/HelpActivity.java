@@ -83,11 +83,8 @@ public class HelpActivity extends GallantActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		if (clientModel.useMoga(this)) {
-			helpView.loadUrl("file:///android_asset/mogahelp.html");
-		} else {
-			helpView.loadUrl("file:///android_asset/help.html");
-		}
+		helpView.loadUrl("file:///android_asset/help.html");
+
 		// use a transparent background for help backgrounds that are semi-transarent to show through
 		helpView.setBackgroundColor(0x80404040);
 		if (Build.VERSION.SDK_INT >= 11) {

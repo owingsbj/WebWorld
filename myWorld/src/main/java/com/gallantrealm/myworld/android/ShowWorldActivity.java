@@ -49,7 +49,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
-public class ShowWorldActivity extends GallantActivity implements OnTouchListener, ClientModelChangedListener, AlertListener, SensorEventListener, com.bda.controller.ControllerListener {
+public class ShowWorldActivity extends GallantActivity implements OnTouchListener, ClientModelChangedListener, AlertListener, SensorEventListener {
 
 	PowerManager.WakeLock wakelock;
 	SensorManager sensorManager;
@@ -138,9 +138,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		}
 
 	}
-
-	/** Moga support. */
-	public com.bda.controller.Controller mogaController;
 
 	private boolean isGamepadConnected() {
 		InputManager inputManager = (InputManager) this.getSystemService(Context.INPUT_SERVICE);
@@ -295,13 +292,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 	protected void onStart() {
 		System.out.println(">ShowWorldActivity.onStart");
 		super.onStart();
-		try {
-			mogaController = com.bda.controller.Controller.getInstance(this);
-			mogaController.init();
-			mogaController.setListener(this, new Handler());
-		} catch (Exception e) { // fails on android 5.0
-			System.out.println(e);
-		}
 
 		clientModel.setContext(this);
 
@@ -641,7 +631,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			// }
 		}
 		super.onResume();
-		mogaController.onResume();
 		System.out.println("<ShowWorldActivity.onResume");
 	}
 
@@ -658,7 +647,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			controllerTimerTask.cancel();
 			controllerTimerTask = null;
 		}
-		mogaController.onPause();
 
 		worldRenderer.getSoundGenerator().pause();
 		System.out.println("<ShowWorldActivity.onPause");
@@ -670,7 +658,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		super.onStop();
 		wakelock.release();
 		worldView.onPause();
-		mogaController.exit();
 		if (clientModel.isLocalWorld()) {
 			if (clientModel.world != null) {
 				clientModel.world.pause();
@@ -1458,29 +1445,17 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			clientModel.startWorldAction(0); // typically pause
 			return true;
 		} else if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_W) {
-			if (!clientModel.isMogaPocket()) { // ignore as pocket uses dpad and joystick overlapped, and we use the joystick
-				usingDPad = true;
-				dPadUpDown = true;
-			}
-			return true;
+			usingDPad = true;
+			dPadUpDown = true;
 		} else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_S) {
-			if (!clientModel.isMogaPocket()) { // ignore as pocket uses dpad and joystick overlapped, and we use the joystick
-				usingDPad = true;
-				dPadDownDown = true;
-			}
-			return true;
+			usingDPad = true;
+			dPadDownDown = true;
 		} else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_A) {
-			if (!clientModel.isMogaPocket()) { // ignore as pocket uses dpad and joystick overlapped, and we use the joystick
-				usingDPad = true;
-				dPadLeftDown = true;
-			}
-			return true;
+			usingDPad = true;
+			dPadLeftDown = true;
 		} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_D) {
-			if (!clientModel.isMogaPocket()) { // ignore as pocket uses dpad and joystick overlapped, and we use the joystick
-				usingDPad = true;
-				dPadRightDown = true;
-			}
-			return true;
+			usingDPad = true;
+			dPadRightDown = true;
 		} else if (keyCode == KeyEvent.KEYCODE_BUTTON_R1 || keyCode == KeyEvent.KEYCODE_BUTTON_R2) {
 			if (clientModel.getAvatarActionLabel(0) != null) {
 				clientModel.startAvatarAction(0, 0, 0);
@@ -1703,8 +1678,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		}
 	}
 
-	// Moga support
-
 	private void sendKey(final int keyCode) {
 		new Thread() {
 			@Override
@@ -1717,46 +1690,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 				}
 			}
 		}.start();
-	}
-
-	@Override
-	public void onKeyEvent(com.bda.controller.KeyEvent event) {
-		if (currentDialog != null) {
-			currentDialog.dispatchKeyEvent(new KeyEvent(event.getAction(), event.getKeyCode()));
-			if (event.getAction() == com.bda.controller.KeyEvent.ACTION_DOWN) {
-				sendKey(event.getKeyCode());
-			}
-		} else {
-			dispatchKeyEvent(new KeyEvent(event.getAction(), event.getKeyCode()));
-		}
-	}
-
-	@Override
-	public void onMotionEvent(com.bda.controller.MotionEvent event) {
-		float x = event.getAxisValue(com.bda.controller.MotionEvent.AXIS_X);
-		float y = event.getAxisValue(com.bda.controller.MotionEvent.AXIS_Y);
-		if (x == 0 && y == 0) {
-			x = event.getAxisValue(com.bda.controller.MotionEvent.AXIS_Z);
-			y = event.getAxisValue(com.bda.controller.MotionEvent.AXIS_RZ);
-		}
-		if (Math.abs(x) > 0.25f || Math.abs(y) > 0.25f) { // reset dpad
-			usingDPad = false;
-			dPadUpDown = false;
-			dPadDownDown = false;
-			dPadLeftDown = false;
-			dPadRightDown = false;
-		}
-		if (dPadUpDown) {
-			y = 1;
-		} else if (dPadDownDown) {
-			y = -1;
-		}
-		controller(-x * 50, -y * 50);
-	}
-
-	@Override
-	public void onStateEvent(com.bda.controller.StateEvent event) {
-		System.out.println("Moga state");
 	}
 
 	@SuppressLint("NewApi")
