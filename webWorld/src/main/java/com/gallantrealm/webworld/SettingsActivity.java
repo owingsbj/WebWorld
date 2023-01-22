@@ -4,6 +4,8 @@ import com.gallantrealm.android.FolderSelectorDialog;
 import com.gallantrealm.myworld.android.GallantActivity;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
 import com.gallantrealm.myworld.client.model.ClientModelChangedListener;
+
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
@@ -31,11 +33,8 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 	CheckBox viewIn3dCheckBox;
 	CheckBox simpleRenderingCheckBox;
 	CheckBox powerSaverCheckBox;
-	TextView localFolderText;
-	Button changeLocalFolderButton;
-	EditText webserverEdit;
-	CheckBox showDebugLoggingCheckBox;
 	Button okButton;
+	Button developerSettingsButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +54,8 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		viewIn3dCheckBox = (CheckBox) findViewById(R.id.viewIn3dCheckbox);
 		simpleRenderingCheckBox = (CheckBox) findViewById(R.id.simpleRenderingCheckBox);
 		powerSaverCheckBox = (CheckBox) findViewById(R.id.powerSaverCheckBox);
-		localFolderText = (TextView) findViewById(R.id.localFolderText);
-		changeLocalFolderButton = (Button) findViewById(R.id.changeLocalFolderButton);
-		webserverEdit = (EditText) findViewById(R.id.webserverEdit);
-		showDebugLoggingCheckBox = (CheckBox)findViewById(R.id.showDebugLoggingCheckbox);
 		okButton = (Button) findViewById(R.id.okButton);
+		developerSettingsButton = (Button)findViewById(R.id.developerSettingsButton);
 
 		// shadows aren't working yet.
 		// showShadowsCheckBox.setVisibility(View.GONE);
@@ -126,9 +122,8 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		viewIn3dCheckBox.setOnClickListener(this);
 		simpleRenderingCheckBox.setOnClickListener(this);
 		powerSaverCheckBox.setOnClickListener(this);
-		changeLocalFolderButton.setOnClickListener(this);
-		showDebugLoggingCheckBox.setOnClickListener(this);
 		okButton.setOnClickListener(this);
+		developerSettingsButton.setOnClickListener(this);
 
 		clientModel.loadPreferences(this);
 
@@ -170,26 +165,14 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 			clientModel.setPowerSaver(powerSaverCheckBox.isChecked());
 			clientModel.savePreferences(this);
 			updateSettings();
-		} else if (v.equals(changeLocalFolderButton)) {
-			FolderSelectorDialog fileSelectorDialog = new FolderSelectorDialog(this, "Select local folder");
-			String initialFolder = clientModel.getLocalFolder();
-			if (!initialFolder.endsWith("/")) {
-				initialFolder += "/";
+		} else if (v.equals(developerSettingsButton)) {
+			try {
+				Class activityClass = SettingsActivity.this.getClassLoader().loadClass("com.gallantrealm.webworld.DeveloperSettingsActivity");
+				Intent intent = new Intent(SettingsActivity.this, activityClass);
+				startActivity(intent);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			fileSelectorDialog.show(initialFolder, new FolderSelectorDialog.SelectionListener() {
-				public void onFolderSelected(final String folder) {
-					SettingsActivity.this.runOnUiThread(new Runnable() {
-						public void run() {
-							localFolderText.setText(folder);
-							clientModel.setLocalFolder(folder);
-						}
-					});
-				}
-			});
-		} else if (v.equals(showDebugLoggingCheckBox)) {
-			clientModel.setShowDebugLogging(showDebugLoggingCheckBox.isChecked());
-			clientModel.savePreferences(this);
-			updateSettings();
 		} else if (v.equals(okButton)) {
 			this.finish();
 		}
@@ -197,7 +180,6 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 
 	@Override
 	public void finish() {
-		clientModel.setSharedServer(webserverEdit.getText().toString());
 		clientModel.savePreferences(this);
 		super.finish();
 	}
@@ -238,9 +220,6 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		viewIn3dCheckBox.setChecked(clientModel.isStereoscopic());
 		simpleRenderingCheckBox.setChecked(clientModel.isSimpleRendering());
 		powerSaverCheckBox.setChecked(clientModel.isPowerSaver());
-		localFolderText.setText(clientModel.getLocalFolder());
-		showDebugLoggingCheckBox.setChecked(clientModel.isShowDebugLogging());
-		webserverEdit.setText(clientModel.getSharedServer());
 	}
 
 	public void onItemSelected(AdapterView av, View view, int arg1, long arg2) {

@@ -233,7 +233,9 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					Bitmap unscaledBitmap = readImageTexture(uri);
 					if (unscaledBitmap != null) {
 						bitmap = Bitmap.createScaledBitmap(unscaledBitmap, 256, 256, false);
-						if (unscaledBitmap != bitmap) {
+						if (bitmap == null) {
+							bitmap = unscaledBitmap;
+						} else 	if (unscaledBitmap != bitmap) {
 							unscaledBitmap.recycle();
 						}
 					}
@@ -752,9 +754,11 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 	}
 
+	static long lastStatusUpdateTime;
+
 	@Override
 	public void onDrawFrame(GL10 unused) {
-			GLES20.glGetError(); // to clear error flag
+		GLES20.glGetError(); // to clear error flag
 	
 			if (!surfaceCreated) { // happens early when creating surface
 				return;
@@ -776,21 +780,18 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				if (world.getPhysicsIterationTime() == 0) { // physics running on rendering thread
 					world.performPhysicsIteration(Math.min(drawFrameTime - lastDrawFrameTime, 50));
 				}
-	
+
 				// wait long enough for 30 fps (or 10 fps for power saver)
 				try {
-					if (clientModel.isPowerSaver()) {
-						Thread.sleep(Math.max(0, 100 - (drawFrameTime - lastDrawFrameTime)));
-					} else {
-						Thread.sleep(Math.max(0, 33 - (drawFrameTime - lastDrawFrameTime)));
+					Thread.sleep(Math.max(0, clientModel.getFrameRate() - (drawFrameTime - lastDrawFrameTime)));
+					drawFrameTime = System.currentTimeMillis();
+					if (lastStatusUpdateTime < drawFrameTime - 1000) {
+						clientModel.setActualFrameRate((int)(1000 / (drawFrameTime - lastDrawFrameTime)));
+						lastStatusUpdateTime = drawFrameTime;
 					}
 				} catch (InterruptedException e) {
 				}
 	
-				// Enable the code below to print frame rate
-	//			if (drawFrameCount++ % 90 == 0) {
-	//				System.out.println(1000 / (drawFrameTime - lastDrawFrameTime));
-	//			}
 				lastDrawFrameTime = drawFrameTime;
 	
 				GLWorld worldRendering = (GLWorld) world.getRendering();
@@ -1009,7 +1010,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				positionCamera(time);
 	
 				// Three times a second, check for changes to the rendering and render/derender objects
-				if ((nrenders % (333 / clientModel.getRefreshRate())) == 0) {
+				if ((nrenders % (333 / clientModel.getFrameRate())) == 0) {
 	
 					if (clearRenderings) {
 						System.out.println("clear renderings entered");

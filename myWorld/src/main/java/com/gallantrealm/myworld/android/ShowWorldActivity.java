@@ -1194,6 +1194,10 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			calibrateSensors();
 		} else if (event.getEventType() == ClientModelChangedEvent.EVENT_TYPE_LOG_UPDATED) {
 			updateLogText();
+		} else if (event.getEventType() == ClientModelChangedEvent.EVENT_TYPE_ACTUAL_FRAME_RATE_CHANGED) {
+			if (clientModel.isDisplayActualFrameRate()) {
+				updateTitleAndStatus();
+			}
 		}
 	}
 
@@ -1227,7 +1231,11 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		}
 
 		// Status (include score and anything the world added as status)
-		String status = clientModel.world.getStatus();
+		String status = "";
+		if (clientModel.isDisplayActualFrameRate()) {
+			status += clientModel.getActualFrameRate() + " FPS - ";
+		}
+		status += clientModel.world.getStatus();
 		if (clientModel.world.getScore() >= 0) {
 			status += " " + getString(R.string.scoreLabel) + " " + clientModel.world.getScore();
 		}

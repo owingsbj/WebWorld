@@ -159,6 +159,8 @@ public abstract class ClientModel {
 	public static boolean localPhysicsThread = true;
 	public static float fieldOfView = 90;
 	public static int frameRate = 60;
+	public static int actualFrameRate;  // what is actually being experienced
+	public static boolean displayActualFrameRate = false;
 	public static boolean antialias = false;
 	public static String[] logMessages = new String[MAX_LOG_LINES];
 
@@ -320,6 +322,23 @@ public abstract class ClientModel {
 	public void setFrameRate(int r) {
 		frameRate = r;
 		fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_FRAME_RATE_CHANGED);
+	}
+
+	public final int getActualFrameRate() {
+		return actualFrameRate;
+	}
+
+	public final void setActualFrameRate(int actualFrameRate) {
+		this.actualFrameRate = actualFrameRate;
+		fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_ACTUAL_FRAME_RATE_CHANGED);
+	}
+
+	public final boolean isDisplayActualFrameRate() {
+		return displayActualFrameRate;
+	}
+
+	public final void setDisplayActualFrameRate(boolean displayActualFrameRate) {
+		this.displayActualFrameRate = displayActualFrameRate;
 	}
 
 	public boolean getAntialias() {
@@ -1210,6 +1229,7 @@ public abstract class ClientModel {
 		sharedServer = preferences.getString("sharedServer", "https://gallantrealm.com/webworld");
 		showDebugLogging = preferences.getBoolean("showDebugLogging", false);
 		frameRate = preferences.getInt("frameRate", 60);
+		displayActualFrameRate = preferences.getBoolean("displayActualFrameRate", false);
 	}
 
 	public void setContext(Activity context) {
@@ -1255,6 +1275,7 @@ public abstract class ClientModel {
 		editor.putString("sharedServer", sharedServer);
 		editor.putBoolean("showDebugLogging", showDebugLogging);
 		editor.putInt("frameRate", frameRate);
+		editor.putBoolean("displayActualFrameRate",  displayActualFrameRate);
 		editor.commit();
 	}
 

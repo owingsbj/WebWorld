@@ -31,6 +31,7 @@ public class ClientModelChangedEvent {
 	public static int EVENT_TYPE_OBJECT_SELECTED = 24;
 	public static int EVENT_TYPE_POINT_SELECTED = 25;
 	public static int EVENT_TYPE_LOG_UPDATED = 26;
+	public static int EVENT_TYPE_ACTUAL_FRAME_RATE_CHANGED = 27;
 
 	private final int eventType;
 
