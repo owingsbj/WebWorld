@@ -1,4 +1,4 @@
-# MyAndroid
+# myAndroid
 
 A library of widgets and tools I use in building android apps.
 
