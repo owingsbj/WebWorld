@@ -32,7 +32,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	private float positionY;
 	private float positionZ;
 	private WWQuaternion rotation = new WWQuaternion();
-	public WWVector rotationPoint = new WWVector();
+	public float rotationPointX;
+	public float rotationPointY;
+	public float rotationPointZ;
 
 	// Grouping properties
 	public int parentId;
@@ -151,6 +153,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		os.writeFloat(extentx);
 		os.writeFloat(extenty);
 		os.writeFloat(extentz);
+		os.writeFloat(rotationPointX);
+		os.writeFloat(rotationPointY);
+		os.writeFloat(rotationPointZ);
 		os.writeKnownObjectArray(sideAttributes);
 		os.writeInt(parentId);
 		os.writeBoolean(gluedToParent);
@@ -234,6 +239,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		extentx = is.readFloat();
 		extenty = is.readFloat();
 		extentz = is.readFloat();
+		rotationPointX = is.readFloat();
+		rotationPointY = is.readFloat();
+		rotationPointZ = is.readFloat();
 		sideAttributes = (SideAttributes[]) is.readKnownObjectArray(SideAttributes.class);
 		parentId = is.readInt();
 		gluedToParent = is.readBoolean();
@@ -524,11 +532,25 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final WWVector getRotationPoint() {
-		return rotationPoint;
+		return new WWVector(rotationPointX, rotationPointY, rotationPointZ);
+	}
+
+	public final void getRotationPoint(WWVector r) {
+		r.x = rotationPointX;
+		r.y = rotationPointY;
+		r.z = rotationPointZ;
+	}
+
+	public final void setRotationPoint(float[] rots) {
+		this.rotationPointX = rots[0];
+		this.rotationPointY = rots[1];
+		this.rotationPointZ = rots[2];
 	}
 
 	public final void setRotationPoint(WWVector rotationPoint) {
-		this.rotationPoint = rotationPoint;
+		this.rotationPointX = rotationPoint.x;
+		this.rotationPointY = rotationPoint.y;
+		this.rotationPointZ = rotationPoint.z;
 	}
 
 	public final WWVector getAbsolutePosition(long worldTime) {
@@ -676,8 +698,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		setOrientation(new WWVector(x, y, z), getRotation(getWorldTime()), null, null, getWorldTime());
 	}
 
-	public final void setPosition(double[] pos) {
-		setPosition((float)pos[0], (float)pos[1], (float)pos[2]);
+	public final void setPosition(float[] pos) {
+		setPosition(pos[0], pos[1], pos[2]);
 	}
 
 	public final void setStartPosition(WWVector v) {

@@ -89,6 +89,7 @@ public class XPhysicsThread extends Thread {
 
 		WWVector position = new WWVector();
 		WWQuaternion rotation = new WWQuaternion();
+		WWVector rotationPoint = new WWVector();
 		WWVector velocity = new WWVector();
 		WWVector aMomentum = new WWVector();
 		WWVector position2 = new WWVector();
@@ -115,6 +116,7 @@ public class XPhysicsThread extends Thread {
 					// Get current orientation and momentum values.
 					object.getPosition(position, worldTime);
 					object.getRotation(rotation, worldTime);
+					object.getRotationPoint(rotationPoint);
 					object.getVelocity(velocity);
 					object.getAMomentum(aMomentum);
 					WWVector thrust = object.getThrust();
@@ -151,7 +153,7 @@ public class XPhysicsThread extends Thread {
 								// vector points in the direction of the deepest overlap, and the length of the
 								// vector indicates the amount of overlap
 								object2.getRotation(rotation2, worldTime);
-								object.getOverlap(object2, position, rotation, object.rotationPoint, position2, rotation2, worldTime, tempPoint, tempPoint2, overlapPoint, overlapVector);
+								object.getOverlap(object2, position, rotation, rotationPoint, position2, rotation2, worldTime, tempPoint, tempPoint2, overlapPoint, overlapVector);
 
 								if (!overlapVector.isZero()) {
 

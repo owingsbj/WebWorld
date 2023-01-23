@@ -144,10 +144,10 @@ public abstract class GLObject extends GLRendering {
 			modelMatrix = new float[16];
 			Matrix.setIdentityM(modelMatrix, 0);
 			Matrix.translateM(modelMatrix, 0, position.x, position.z, position.y);
-			Matrix.translateM(modelMatrix, 0, object.rotationPoint.x, object.rotationPoint.z, object.rotationPoint.y);
+			Matrix.translateM(modelMatrix, 0, object.rotationPointX, object.rotationPointZ, object.rotationPointY);
 			rotation.toMatrix(tempMatrix);
 			Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, tempMatrix, 0);
-			Matrix.translateM(modelMatrix, 0, -object.rotationPoint.x, -object.rotationPoint.z, -object.rotationPoint.y);
+			Matrix.translateM(modelMatrix, 0, -object.rotationPointX, -object.rotationPointZ, -object.rotationPointY);
 			object.lastRenderingTime = worldTime;
 		}
 	}
