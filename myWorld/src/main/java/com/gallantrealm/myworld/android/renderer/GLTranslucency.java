@@ -524,7 +524,7 @@ public class GLTranslucency extends GLObject  {
 							String textureUrl = object.getTextureURL(side);
 							int textureId = renderer.getTexture(textureUrl, object.getTexturePixelate(side));
 							Matrix.setIdentityM(textureMatrix, 0);
-							Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].textureScaleX, 1.0f / object.sideAttributes[side].textureScaleY, 1.0f);
+							Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideTextures[side].scaleX, 1.0f / object.sideTextures[side].scaleY, 1.0f);
 							Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(side, worldTime), object.getTextureOffsetY(side, worldTime), 0.0f);
 							float textureRotation = object.getTextureRotation(side, worldTime);
 							if (textureRotation != 0.0f) {
@@ -575,7 +575,7 @@ public class GLTranslucency extends GLObject  {
 							String textureUrl = object.getTextureURL(side);
 							int textureId = renderer.getTexture(textureUrl, object.getTexturePixelate(side));
 							Matrix.setIdentityM(textureMatrix, 0);
-							Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].textureScaleX, 1.0f / object.sideAttributes[side].textureScaleY, 1.0f);
+							Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideTextures[side].scaleX, 1.0f / object.sideTextures[side].scaleY, 1.0f);
 							Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(side, worldTime), object.getTextureOffsetY(side, worldTime), 0.0f);
 							float textureRotation = object.getTextureRotation(side, worldTime);
 							if (textureRotation != 0.0f) {

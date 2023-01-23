@@ -1,6 +1,6 @@
 package com.gallantrealm.myworld.android.renderer;
 
-import com.gallantrealm.myworld.model.SideAttributes;
+import com.gallantrealm.myworld.model.WWTexture;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWParticleEmitter;
 
@@ -127,7 +127,7 @@ public class GLParticleEmitter extends GLObject {
 		if (emitter.particles == null || !emitter.animating) { // no particles yet
 			return;
 		}
-		SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
+		WWTexture sideAttributes = object.sideTextures[WWObject.SIDE_ALL];
 		float trans = sideAttributes.transparency;
 		if (trans == 1.0 || trans > 0.0 && !drawtrans) {
 			return;
@@ -151,14 +151,14 @@ public class GLParticleEmitter extends GLObject {
 		boolean alphaTest = sideAttributes.alphaTest;
 		Matrix.setIdentityM(textureMatrix, 0);
 		if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
-			Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
+			Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.scaleX, 1.0f / sideAttributes.scaleY, 1.0f);
 			Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(WWObject.SIDE_ALL, worldTime), object.getTextureOffsetY(WWObject.SIDE_ALL, worldTime), 0.0f);
 			float textureRotation = object.getTextureRotation(WWObject.SIDE_ALL, worldTime);
 			if (textureRotation != 0.0f) {
 				Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 			}
 		}
-		String textureUrl = sideAttributes.textureURL;
+		String textureUrl = sideAttributes.url;
 		int textureId = renderer.getTexture(textureUrl, sideAttributes.pixelate);
 		if (textureId != lastTextureId) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);

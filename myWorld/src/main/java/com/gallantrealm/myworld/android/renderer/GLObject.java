@@ -2,7 +2,7 @@ package com.gallantrealm.myworld.android.renderer;
 
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.client.renderer.IRenderer;
-import com.gallantrealm.myworld.model.SideAttributes;
+import com.gallantrealm.myworld.model.WWTexture;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
@@ -97,11 +97,11 @@ public abstract class GLObject extends GLRendering {
 
 	protected void adjustTextureCoords(GLSurface surface, int side) {
 		if (object.fixed) {
-			String textureUrl = object.sideAttributes[side].textureURL;
+			String textureUrl = object.sideTextures[side].url;
 			if (textureUrl != null) {
 				float[] textureMatrix = new float[16];
 				Matrix.setIdentityM(textureMatrix, 0);
-				Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].textureScaleX, 1.0f / object.sideAttributes[side].textureScaleY, 1.0f);
+				Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideTextures[side].scaleX, 1.0f / object.sideTextures[side].scaleY, 1.0f);
 				Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(side, 0), object.getTextureOffsetY(side, 0), 0);
 				Matrix.rotateM(textureMatrix, 0, object.getTextureRotation(side, 0), 0, 0, 1);
 				surface.adjustTextureCoords(textureMatrix);
@@ -191,7 +191,7 @@ public abstract class GLObject extends GLRendering {
 		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
 
 			// simplified drawing with no lighting or textures. It can always be monolithic
-			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
+			WWTexture sideAttributes = object.sideTextures[WWObject.SIDE_ALL];
 			if (sideAttributes.transparency == 0 && !sideAttributes.alphaTest) {
 				float[] modelMatrix = getModelMatrix(worldTime);
 				Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
@@ -202,7 +202,7 @@ public abstract class GLObject extends GLRendering {
 		} else if (object.monolithic || drawType == DRAW_TYPE_PICKING) {
 
 			// Monolithic drawing. Draw all surfaces together
-			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
+			WWTexture sideAttributes = object.sideTextures[WWObject.SIDE_ALL];
 			float trans = sideAttributes.transparency;
 			if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
 				float[] modelMatrix = getModelMatrix(worldTime);
@@ -250,14 +250,14 @@ public abstract class GLObject extends GLRendering {
 					}
 					color = new float[] { red, green, blue, 1.0f - trans };
 					if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
-						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
+						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.scaleX, 1.0f / sideAttributes.scaleY, 1.0f);
 						Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(WWObject.SIDE_ALL, worldTime), object.getTextureOffsetY(WWObject.SIDE_ALL, worldTime), 0.0f);
 						float textureRotation = object.getTextureRotation(WWObject.SIDE_ALL, worldTime);
 						if (textureRotation != 0.0f) {
 							Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 						}
 					}
-					String textureUrl = sideAttributes.textureURL;
+					String textureUrl = sideAttributes.url;
 					int textureId = renderer.getTexture(textureUrl, sideAttributes.pixelate);
 					if (textureId != lastTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -287,7 +287,7 @@ public abstract class GLObject extends GLRendering {
 			float shininess = 0.0f;
 			for (int side = 0; side < WWObject.NSIDES; side++) {
 				if (sides[side] != null) {
-					SideAttributes sideAttributes = object.sideAttributes[side];
+					WWTexture sideAttributes = object.sideTextures[side];
 					float trans = sideAttributes.transparency;
 					if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
 						if (!sideDrawn) {
@@ -327,14 +327,14 @@ public abstract class GLObject extends GLRendering {
 
 							Matrix.setIdentityM(textureMatrix, 0);
 							if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
-								Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].textureScaleX, 1.0f / object.sideAttributes[side].textureScaleY, 1.0f);
+								Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideTextures[side].scaleX, 1.0f / object.sideTextures[side].scaleY, 1.0f);
 								Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(side, worldTime), object.getTextureOffsetY(side, worldTime), 0.0f);
 								float textureRotation = object.getTextureRotation(side, worldTime);
 								if (textureRotation != 0.0f) {
 									Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 								}
 							}
-							String textureUrl = sideAttributes.textureURL;
+							String textureUrl = sideAttributes.url;
 							int textureId = renderer.getTexture(textureUrl, sideAttributes.pixelate);
 							if (textureId != lastTextureId) {
 								GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -366,7 +366,7 @@ public abstract class GLObject extends GLRendering {
 		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
 
 			// simplified drawing with no lighting or textures. It can always be monolithic
-			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
+			WWTexture sideAttributes = object.sideTextures[WWObject.SIDE_ALL];
 			if (sideAttributes.transparency == 0 && !sideAttributes.alphaTest) {
 				GLSurface.drawMonolith(shader, groupSurfaces, drawType, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, null, 0, sideAttributes.fullBright, sideAttributes.alphaTest);
 			}
@@ -374,10 +374,10 @@ public abstract class GLObject extends GLRendering {
 		} else {
 
 			// choose a reference side, the first non-transparent side
-			SideAttributes sideAttributes = null;
+			WWTexture sideAttributes = null;
 			for (int side = WWObject.SIDE_ALL; side <= WWObject.SIDE_CUTOUT2; side++) {
-				if (sideAttributes == null && object.sideAttributes[side].transparency < 1) {
-					sideAttributes = object.sideAttributes[side];
+				if (sideAttributes == null && object.sideTextures[side].transparency < 1) {
+					sideAttributes = object.sideTextures[side];
 				}
 			}
 			if (sideAttributes == null) { // all transparent
@@ -394,7 +394,7 @@ public abstract class GLObject extends GLRendering {
 				if (drawType != DRAW_TYPE_SHADOW) {
 					Matrix.setIdentityM(textureMatrix, 0);
 					if (false) { // texture matrix is always baked into texture coords for groups
-						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
+						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.scaleX, 1.0f / sideAttributes.scaleY, 1.0f);
 						Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(WWObject.SIDE_ALL, worldTime), object.getTextureOffsetY(WWObject.SIDE_ALL, worldTime), 0.0f);
 						float textureRotation = object.getTextureRotation(WWObject.SIDE_ALL, worldTime);
 						if (textureRotation != 0.0f) {
@@ -415,7 +415,7 @@ public abstract class GLObject extends GLRendering {
 						blue = (blue * 3 + red) / 4.0f;
 					}
 					color = new float[] { red, green, blue, 1.0f - trans };
-					String textureUrl = sideAttributes.textureURL;
+					String textureUrl = sideAttributes.url;
 					int textureId = renderer.getTexture(textureUrl, sideAttributes.pixelate);
 					if (textureId != lastTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
