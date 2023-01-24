@@ -1,36 +1,14 @@
 package com.gallantrealm.myworld.model;
 
-import com.gallantrealm.myworld.communication.DataInputStreamX;
-import com.gallantrealm.myworld.communication.DataOutputStreamX;
-import com.gallantrealm.myworld.communication.Sendable;
-
-import java.io.IOException;
 import java.io.Serializable;
 
 /**
  * A collection of all properties related to a texture.  For ease in setting and manipuating textures.
  */
-public class WWTexture implements Serializable, Cloneable, Sendable {
+public class WWTexture implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
-	private static WWTexture defaultTexture;
-	static {
-		defaultTexture = new WWTexture();
-		defaultTexture.isDefault = true;
-	}
-
-	public static WWTexture getDefaultTexture() {
-		return defaultTexture;
-	}
-
-	public boolean isDefault;
-	public float red = 1.0f;
-	public float green = 1.0f;
-	public float blue = 1.0f;
-	public float transparency;
-	public float shininess = 0.0f;
-	public boolean fullBright;
-	public String url;
+	public String name;
 	public float scaleX = 1.0f;
 	public float scaleY = 1.0f;
 	public float rotation;
@@ -40,31 +18,30 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 	public float velocityY;
 	public float aMomentum;
 	public long refreshInterval;
-	public boolean alphaTest;
 	public boolean pixelate;
-
+	
 	public WWTexture() {
 	}
 	
 	public WWTexture(String url) {
-		this.url = url;
+		this.name = url;
 	}
 	
 	public WWTexture(String url, float scaleX, float scaleY) {
-		this.url = url;
+		this.name = url;
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
 	}
 	
 	public WWTexture(String url, float scaleX, float scaleY, float rotation) {
-		this.url = url;
+		this.name = url;
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
 		this.rotation = rotation;
 	}
 	
 	public WWTexture(String url, float scaleX, float scaleY, float rotation, float offsetX, float offsetY) {
-		this.url = url;
+		this.name = url;
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
 		this.rotation = rotation;
@@ -73,7 +50,7 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 	}
 	
 	public WWTexture(String url, float scaleX, float scaleY, float rotation, float offsetX, float offsetY, boolean pixelate) {
-		this.url = url;
+		this.name = url;
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
 		this.rotation = rotation;
@@ -83,10 +60,10 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 	}
 	
 	public String getName() {
-		return url;
+		return name;
 	}
 	public void setName(String name) {
-		this.url = name;
+		this.name = name;
 	}
 	
 	public float getScaleX() {
@@ -158,16 +135,6 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 	public void setPixelate(boolean pixelate) {
 		this.pixelate = pixelate;
 	}
-
-	public void setColor(WWColor color) {
-		this.red = color.getRed();
-		this.green = color.getGreen();
-		this.blue = color.getBlue();
-	}
-
-	public WWColor getColor() {
-		return new WWColor(red, green, blue);
-	}
 	
 	@Override
 	public Object clone() {
@@ -178,49 +145,4 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 			return null;
 		}
 	}
-
-	@Override
-	public void send(DataOutputStreamX os) throws IOException {
-		os.writeFloat(red);
-		os.writeFloat(green);
-		os.writeFloat(blue);
-		os.writeFloat(transparency);
-		os.writeFloat(shininess);
-		os.writeBoolean(fullBright);
-		os.writeString(url);
-		os.writeFloat(scaleX);
-		os.writeFloat(scaleY);
-		os.writeFloat(rotation);
-		os.writeFloat(offsetX);
-		os.writeFloat(offsetY);
-		os.writeFloat(velocityX);
-		os.writeFloat(velocityY);
-		os.writeFloat(aMomentum);
-		os.writeLong(refreshInterval);
-		os.writeBoolean(alphaTest);
-		os.writeBoolean(pixelate);
-	}
-
-	@Override
-	public void receive(DataInputStreamX is) throws IOException {
-		red = is.readFloat();
-		green = is.readFloat();
-		blue = is.readFloat();
-		transparency = is.readFloat();
-		shininess = is.readFloat();
-		fullBright = is.readBoolean();
-		url = is.readString();
-		scaleX = is.readFloat();
-		scaleY = is.readFloat();
-		rotation = is.readFloat();
-		offsetX = is.readFloat();
-		offsetY = is.readFloat();
-		velocityX = is.readFloat();
-		velocityY = is.readFloat();
-		aMomentum = is.readFloat();
-		refreshInterval = is.readLong();
-		alphaTest = is.readBoolean();
-		pixelate = is.readBoolean();
-	}
-
 }
