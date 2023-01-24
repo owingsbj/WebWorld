@@ -1,6 +1,6 @@
 package com.gallantrealm.myworld.android.renderer;
 
-import com.gallantrealm.myworld.model.SideAttributes;
+import com.gallantrealm.myworld.model.WWSurface;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWParticleEmitter;
 
@@ -127,15 +127,15 @@ public class GLParticleEmitter extends GLObject {
 		if (emitter.particles == null || !emitter.animating) { // no particles yet
 			return;
 		}
-		SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
-		float trans = sideAttributes.transparency;
+		WWSurface sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
+		float trans = sideAttributes.getTransparency();
 		if (trans == 1.0 || trans > 0.0 && !drawtrans) {
 			return;
 		}
 		float red = sideAttributes.red;
 		float green = sideAttributes.green;
 		float blue = sideAttributes.blue;
-		float shininess = sideAttributes.shininess;
+		float shininess = sideAttributes.getShininess();
 		if (drawType == DRAW_TYPE_LEFT_EYE) { // red side
 			red = (red * 3 + green + blue) / 5.0f;
 			green = 0;
@@ -148,7 +148,7 @@ public class GLParticleEmitter extends GLObject {
 		float[] color = new float[] { red, green, blue, 1.0f - trans };
 
 		int fullBright = 1;
-		boolean alphaTest = sideAttributes.alphaTest;
+		boolean alphaTest = sideAttributes.isAlphaTest();
 		Matrix.setIdentityM(textureMatrix, 0);
 		if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
 			Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
@@ -159,13 +159,13 @@ public class GLParticleEmitter extends GLObject {
 			}
 		}
 		String textureUrl = sideAttributes.textureURL;
-		int textureId = renderer.getTexture(textureUrl, sideAttributes.pixelate);
+		int textureId = renderer.getTexture(textureUrl, sideAttributes.isPixelate());
 		if (textureId != lastTextureId) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 			lastTextureId = textureId;
 		}
-		int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.pixelate);
+		int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.isPixelate());
 		if (bumpTextureId != lastBumpTextureId) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);

@@ -7,13 +7,11 @@ import java.util.Comparator;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.client.renderer.IRendering;
 import com.gallantrealm.myworld.model.WWConstant;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWTranslucency;
-import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
 public class GLWorld implements IRendering {
@@ -105,7 +103,7 @@ public class GLWorld implements IRendering {
 			}
 			for (int g = 0; g < largestGroup; g++) {
 				WWObject tokenObject = drawGroupsObject[g];
-				if (tokenObject != null && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency == 0) { // && tokenObject.renderit) {
+				if (tokenObject != null && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].getTransparency() == 0) { // && tokenObject.renderit) {
 					if (!tokenObject.shadowless || drawType != DRAW_TYPE_SHADOW) {
 						((GLObject) tokenObject.rendering).drawSurfaces(shader, drawGroups[g], viewMatrix, sunViewMatrix, worldTime, drawType, false);
 					}
@@ -130,7 +128,7 @@ public class GLWorld implements IRendering {
 			if (drawType != DRAW_TYPE_PICKING && drawnOnce) {
 				for (int g = 0; g < drawGroups.length; g++) {
 					WWObject tokenObject = drawGroupsObject[g];
-					if (tokenObject != null && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency > 0) { // && tokenObject.renderit) {
+					if (tokenObject != null && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].getTransparency() > 0) { // && tokenObject.renderit) {
 						sortSurfaces(drawGroups[g], viewMatrix);
 // ((GLObject) tokenObject.rendering).drawSurfaces(shader, drawGroups[g], viewMatrix, sunViewMatrix, worldTime, drawType, true);
 						GLSurface[] surface = new GLSurface[1];

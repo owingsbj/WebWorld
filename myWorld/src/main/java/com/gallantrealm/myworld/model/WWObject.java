@@ -3,7 +3,6 @@ package com.gallantrealm.myworld.model;
 import java.io.IOException;
 import java.io.Serializable;
 
-import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.client.renderer.IRenderable;
 import com.gallantrealm.myworld.client.renderer.IRendering;
 import com.gallantrealm.myworld.client.renderer.IVideoTextureRenderer;
@@ -94,7 +93,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public float extentx = 1.732f;
 	public float extenty = 1.732f;
 	public float extentz = 1.732f;
-	public SideAttributes[] sideAttributes = new SideAttributes[NSIDES];
+	public WWSurface[] sideAttributes = new WWSurface[NSIDES];
 
 	// Behavior properties
 	public BehaviorAttributes[] behaviors;
@@ -123,9 +122,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	// public transient boolean visible; // indicates that the object is visible to the viewer (local world only)
 
 	public WWObject() {
-		sideAttributes = new SideAttributes[NSIDES];
+		sideAttributes = new WWSurface[NSIDES];
 		for (int i = 0; i < NSIDES; i++) {
-			sideAttributes[i] = SideAttributes.getDefaultSideAttributes();
+			sideAttributes[i] = WWSurface.getDefaultSurface();
 		}
 	}
 
@@ -242,7 +241,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		rotationPointX = is.readFloat();
 		rotationPointY = is.readFloat();
 		rotationPointZ = is.readFloat();
-		sideAttributes = (SideAttributes[]) is.readKnownObjectArray(SideAttributes.class);
+		sideAttributes = (WWSurface[]) is.readKnownObjectArray(WWSurface.class);
 		parentId = is.readInt();
 		gluedToParent = is.readBoolean();
 		children = (WWObject[]) is.readKnownObjectArray(WWObject.class);
@@ -1318,12 +1317,12 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			clone.setPosition(getPosition(currenttime));
 			clone.setRotation(getRotation(currenttime));
 		}
-		sideAttributes = new SideAttributes[NSIDES];
+		sideAttributes = new WWSurface[NSIDES];
 		for (int i = 0; i < NSIDES; i++) {
-			if (clone.sideAttributes[i] == SideAttributes.getDefaultSideAttributes()) {
-				sideAttributes[i] = SideAttributes.getDefaultSideAttributes();
+			if (clone.sideAttributes[i] == WWSurface.getDefaultSurface()) {
+				sideAttributes[i] = WWSurface.getDefaultSurface();
 			} else {
-				sideAttributes[i] = (SideAttributes) clone.sideAttributes[i].clone();
+				sideAttributes[i] = (WWSurface) clone.sideAttributes[i].clone();
 			}
 		}
 
@@ -1770,21 +1769,21 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	/**
 	 * Note: this is not intended for use by behaviors. It is provided for import/export.
 	 */
-	public final SideAttributes[] getSideAttributesArray() {
+	public final WWSurface[] getSideAttributesArray() {
 		return sideAttributes;
 	}
 
 	/**
 	 * Note: this is not intended for use by behaviors. It is provided for import/export.
 	 */
-	public final void setSideAttributesArray(SideAttributes[] sideAttributes) {
+	public final void setSideAttributesArray(WWSurface[] sideAttributes) {
 		this.sideAttributes = sideAttributes;
 	}
 
-	private final SideAttributes getEditableSideAttributes(int side) {
+	private final WWSurface getEditableSideAttributes(int side) {
 		if (side == SIDE_ALL) {
 			if (sideAttributes[SIDE_ALL].isDefault) {
-				sideAttributes[SIDE_ALL] = new SideAttributes();
+				sideAttributes[SIDE_ALL] = new WWSurface();
 				for (int i = SIDE_ALL + 1; i < NSIDES; i++) {
 					if (sideAttributes[i].isDefault) {
 						sideAttributes[i] = sideAttributes[SIDE_ALL];
@@ -1793,7 +1792,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			}
 		} else {
 			if (sideAttributes[side].isDefault || sideAttributes[side] == sideAttributes[SIDE_ALL]) {
-				sideAttributes[side] = (SideAttributes) sideAttributes[SIDE_ALL].clone();
+				sideAttributes[side] = (WWSurface) sideAttributes[SIDE_ALL].clone();
 				sideAttributes[side].isDefault = false;
 				monolithic = false;
 			}
@@ -2009,7 +2008,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	public final WWTexture getTexture(int side) {
 		WWTexture texture = new WWTexture();
-		SideAttributes sideAttributes = getEditableSideAttributes(side);
+		WWSurface sideAttributes = getEditableSideAttributes(side);
 		texture.name = sideAttributes.textureURL;
 		texture.scaleX = sideAttributes.textureScaleX;
 		texture.scaleY = sideAttributes.textureScaleY;
@@ -2020,7 +2019,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		texture.velocityY = sideAttributes.textureVelocityY;
 		texture.aMomentum = sideAttributes.textureAMomentum;
 		texture.refreshInterval = sideAttributes.textureRefreshInterval;
-		texture.pixelate = sideAttributes.pixelate;
+		texture.pixelate = sideAttributes.isPixelate();
 		return texture;
 	}
 
@@ -2208,15 +2207,15 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final boolean getTexturePixelate(int side) {
-		return sideAttributes[side].pixelate;
+		return sideAttributes[side].isPixelate();
 	}
 
 	public final void setTexturePixelate(int side, boolean pixelate) {
-		getEditableSideAttributes(side).pixelate = pixelate;
+		getEditableSideAttributes(side).setPixelate(pixelate);
 	}
 
 	public final float getTransparency(int side) {
-		return sideAttributes[side].transparency;
+		return sideAttributes[side].getTransparency();
 	}
 
 	public final float getTransparency() {
@@ -2280,7 +2279,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setTransparency(int side, float transparency) {
-		getEditableSideAttributes(side).transparency = transparency;
+		getEditableSideAttributes(side).setTransparency(transparency);
 	}
 
 	public final void setTransparency(float transparency) {
@@ -2344,7 +2343,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final float getShininess(int side) {
-		return sideAttributes[side].shininess;
+		return sideAttributes[side].getShininess();
 	}
 
 	public final float getShininess() {
@@ -2408,71 +2407,71 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setShininess(int side, float shininess) {
-		getEditableSideAttributes(side).shininess = shininess;
+		getEditableSideAttributes(side).setShininess(shininess);
 	}
 
 	public final void setShininess(float shininess) {
-		getEditableSideAttributes(SIDE_ALL).shininess = shininess;
+		getEditableSideAttributes(SIDE_ALL).setShininess(shininess);
 	}
 
 	public final void setShininessTop(float shininess) {
-		getEditableSideAttributes(SIDE_TOP).shininess = shininess;
+		getEditableSideAttributes(SIDE_TOP).setShininess(shininess);
 	}
 
 	public final void setShininessBottom(float shininess) {
-		getEditableSideAttributes(SIDE_BOTTOM).shininess = shininess;
+		getEditableSideAttributes(SIDE_BOTTOM).setShininess(shininess);
 	}
 
 	public final void setShininessSide1(float shininess) {
-		getEditableSideAttributes(SIDE_SIDE1).shininess = shininess;
+		getEditableSideAttributes(SIDE_SIDE1).setShininess(shininess);
 	}
 
 	public final void setShininessSide2(float shininess) {
-		getEditableSideAttributes(SIDE_SIDE2).shininess = shininess;
+		getEditableSideAttributes(SIDE_SIDE2).setShininess(shininess);
 	}
 
 	public final void setShininessSide3(float shininess) {
-		getEditableSideAttributes(SIDE_SIDE3).shininess = shininess;
+		getEditableSideAttributes(SIDE_SIDE3).setShininess(shininess);
 	}
 
 	public final void setShininessSide4(float shininess) {
-		getEditableSideAttributes(SIDE_SIDE4).shininess = shininess;
+		getEditableSideAttributes(SIDE_SIDE4).setShininess(shininess);
 	}
 
 	public final void setShininessInsideTop(float shininess) {
-		getEditableSideAttributes(SIDE_INSIDE_TOP).shininess = shininess;
+		getEditableSideAttributes(SIDE_INSIDE_TOP).setShininess(shininess);
 	}
 
 	public final void setShininessInsideBottom(float shininess) {
-		getEditableSideAttributes(SIDE_INSIDE_BOTTOM).shininess = shininess;
+		getEditableSideAttributes(SIDE_INSIDE_BOTTOM).setShininess(shininess);
 	}
 
 	public final void setShininessInside1(float shininess) {
-		getEditableSideAttributes(SIDE_INSIDE1).shininess = shininess;
+		getEditableSideAttributes(SIDE_INSIDE1).setShininess(shininess);
 	}
 
 	public final void setShininessInside2(float shininess) {
-		getEditableSideAttributes(SIDE_INSIDE2).shininess = shininess;
+		getEditableSideAttributes(SIDE_INSIDE2).setShininess(shininess);
 	}
 
 	public final void setShininessInside3(float shininess) {
-		getEditableSideAttributes(SIDE_INSIDE3).shininess = shininess;
+		getEditableSideAttributes(SIDE_INSIDE3).setShininess(shininess);
 	}
 
 	public final void setShininessInside4(float shininess) {
-		getEditableSideAttributes(SIDE_INSIDE4).shininess = shininess;
+		getEditableSideAttributes(SIDE_INSIDE4).setShininess(shininess);
 	}
 
 	public final void setShininessCutout1(float shininess) {
-		getEditableSideAttributes(SIDE_CUTOUT1).shininess = shininess;
+		getEditableSideAttributes(SIDE_CUTOUT1).setShininess(shininess);
 	}
 
 	public final void setShininessCutout2(float shininess) {
-		getEditableSideAttributes(SIDE_CUTOUT2).shininess = shininess;
+		getEditableSideAttributes(SIDE_CUTOUT2).setShininess(shininess);
 	}
 
 	public final boolean isFullBright(int side) {
-		return sideAttributes[side].fullBright;
+		return sideAttributes[side].isFullBright();
 	}
 
 	public final boolean isFullBright() {
@@ -2536,7 +2535,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setFullBright(int side, boolean fullBright) {
-		getEditableSideAttributes(side).fullBright = fullBright;
+		getEditableSideAttributes(side).setFullBright(fullBright);
 	}
 
 	public final void setFullBright(boolean fullBright) {
@@ -2600,11 +2599,11 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final boolean getTextureAlphaTest(int side) {
-		return sideAttributes[side].alphaTest;
+		return sideAttributes[side].isAlphaTest();
 	}
 
 	public final void setTextureAlphaTest(int side, boolean alphaTest) {
-		getEditableSideAttributes(side).alphaTest = alphaTest;
+		getEditableSideAttributes(side).setAlphaTest(alphaTest);
 	}
 
 	public final boolean isVideoTexture() {
