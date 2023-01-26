@@ -10,14 +10,14 @@ import com.gallantrealm.myworld.communication.Sendable;
  * Represents a surface on an object.  A surface has color, texture and several
  * other properties that determine the rendering of the surface.
  */
-public final class WWSurface implements Serializable, Cloneable, Sendable {
+public final class SideAttributes implements Serializable, Cloneable, Sendable {
 	static final long serialVersionUID = 1L;
 
-	private static WWSurface defaultSurface;
+	private static SideAttributes defaultSurface;
 
-	public static WWSurface getDefaultSurface() {
+	public static SideAttributes getDefaultSurface() {
 		if (defaultSurface == null) {
-			defaultSurface = new WWSurface();
+			defaultSurface = new SideAttributes();
 			defaultSurface.isDefault = true;
 		}
 		return defaultSurface;
@@ -44,7 +44,7 @@ public final class WWSurface implements Serializable, Cloneable, Sendable {
 	public boolean isDefault;
 	private boolean pixelate;
 
-	public WWSurface() {
+	public SideAttributes() {
 	}
 
 	@Override

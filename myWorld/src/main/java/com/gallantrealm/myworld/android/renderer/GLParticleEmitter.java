@@ -1,6 +1,6 @@
 package com.gallantrealm.myworld.android.renderer;
 
-import com.gallantrealm.myworld.model.WWSurface;
+import com.gallantrealm.myworld.model.SideAttributes;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWParticleEmitter;
 
@@ -127,7 +127,7 @@ public class GLParticleEmitter extends GLObject {
 		if (emitter.particles == null || !emitter.animating) { // no particles yet
 			return;
 		}
-		WWSurface sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
+		SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
 		float trans = sideAttributes.getTransparency();
 		if (trans == 1.0 || trans > 0.0 && !drawtrans) {
 			return;

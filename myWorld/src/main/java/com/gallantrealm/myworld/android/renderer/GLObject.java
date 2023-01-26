@@ -2,7 +2,7 @@ package com.gallantrealm.myworld.android.renderer;
 
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.client.renderer.IRenderer;
-import com.gallantrealm.myworld.model.WWSurface;
+import com.gallantrealm.myworld.model.SideAttributes;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
@@ -191,7 +191,7 @@ public abstract class GLObject extends GLRendering {
 		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
 
 			// simplified drawing with no lighting or textures. It can always be monolithic
-			WWSurface sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
+			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
 			if (sideAttributes.getTransparency() == 0 && !sideAttributes.isAlphaTest()) {
 				float[] modelMatrix = getModelMatrix(worldTime);
 				Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
@@ -202,7 +202,7 @@ public abstract class GLObject extends GLRendering {
 		} else if (object.monolithic || drawType == DRAW_TYPE_PICKING) {
 
 			// Monolithic drawing. Draw all surfaces together
-			WWSurface sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
+			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
 			float trans = sideAttributes.getTransparency();
 			if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
 				float[] modelMatrix = getModelMatrix(worldTime);
@@ -287,7 +287,7 @@ public abstract class GLObject extends GLRendering {
 			float shininess = 0.0f;
 			for (int side = 0; side < WWObject.NSIDES; side++) {
 				if (sides[side] != null) {
-					WWSurface sideAttributes = object.sideAttributes[side];
+					SideAttributes sideAttributes = object.sideAttributes[side];
 					float trans = sideAttributes.getTransparency();
 					if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
 						if (!sideDrawn) {
@@ -366,7 +366,7 @@ public abstract class GLObject extends GLRendering {
 		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
 
 			// simplified drawing with no lighting or textures. It can always be monolithic
-			WWSurface sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
+			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
 			if (sideAttributes.getTransparency() == 0 && !sideAttributes.isAlphaTest()) {
 				GLSurface.drawMonolith(shader, groupSurfaces, drawType, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, null, 0, sideAttributes.isFullBright(), sideAttributes.isAlphaTest());
 			}
@@ -374,7 +374,7 @@ public abstract class GLObject extends GLRendering {
 		} else {
 
 			// choose a reference side, the first non-transparent side
-			WWSurface sideAttributes = null;
+			SideAttributes sideAttributes = null;
 			for (int side = WWObject.SIDE_ALL; side <= WWObject.SIDE_CUTOUT2; side++) {
 				if (sideAttributes == null && object.sideAttributes[side].getTransparency() < 1) {
 					sideAttributes = object.sideAttributes[side];

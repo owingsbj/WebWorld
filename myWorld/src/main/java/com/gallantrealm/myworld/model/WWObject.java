@@ -93,7 +93,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public float extentx = 1.732f;
 	public float extenty = 1.732f;
 	public float extentz = 1.732f;
-	public WWSurface[] sideAttributes = new WWSurface[NSIDES];
+	public SideAttributes[] sideAttributes = new SideAttributes[NSIDES];
 
 	// Behavior properties
 	public BehaviorAttributes[] behaviors;
@@ -122,9 +122,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	// public transient boolean visible; // indicates that the object is visible to the viewer (local world only)
 
 	public WWObject() {
-		sideAttributes = new WWSurface[NSIDES];
+		sideAttributes = new SideAttributes[NSIDES];
 		for (int i = 0; i < NSIDES; i++) {
-			sideAttributes[i] = WWSurface.getDefaultSurface();
+			sideAttributes[i] = SideAttributes.getDefaultSurface();
 		}
 	}
 
@@ -241,7 +241,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		rotationPointX = is.readFloat();
 		rotationPointY = is.readFloat();
 		rotationPointZ = is.readFloat();
-		sideAttributes = (WWSurface[]) is.readKnownObjectArray(WWSurface.class);
+		sideAttributes = (SideAttributes[]) is.readKnownObjectArray(SideAttributes.class);
 		parentId = is.readInt();
 		gluedToParent = is.readBoolean();
 		children = (WWObject[]) is.readKnownObjectArray(WWObject.class);
@@ -1317,12 +1317,12 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			clone.setPosition(getPosition(currenttime));
 			clone.setRotation(getRotation(currenttime));
 		}
-		sideAttributes = new WWSurface[NSIDES];
+		sideAttributes = new SideAttributes[NSIDES];
 		for (int i = 0; i < NSIDES; i++) {
-			if (clone.sideAttributes[i] == WWSurface.getDefaultSurface()) {
-				sideAttributes[i] = WWSurface.getDefaultSurface();
+			if (clone.sideAttributes[i] == SideAttributes.getDefaultSurface()) {
+				sideAttributes[i] = SideAttributes.getDefaultSurface();
 			} else {
-				sideAttributes[i] = (WWSurface) clone.sideAttributes[i].clone();
+				sideAttributes[i] = (SideAttributes) clone.sideAttributes[i].clone();
 			}
 		}
 
@@ -1769,21 +1769,21 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	/**
 	 * Note: this is not intended for use by behaviors. It is provided for import/export.
 	 */
-	public final WWSurface[] getSideAttributesArray() {
+	public final SideAttributes[] getSideAttributesArray() {
 		return sideAttributes;
 	}
 
 	/**
 	 * Note: this is not intended for use by behaviors. It is provided for import/export.
 	 */
-	public final void setSideAttributesArray(WWSurface[] sideAttributes) {
+	public final void setSideAttributesArray(SideAttributes[] sideAttributes) {
 		this.sideAttributes = sideAttributes;
 	}
 
-	private final WWSurface getEditableSideAttributes(int side) {
+	private final SideAttributes getEditableSideAttributes(int side) {
 		if (side == SIDE_ALL) {
 			if (sideAttributes[SIDE_ALL].isDefault) {
-				sideAttributes[SIDE_ALL] = new WWSurface();
+				sideAttributes[SIDE_ALL] = new SideAttributes();
 				for (int i = SIDE_ALL + 1; i < NSIDES; i++) {
 					if (sideAttributes[i].isDefault) {
 						sideAttributes[i] = sideAttributes[SIDE_ALL];
@@ -1792,7 +1792,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			}
 		} else {
 			if (sideAttributes[side].isDefault || sideAttributes[side] == sideAttributes[SIDE_ALL]) {
-				sideAttributes[side] = (WWSurface) sideAttributes[SIDE_ALL].clone();
+				sideAttributes[side] = (SideAttributes) sideAttributes[SIDE_ALL].clone();
 				sideAttributes[side].isDefault = false;
 				monolithic = false;
 			}
@@ -2008,7 +2008,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	public final WWTexture getTexture(int side) {
 		WWTexture texture = new WWTexture();
-		WWSurface sideAttributes = getEditableSideAttributes(side);
+		SideAttributes sideAttributes = getEditableSideAttributes(side);
 		texture.setName(sideAttributes.textureURL);
 		texture.setScaleX(sideAttributes.textureScaleX);
 		texture.setScaleY(sideAttributes.textureScaleY);
