@@ -16,8 +16,8 @@ public class Translucency extends WWTranslucency {
 	}
 	
 	public void setTranslucencyMask(WWColor insideColor) {
-		super.setInsideColor(insideColor.color & 0xFFFFFF);
-		super.setInsideTransparency((insideColor.color >> 24) & 0xFF);
+		super.setInsideColor(insideColor.getRGB() & 0xFFFFFF);
+		super.setInsideTransparency((insideColor.getRGB() >> 24) & 0xFF);
 	}
 	
 	private EventBehavior eventBehavior;
