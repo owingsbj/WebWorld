@@ -8,55 +8,55 @@ import java.io.Serializable;
 public class WWTexture implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
-	public String name;
-	public float scaleX = 1.0f;
-	public float scaleY = 1.0f;
-	public float rotation;
-	public float offsetX;
-	public float offsetY;
-	public float velocityX;
-	public float velocityY;
-	public float aMomentum;
-	public long refreshInterval;
-	public boolean pixelate;
+	private String name;
+	private float scaleX = 1.0f;
+	private float scaleY = 1.0f;
+	private float rotation;
+	private float offsetX;
+	private float offsetY;
+	private float velocityX;
+	private float velocityY;
+	private float aMomentum;
+	private long refreshInterval;
+	private boolean pixelate;
 	
 	public WWTexture() {
 	}
 	
 	public WWTexture(String url) {
-		this.name = url;
+		this.setName(url);
 	}
 	
 	public WWTexture(String url, float scaleX, float scaleY) {
-		this.name = url;
-		this.scaleX = scaleX;
-		this.scaleY = scaleY;
+		this.setName(url);
+		this.setScaleX(scaleX);
+		this.setScaleY(scaleY);
 	}
 	
 	public WWTexture(String url, float scaleX, float scaleY, float rotation) {
-		this.name = url;
-		this.scaleX = scaleX;
-		this.scaleY = scaleY;
-		this.rotation = rotation;
+		this.setName(url);
+		this.setScaleX(scaleX);
+		this.setScaleY(scaleY);
+		this.setRotation(rotation);
 	}
 	
 	public WWTexture(String url, float scaleX, float scaleY, float rotation, float offsetX, float offsetY) {
-		this.name = url;
-		this.scaleX = scaleX;
-		this.scaleY = scaleY;
-		this.rotation = rotation;
-		this.offsetX = offsetX;
-		this.offsetY = offsetY;
+		this.setName(url);
+		this.setScaleX(scaleX);
+		this.setScaleY(scaleY);
+		this.setRotation(rotation);
+		this.setOffsetX(offsetX);
+		this.setOffsetY(offsetY);
 	}
 	
 	public WWTexture(String url, float scaleX, float scaleY, float rotation, float offsetX, float offsetY, boolean pixelate) {
-		this.name = url;
-		this.scaleX = scaleX;
-		this.scaleY = scaleY;
-		this.rotation = rotation;
-		this.offsetX = offsetX;
-		this.offsetY = offsetY;
-		this.pixelate = pixelate;
+		this.setName(url);
+		this.setScaleX(scaleX);
+		this.setScaleY(scaleY);
+		this.setRotation(rotation);
+		this.setOffsetX(offsetX);
+		this.setOffsetY(offsetY);
+		this.setPixelate(pixelate);
 	}
 	
 	public String getName() {

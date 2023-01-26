@@ -153,32 +153,32 @@ public final class WWSurface implements Serializable, Cloneable, Sendable {
 
 	public WWTexture getTexture() {
 		WWTexture texture = new WWTexture();
-		texture.name = textureURL;
-		texture.scaleX = textureScaleX;
-		texture.scaleY = textureScaleY;
-		texture.rotation = textureRotation;
-		texture.offsetX = textureOffsetX - 0.5f;
-		texture.offsetY = textureOffsetY - 0.5f;
-		texture.velocityX = textureVelocityX;
-		texture.velocityY = textureVelocityY;
-		texture.aMomentum = textureAMomentum;
-		texture.refreshInterval = textureRefreshInterval;
-		texture.pixelate = pixelate;
+		texture.setName(textureURL);
+		texture.setScaleX(textureScaleX);
+		texture.setScaleY(textureScaleY);
+		texture.setRotation(textureRotation);
+		texture.setOffsetX(textureOffsetX - 0.5f);
+		texture.setOffsetY(textureOffsetY - 0.5f);
+		texture.setVelocityX(textureVelocityX);
+		texture.setVelocityY(textureVelocityY);
+		texture.setaMomentum(textureAMomentum);
+		texture.setRefreshInterval(textureRefreshInterval);
+		texture.setPixelate(pixelate);
 		return texture;
 	}
 
 	public void setTexture(WWTexture texture) {
-		textureURL = texture.name;
-		textureScaleX = texture.scaleX;
-		textureScaleY = texture.scaleY;
-		textureRotation = texture.rotation;
-		textureOffsetX = texture.offsetX + 0.5f;
-		textureOffsetY = texture.offsetY + 0.5f;
-		textureVelocityX = texture.velocityX;
-		textureVelocityY = texture.velocityY;
-		textureAMomentum = texture.aMomentum;
-		textureRefreshInterval = texture.refreshInterval;
-		pixelate = texture.pixelate;
+		textureURL = texture.getName();
+		textureScaleX = texture.getScaleX();
+		textureScaleY = texture.getScaleY();
+		textureRotation = texture.getRotation();
+		textureOffsetX = texture.getOffsetX() + 0.5f;
+		textureOffsetY = texture.getOffsetY() + 0.5f;
+		textureVelocityX = texture.getVelocityX();
+		textureVelocityY = texture.getVelocityY();
+		textureAMomentum = texture.getaMomentum();
+		textureRefreshInterval = texture.getRefreshInterval();
+		pixelate = texture.isPixelate();
 	}
 
 }

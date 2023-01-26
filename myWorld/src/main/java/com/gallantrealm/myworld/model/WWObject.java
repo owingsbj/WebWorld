@@ -2009,17 +2009,17 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public final WWTexture getTexture(int side) {
 		WWTexture texture = new WWTexture();
 		WWSurface sideAttributes = getEditableSideAttributes(side);
-		texture.name = sideAttributes.textureURL;
-		texture.scaleX = sideAttributes.textureScaleX;
-		texture.scaleY = sideAttributes.textureScaleY;
-		texture.rotation = sideAttributes.textureRotation;
-		texture.offsetX = sideAttributes.textureOffsetX - 0.5f;
-		texture.offsetY = sideAttributes.textureOffsetY - 0.5f;
-		texture.velocityX = sideAttributes.textureVelocityX;
-		texture.velocityY = sideAttributes.textureVelocityY;
-		texture.aMomentum = sideAttributes.textureAMomentum;
-		texture.refreshInterval = sideAttributes.textureRefreshInterval;
-		texture.pixelate = sideAttributes.isPixelate();
+		texture.setName(sideAttributes.textureURL);
+		texture.setScaleX(sideAttributes.textureScaleX);
+		texture.setScaleY(sideAttributes.textureScaleY);
+		texture.setRotation(sideAttributes.textureRotation);
+		texture.setOffsetX(sideAttributes.textureOffsetX - 0.5f);
+		texture.setOffsetY(sideAttributes.textureOffsetY - 0.5f);
+		texture.setVelocityX(sideAttributes.textureVelocityX);
+		texture.setVelocityY(sideAttributes.textureVelocityY);
+		texture.setaMomentum(sideAttributes.textureAMomentum);
+		texture.setRefreshInterval(sideAttributes.textureRefreshInterval);
+		texture.setPixelate(sideAttributes.isPixelate());
 		return texture;
 	}
 
@@ -2095,16 +2095,16 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setTexture(int side, WWTexture texture) {
-		setTextureURL(side, texture.name);
-		setTextureScale(side, texture.scaleX, texture.scaleY);
-		setTextureRotation(side, texture.rotation);
-		setTextureOffsetX(side, texture.offsetX + 0.5f);
-		setTextureOffsetY(side, texture.offsetY + 0.5f);
-		setTextureVelocityX(side, texture.velocityX);
-		setTextureVelocityY(side, texture.velocityY);
-		setTextureAMomentum(side, texture.aMomentum);
-		setTextureRefreshInterval(side, texture.refreshInterval);
-		setTexturePixelate(side, texture.pixelate);
+		setTextureURL(side, texture.getName());
+		setTextureScale(side, texture.getScaleX(), texture.getScaleY());
+		setTextureRotation(side, texture.getRotation());
+		setTextureOffsetX(side, texture.getOffsetX() + 0.5f);
+		setTextureOffsetY(side, texture.getOffsetY() + 0.5f);
+		setTextureVelocityX(side, texture.getVelocityX());
+		setTextureVelocityY(side, texture.getVelocityY());
+		setTextureAMomentum(side, texture.getaMomentum());
+		setTextureRefreshInterval(side, texture.getRefreshInterval());
+		setTexturePixelate(side, texture.isPixelate());
 	}
 
 	public final void setTexture(WWTexture texture) {
