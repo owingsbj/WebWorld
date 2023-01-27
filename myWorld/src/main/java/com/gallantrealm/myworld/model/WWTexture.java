@@ -1,11 +1,16 @@
 package com.gallantrealm.myworld.model;
 
+import com.gallantrealm.myworld.communication.DataInputStreamX;
+import com.gallantrealm.myworld.communication.DataOutputStreamX;
+import com.gallantrealm.myworld.communication.Sendable;
+
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
  * A collection of all properties related to a texture.  For ease in setting and manipuating textures.
  */
-public class WWTexture implements Serializable, Cloneable {
+public class WWTexture implements Serializable, Cloneable, Sendable {
 	private static final long serialVersionUID = 1L;
 
 	private String name;
@@ -144,5 +149,35 @@ public class WWTexture implements Serializable, Cloneable {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	@Override
+	public void send(DataOutputStreamX os) throws IOException {
+		os.writeString(name);
+		os.writeFloat(scaleX);
+		os.writeFloat(scaleY);
+		os.writeFloat(rotation);
+		os.writeFloat(offsetX);
+		os.writeFloat(offsetY);
+		os.writeFloat(velocityX);
+		os.writeFloat(velocityY);
+		os.writeFloat(aMomentum);
+		os.writeLong(refreshInterval);
+		os.writeBoolean(isPixelate());
+	}
+
+	@Override
+	public void receive(DataInputStreamX is) throws IOException {
+		name = is.readString();
+		scaleX = is.readFloat();
+		scaleY = is.readFloat();
+		rotation = is.readFloat();
+		offsetX = is.readFloat();
+		offsetY = is.readFloat();
+		velocityX = is.readFloat();
+		velocityY = is.readFloat();
+		aMomentum = is.readFloat();
+		refreshInterval = is.readLong();
+		setPixelate(is.readBoolean());
 	}
 }
