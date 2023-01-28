@@ -140,7 +140,15 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 	public void setPixelated(boolean pixelate) {
 		this.pixelated = pixelate;
 	}
-	
+
+	public WWTexture subMap(float totalWidth, float totalHeight, float width, float height,  float offsetX, float offsetY, float rotation) {
+		return new WWTexture(name, totalWidth / width, totalHeight / height, rotation, offsetX / width, offsetY / height, pixelated);
+	}
+
+	public WWTexture subMap(float totalWidth, float totalHeight, float width, float height,  float offsetX, float offsetY) {
+		return subMap(totalWidth, totalHeight, width, height, offsetX, offsetY, 0);
+	}
+
 	@Override
 	public Object clone() {
 		try {
@@ -180,4 +188,11 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 		refreshInterval = is.readLong();
 		setPixelated(is.readBoolean());
 	}
+
+	@Override
+	public String toString() {
+		return "Texture<"+getName()+" "+getScaleX()+" "+getScaleY()+" "+" "+getRotation()+" "+getOffsetX()+" "+getOffsetY()+" "+ isPixelated()+">";
+	}
+
+
 }
