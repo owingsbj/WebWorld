@@ -4,48 +4,53 @@ public class ShadowMapShader extends Shader {
 
 	public ShadowMapShader() {
 		String vs = "" + //
+				"#version 300 es\n" + //
 				"precision highp float; \n" + //
 				"\n" + //
-				"attribute vec4 aPosition; \n" + //
-				"attribute vec2 aTextureCoord;\n" +
+				"in vec4 aPosition; \n" + //
+				"in lowp vec2 aTextureCoord;\n" +
 				"\n" + //
 				"uniform mat4 sunMvMatrix; \n" + //
 				"uniform vec3 viewPosition; \n" + //
 				"uniform mat4 colorTextureMatrix;\n" +
 				"\n" +
-				"varying vec2 textureCoord;\n" +
+				"out lowp vec2 textureCoord;\n" +
 				"\n" + //
 				"void main() { \n" + //
 				"	gl_Position = sunMvMatrix  * aPosition; \n" + //
 				"	textureCoord = (colorTextureMatrix * vec4(aTextureCoord.x, aTextureCoord.y, 1.0, 1.0)).xy;\n" +
 				"} \n";
 		String fs = "" + //
+				"#version 300 es\n" + //
 				"precision highp float; \n" + //
 				"\n" +
-				"uniform sampler2D colorTexture; // the texture of the material\n" +
+				"uniform lowp sampler2D colorTexture; // the texture of the material\n" +
 				"\n" + //
-				"varying vec2 textureCoord; // the location on the texture\n" +
+				"in lowp vec2 textureCoord; // the location on the texture\n" +
+				"\n" + //
+				"out vec4 fragColor; \n" + //
 				"\n" + //
 				"void main() { \n" + //
-				"	vec4 textureColor = texture2D(colorTexture, textureCoord); \n" +
-				"	//if (textureColor.a < 0.5) {\n" +
-				"	//  discard;\n" +
-				"	//} \n" +
-				"	gl_FragColor = vec4(1.0); // needed or linker errors sometimes \n" + //
+				"	lowp vec4 textureColor = texture(colorTexture, textureCoord); \n" +
+				"	// note: above line shouldn't be needed but shader doesn't work right if it is removed\n" +
+				"	fragColor = vec4(1.0); // needed or linker errors sometimes \n" + //
 				"} \n";
 		String afs = "" + //
+				"#version 300 es\n" + //
 				"precision highp float; \n" + //
 				"\n" + //
-				"uniform sampler2D colorTexture; // the texture of the material\n" +
+				"uniform lowp sampler2D colorTexture; // the texture of the material\n" +
 				"\n" + //
-				"varying vec2 textureCoord; // the location on the texture\n" +
+				"in lowp vec2 textureCoord; // the location on the texture\n" +
+				"\n" + //
+				"out vec4 fragColor; \n" + //
 				"\n" + //
 				"void main() { \n" + //
-				"	vec4 textureColor = texture2D(colorTexture, textureCoord); \n" +
+				"	lowp vec4 textureColor = texture(colorTexture, textureCoord); \n" +
 				"	if (textureColor.a < 0.5) {\n" +
 				"	  discard;\n" +
 				"	} \n" +
-				"	gl_FragColor = vec4(1.0); // needed or linker errors sometimes \n" + //
+				"	fragColor = vec4(1.0); // needed or linker errors sometimes \n" + //
 				"} \n";
 		init(vs, fs, afs);
 	}
