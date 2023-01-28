@@ -188,18 +188,19 @@ public abstract class GLObject extends GLRendering {
 	@Override
 	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans) {
 
-		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
-
-			// simplified drawing with no lighting or textures. It can always be monolithic
-			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
-			if (sideAttributes.getTransparency() == 0 && !sideAttributes.isAlphaTest()) {
-				float[] modelMatrix = getModelMatrix(worldTime);
-				Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-				Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
-				GLSurface.drawMonolith(shader, sides, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, null, 0, true, false);
-			}
-
-		} else if (object.monolithic || drawType == DRAW_TYPE_PICKING) {
+//		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
+//
+//			// simplified drawing with no lighting or textures. It can always be monolithic
+//			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
+//			if (sideAttributes.getTransparency() == 0) {
+//				float[] modelMatrix = getModelMatrix(worldTime);
+//				Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
+//				Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
+//				GLSurface.drawMonolith(shader, sides, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, null, 0, true, true);
+//			}
+//
+//		} else
+		if (object.monolithic || drawType == DRAW_TYPE_PICKING) {
 
 			// Monolithic drawing. Draw all surfaces together
 			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
@@ -231,7 +232,7 @@ public abstract class GLObject extends GLRendering {
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 						lastBumpTextureId = bumpTextureId;
 					}
-					GLSurface.drawMonolith(shader, sides, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, true, sideAttributes.isAlphaTest());
+					GLSurface.drawMonolith(shader, sides, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, true, false);
 				} else {
 					float[] color = null;
 					float shininess = 0.0f;
@@ -258,19 +259,20 @@ public abstract class GLObject extends GLRendering {
 						}
 					}
 					String textureUrl = sideAttributes.textureURL;
-					int textureId = renderer.getTexture(textureUrl, sideAttributes.isPixelate());
+					int textureId = renderer.getTexture(textureUrl, sideAttributes.isTexturePixelated());
 					if (textureId != lastTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 						lastTextureId = textureId;
 					}
-					int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.isPixelate());
+					int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.isTexturePixelated());
 					if (bumpTextureId != lastBumpTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 						lastBumpTextureId = bumpTextureId;
 					}
-					GLSurface.drawMonolith(shader, sides, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.isFullBright(), sideAttributes.isAlphaTest());
+					boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
+					GLSurface.drawMonolith(shader, sides, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.isFullBright(), hasAlpha);
 				}
 			}
 
@@ -305,7 +307,7 @@ public abstract class GLObject extends GLRendering {
 							}
 							sideDrawn = true;
 						}
-						if (drawType == DRAW_TYPE_PICKING || drawType == DRAW_TYPE_SHADOW) {
+						if (drawType == DRAW_TYPE_PICKING) { // || drawType == DRAW_TYPE_SHADOW) {
 							GLSurface geometry = sides[side];
 							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false);
 						} else {
@@ -335,21 +337,21 @@ public abstract class GLObject extends GLRendering {
 								}
 							}
 							String textureUrl = sideAttributes.textureURL;
-							int textureId = renderer.getTexture(textureUrl, sideAttributes.isPixelate());
+							int textureId = renderer.getTexture(textureUrl, sideAttributes.isTexturePixelated());
 							if (textureId != lastTextureId) {
 								GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 								GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 								lastTextureId = textureId;
 							}
-							int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.isPixelate());
+							int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.isTexturePixelated());
 							if (bumpTextureId != lastBumpTextureId) {
 								GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 								GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 								lastBumpTextureId = bumpTextureId;
 							}
-
+							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.isFullBright(), sideAttributes.isAlphaTest());
+							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.isFullBright(), hasAlpha);
 						}
 					}
 				}
@@ -363,15 +365,15 @@ public abstract class GLObject extends GLRendering {
 	 */
 	public void drawSurfaces(Shader shader, GLSurface[] groupSurfaces, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans) {
 
-		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
-
-			// simplified drawing with no lighting or textures. It can always be monolithic
-			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
-			if (sideAttributes.getTransparency() == 0 && !sideAttributes.isAlphaTest()) {
-				GLSurface.drawMonolith(shader, groupSurfaces, drawType, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, null, 0, sideAttributes.isFullBright(), sideAttributes.isAlphaTest());
-			}
-
-		} else {
+//		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
+//
+//			// simplified drawing with no lighting or textures. It can always be monolithic
+//			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
+//			if (sideAttributes.getTransparency() == 0) {
+//				GLSurface.drawMonolith(shader, groupSurfaces, drawType, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, null, 0, sideAttributes.isFullBright(), true);
+//			}
+//
+//		} else {
 
 			// choose a reference side, the first non-transparent side
 			SideAttributes sideAttributes = null;
@@ -390,8 +392,8 @@ public abstract class GLObject extends GLRendering {
 			if ((drawtrans && trans > 0.0) || (!drawtrans && trans == 0.0)) {
 				// float[] modelMatrix = getModelMatrix(worldTime);
 				Matrix.setIdentityM(modelMatrix, 0);
-
-				if (drawType != DRAW_TYPE_SHADOW) {
+				boolean hasAlpha = false;
+			//	if (drawType != DRAW_TYPE_SHADOW) {
 					Matrix.setIdentityM(textureMatrix, 0);
 					if (false) { // texture matrix is always baked into texture coords for groups
 						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
@@ -416,24 +418,25 @@ public abstract class GLObject extends GLRendering {
 					}
 					color = new float[] { red, green, blue, 1.0f - trans };
 					String textureUrl = sideAttributes.textureURL;
-					int textureId = renderer.getTexture(textureUrl, sideAttributes.isPixelate());
+					int textureId = renderer.getTexture(textureUrl, sideAttributes.isTexturePixelated());
 					if (textureId != lastTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 						lastTextureId = textureId;
 					}
-					int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.isPixelate());
+					int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.isTexturePixelated());
 					if (bumpTextureId != lastBumpTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 						lastBumpTextureId = bumpTextureId;
 					}
-				}
+					hasAlpha = renderer.textureHasAlpha(textureUrl);
+			//	}
 
 				// Note: model is identity so mvMatrix == viewMatrix and sunMvMatrix == sunViewMatrix below
-				GLSurface.drawMonolith(shader, groupSurfaces, drawType, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, color, shininess, sideAttributes.isFullBright(), sideAttributes.isAlphaTest());
+				GLSurface.drawMonolith(shader, groupSurfaces, drawType, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, color, shininess, sideAttributes.isFullBright(), hasAlpha);
 			}
-		}
+//		}
 
 	}
 

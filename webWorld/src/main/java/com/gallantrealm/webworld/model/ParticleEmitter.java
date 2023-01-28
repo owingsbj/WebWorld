@@ -138,7 +138,6 @@ public class ParticleEmitter extends WWParticleEmitter {
 		this.particleImage = particleImage;
 		//temporary
 		setTextureURL(SIDE_ALL, Texture.worldPrefixUrl(particleImage));
-		setTextureAlphaTest(SIDE_ALL, true);
 	}
 
 	public float getParticleTransparency() {

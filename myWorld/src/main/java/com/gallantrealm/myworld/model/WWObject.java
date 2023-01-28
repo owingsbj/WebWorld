@@ -2019,7 +2019,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		texture.setVelocityY(sideAttributes.textureVelocityY);
 		texture.setaMomentum(sideAttributes.textureAMomentum);
 		texture.setRefreshInterval(sideAttributes.textureRefreshInterval);
-		texture.setPixelate(sideAttributes.isPixelate());
+		texture.setPixelated(sideAttributes.isTexturePixelated());
 		return texture;
 	}
 
@@ -2104,7 +2104,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		setTextureVelocityY(side, texture.getVelocityY());
 		setTextureAMomentum(side, texture.getaMomentum());
 		setTextureRefreshInterval(side, texture.getRefreshInterval());
-		setTexturePixelate(side, texture.isPixelate());
+		setTexturePixelate(side, texture.isPixelated());
 	}
 
 	public final void setTexture(WWTexture texture) {
@@ -2207,11 +2207,11 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final boolean getTexturePixelate(int side) {
-		return sideAttributes[side].isPixelate();
+		return sideAttributes[side].isTexturePixelated();
 	}
 
 	public final void setTexturePixelate(int side, boolean pixelate) {
-		getEditableSideAttributes(side).setPixelate(pixelate);
+		getEditableSideAttributes(side).setTexturePixelated(pixelate);
 	}
 
 	public final float getTransparency(int side) {
@@ -2596,14 +2596,6 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	public final void setFullBrightCutout2(boolean fullBright) {
 		setFullBright(SIDE_CUTOUT2, fullBright);
-	}
-
-	public final boolean getTextureAlphaTest(int side) {
-		return sideAttributes[side].isAlphaTest();
-	}
-
-	public final void setTextureAlphaTest(int side, boolean alphaTest) {
-		getEditableSideAttributes(side).setAlphaTest(alphaTest);
 	}
 
 	public final boolean isVideoTexture() {

@@ -100,6 +100,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	public boolean simpleRendering;
 	public static HashMap<String, Integer> textureCache = new HashMap<String, Integer>();
 	public static HashMap<String, Integer> normalTextureCache = new HashMap<String, Integer>();
+	public static HashMap<String, Boolean> hasAlphaCache = new HashMap<String, Boolean>();
 
 	public AndroidRenderer(Context context, GLSurfaceView view, boolean simpleRendering) {
 		System.out.println(">AndroidRenderer.constructor");
@@ -277,6 +278,14 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				}
 			}
 		}
+	}
+
+	public boolean textureHasAlpha(String textureName) {
+		Boolean hasAlpha =  hasAlphaCache.get(textureName);
+		if (hasAlpha == null) {
+			return false;
+		}
+		return hasAlpha;
 	}
 
 	@Override
@@ -469,10 +478,14 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				if (bitmap == null) { // problems
 					int textureId = getTexture("white", true); // use white texture
 					textureCache.put(textureName, textureId);
+					hasAlphaCache.put(textureName, false);
 					return textureId;
 				}
+				boolean hasAlpha = bitmap.hasAlpha();
+
 				int textureId = genTexture(bitmap, textureName, pixelate);
 				textureCache.put(textureName, textureId);
+				hasAlphaCache.put(textureName, hasAlpha);
 				return textureId;
 			} finally {
 				try {
@@ -551,6 +564,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		GLES20.glGenTextures(1, textureIds, 0);
 		int textureId = textureIds[0];
 		textureCache.put(textureName, textureId);
+		hasAlphaCache.put(textureName, false);
 
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 		if (simpleRendering) {
@@ -1154,6 +1168,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	public final void clearTextureCache() {
 		textureCache = new HashMap<String, Integer>(); // clear doesn't work
 		normalTextureCache = new HashMap<String, Integer>();
+		hasAlphaCache = new HashMap<String, Boolean>();
 	}
 
 	@Override

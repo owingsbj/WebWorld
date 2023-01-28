@@ -39,10 +39,8 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 	public float textureVelocityY;
 	public float textureAMomentum;
 	public long textureRefreshInterval;
-	public boolean bumpMap;  // keep, for compatibility..
-	private boolean alphaTest;
+	public boolean texturePixelated;
 	public boolean isDefault;
-	private boolean pixelate;
 
 	public SideAttributes() {
 	}
@@ -75,8 +73,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		os.writeFloat(textureVelocityY);
 		os.writeFloat(textureAMomentum);
 		os.writeLong(textureRefreshInterval);
-		os.writeBoolean(isAlphaTest());
-		os.writeBoolean(isPixelate());
+		os.writeBoolean(isTexturePixelated());
 	}
 
 	@Override
@@ -97,8 +94,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		textureVelocityY = is.readFloat();
 		textureAMomentum = is.readFloat();
 		textureRefreshInterval = is.readLong();
-		setAlphaTest(is.readBoolean());
-		setPixelate(is.readBoolean());
+		setTexturePixelated(is.readBoolean());
 	}
 
 	public float getTransparency() {
@@ -125,20 +121,12 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		this.fullBright = fullBright;
 	}
 
-	public boolean isAlphaTest() {
-		return alphaTest;
+	public boolean isTexturePixelated() {
+		return texturePixelated;
 	}
 
-	public void setAlphaTest(boolean alphaTest) {
-		this.alphaTest = alphaTest;
-	}
-
-	public boolean isPixelate() {
-		return pixelate;
-	}
-
-	public void setPixelate(boolean pixelate) {
-		this.pixelate = pixelate;
+	public void setTexturePixelated(boolean texturePixelated) {
+		this.texturePixelated = texturePixelated;
 	}
 
 	public WWColor getColor() {
@@ -163,7 +151,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		texture.setVelocityY(textureVelocityY);
 		texture.setaMomentum(textureAMomentum);
 		texture.setRefreshInterval(textureRefreshInterval);
-		texture.setPixelate(pixelate);
+		texture.setPixelated(texturePixelated);
 		return texture;
 	}
 
@@ -178,7 +166,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		textureVelocityY = texture.getVelocityY();
 		textureAMomentum = texture.getaMomentum();
 		textureRefreshInterval = texture.getRefreshInterval();
-		pixelate = texture.isPixelate();
+		texturePixelated = texture.isPixelated();
 	}
 
 }

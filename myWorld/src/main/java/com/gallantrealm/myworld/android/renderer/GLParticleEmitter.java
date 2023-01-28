@@ -148,7 +148,6 @@ public class GLParticleEmitter extends GLObject {
 		float[] color = new float[] { red, green, blue, 1.0f - trans };
 
 		int fullBright = 1;
-		boolean alphaTest = sideAttributes.isAlphaTest();
 		Matrix.setIdentityM(textureMatrix, 0);
 		if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
 			Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
@@ -159,13 +158,13 @@ public class GLParticleEmitter extends GLObject {
 			}
 		}
 		String textureUrl = sideAttributes.textureURL;
-		int textureId = renderer.getTexture(textureUrl, sideAttributes.isPixelate());
+		int textureId = renderer.getTexture(textureUrl, sideAttributes.isTexturePixelated());
 		if (textureId != lastTextureId) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 			lastTextureId = textureId;
 		}
-		int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.isPixelate());
+		int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.isTexturePixelated());
 		if (bumpTextureId != lastBumpTextureId) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
@@ -188,7 +187,7 @@ public class GLParticleEmitter extends GLObject {
 		Matrix.setIdentityM(modelMatrix, 0);
 
 		// draw points
-		shader.drawPoints(emitter.particleCount, vertices, extras, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, color, shininess, fullBright, alphaTest);
+		shader.drawPoints(emitter.particleCount, vertices, extras, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, color, shininess, fullBright, true);
 	}
 
 }

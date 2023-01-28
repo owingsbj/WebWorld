@@ -535,8 +535,9 @@ public class GLTranslucency extends GLObject  {
 							int bumpTextureId = renderer.getNormalTexture(textureUrl, object.getTexturePixelate(side));
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
+							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, cutoutMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, object.isFullBright(side), object.getTextureAlphaTest(side));
+							geometry.draw(shader, drawType, cutoutMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, object.isFullBright(side), hasAlpha);
 						}
 					}
 					
@@ -586,8 +587,9 @@ public class GLTranslucency extends GLObject  {
 							int bumpTextureId = renderer.getNormalTexture(textureUrl, object.getTexturePixelate(side));
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
+							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, object.isFullBright(side), object.getTextureAlphaTest(side));
+							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, object.isFullBright(side), hasAlpha);
 						}
 					}
 				}
