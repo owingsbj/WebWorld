@@ -29,4 +29,14 @@ public class AvatarCustomization extends WWEntity {
 		ClientModel.getClientModel().saveObject(this, avatarName+".customization");
 	}
 
+	// some additional get/set to allow native types to work
+
+	public final Serializable getCustomProperty(String key, boolean defaultValue) {
+		return getCustomProperty(key, (Boolean)defaultValue);
+	}
+
+	public void setCustomProperty(String key, boolean value) {
+		setCustomProperty(key, (Boolean)value);
+	}
+
 }
