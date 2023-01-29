@@ -263,9 +263,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		statusText.setTypeface(typeface);
 		flashMessageText.setTypeface(typeface);
 
-		logText.setText("");
-		clientModel.clearLog();
-
 		worldView.setOnTouchListener(this);
 		rightActionButton2.setOnTouchListener(this);
 		rightActionButton1.setOnTouchListener(this);

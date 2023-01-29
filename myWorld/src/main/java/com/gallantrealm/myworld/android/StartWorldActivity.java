@@ -90,6 +90,7 @@ public class StartWorldActivity extends GallantActivity {
 				try {
 					clientModel.setUserNameField(clientModel.getAvatarName());
 					clientModel.setWorldAddressField("localhost:8880");
+					clientModel.clearLog();
 
 					if (clientModel.getAlwaysStartAsNew()) {
 						newWorld(worldClassName, worldName);
