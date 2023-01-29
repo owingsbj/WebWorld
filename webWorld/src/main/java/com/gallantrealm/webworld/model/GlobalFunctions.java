@@ -21,6 +21,7 @@ public class GlobalFunctions implements Serializable {
 	}
 
 	static String returnedValue = null;
+	static Integer returnedIndex = null;
 
 	public static String prompt(String message, String defaultText) {
 		AndroidClientModel clientModel = AndroidClientModel.getClientModel();
@@ -64,24 +65,24 @@ public class GlobalFunctions implements Serializable {
 		}
 	}
 	
-	public static String select(String message, NativeArray jsSelections, NativeArray jsImageFileNames) {
+	public static Integer select(String message, NativeArray jsSelections, NativeArray jsImageFileNames) {
 		AndroidClientModel clientModel = AndroidClientModel.getClientModel();
 		selections = new Selection[jsSelections.size()];
 		for (int i = 0; i < selections.length; i++) {
 			selections[i] = new Selection(String.valueOf(jsSelections.get(i)), Texture.worldPrefixUrl(String.valueOf(jsImageFileNames.get(i))));
 		}
-		returnedValue = null;
+		returnedIndex = null;
 		final Thread thisThread = Thread.currentThread();
 		clientModel.selectAlert(message, selections, null, new SelectResponseHandler() {
-			public void handleSelect(Object selectedItem, int option) {
+			public void handleSelect(int selectedItemPosition, int option) {
 				if (option == 0) {
 					try {
-						returnedValue = ((Selection)selectedItem).getName();
+						returnedIndex = (Integer)selectedItemPosition;
 					} catch (Exception e) {
-						returnedValue = null;;
+						returnedIndex = null;;
 					}
 				} else {
-					returnedValue = null;
+					returnedIndex = null;
 				}
 				synchronized (thisThread) {
 					thisThread.notify();
@@ -94,7 +95,7 @@ public class GlobalFunctions implements Serializable {
 			} catch (InterruptedException e) {
 			}
 		}
-		return returnedValue;
+		return returnedIndex;
 	}
 
 }

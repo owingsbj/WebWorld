@@ -45,6 +45,7 @@ public class SelectObjectDialog extends Dialog {
 	Activity activity;
 	Object[] availableItems;
 	Object selectedItem;
+	int selectedItemPosition;
 
 	public SelectObjectDialog(Context context, String message, Object[] availableItems, String[] options) {
 		super(context, R.style.Theme_Dialog);
@@ -177,6 +178,7 @@ public class SelectObjectDialog extends Dialog {
 			public void onItemClick(AdapterView<?> arg0, View view, int position, long arg3) {
 				view.setSelected(true);
 				selectedItem = availableItems[position];
+				selectedItemPosition = position;
 				if (options == null) {
 					buttonPressed = 0;
 					SelectObjectDialog.this.dismiss();
@@ -253,6 +255,10 @@ public class SelectObjectDialog extends Dialog {
 
 	public Object getItemSelected() {
 		return selectedItem;
+	}
+
+	public int getSelectedItemPosition() {
+		return selectedItemPosition;
 	}
 
 }

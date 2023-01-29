@@ -1363,7 +1363,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 				selectItemDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
 					@Override
 					public void onDismiss(DialogInterface dialogInterface) {
-						handler.handleSelect(selectItemDialog.getItemSelected(), selectItemDialog.getButtonPressed());
+						handler.handleSelect(selectItemDialog.getSelectedItemPosition(), selectItemDialog.getButtonPressed());
 						currentDialog = null;
 					}
 				});
