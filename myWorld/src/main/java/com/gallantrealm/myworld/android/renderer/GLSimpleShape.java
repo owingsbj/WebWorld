@@ -33,31 +33,6 @@ public class GLSimpleShape extends GLObject {
 
 	/**
 	 * Constructs the PolyPrimitive.
-	 * 
-	 * @param shapeType
-	 *            one of BOX, CYLINDER, SPHERE, TORUS
-	 * @param sizeX
-	 *            the size of the x dimension
-	 * @param sizeY
-	 *            the size of the y dimension
-	 * @param sizeZ
-	 *            the size of the z dimension
-	 * @param taperX
-	 *            the amount to taper in the x dimension
-	 * @param taperY
-	 *            the amount to taper in the y dimension
-	 * @param shearX
-	 *            the amount to shear in the x dimension
-	 * @param shearY
-	 *            the amount to shear in the y dimension
-	 * @param twist
-	 *            the amount to twist the shape
-	 * @param hollow
-	 *            the amount to hollow
-	 * @param cutStart
-	 *            the starting point of cutout
-	 * @param cutEnd
-	 *            the ending point of cutout
 	 */
 	public GLSimpleShape(AndroidRenderer renderer, WWSimpleShape object, long worldTime) {
 		super(renderer, object, worldTime);
