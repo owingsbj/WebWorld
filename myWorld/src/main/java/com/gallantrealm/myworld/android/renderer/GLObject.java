@@ -188,6 +188,9 @@ public abstract class GLObject extends GLRendering {
 	@Override
 	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans) {
 
+// Note: This optimization is disabled so that textures with transparent pixels are taken into account
+// when determining shadows.  This lets plants cast shadows.
+//
 //		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
 //
 //			// simplified drawing with no lighting or textures. It can always be monolithic
@@ -365,6 +368,9 @@ public abstract class GLObject extends GLRendering {
 	 */
 	public void drawSurfaces(Shader shader, GLSurface[] groupSurfaces, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans) {
 
+// Note: This optimization is disabled so that textures with transparent pixels are taken into account
+// when determining shadows.  This lets plants cast shadows.
+//
 //		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
 //
 //			// simplified drawing with no lighting or textures. It can always be monolithic
