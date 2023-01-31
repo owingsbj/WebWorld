@@ -34,6 +34,7 @@ public class WWTranslucency extends WWObject {
 
 	public void setInsideLayerDensity(float density) {
 		insideLayerDensity = density;
+		updateRendering();
 	}
 
 	@Override

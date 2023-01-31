@@ -64,6 +64,7 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 
 	public void setShearX(float shearX) {
 		this.shearX = shearX;
+		updateRendering();
 	}
 
 	public final float getShearY() {
@@ -72,11 +73,13 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 
 	public void setShearY(float shearY) {
 		this.shearY = shearY;
+		updateRendering();
 	}
 
 	public final void setShear(float[] dims) {
 		this.shearX = dims[0];
 		this.shearY = dims[1];
+		updateRendering();
 	}
 
 	public final float getTaperX() {
@@ -85,6 +88,7 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 
 	public void setTaperX(float taperX) {
 		this.taperX = taperX;
+		updateRendering();
 	}
 
 	public final float getTaperY() {
@@ -93,11 +97,13 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 
 	public void setTaperY(float taperY) {
 		this.taperY = taperY;
+		updateRendering();
 	}
 
 	public final void setTaper(float taperX, float taperY) {
 		this.taperX = taperX;
 		this.taperY = taperY;
+		updateRendering();
 	}
 
 	public final void setTaper(float[] tapers) {
@@ -114,6 +120,7 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 
 	public void setHollow(float hollow) {
 		this.hollow = hollow;
+		updateRendering();
 	}
 
 	public final float getCutoutStart() {
@@ -126,19 +133,23 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 
 	public void setCutoutStart(float cutoutStart) {
 		this.cutoutStart = Math.round(FastMath.max(FastMath.min(cutoutStart, 1.0f), 0.0f) * 8.0) / 8.0f;
+		updateRendering();
 	}
 
 	public void setCutoutEnd(float cutoutEnd) {
 		this.cutoutEnd = Math.round(FastMath.max(FastMath.min(cutoutEnd, 1.0f), 0.0f) * 8.0) / 8.0f;
+		updateRendering();
 	}
 
 	public final void setCutout(float start, float end) {
 		setCutoutStart(start);
 		setCutoutEnd(end);
+		updateRendering();
 	}
 
 	public final void setCutout(float[] dims) {
 		setCutout(dims[0], dims[1]);
+		updateRendering();
 	}
 
 	public final float getTwist() {
@@ -147,6 +158,7 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 
 	public final void setTwist(float twist) {
 		this.twist = twist;
+		updateRendering();
 	}
 
 	public final int getCircleVertices() {
@@ -155,6 +167,7 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 
 	public final void setCircleVertices(int vertices) {
 		circleVertices = vertices;
+		updateRendering();
 	}
 
 	public final int getVertices() {
@@ -163,6 +176,7 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 
 	public final void setVertices(int vertices) {
 		circleVertices = vertices;
+		updateRendering();
 	}
 
 }

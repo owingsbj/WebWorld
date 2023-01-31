@@ -1055,6 +1055,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	public final void setMonolithic(boolean monolithic) {
 		this.monolithic = monolithic;
+		updateRendering();
 	}
 
 	/**
@@ -1734,6 +1735,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		sizeZ = v.z;
 		calculateExtents();
 		edgePoints = null;
+		updateRendering();;
 	}
 
 	public final void setSize(float x, float y, float z) {
@@ -1742,6 +1744,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		sizeZ = z;
 		calculateExtents();
 		edgePoints = null;
+		updateRendering();
 	}
 
 	public void setSize(float[] dims) {

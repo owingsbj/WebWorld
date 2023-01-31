@@ -51,6 +51,7 @@ public class WWMesh extends WWObject {
 
 	public final void setBaseShape(int baseShape) {
 		this.baseShape = baseShape;
+		updateRendering();
 	}
 
 	public final int getCellsX() {
@@ -85,6 +86,7 @@ public class WWMesh extends WWObject {
 		}
 		this.cellsX = cellsX;
 		this.cellsY = cellsY;
+		updateRendering();
 	}
 
 	public final void setMeshSize(int[] cells) {
@@ -106,6 +108,7 @@ public class WWMesh extends WWObject {
 			value = 0.01f;
 		}
 		mesh[cx][cy] = value;
+		updateRendering();
 	}
 
 	public final void raiseMeshPoint(int cx, int cy, float value) {
