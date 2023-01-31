@@ -31,6 +31,10 @@ public class GLTranslucency extends GLObject  {
 
 	public GLTranslucency(AndroidRenderer renderer, WWObject object, long worldTime) {
 		super(renderer, object, worldTime);
+		buildRendering();
+	}
+
+	public void buildRendering() {
 		this.sizeX = object.sizeX;
 		this.sizeY = object.sizeY;
 		this.sizeZ = object.sizeZ;
@@ -323,6 +327,11 @@ public class GLTranslucency extends GLObject  {
 
 	}
 
+	@Override
+	public void updateRendering() {
+		buildRendering();  // for now..
+	}
+
 // /**
 // * This class dynamically updates the gemotry of the translucency layers so they point to the camera.
 // */
@@ -596,4 +605,5 @@ public class GLTranslucency extends GLObject  {
 			}
 		}
 	}
+
 }

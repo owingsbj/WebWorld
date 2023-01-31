@@ -18,6 +18,10 @@ public class GLParticleEmitter extends GLObject {
 	public GLParticleEmitter(AndroidRenderer renderer, WWParticleEmitter emitter, long worldTime) {
 		super(renderer, emitter, worldTime);
 		this.emitter = emitter;
+		buildRendering();
+	}
+
+	public void buildRendering() {
 
 		// Create a simple box to use only for picking draws
 		float sizeX = object.sizeX;
@@ -188,6 +192,11 @@ public class GLParticleEmitter extends GLObject {
 
 		// draw points
 		shader.drawPoints(emitter.particleCount, vertices, extras, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, color, shininess, fullBright, true);
+	}
+
+	@Override
+	public void updateRendering() {
+		buildRendering(); // rebuild it for now
 	}
 
 }

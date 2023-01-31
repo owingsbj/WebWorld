@@ -36,6 +36,11 @@ public class GLSimpleShape extends GLObject {
 	 */
 	public GLSimpleShape(AndroidRenderer renderer, WWSimpleShape object, long worldTime) {
 		super(renderer, object, worldTime);
+		buildRendering();
+	}
+
+	public void buildRendering() {
+		WWSimpleShape object = (WWSimpleShape)this.object;
 
 		float sizeX = object.sizeX;
 		float sizeY = object.sizeY;
@@ -414,6 +419,10 @@ public class GLSimpleShape extends GLObject {
 			renderer.geometryCache.put(geometryMapKey, sides);
 		}
 
+	}
+
+	public void updateRendering() {
+		buildRendering();  // for now, just replace it all
 	}
 
 }

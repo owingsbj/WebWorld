@@ -12,6 +12,11 @@ public class GLPlant extends GLObject {
 
 	public GLPlant(AndroidRenderer renderer, WWPlant plant, long worldTime) {
 		super(renderer, plant, worldTime);
+		buildRendering();
+	}
+
+	public void buildRendering() {
+		WWPlant plant = (WWPlant)this.object;
 
 		// There are eight plant sides that criss-cross.
 		for (int i = 0; i < 4; i++) {
@@ -44,6 +49,10 @@ public class GLPlant extends GLObject {
 			setSide(WWObject.SIDE_INSIDE1 + i, sideGeometry);
 		}
 
+	}
+
+	public void updateRendering() {
+		buildRendering();  // for now..
 	}
 
 }

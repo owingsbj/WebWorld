@@ -16,6 +16,15 @@ public class GLSculpty extends GLObject {
 
 	public GLSculpty(AndroidRenderer renderer, WWSculpty sculpty, long worldTime) {
 		super(renderer, sculpty, worldTime);
+		buildRendering();
 	}
 
+	public void buildRendering() {
+		// TODO
+	}
+
+	@Override
+	public void updateRendering() {
+
+	}
 }
