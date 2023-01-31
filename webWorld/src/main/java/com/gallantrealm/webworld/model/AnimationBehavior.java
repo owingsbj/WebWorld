@@ -164,7 +164,7 @@ public class AnimationBehavior extends WWAnimation {
 					rotation.pitch(75 * range);
 				}
 				if ("head".equals(object.getName())) {
-					if ("neck".equals(world.getObject(object.getParent()).getName())) {
+					if (object.getParent() != null && "neck".equals(object.getParent().getName())) {
 						rotation.pitch(-45 * range);
 					} else {
 						// bend head more when there's no neck to see horizon when swimming
