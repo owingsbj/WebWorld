@@ -141,7 +141,7 @@ public class XPhysicsThread extends Thread {
 					float objectExtent = object.extent;
 					for (int j = 1; j <= lastObjectIndex; j++) {
 						WWObject object2 = objects[j];
-						if (object2 != null && object2 != object && !object2.deleted && !object2.phantom && !object2.isChildOf(object)) {
+						if (object2 != null && object2 != object && !object2.deleted && !object2.phantom && !object2.isDescendantOf(object)) {
 
 							// First, see if the objects are "close".  If they are, it is worth
 							// determining if they actually overlap

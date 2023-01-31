@@ -136,8 +136,8 @@ public class SoundPickerDialog extends Dialog {
 							} else {
 								object.setPosition(object.getPosition().add(selectedPosition).subtract(keyx, keyy, keyz));
 								world.addObject(object);
-								if (object.getParent() == 0) {
-									object.setParent(keystone);
+								if (object.getParentId() == 0) {
+									object.setParentId(keystone);
 								}
 							}
 						}

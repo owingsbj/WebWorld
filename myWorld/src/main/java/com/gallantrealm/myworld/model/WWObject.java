@@ -1419,15 +1419,22 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	}
 
-	public final int getParent() {
+	public final int getParentId() {
 		return parentId;
 	}
 
-	public final void setParent(int parentId) {
+	public final void setParentId(int parentId) {
 		this.parentId = parentId;
 	}
 
-	public final void setParent(WWObject parent) {
+	public final WWObject getParent() {
+		if (parentId != 0 && world != null) {
+			return world.getObject(parentId);
+		}
+		return null;
+	}
+
+	public final void setParentId(WWObject parent) {
 		if (parent == null) {
 			this.parentId = 0;
 		} else {
@@ -1435,7 +1442,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		}
 	}
 
-	public final boolean isChildOf(WWObject parent) {
+	public final boolean isDescendantOf(WWObject parent) {
 		int tempId = parentId;
 		while (tempId != 0) {
 			if (parent.id == tempId) {
@@ -1503,7 +1510,10 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	public final void addChild(WWObject child) {
 		migrateChildIds();
-		if (!child.isChildOf(this)) {
+		if (!child.isDescendantOf(this)) {
+			if (child.parentId != 0) {
+				throw new RuntimeException(""+child+" is already a child of "+child.getParent());
+			}
 			WWObject[] newChildren;
 			if (children == null) {
 				newChildren = new WWObject[1];
@@ -1515,12 +1525,16 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			}
 			newChildren[newChildren.length - 1] = child;
 			children = newChildren;
+			if (this.world != null) {
+				child.parentId = id;
+				world.addObject(child);
+			}
 		}
 	}
 
 	public final void removeChild(WWObject child) {
 		migrateChildIds();
-		if (children != null && child.isChildOf(this)) {
+		if (children != null) {
 			for (int i = 0; i < children.length; i++) {
 				if (children[i] == child) {
 					WWObject[] newChildren = new WWObject[children.length - 1];
@@ -1531,6 +1545,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 						newChildren[j] = children[j + 1];
 					}
 					children = newChildren;
+					if (this.world != null) {
+						world.removeObject(child.id);
+					}
 					return;
 				}
 			}
