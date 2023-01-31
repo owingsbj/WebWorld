@@ -299,6 +299,11 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	}
 
 	@Override
+	public IRendering createBevelledBoxRendering(WWBox bbox, long worldTime) {
+		return new GLSimpleShape(this, bbox, worldTime);
+	}
+
+	@Override
 	public IRendering createCylinderRendering(WWCylinder cylinder, long worldTime) {
 		return new GLSimpleShape(this, cylinder, worldTime);
 	}

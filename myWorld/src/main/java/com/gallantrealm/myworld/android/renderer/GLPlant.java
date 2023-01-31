@@ -28,7 +28,7 @@ public class GLPlant extends GLObject {
 			float y2 = (float) (0.5 * Math.cos(r) * plant.sizeY);
 			float z2 = (float) (0.5 * plant.sizeZ);
 
-			GLSurface sideGeometry = new GLSurface(2, 2, false);
+			GLSurface sideGeometry = new GLSurface(2, 2);
 			sideGeometry.setVertex(0, 0, x1, z1, y1);
 			sideGeometry.setVertex(0, 1, x1, z2, y1);
 			sideGeometry.setVertex(1, 1, x2, z2, y2);
@@ -38,7 +38,7 @@ public class GLPlant extends GLObject {
 			adjustTextureCoords(sideGeometry, WWObject.SIDE_SIDE1 + i);
 			setSide(WWObject.SIDE_SIDE1 + i, sideGeometry);
 
-			sideGeometry = new GLSurface(2, 2, false);
+			sideGeometry = new GLSurface(2, 2);
 			sideGeometry.setVertex(0, 0, x2, z1, y2);
 			sideGeometry.setVertex(0, 1, x2, z2, y2);
 			sideGeometry.setVertex(1, 1, x1, z2, y1);

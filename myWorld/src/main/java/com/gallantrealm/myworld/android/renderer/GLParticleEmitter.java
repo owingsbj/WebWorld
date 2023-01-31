@@ -39,7 +39,7 @@ public class GLParticleEmitter extends GLObject {
 		// --------------------------
 
 		GLSurface baseGeometry;
-		baseGeometry = new GLSurface(2, 2, false);
+		baseGeometry = new GLSurface(2, 2);
 		baseGeometry.setVertex(0, 0, sweepPath[0].x + polygon[0].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[0].y * sweepRadius[0].y);
 		baseGeometry.setVertex(0, 1, sweepPath[0].x + polygon[1].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[1].y * sweepRadius[0].y);
 		baseGeometry.setVertex(1, 1, sweepPath[0].x + polygon[2].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[2].y * sweepRadius[0].y);
@@ -62,7 +62,7 @@ public class GLParticleEmitter extends GLObject {
 			int startVertex = Math.max(firstVertex, side * verticesPerSide);
 			int endVertex = Math.min(lastVertex, (side + 1) * verticesPerSide - 1);
 			if (startVertex <= endVertex) {
-				GLSurface sideGeometry = new GLSurface(endVertex - startVertex + 2, nsweeps, false);
+				GLSurface sideGeometry = new GLSurface(endVertex - startVertex + 2, nsweeps);
 				int vertex = 0;
 				for (int v = startVertex; v <= endVertex + 1; v++) {
 					for (int i = 0; i < nsweeps; i++) {
@@ -84,7 +84,7 @@ public class GLParticleEmitter extends GLObject {
 		// Create the top
 		// --------------------------
 
-		GLSurface topGeometry = new GLSurface(2, 2, false);
+		GLSurface topGeometry = new GLSurface(2, 2);
 		topGeometry.setVertex(0, 0, sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y);
 		topGeometry.setVertex(1, 0, sweepPath[nsweeps - 1].x + polygon[1].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[1].y * sweepRadius[nsweeps - 1].y);
 		topGeometry.setVertex(1, 1, sweepPath[nsweeps - 1].x + polygon[2].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[2].y * sweepRadius[nsweeps - 1].y);

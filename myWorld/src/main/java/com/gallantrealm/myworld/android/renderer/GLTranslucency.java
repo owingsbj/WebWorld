@@ -46,7 +46,7 @@ public class GLTranslucency extends GLObject  {
 		topLayers = (int) (layerDensity * sizeZ);
 
 		// Create top (use a 10x10 matrix for better fog look on large transparencies like water
-		GLSurface topGeometry = new GLSurface(11, 11, false);
+		GLSurface topGeometry = new GLSurface(11, 11);
 		for (int y = 0; y < 11; y++) {
 			for (int x = 0; x < 11; x++) {
 				topGeometry.setVertex(x, y, x * sizeX / 10 - sizeX / 2, sizeZ / 2, y * sizeY / 10 - sizeY / 2);
@@ -56,7 +56,7 @@ public class GLTranslucency extends GLObject  {
 		this.setSide(WWObject.SIDE_TOP, topGeometry);
 
 		// Create the inside top, no normals
-		GLSurface insideTopGeometry = new GLSurface(11, 11, false);
+		GLSurface insideTopGeometry = new GLSurface(11, 11);
 		for (int y = 0; y < 11; y++) {
 			for (int x = 0; x < 11; x++) {
 				insideTopGeometry.setVertex(10 - x, y, x * sizeX / 10 - sizeX / 2, sizeZ / 2, y * sizeY / 10 - sizeY / 2);
@@ -65,7 +65,7 @@ public class GLTranslucency extends GLObject  {
 		this.setSide(WWObject.SIDE_INSIDE_TOP, insideTopGeometry);
 
 		// Create the inside bottom, again no normals
-		GLSurface insideBottomGeometry = new GLSurface(11, 11, false);
+		GLSurface insideBottomGeometry = new GLSurface(11, 11);
 		for (int y = 0; y < 11; y++) {
 			for (int x = 0; x < 11; x++) {
 				insideBottomGeometry.setVertex(x, y, x * sizeX / 10 - sizeX / 2, -sizeZ / 2, y * sizeY / 10 - sizeY / 2);
@@ -74,25 +74,25 @@ public class GLTranslucency extends GLObject  {
 		this.setSide(WWObject.SIDE_INSIDE_BOTTOM, insideBottomGeometry);
 
 		// Create the inside sides (inside1-inside4), no normals.  These are drawn "far away" as if fully hollow
-		GLSurface inside1Geometry = new GLSurface(2, 2, false);
+		GLSurface inside1Geometry = new GLSurface(2, 2);
 		inside1Geometry.setVertex(0, 0, -sizeX / 2, -sizeZ / 2, sizeY / 2);
 		inside1Geometry.setVertex(1, 0, sizeX / 2, -sizeZ / 2, sizeY / 2);
 		inside1Geometry.setVertex(0, 1, -sizeX / 2, sizeZ / 2, sizeY / 2);
 		inside1Geometry.setVertex(1, 1, sizeX / 2, sizeZ / 2, sizeY / 2);
 		this.setSide(WWObject.SIDE_INSIDE1, inside1Geometry);
-		GLSurface inside2Geometry = new GLSurface(2, 2, false);
+		GLSurface inside2Geometry = new GLSurface(2, 2);
 		inside2Geometry.setVertex(0, 0, -sizeX / 2, -sizeZ / 2, -sizeY / 2);
 		inside2Geometry.setVertex(1, 0, -sizeX / 2, -sizeZ / 2, sizeY / 2);
 		inside2Geometry.setVertex(0, 1, -sizeX / 2, sizeZ / 2, -sizeY / 2);
 		inside2Geometry.setVertex(1, 1, -sizeX / 2, sizeZ / 2, sizeY / 2);
 		this.setSide(WWObject.SIDE_INSIDE2, inside2Geometry);
-		GLSurface inside3Geometry = new GLSurface(2, 2, false);
+		GLSurface inside3Geometry = new GLSurface(2, 2);
 		inside3Geometry.setVertex(0, 0, sizeX / 2, -sizeZ / 2, -sizeY / 2);
 		inside3Geometry.setVertex(1, 0, -sizeX / 2, -sizeZ / 2, -sizeY / 2);
 		inside3Geometry.setVertex(0, 1, sizeX / 2, sizeZ / 2, -sizeY / 2);
 		inside3Geometry.setVertex(1, 1, -sizeX / 2, sizeZ / 2, -sizeY / 2);
 		this.setSide(WWObject.SIDE_INSIDE3, inside3Geometry);
-		GLSurface inside4Geometry = new GLSurface(2, 2, false);
+		GLSurface inside4Geometry = new GLSurface(2, 2);
 		inside4Geometry.setVertex(0, 0, sizeX / 2, -sizeZ / 2, sizeY / 2);
 		inside4Geometry.setVertex(1, 0, sizeX / 2, -sizeZ / 2, -sizeY / 2);
 		inside4Geometry.setVertex(0, 1, sizeX / 2, sizeZ / 2, sizeY / 2);
@@ -101,7 +101,7 @@ public class GLTranslucency extends GLObject  {
 
 		// Create an inside shape to box the camera. This shape is only shown when the object is clipped by the camera frustrum.
 		// It provides a (crude) illusion of the translucency even when the translucency is penetrated. Mapped to CUTOUT1
-		GLSurface insideXGeometry = new GLSurface(2, 3, false);
+		GLSurface insideXGeometry = new GLSurface(2, 3);
 		float maskWidth = 3.0f * AndroidRenderer.CLOSENESS;
 		float maskDistance = 1.5f * AndroidRenderer.CLOSENESS;
 		insideXGeometry.setVertex(0, 0, maskWidth, -sizeZ / 2, -maskDistance * 1.2f);

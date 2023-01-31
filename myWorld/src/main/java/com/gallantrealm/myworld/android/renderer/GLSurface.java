@@ -111,15 +111,13 @@ public final class GLSurface {
 
 	int width; // number of vertices wide
 	int height; // number of vertices high
-	boolean smooth;
 	int baseVertex;
 	int baseIndex;
 	int nindices;
 
-	public GLSurface(int width, int height, boolean smooth) {
+	public GLSurface(int width, int height) {
 		this.width = width;
 		this.height = height;
-		this.smooth = smooth;
 		int nvertices = width * height;
 		if (nextFreeVertex + nvertices >= MAX_VERTICES) {
 			System.err.println("No more free vertices!!!");
@@ -134,7 +132,7 @@ public final class GLSurface {
 		baseIndex = nextFreeIndex;
 		nextFreeIndex += nindices;
 
-		generateTextureCoords(1.0f, 1.0f);
+		generateTextureCoords();
 
 		generateIndices();
 	}
@@ -152,7 +150,31 @@ public final class GLSurface {
 		point.y = vertices.get(vertex * 3 + 1);
 		point.z = vertices.get(vertex * 3 + 2);
 	}
-	
+
+	public float getVertexX(int x, int y) {
+		if (baseVertex < 0) { // overflow
+			return 0;
+		}
+		int vertex = baseVertex + (y * width + x);
+		return vertices.get(vertex * 3);
+	}
+
+	public float getVertexY(int x, int y) {
+		if (baseVertex < 0) { // overflow
+			return 0;
+		}
+		int vertex = baseVertex + (y * width + x);
+		return vertices.get(vertex * 3 + 1);
+	}
+
+	public float getVertexZ(int x, int y) {
+		if (baseVertex < 0) { // overflow
+			return 0;
+		}
+		int vertex = baseVertex + (y * width + x);
+		return vertices.get(vertex * 3 + 2);
+	}
+
 	public void setVertex(int x, int y, float px, float py, float pz) {
 		if (baseVertex < 0) { // overflow
 			return;
@@ -251,20 +273,88 @@ public final class GLSurface {
 		}
 	}
 
-	public void generateTextureCoords(float sizex, float sizey) {
+	/**
+	 * Initially generates the texture coordinates based on
+	 * the vertex position.
+	 */
+	private void generateTextureCoords() {
 		if (baseVertex < 0) { // overflow
 			return;
 		}
 		int index = baseVertex;
 		for (int y = 0; y < height; y++) {
-			float ycoord = sizey / (height - 1) * (height - y - 1) - 0.5f;
+			float ycoord = 1.0f / (height - 1) * (height - y - 1) - 0.5f;
 			for (int x = 0; x < width; x++) {
-				float xcoord = 0.5f - sizex / (width - 1) * x;
+				float xcoord = 0.5f - 1.0f / (width - 1) * x;
 				textureCoords.put(index * 2, xcoord);
 				textureCoords.put(index * 2 + 1, ycoord);
 				index++;
 			}
 		}
+	}
+
+	/**
+	 * Generate texture coords based on the vertex values in the X and Y dimensions.
+	 */
+	public void generateTextureCoordsXY(float xScale, float yScale) {
+		if (baseVertex < 0) { // overflow
+			return;
+		}
+		int index = baseVertex;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				textureCoords.put(index * 2, xScale * getVertexX(x, y));
+				textureCoords.put(index * 2 + 1, yScale * getVertexY(x, y));
+				index++;
+			}
+		}
+	}
+
+	/**
+	 * Generate texture coords based on the vertex values.
+	 */
+	public void generateTextureCoordsXZ(float xScale, float zScale) {
+		if (baseVertex < 0) { // overflow
+			return;
+		}
+		int index = baseVertex;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				textureCoords.put(index * 2, xScale * getVertexX(x, y));
+				textureCoords.put(index * 2 + 1, zScale * getVertexZ(x, y));
+				index++;
+			}
+		}
+	}
+
+	/**
+	 * Generate texture coords based on the vertex values in the Y and Z dimensions.
+	 */
+	public void generateTextureCoordsYZ(float yScale, float zScale) {
+		if (baseVertex < 0) { // overflow
+			return;
+		}
+		int index = baseVertex;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				textureCoords.put(index * 2, yScale * getVertexY(x, y));
+				textureCoords.put(index * 2 + 1, zScale * getVertexZ(x, y));
+				index++;
+			}
+		}
+	}
+
+	/**
+	 * Use after generateTextureCoords to adjust the pre-generated texture coords,
+	 * which assume an evenly spaced grid.
+	 */
+	public void setTextureCoordinate(int x, int y, float px, float py) {
+		if (baseVertex < 0) { // overflow
+			return;
+		}
+		int vertex = baseVertex + (y * width + x);
+		textureCoords.put(vertex * 2, px);
+		textureCoords.put(vertex * 2 + 1, py);
 	}
 
 	public void adjustTextureCoords(float[] textureMatrix) {
@@ -453,8 +543,6 @@ public final class GLSurface {
 	/**
 	 * This variant of the draw will draw a group of surfaces that are adjacent in the buffers. This can be used to reduce the number of GL calls that are made for drawing an object. The requirement however is that all of the surfaces have the same
 	 * texture parameters.
-	 * 
-	 * @param shade
 	 */
 	public static final void drawMonolith(Shader shader, GLSurface[] surfaces, int drawType, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, boolean fullBright, boolean alphaTest) {
 		if (needsBufferBinding) {

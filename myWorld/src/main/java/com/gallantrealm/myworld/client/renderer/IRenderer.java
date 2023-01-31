@@ -22,6 +22,8 @@ public interface IRenderer {
 
 	IRendering createBoxRendering(WWBox box, long worldTime);
 
+	IRendering createBevelledBoxRendering(WWBox box, long worldTime);
+
 	IRendering createCylinderRendering(WWCylinder cylinder, long worldTime);
 
 	IRendering createSphereRendering(WWSphere sphere, long worldTime);
