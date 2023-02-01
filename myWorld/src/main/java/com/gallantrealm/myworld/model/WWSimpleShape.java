@@ -22,6 +22,10 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 	public float cutoutEnd = 1.0f;
 	public float twist;
 	public int circleVertices;
+	private boolean roundedSides;
+	private boolean roundedTop;
+	private boolean roundedBottom;
+
 
 	protected WWSimpleShape() {
 	}
@@ -41,6 +45,9 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 		os.writeFloat(cutoutEnd);
 		os.writeFloat(twist);
 		os.writeInt(circleVertices);
+		os.writeBoolean(isRoundedSides());
+		os.writeBoolean(isRoundedTop());
+		os.writeBoolean(isRoundedBottom());
 		super.send(os);
 	}
 
@@ -55,6 +62,9 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 		cutoutEnd = is.readFloat();
 		twist = is.readFloat();
 		circleVertices = is.readInt();
+		roundedSides = is.readBoolean();
+		roundedTop = is.readBoolean();
+		roundedBottom = is.readBoolean();
 		super.receive(is);
 	}
 
@@ -179,4 +189,27 @@ public abstract class WWSimpleShape extends WWObject implements Serializable, Cl
 		updateRendering();
 	}
 
+	public boolean isRoundedSides() {
+		return roundedSides;
+	}
+
+	public void setRoundedSides(boolean roundedSides) {
+		this.roundedSides = roundedSides;
+	}
+
+	public boolean isRoundedTop() {
+		return roundedTop;
+	}
+
+	public void setRoundedTop(boolean roundedTop) {
+		this.roundedTop = roundedTop;
+	}
+
+	public boolean isRoundedBottom() {
+		return roundedBottom;
+	}
+
+	public void setRoundedBottom(boolean roundedBottom) {
+		this.roundedBottom = roundedBottom;
+	}
 }

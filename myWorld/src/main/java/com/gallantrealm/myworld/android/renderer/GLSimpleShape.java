@@ -3,7 +3,6 @@ package com.gallantrealm.myworld.android.renderer;
 import com.gallantrealm.myworld.model.WWBox;
 import com.gallantrealm.myworld.model.WWCylinder;
 import com.gallantrealm.myworld.model.WWObject;
-import com.gallantrealm.myworld.model.WWRoundedBox;
 import com.gallantrealm.myworld.model.WWSimpleShape;
 import com.gallantrealm.myworld.model.WWSphere;
 import com.gallantrealm.myworld.model.WWTorus;
@@ -55,19 +54,15 @@ public class GLSimpleShape extends GLObject {
 		float cutEnd = object.getCutoutEnd();
 		float hollow = object.getHollow();
 		int nCircleVertices = object.getCircleVertices();
-		
+		boolean roundedSides = object.isRoundedSides();
+		boolean roundedTop = object.isRoundedTop();
+		boolean roundedBottom = object.isRoundedBottom();
+
 		// optimize to share geometry
 		String geometryMapKey = null;
 		if (!object.fixed) {
-			if (object instanceof WWRoundedBox) {
-				boolean bevelSides = ((WWRoundedBox)object).isRoundSides();
-				boolean bevelTop = ((WWRoundedBox)object).isRoundTop();
-				boolean bevelBottom = ((WWRoundedBox)object).isRoundBottom();
-				geometryMapKey = object.getClass().getSimpleName() + " " + sizeX + " " + sizeY + " " + sizeZ + " " + taperX + " " + taperY + " " + shearX + " " + shearY + " " + twist + " " + cutStart + " " + cutEnd + " " + hollow +
-						" " + bevelSides + " " + bevelTop + " " + bevelBottom;
-			} else {
-				geometryMapKey = object.getClass().getSimpleName() + " " + sizeX + " " + sizeY + " " + sizeZ + " " + taperX + " " + taperY + " " + shearX + " " + shearY + " " + twist + " " + cutStart + " " + cutEnd + " " + hollow;
-			}
+			geometryMapKey = object.getClass().getSimpleName() + " " + sizeX + " " + sizeY + " " + sizeZ + " " + taperX + " " + taperY + " " + shearX + " " + shearY + " " + twist + " " + cutStart + " " + cutEnd + " " + hollow +
+						" " + roundedSides + " " + roundedTop + " " + roundedBottom;
 			if (renderer.geometryCache.containsKey(geometryMapKey)) {
 				sides = renderer.geometryCache.get(geometryMapKey);
 				return;
@@ -81,26 +76,53 @@ public class GLSimpleShape extends GLObject {
 		Point2f origin = new Point2f(0.0f, 0.0f); // used alot
 		boolean hasEnds = false;
 		boolean smoothSides = false;
-		 if (object instanceof WWRoundedBox && ((WWRoundedBox)object).isRoundSides()) {
+		 if (object instanceof WWBox && roundedSides) {
 			polygon = new Point2f[]{  //
-				new Point2f(-0.4f, -0.4f), //
+				new Point2f(-0.45f, -0.45f), //
+
+				new Point2f(-0.375f, -0.5f), //
 				new Point2f(-0.25f, -0.5f), //
+				new Point2f(-0.125f, -0.5f), //
 				new Point2f(0.0f, -0.5f), //
+				new Point2f(0.125f, -0.5f), //
 				new Point2f(0.25f, -0.5f), //
-				new Point2f(0.4f, -0.4f), //
+				new Point2f(0.375f, -0.5f), //
+
+				new Point2f(0.45f, -0.45f), //
+
+				new Point2f(0.5f, -0.375f), //
 				new Point2f(0.5f, -0.25f), //
+				new Point2f(0.5f, -0.125f), //
 				new Point2f(0.5f, 0.0f), //
+				new Point2f(0.5f, 0.125f), //
 				new Point2f(0.5f, 0.25f), //
-				new Point2f(0.4f, 0.4f), //
+				new Point2f(0.5f, 0.375f), //
+
+				new Point2f(0.45f, 0.45f), //
+
+				new Point2f(0.375f, 0.5f), //
 				new Point2f(0.25f, 0.5f), //
+				new Point2f(0.125f, 0.5f), //
 				new Point2f(0.0f, 0.5f), //
+				new Point2f(-0.125f, 0.5f), //
 				new Point2f(-0.25f, 0.5f), //
-				new Point2f(-0.4f, 0.4f), //
+				new Point2f(-0.375f, 0.5f), //
+
+				new Point2f(-0.45f, 0.45f), //
+
+				new Point2f(-0.5f, 0.375f), //
 				new Point2f(-0.5f, 0.25f), //
+				new Point2f(-0.5f, 0.125f), //
 				new Point2f(-0.5f, 0.0f), //
-				new Point2f(-0.5f, -0.25f)
+				new Point2f(-0.5f, -0.125f), //
+				new Point2f(-0.5f, -0.25f), //
+				new Point2f(-0.5f, -0.375f), //
+
 			};
-			core = new Point2f[]{origin, origin, origin, origin, origin, origin, origin, origin, origin, origin, origin, origin, origin, origin, origin, origin};
+			core = new Point2f[polygon.length];
+			for (int i = 0; i < polygon.length; i++) {
+				core[i] = origin;
+			};
 			hasEnds = true;
 			smoothSides = false;
 		} else if (object instanceof WWBox) {
@@ -153,28 +175,34 @@ public class GLSimpleShape extends GLObject {
 		Point3f[] sweepPath = null;
 		Point2f[] sweepRadius = null;
 		Point3f[] hollowPath = null;
-		if (object instanceof WWRoundedBox) {
-			nCircleVertices = 4;  //forced
-			boolean bevelTop = ((WWRoundedBox)object).isRoundTop();
-			boolean bevelBottom = ((WWRoundedBox)object).isRoundBottom();
-			float bottomSweep = bevelBottom ? -0.4f : -0.5f;
-			float topSweep = bevelTop ? 0.4f : 0.5f;
+		if (object instanceof WWBox && (roundedTop || roundedBottom)) {
+			nCircleVertices = 8;  //forced
+			float bottomSweep = roundedBottom ? -0.45f : -0.5f;
+			float topSweep = roundedTop ? 0.45f : 0.5f;
 			sweepPath = new Point3f[] { //
-					bevelBottom ? new Point3f(0.0f, 0.0f, -0.4f) : new Point3f(0.0f, 0.0f, -0.5f), //
+					roundedBottom ? new Point3f(0.0f, 0.0f, -0.45f) : new Point3f(0.0f, 0.0f, -0.5f), //
+					new Point3f(0.0f, 0.0f, -0.375f), //
 					new Point3f(0.0f, 0.0f, -0.25f), //
+					new Point3f(0.0f, 0.0f, -0.125f), //
 					new Point3f(0.0f, 0.0f, 0.0f), //
+					new Point3f(0.0f, 0.0f, 0.125f), //
 					new Point3f(0.0f, 0.0f, 0.25f), //
-					bevelTop ? new Point3f(0.0f, 0.0f, 0.4f) : new Point3f(0.0f, 0.0f, 0.5f) //
+					new Point3f(0.0f, 0.0f, 0.375f), //
+					roundedTop ? new Point3f(0.0f, 0.0f, 0.45f) : new Point3f(0.0f, 0.0f, 0.5f) //
 			};
 			for (int i = 0; i < nCircleVertices+1; i++) {
 				sweepPath[i] = new Point3f(0.0f, 0.0f, bottomSweep + (topSweep - bottomSweep) / nCircleVertices * i);
 			};
 			sweepRadius = new Point2f[] {  //
-					bevelBottom ? new Point2f(0.8f, 0.8f) : new Point2f(1.0f, 1.0f), //
+					roundedBottom ? new Point2f(0.9f, 0.9f) : new Point2f(1.0f, 1.0f), //
 					new Point2f(1.0f, 1.0f), //
 					new Point2f(1.0f, 1.0f), //
 					new Point2f(1.0f, 1.0f), //
-					bevelTop ? new Point2f(0.8f, 0.8f) : new Point2f(1.0f, 1.0f) //
+					new Point2f(1.0f, 1.0f), //
+					new Point2f(1.0f, 1.0f), //
+					new Point2f(1.0f, 1.0f), //
+					new Point2f(1.0f, 1.0f), //
+					roundedTop ? new Point2f(0.9f, 0.9f) : new Point2f(1.0f, 1.0f) //
 			};
 		} else if (object instanceof WWBox || object instanceof WWCylinder) {
 			if (object.getTwist() == 0.0) {
@@ -255,8 +283,8 @@ public class GLSimpleShape extends GLObject {
 				baseGeometry.setVertex(1, 1, sweepPath[0].x + polygon[2].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[2].y * sweepRadius[0].y);
 				baseGeometry.setVertex(1, 0, sweepPath[0].x + polygon[3].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[3].y * sweepRadius[0].y);
 			} else {
-				if (object instanceof WWRoundedBox && ((WWRoundedBox)object).isRoundBottom()) {
-					// the base curves up on the ends (like a plate) for bevelled bottoms
+				if (object instanceof WWBox && roundedBottom) {
+					// the base curves up on the ends (like a plate) for rouned bottoms
 					baseGeometry = new GLSurface((lastVertex - firstVertex + 2), 3);
 					for (int v = firstVertex; v <= lastVertex + 1; v++) {
 						if (v < polygon.length) {
@@ -266,13 +294,13 @@ public class GLSimpleShape extends GLObject {
 									sweepPath[0].y + polygon[v].y * sweepRadius[0].y * hollowy);
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[v].x * sweepRadius[0].x * hollowx, sweepPath[0].y + polygon[v].y * sweepRadius[0].y * hollowy });
 							baseGeometry.setVertex(v - firstVertex, 1,
-									sweepPath[0].x + polygon[v].x * sweepRadius[0].x * Math.max(hollowx, 0.8f),
+									sweepPath[0].x + polygon[v].x * sweepRadius[0].x * Math.max(hollowx, 0.9f),
 									-0.5f,
-									sweepPath[0].y + polygon[v].y * sweepRadius[0].y * Math.max(hollowy, 0.8f));
+									sweepPath[0].y + polygon[v].y * sweepRadius[0].y * Math.max(hollowy, 0.9f));
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[v].x * sweepRadius[0].x, sweepPath[0].y + polygon[v].y * sweepRadius[0].y });
 							baseGeometry.setVertex(v - firstVertex, 2,
 									sweepPath[0].x + polygon[v].x * sweepRadius[0].x,
-									-0.4f,
+									-0.45f,
 									sweepPath[0].y + polygon[v].y * sweepRadius[0].y);
 						} else {
 							baseGeometry.setVertex(v - firstVertex, 0,
@@ -281,13 +309,13 @@ public class GLSimpleShape extends GLObject {
 									sweepPath[0].y + polygon[0].y * sweepRadius[0].y * hollowy);
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[0].x * sweepRadius[0].x * hollowx, sweepPath[0].y + polygon[0].y * sweepRadius[0].y * hollowy });
 							baseGeometry.setVertex(v - firstVertex, 1,
-									sweepPath[0].x + polygon[0].x * sweepRadius[0].x * Math.max(hollowx, 0.8f),
+									sweepPath[0].x + polygon[0].x * sweepRadius[0].x * Math.max(hollowx, 0.9f),
 									-0.5f,
-									sweepPath[0].y + polygon[0].y * sweepRadius[0].y * Math.max(hollowy, 0.8f));
+									sweepPath[0].y + polygon[0].y * sweepRadius[0].y * Math.max(hollowy, 0.9f));
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[0].x * sweepRadius[0].x, sweepPath[0].y + polygon[0].y * sweepRadius[0].y });
 							baseGeometry.setVertex(v - firstVertex, 2,
 									sweepPath[0].x + polygon[0].x * sweepRadius[0].x,
-									-0.4f,
+									-0.45f,
 									sweepPath[0].y + polygon[0].y * sweepRadius[0].y);
 						}
 					}
@@ -478,19 +506,19 @@ public class GLSimpleShape extends GLObject {
 
 		if (hasEnds) {
 			GLSurface topGeometry;
-			if (object instanceof WWRoundedBox && ((WWRoundedBox)object).isRoundTop()) {
-				// the top curves down on the ends (like an umbrella) for bevelled tops
+			if (object instanceof WWBox && roundedTop) {
+				// the top curves down on the ends (like an umbrella) for rounded tops
 				topGeometry = new GLSurface((lastVertex - firstVertex + 2), 3);
 				for (int v = firstVertex; v <= lastVertex + 1; v++) {
 					if (v < polygon.length) {
 						topGeometry.setVertex(v - firstVertex, 0,
 								sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x,
-								0.4f,
+								0.45f,
 								sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y);
 						topGeometry.setVertex(v - firstVertex, 1,
-								sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x * Math.max(hollowx, 0.8f),
+								sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x * Math.max(hollowx, 0.9f),
 								0.5f,
-								sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y * Math.max(hollowy, 0.8f));
+								sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y * Math.max(hollowy, 0.9f));
 						topGeometry.setVertex(v - firstVertex, 2,
 								sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x * hollowx,
 								0.5f,
@@ -498,12 +526,12 @@ public class GLSimpleShape extends GLObject {
 					} else {
 						topGeometry.setVertex(v - firstVertex, 0,
 								sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x,
-								0.4f,
+								0.45f,
 								sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y);
 						topGeometry.setVertex(v - firstVertex, 1,
-								sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x * Math.max(hollowx, 0.8f),
+								sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x * Math.max(hollowx, 0.9f),
 								0.5f,
-								sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y * Math.max(hollowy, 0.8f));
+								sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y * Math.max(hollowy, 0.9f));
 						topGeometry.setVertex(v - firstVertex, 2,
 								sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x * hollowx,
 								0.5f,
