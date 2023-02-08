@@ -206,6 +206,12 @@ public class World extends WWWorld {
 					if (featureIndex == Context.FEATURE_WARNING_AS_ERROR) {
 						return true;
 					}
+					if (featureIndex == Context.FEATURE_INTEGER_WITHOUT_DECIMAL_PLACE) {
+						return true;
+					}
+					if (featureIndex == Context.FEATURE_LOCATION_INFORMATION_IN_ERROR) {
+						return true;
+					}
 					return super.hasFeature(cx, featureIndex);
 				}
 			});
