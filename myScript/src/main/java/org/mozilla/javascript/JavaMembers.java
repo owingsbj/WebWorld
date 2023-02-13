@@ -117,6 +117,15 @@ class JavaMembers
         if (member instanceof BeanProperty) {
             BeanProperty bp = (BeanProperty)member;
             if (bp.setter == null) {
+
+                // BJO -- throw appropriate message for getter w no setter
+
+                if (bp.getter != null) {
+                    throw Context.reportRuntimeError1("msg.set.prop.no.setter", name);
+                }
+
+                // end BJO
+
                 throw reportMemberNotFound(name);
             }
             // If there's only one setter or if the value is null, use the
@@ -476,57 +485,61 @@ class JavaMembers
             }
         }
 
-        // Reflect fields.
-        Field[] fields = getAccessibleFields(includeProtected, includePrivate);
-        for (Field field : fields) {
-            String name = field.getName();
-            int mods = field.getModifiers();
-            try {
-                boolean isStatic = Modifier.isStatic(mods);
-                Map<String,Object> ht = isStatic ? staticMembers : members;
-                Object member = ht.get(name);
-                if (member == null) {
-                    ht.put(name, field);
-                } else if (member instanceof NativeJavaMethod) {
-                    NativeJavaMethod method = (NativeJavaMethod) member;
-                    FieldAndMethods fam
-                        = new FieldAndMethods(scope, method.methods, field);
-                    Map<String,FieldAndMethods> fmht = isStatic ? staticFieldAndMethods
-                                              : fieldAndMethods;
-                    if (fmht == null) {
-                        fmht = new HashMap<String,FieldAndMethods>();
-                        if (isStatic) {
-                            staticFieldAndMethods = fmht;
-                        } else {
-                            fieldAndMethods = fmht;
-                        }
-                    }
-                    fmht.put(name, fam);
-                    ht.put(name, fam);
-                } else if (member instanceof Field) {
-                    Field oldField = (Field) member;
-                    // If this newly reflected field shadows an inherited field,
-                    // then replace it. Otherwise, since access to the field
-                    // would be ambiguous from Java, no field should be
-                    // reflected.
-                    // For now, the first field found wins, unless another field
-                    // explicitly shadows it.
-                    if (oldField.getDeclaringClass().
-                            isAssignableFrom(field.getDeclaringClass()))
-                    {
-                        ht.put(name, field);
-                    }
-                } else {
-                    // "unknown member type"
-                    Kit.codeBug();
-                }
-            } catch (SecurityException e) {
-                // skip this field
-                Context.reportWarning("Could not access field "
-                        + name + " of class " + cl.getName() +
-                        " due to lack of privileges.");
-            }
-        }
+        // BJO -- do not expose any fields.  Only accessor methods can be used
+
+//        // Reflect fields.
+//        Field[] fields = getAccessibleFields(includeProtected, includePrivate);
+//        for (Field field : fields) {
+//            String name = field.getName();
+//            int mods = field.getModifiers();
+//            try {
+//                boolean isStatic = Modifier.isStatic(mods);
+//                Map<String,Object> ht = isStatic ? staticMembers : members;
+//                Object member = ht.get(name);
+//                if (member == null) {
+//                    ht.put(name, field);
+//                } else if (member instanceof NativeJavaMethod) {
+//                    NativeJavaMethod method = (NativeJavaMethod) member;
+//                    FieldAndMethods fam
+//                        = new FieldAndMethods(scope, method.methods, field);
+//                    Map<String,FieldAndMethods> fmht = isStatic ? staticFieldAndMethods
+//                                              : fieldAndMethods;
+//                    if (fmht == null) {
+//                        fmht = new HashMap<String,FieldAndMethods>();
+//                        if (isStatic) {
+//                            staticFieldAndMethods = fmht;
+//                        } else {
+//                            fieldAndMethods = fmht;
+//                        }
+//                    }
+//                    fmht.put(name, fam);
+//                    ht.put(name, fam);
+//                } else if (member instanceof Field) {
+//                    Field oldField = (Field) member;
+//                    // If this newly reflected field shadows an inherited field,
+//                    // then replace it. Otherwise, since access to the field
+//                    // would be ambiguous from Java, no field should be
+//                    // reflected.
+//                    // For now, the first field found wins, unless another field
+//                    // explicitly shadows it.
+//                    if (oldField.getDeclaringClass().
+//                            isAssignableFrom(field.getDeclaringClass()))
+//                    {
+//                        ht.put(name, field);
+//                    }
+//                } else {
+//                    // "unknown member type"
+//                    Kit.codeBug();
+//                }
+//            } catch (SecurityException e) {
+//                // skip this field
+//                Context.reportWarning("Could not access field "
+//                        + name + " of class " + cl.getName() +
+//                        " due to lack of privileges.");
+//            }
+//        }
+
+        // end BJO
 
         // Create bean properties from corresponding get/set methods first for
         // static members and then for instance members
