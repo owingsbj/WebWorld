@@ -67,6 +67,7 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		if (typeface != null) {
 			titleText.setTypeface(typeface);
 			okButton.setTypeface(typeface);
+			developerSettingsButton.setTypeface(typeface);
 		}
 
 		int styleId = clientModel.getTheme().buttonStyleId;
