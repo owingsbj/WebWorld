@@ -18,6 +18,7 @@ import com.gallantrealm.myworld.model.WWCylinder;
 import com.gallantrealm.myworld.model.WWMesh;
 import com.gallantrealm.myworld.model.WWSimpleShape;
 import com.gallantrealm.myworld.model.WWSphere;
+import com.gallantrealm.myworld.model.WWTexture;
 import com.gallantrealm.myworld.model.WWTorus;
 import com.gallantrealm.myworld.model.WWTranslucency;
 import com.gallantrealm.myworld.model.WWUser;
@@ -159,9 +160,9 @@ public class ConnectToWorldActivity extends GallantActivity {
 
 		// the ground
 		WWSimpleShape ground = new WWCylinder(); // for the ground
-		ground.setColor(WWSimpleShape.SIDE_TOP, new WWColor(0x008000)); // green, like grass
-		ground.setColor(WWSimpleShape.SIDE_BOTTOM, new WWColor(0x008000)); // green, like grass
-		ground.setColor(WWSimpleShape.SIDE_SIDE1, new WWColor(0x008000)); // green, like grass
+		ground.setColorTop(new WWColor(0x008000)); // green, like grass
+		ground.setColorBottom(new WWColor(0x008000)); // green, like grass
+		ground.setColorSide1(new WWColor(0x008000)); // green, like grass
 		ground.setPosition(new WWVector(0, 0, -50.5f));
 		ground.setSize(new WWVector(1000, 1000, 100));
 		world.addObject(ground);
@@ -175,7 +176,7 @@ public class ConnectToWorldActivity extends GallantActivity {
 		avatar1.setSize(new WWVector(1, 1, 1));
 		avatar1.setTaperX(0.25f);
 		avatar1.setTaperY(0.25f);
-		avatar1.setTextureURL(WWSimpleShape.SIDE_ALL, "guest");
+		avatar1.setTexture("guest");
 		avatar1.setPhysical(true); // so "happy" will hug the ground
 		avatar1.setDensity(0.1f);
 		avatar1.setFreedomRotateX(false);
@@ -209,8 +210,8 @@ public class ConnectToWorldActivity extends GallantActivity {
 		ground.setPenetratable(false);
 		ground.setImpactSound("grass");
 		ground.setSlidingSound("movingGrass");
-		ground.setColor(WWSimpleShape.SIDE_TOP, new WWColor(0x00E000)); // green, like grass
-		ground.setColor(WWSimpleShape.SIDE_ALL, new WWColor(0x404000)); // all others brown
+		ground.setColorTop(new WWColor(0x00E000)); // green, like grass
+		ground.setColor(new WWColor(0x404000)); // all others brown
 		ground.setSize(new WWVector(1000, 1000, 250));
 		ground.setPosition(new WWVector(0, 0, -10.0f));
 		int meshSize = 100;
@@ -256,9 +257,7 @@ public class ConnectToWorldActivity extends GallantActivity {
 			}
 		}
 
-		ground.setTextureURL(WWSimpleShape.SIDE_TOP, "grass");
-		ground.setTextureScaleX(WWSimpleShape.SIDE_TOP, 0.001f);
-		ground.setTextureScaleY(WWSimpleShape.SIDE_TOP, 0.001f);
+		ground.setTexture("grass");
 		world.addObject(ground);
 
 		// the water
@@ -275,21 +274,17 @@ public class ConnectToWorldActivity extends GallantActivity {
 		water.setSlidingSound("movingWater");
 		water.setInsideColor(0x202040);
 		water.setInsideTransparency(0.7f);
-		water.setColor(WWSimpleShape.SIDE_ALL, new WWColor(0x8080F0));
-		water.setColor(WWSimpleShape.SIDE_TOP, new WWColor(0xA0A0F0));
-		water.setTransparency(WWSimpleShape.SIDE_TOP, 0.1f);
-		water.setTextureURL(WWSimpleShape.SIDE_TOP, "water");
-		water.setTextureScaleX(WWSimpleShape.SIDE_TOP, 0.001f);
-		water.setTextureScaleY(WWSimpleShape.SIDE_TOP, 0.001f);
-		water.setTextureVelocityX(WWSimpleShape.SIDE_TOP, 0.0001f);
-		water.setColor(WWSimpleShape.SIDE_INSIDE_TOP, new WWColor(0xF0F0F0));
-		water.setTransparency(WWSimpleShape.SIDE_INSIDE_TOP, 0.50f);
-		water.setTextureURL(WWSimpleShape.SIDE_INSIDE_TOP, "water");
-		water.setTextureScaleX(WWSimpleShape.SIDE_INSIDE_TOP, 0.001f);
-		water.setTextureScaleY(WWSimpleShape.SIDE_INSIDE_TOP, 0.001f);
-		water.setTextureVelocityX(WWSimpleShape.SIDE_INSIDE_TOP, 0.0001f);
-		water.setColor(WWSimpleShape.SIDE_CUTOUT1, new WWColor(0x6060C0));
-		water.setTransparency(WWSimpleShape.SIDE_CUTOUT1, 0.35f);
+		water.setColor(new WWColor(0x8080F0));
+		water.setColorTop(new WWColor(0xA0A0F0));
+		water.setTransparencyTop(0.1f);
+		WWTexture waterTexture = new WWTexture("water");
+		waterTexture.setVelocityX(0.0001f);
+		water.setTextureTop(waterTexture);
+		water.setColorInsideTop(new WWColor(0xF0F0F0));
+		water.setTransparencyInsideTop(0.50f);
+		water.setTextureInsideTop(waterTexture);
+		water.setColorCutout1(new WWColor(0x6060C0));
+		water.setTransparencyCutout1(0.35f);
 		world.addObject(water);
 
 		// the sky
@@ -303,19 +298,17 @@ public class ConnectToWorldActivity extends GallantActivity {
 		sky.setFriction(0); // for now.. otherwise physical objects slowed down in hollowed area
 		sky.setRotation(0, 90, 0);
 		sky.setHollow(0.99f);
-		sky.setTextureURL(WWSimpleShape.SIDE_INSIDE1, "sky");
-		sky.setTextureScaleX(WWSimpleShape.SIDE_INSIDE1, 0.25f);
-		sky.setTextureScaleY(WWSimpleShape.SIDE_INSIDE1, 0.25f);
-		//sky.setColor(WWSimpleShape.SIDE_ALL, new WWColor(0xc0c0f0));
-		sky.setTextureVelocityY(WWSimpleShape.SIDE_INSIDE1, 0.0005f);
+		WWTexture skyTexture = new WWTexture("sky", 0.25f, 0.25f);
+		skyTexture.setVelocityX(0.0005f);
+		sky.setTextureInside1(skyTexture);
 		// for future
 		//sky.setTextureURL(Side.INSIDE1, "http://www.moonglow.net/latest");
 		//sky.setTextureRefreshInterval(Side.INSIDE1,"60000");
 		// TODO fog color should match average color of sky
-		sky.setFullBright(WWSimpleShape.SIDE_INSIDE1, true); // bright sky
-		sky.setColor(WWSimpleShape.SIDE_INSIDE1, new WWColor(0xd0d0ff));
-		sky.setTextureURL(WWSimpleShape.SIDE_SIDE1, "sky");
-		sky.setTransparency(WWSimpleShape.SIDE_SIDE1, 0.25f);
+		sky.setFullBrightInside1(true); // bright sky
+		sky.setColorInside1(new WWColor(0xd0d0ff));
+		sky.setTextureSide1(skyTexture);
+		sky.setTransparencySide1(0.25f);
 		world.addObject(sky);
 
 		// air (to provide friction and balloon floating)
@@ -324,7 +317,7 @@ public class ConnectToWorldActivity extends GallantActivity {
 		air.setPickable(false);
 		air.setPosition(new WWVector(0, 0, -100));
 		air.setSize(new WWVector(500, 5000, 5000));
-		air.setTransparency(WWSimpleShape.SIDE_ALL, 1.0f);
+		air.setTransparency(1.0f);
 		air.setCutoutStart(0.5f); // half dome
 		air.setSolid(false);
 		air.setRotation(0, 90, 0);
@@ -358,23 +351,21 @@ public class ConnectToWorldActivity extends GallantActivity {
 			if (FastMath.random() < 0.1) {
 				object.setAMomentum(new WWVector(FastMath.random() * 180.0f - 90.0f, FastMath.random() * 180.0f - 90.0f, FastMath.random() * 180.0f - 90.0f));
 			}
-			object.setColor(WWSimpleShape.SIDE_ALL, new WWColor((int) (FastMath.random() * 0xffffff)));
+			object.setColor(new WWColor((int) (FastMath.random() * 0xffffff)));
 			if (FastMath.random() > 0.25) {
 				// Choose a random texture
 				float texture = FastMath.random() * 5.0f;
 				if (texture < 1.0) {
-					object.setTextureURL(WWSimpleShape.SIDE_ALL, "concrete");
+					object.setTexture("concrete");
 				} else if (texture < 2.0) {
-					object.setTextureURL(WWSimpleShape.SIDE_ALL, "wood");
+					object.setTexture("wood");
 				} else if (texture < 3.0) {
-					object.setTextureURL(WWSimpleShape.SIDE_ALL, "stucco");
+					object.setTexture("stucco");
 				} else if (texture < 4.0) {
-					object.setTextureURL(WWSimpleShape.SIDE_ALL, "grass");
+					object.setTexture("grass");
 				} else {
-					object.setTextureURL(WWSimpleShape.SIDE_ALL, "ivy");
+					object.setTexture("ivy");
 				}
-				object.setTextureScaleX(WWSimpleShape.SIDE_ALL, 10.0f / object.sizeX);
-				object.setTextureScaleY(WWSimpleShape.SIDE_ALL, 10.0f / object.sizeY);
 			}
 			world.addObject(object);
 		}
@@ -389,7 +380,7 @@ public class ConnectToWorldActivity extends GallantActivity {
 		avatar1.setSize(new WWVector(1, 1, 1));
 		avatar1.setTaperX(0.25f);
 		avatar1.setTaperY(0.25f);
-		avatar1.setTextureURL(WWSimpleShape.SIDE_ALL, "jack");
+		avatar1.setTexture("jack");
 		avatar1.setPhysical(true);
 		avatar1.setDensity(0.1f);
 		avatar1.setFreedomMoveZ(true);
@@ -411,7 +402,7 @@ public class ConnectToWorldActivity extends GallantActivity {
 		avatar2.setPosition(new WWVector(4, 4, 25));
 		avatar2.setTaperX(0.25f);
 		avatar2.setTaperY(0.25f);
-		avatar2.setTextureURL(WWSimpleShape.SIDE_ALL, "jill");
+		avatar2.setTexture("jill");
 		avatar2.setPhysical(true);
 		avatar2.setDensity(0.1f);
 		avatar2.setFreedomRotateX(false);

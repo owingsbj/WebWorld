@@ -103,7 +103,7 @@ public class GLWorld implements IRendering {
 			}
 			for (int g = 0; g < largestGroup; g++) {
 				WWObject tokenObject = drawGroupsObject[g];
-				if (tokenObject != null && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].getTransparency() == 0) { // && tokenObject.renderit) {
+				if (tokenObject != null && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency == 0) { // && tokenObject.renderit) {
 					if (!tokenObject.shadowless || drawType != DRAW_TYPE_SHADOW) {
 						((GLObject) tokenObject.rendering).drawSurfaces(shader, drawGroups[g], viewMatrix, sunViewMatrix, worldTime, drawType, false);
 					}
@@ -128,7 +128,7 @@ public class GLWorld implements IRendering {
 			if (drawType != DRAW_TYPE_PICKING && drawnOnce) {
 				for (int g = 0; g < drawGroups.length; g++) {
 					WWObject tokenObject = drawGroupsObject[g];
-					if (tokenObject != null && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].getTransparency() > 0) { // && tokenObject.renderit) {
+					if (tokenObject != null && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency > 0) { // && tokenObject.renderit) {
 						sortSurfaces(drawGroups[g], viewMatrix);
 // ((GLObject) tokenObject.rendering).drawSurfaces(shader, drawGroups[g], viewMatrix, sunViewMatrix, worldTime, drawType, true);
 						GLSurface[] surface = new GLSurface[1];

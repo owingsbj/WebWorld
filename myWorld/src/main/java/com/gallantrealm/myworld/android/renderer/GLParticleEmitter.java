@@ -132,14 +132,14 @@ public class GLParticleEmitter extends GLObject {
 			return;
 		}
 		SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
-		float trans = sideAttributes.getTransparency();
+		float trans = sideAttributes.transparency;
 		if (trans == 1.0 || trans > 0.0 && !drawtrans) {
 			return;
 		}
 		float red = sideAttributes.red;
 		float green = sideAttributes.green;
 		float blue = sideAttributes.blue;
-		float shininess = sideAttributes.getShininess();
+		float shininess = sideAttributes.shininess;
 		if (drawType == DRAW_TYPE_LEFT_EYE) { // red side
 			red = (red * 3 + green + blue) / 5.0f;
 			green = 0;
@@ -162,13 +162,13 @@ public class GLParticleEmitter extends GLObject {
 			}
 		}
 		String textureUrl = sideAttributes.textureURL;
-		int textureId = renderer.getTexture(textureUrl, sideAttributes.isTexturePixelated());
+		int textureId = renderer.getTexture(textureUrl, sideAttributes.texturePixelated);
 		if (textureId != lastTextureId) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 			lastTextureId = textureId;
 		}
-		int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.isTexturePixelated());
+		int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texturePixelated);
 		if (bumpTextureId != lastBumpTextureId) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);

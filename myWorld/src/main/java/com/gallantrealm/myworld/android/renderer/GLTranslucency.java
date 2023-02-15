@@ -1,6 +1,7 @@
 package com.gallantrealm.myworld.android.renderer;
 
 import com.gallantrealm.myworld.android.AndroidClientModel;
+import com.gallantrealm.myworld.model.SideAttributes;
 import com.gallantrealm.myworld.model.WWColor;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWTranslucency;
@@ -502,6 +503,7 @@ public class GLTranslucency extends GLObject  {
 		Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
 		for (int side = 0; side < WWObject.NSIDES; side++) {
 			if (sides[side] != null) {
+				SideAttributes sideAttributes = object.sideAttributes[side];
 				if (side == WWObject.SIDE_CUTOUT1) {
 
 					// GLES20.glTranslatef((p.x - position.x), 0.0f, (p.y - position.y));
@@ -511,10 +513,10 @@ public class GLTranslucency extends GLObject  {
 					Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, cutoutMatrix, 0);
 					Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, cutoutMatrix, 0);
 
-					float trans = object.getTransparency(side);
+					float trans = sideAttributes.transparency;
 					if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
 						if (drawType != DRAW_TYPE_PICKING) {
-							WWColor sideColor = object.getColor(side);
+							WWColor sideColor = sideAttributes.getColor();
 							float[] color;
 							if (trans == 0.0) {
 								GLES20.glDisable(GLES20.GL_BLEND);
@@ -525,13 +527,13 @@ public class GLTranslucency extends GLObject  {
 								// GLES20.glMaterialfv(GLES20.GL_FRONT_AND_BACK, GLES20.GL_AMBIENT_AND_DIFFUSE, new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f - trans }, 0);
 								color = new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f - trans };
 							}
-							float shininess = object.getShininess(side);
+							float shininess = sideAttributes.shininess;
 
 							// Note: Adding specular lighting distorts the shading on infuse (but not simulator)
 							// GLES20.glMaterialfv(GLES20.GL_FRONT_AND_BACK, GLES20.GL_SPECULAR, new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 0.0f }, 0);
 							// GLES20.glMaterialf(GLES20.GL_FRONT_AND_BACK, GLES20.GL_SHININESS, 1.0f);
-							String textureUrl = object.getTextureURL(side);
-							int textureId = renderer.getTexture(textureUrl, object.getTexturePixelate(side));
+							String textureUrl = sideAttributes.textureURL;
+							int textureId = renderer.getTexture(textureUrl, sideAttributes.texturePixelated);
 							Matrix.setIdentityM(textureMatrix, 0);
 							Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].textureScaleX, 1.0f / object.sideAttributes[side].textureScaleY, 1.0f);
 							Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(side, worldTime), object.getTextureOffsetY(side, worldTime), 0.0f);
@@ -541,12 +543,12 @@ public class GLTranslucency extends GLObject  {
 							}
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-							int bumpTextureId = renderer.getNormalTexture(textureUrl, object.getTexturePixelate(side));
+							int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texturePixelated);
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, cutoutMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, object.isFullBright(side), hasAlpha);
+							geometry.draw(shader, drawType, cutoutMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha);
 						}
 					}
 					
@@ -555,7 +557,7 @@ public class GLTranslucency extends GLObject  {
 					Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
 					
 				} else {
-					float trans = object.getTransparency(side);
+					float trans = sideAttributes.transparency;
 					if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
 						if (drawType == DRAW_TYPE_PICKING) {
 							int id = object.getId();
@@ -566,7 +568,7 @@ public class GLTranslucency extends GLObject  {
 							GLSurface geometry = sides[side];
 							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false);
 						} else {
-							WWColor sideColor = object.getColor(side);
+							WWColor sideColor = sideAttributes.getColor();
 							float[] color;
 							if (trans == 0.0) {
 								GLES20.glDisable(GLES20.GL_BLEND);
@@ -577,13 +579,13 @@ public class GLTranslucency extends GLObject  {
 								// GLES20.glMaterialfv(GLES20.GL_FRONT_AND_BACK, GLES20.GL_AMBIENT_AND_DIFFUSE, new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f - trans }, 0);
 								color = new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f - trans };
 							}
-							float shininess = object.getShininess(side);
+							float shininess = sideAttributes.shininess;
 
 							// Note: Adding specular lighting distorts the shading on infuse (but not simulator)
 							// GLES20.glMaterialfv(GLES20.GL_FRONT_AND_BACK, GLES20.GL_SPECULAR, new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 0.0f }, 0);
 							// GLES20.glMaterialf(GLES20.GL_FRONT_AND_BACK, GLES20.GL_SHININESS, 1.0f);
-							String textureUrl = object.getTextureURL(side);
-							int textureId = renderer.getTexture(textureUrl, object.getTexturePixelate(side));
+							String textureUrl = sideAttributes.textureURL;
+							int textureId = renderer.getTexture(textureUrl, sideAttributes.texturePixelated);
 							Matrix.setIdentityM(textureMatrix, 0);
 							Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].textureScaleX, 1.0f / object.sideAttributes[side].textureScaleY, 1.0f);
 							Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(side, worldTime), object.getTextureOffsetY(side, worldTime), 0.0f);
@@ -593,12 +595,12 @@ public class GLTranslucency extends GLObject  {
 							}
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-							int bumpTextureId = renderer.getNormalTexture(textureUrl, object.getTexturePixelate(side));
+							int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texturePixelated);
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, object.isFullBright(side), hasAlpha);
+							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha);
 						}
 					}
 				}

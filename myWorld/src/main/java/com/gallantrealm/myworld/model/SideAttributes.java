@@ -26,9 +26,9 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 	public float red = 1.0f;
 	public float green = 1.0f;
 	public float blue = 1.0f;
-	private float transparency;
-	private float shininess = 0.0f;
-	private boolean fullBright;
+	public float transparency;
+	public float shininess = 0.0f;
+	public boolean fullBright;
 	public String textureURL;
 	public float textureScaleX = 1.0f;
 	public float textureScaleY = 1.0f;
@@ -60,9 +60,9 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		os.writeFloat(red);
 		os.writeFloat(green);
 		os.writeFloat(blue);
-		os.writeFloat(getTransparency());
-		os.writeFloat(getShininess());
-		os.writeBoolean(isFullBright());
+		os.writeFloat(transparency);
+		os.writeFloat(shininess);
+		os.writeBoolean(fullBright);
 		os.writeString(textureURL);
 		os.writeFloat(textureScaleX);
 		os.writeFloat(textureScaleY);
@@ -73,7 +73,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		os.writeFloat(textureVelocityY);
 		os.writeFloat(textureAMomentum);
 		os.writeLong(textureRefreshInterval);
-		os.writeBoolean(isTexturePixelated());
+		os.writeBoolean(texturePixelated);
 	}
 
 	@Override
@@ -81,9 +81,9 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		red = is.readFloat();
 		green = is.readFloat();
 		blue = is.readFloat();
-		setTransparency(is.readFloat());
-		setShininess(is.readFloat());
-		setFullBright(is.readBoolean());
+		transparency = is.readFloat();
+		shininess = is.readFloat();
+		fullBright = is.readBoolean();
 		textureURL = is.readString();
 		textureScaleX = is.readFloat();
 		textureScaleY = is.readFloat();
@@ -94,39 +94,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		textureVelocityY = is.readFloat();
 		textureAMomentum = is.readFloat();
 		textureRefreshInterval = is.readLong();
-		setTexturePixelated(is.readBoolean());
-	}
-
-	public float getTransparency() {
-		return transparency;
-	}
-
-	public void setTransparency(float transparency) {
-		this.transparency = transparency;
-	}
-
-	public float getShininess() {
-		return shininess;
-	}
-
-	public void setShininess(float shininess) {
-		this.shininess = shininess;
-	}
-
-	public boolean isFullBright() {
-		return fullBright;
-	}
-
-	public void setFullBright(boolean fullBright) {
-		this.fullBright = fullBright;
-	}
-
-	public boolean isTexturePixelated() {
-		return texturePixelated;
-	}
-
-	public void setTexturePixelated(boolean texturePixelated) {
-		this.texturePixelated = texturePixelated;
+		texturePixelated = is.readBoolean();
 	}
 
 	public WWColor getColor() {

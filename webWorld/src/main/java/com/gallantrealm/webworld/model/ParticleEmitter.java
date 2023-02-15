@@ -137,7 +137,7 @@ public class ParticleEmitter extends WWParticleEmitter {
 		System.out.println(particleImage);
 		this.particleImage = particleImage;
 		//temporary
-		setTextureURL(SIDE_ALL, Texture.worldPrefixUrl(particleImage));
+		setTexture(Texture.worldPrefixUrl(particleImage));
 	}
 
 	public float getParticleTransparency() {
@@ -147,7 +147,7 @@ public class ParticleEmitter extends WWParticleEmitter {
 	public void setParticleTransparency(float particleTransparency) {
 		this.particleTransparency = particleTransparency;
 		// temporary
-		setTransparency(SIDE_ALL, particleTransparency);
+		setTransparency(particleTransparency);
 	}
 
 	public float getParticleFadeRate() {

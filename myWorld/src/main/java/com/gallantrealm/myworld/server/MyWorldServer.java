@@ -133,7 +133,7 @@ public class MyWorldServer {
 
 		// the ground
 		WWSimpleShape ground = new WWCylinder(); // for the ground
-		ground.setColor(WWSimpleShape.SIDE_TOP, new WWColor(0x008000)); // green, like grass
+		ground.setColorTop(new WWColor(0x008000)); // green, like grass
 		ground.setPosition(new WWVector(0, 0, -50.5f));
 		ground.setSize(new WWVector(1000, 1000, 100));
 		world.addObject(ground);
@@ -147,7 +147,7 @@ public class MyWorldServer {
 		avatar1.setSize(new WWVector(1, 1, 1));
 		avatar1.setTaperX(0.25f);
 		avatar1.setTaperY(0.25f);
-		avatar1.setTextureURL(WWSimpleShape.SIDE_ALL, "media/guest.png");
+		avatar1.setTexture("media/guest.png");
 		avatar1.setPhysical(true); // so "happy" will hug the ground
 		avatar1.setDensity(0.1f);
 		avatar1.setFreedomRotateX(false);

@@ -95,7 +95,7 @@ public class SoundPickerDialog extends Dialog {
 					// create a keystone that is the parent of all the objects added
 					WWObject keystone = new WWBox();
 					keystone.setPhantom(true);
-					keystone.setTransparency(WWObject.SIDE_ALL, 1);
+					keystone.setTransparency(1);
 					world.addObject(keystone);
 					// figure out a good location for the keystone
 					float minx = 1000;

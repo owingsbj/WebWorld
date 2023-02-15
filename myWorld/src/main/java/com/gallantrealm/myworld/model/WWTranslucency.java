@@ -19,13 +19,11 @@ public class WWTranslucency extends WWObject {
 	private int insideColor = 0xffffff;
 
 	public WWTranslucency() {
-		setTransparency(SIDE_ALL, 0.9f);
-		setFullBright(SIDE_INSIDE1, true);
-		setTransparency(SIDE_INSIDE1, 0.9f);
-		setFullBright(SIDE_INSIDE2, true);
-		setTransparency(SIDE_INSIDE2, 0.9f);
-		setFullBright(SIDE_INSIDE3, true);
-		setTransparency(SIDE_INSIDE3, 0.9f);
+		getEditableSideAttributes(SIDE_ALL).transparency = 0.9f;
+		getEditableSideAttributes(SIDE_INSIDE1).fullBright = true;
+		getEditableSideAttributes(SIDE_INSIDE2).fullBright = true;
+		getEditableSideAttributes(SIDE_INSIDE3).fullBright = true;
+		getEditableSideAttributes(SIDE_INSIDE4).fullBright = true;
 	}
 
 	public float getInsideLayerDensity() {
