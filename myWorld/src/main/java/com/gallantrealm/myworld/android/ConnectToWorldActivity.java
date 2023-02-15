@@ -349,7 +349,7 @@ public class ConnectToWorldActivity extends GallantActivity {
 			object.setSize(new WWVector(FastMath.random() * overallSize, FastMath.random() * overallSize, FastMath.random() * overallSize));
 			object.setRotation(FastMath.random() * 360.0f, FastMath.random() * 360.0f, FastMath.random() * 360.0f);
 			if (FastMath.random() < 0.1) {
-				object.setAMomentum(new WWVector(FastMath.random() * 180.0f - 90.0f, FastMath.random() * 180.0f - 90.0f, FastMath.random() * 180.0f - 90.0f));
+				object.setAngularVelocity(new WWVector(FastMath.random() * 180.0f - 90.0f, FastMath.random() * 180.0f - 90.0f, FastMath.random() * 180.0f - 90.0f));
 			}
 			object.setColor(new WWColor((int) (FastMath.random() * 0xffffff)));
 			if (FastMath.random() > 0.25) {

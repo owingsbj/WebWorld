@@ -98,7 +98,7 @@ public class NewPhysicsThread extends PhysicsThread {
 				object.getAbsoluteRotation(rotation, worldTime);
 				object.getRotationPoint(rotationPoint);
 				object.getVelocity(velocity);
-				object.getAMomentum(aMomentum);
+				object.getAngularVelocity(aMomentum);
 				WWVector thrust = object.getThrust();
 				WWVector thrustVelocity = object.getThrustVelocity();
 				WWVector torque = object.getTorque();
@@ -326,11 +326,11 @@ public class NewPhysicsThread extends PhysicsThread {
 											// Determine the relative speed of the two object surfaces.  This is a factor
 											// of both the linear velocity and the angular velocity of the two objects.
 											WWVector relativeVelocity = velocity.clone().subtract(object2.getVelocity()).scale(10);    // need to add scale 10 to avoid sliding too much
-											relativeVelocity.add(aMomentum.clone().cross(collisionDirection).subtract(object2.getAMomentum().cross(collisionDirection)).scale(object.getExtent() / FastMath.PI / 2));
+											relativeVelocity.add(aMomentum.clone().cross(collisionDirection).subtract(object2.getAngularVelocity().cross(collisionDirection)).scale(object.getExtent() / FastMath.PI / 2));
 
 											// Determine the relative angular momentum of the two objects at the impact point as well.
 											// The angular momentum of the object is tempered, averaging over these two momenta over time
-											WWVector relativeAMomentum = aMomentum.clone().subtract(object2.getAMomentum()).scale(collisionDirection).scale(10);
+											WWVector relativeAMomentum = aMomentum.clone().subtract(object2.getAngularVelocity()).scale(collisionDirection).scale(10);
 
 											relativeVelocity.scale(friction);
 											relativeAMomentum.scale(friction);

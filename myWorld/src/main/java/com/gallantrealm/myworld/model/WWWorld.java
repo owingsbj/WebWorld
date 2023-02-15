@@ -346,7 +346,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			WWVector newPosition = newObject.getPosition(time);
 			WWQuaternion newRotation = newObject.getRotation(time);
 			WWVector newVelocity = newObject.getVelocity();
-			WWVector newAMomentum = newObject.getAMomentum();
+			WWVector newAMomentum = newObject.getAngularVelocity();
 			oldObject.setThrust(newThrust);
 			oldObject.setThrustVelocity(newThrustVelocity);
 			oldObject.setTorque(newTorque);
@@ -371,7 +371,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			WWVector newPosition = oldObject.getPosition(time);
 			WWQuaternion newRotation = oldObject.getRotation(time);
 			WWVector newVelocity = oldObject.getVelocity();
-			WWVector newAMomentum = oldObject.getAMomentum();
+			WWVector newAMomentum = oldObject.getAngularVelocity();
 			oldObject.setThrust(newThrust);
 			oldObject.setThrustVelocity(newThrustVelocity);
 			oldObject.setTorque(newTorque);

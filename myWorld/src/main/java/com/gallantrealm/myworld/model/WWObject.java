@@ -409,7 +409,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		} else {
 			this.rotation.copyInto(r);
 			float deltaTime = (worldTime - lastMoveTime) / 1000.0f;
-			float angle = getAMomentumLength() * deltaTime;
+			float angle = getAngularVelocityLength() * deltaTime;
 			r.spin(angle, aMomentumX, aMomentumY, aMomentumZ);
 
 			// Apply start and stop rotation limits if any
@@ -767,25 +767,17 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		return new WWVector(aMomentumX, aMomentumY, aMomentumZ);
 	}
 
+	public final void getAngularVelocity(WWVector aVelocity) {
+		aVelocity.x = aMomentumX;
+		aVelocity.y = aMomentumY;
+		aVelocity.z = aMomentumZ;
+	}
+
 	public final void setAngularVelocity(WWVector aVelocity) {
 		setOrientation(getPosition(getWorldTime()), getRotation(getWorldTime()), null, aVelocity, getWorldTime());
 	}
 
-	public final WWVector getAMomentum() {
-		return new WWVector(aMomentumX, aMomentumY, aMomentumZ);
-	}
-
-	public final void getAMomentum(WWVector aMomentum) {
-		aMomentum.x = aMomentumX;
-		aMomentum.y = aMomentumY;
-		aMomentum.z = aMomentumZ;
-	}
-
-	public final void setAMomentum(WWVector aMomentum) {
-		setOrientation(getPosition(getWorldTime()), getRotation(getWorldTime()), null, aMomentum, getWorldTime());
-	}
-
-	public final float getAMomentumLength() {
+	public final float getAngularVelocityLength() {
 		return (float) Math.sqrt(aMomentumX * aMomentumX + aMomentumY * aMomentumY + aMomentumZ * aMomentumZ);
 	}
 

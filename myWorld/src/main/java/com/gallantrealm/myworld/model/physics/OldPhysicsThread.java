@@ -71,7 +71,7 @@ public class OldPhysicsThread extends PhysicsThread {
 				object.getRotationPoint(rotationPoint);
 				object.getAbsoluteRotation(rotation, worldTime);
 				object.getVelocity(velocity);
-				object.getAMomentum(aMomentum);
+				object.getAngularVelocity(aMomentum);
 				WWVector thrust = object.getThrust();
 				WWVector thrustVelocity = object.getThrustVelocity();
 				WWVector torque = object.getTorque();
@@ -185,7 +185,7 @@ public class OldPhysicsThread extends PhysicsThread {
 									velocity.z = reducedVelocity.z;
 									// TODO determine if the friction should apply to all directions or just perpendicular to surface normal
 									WWVector reducedAMomentum = new WWVector(aMomentum.x, aMomentum.y, aMomentum.z);
-									WWVector object2AMomentum = object2.getAMomentum();
+									WWVector object2AMomentum = object2.getAngularVelocity();
 									reducedAMomentum.average(object2AMomentum, friction);
 									aMomentum.x = reducedAMomentum.x;
 									aMomentum.y = reducedAMomentum.y;

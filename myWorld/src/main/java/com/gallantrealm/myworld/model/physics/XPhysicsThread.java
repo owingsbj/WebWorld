@@ -118,7 +118,7 @@ public class XPhysicsThread extends Thread {
 					object.getRotation(rotation, worldTime);
 					object.getRotationPoint(rotationPoint);
 					object.getVelocity(velocity);
-					object.getAMomentum(aMomentum);
+					object.getAngularVelocity(aMomentum);
 					WWVector thrust = object.getThrust();
 					float maxThrustInfluence = object.getThrustVelocity().length();
 					WWVector torque = object.getTorque();
@@ -226,7 +226,7 @@ public class XPhysicsThread extends Thread {
 											frictionVForce.subtract(velocity);
 											frictionVForce.scale(friction);
 											totalForce.add(frictionVForce);
-											WWVector frictionAForce = object2.getAMomentum();
+											WWVector frictionAForce = object2.getAngularVelocity();
 											frictionAForce.subtract(aMomentum);
 											frictionAForce.scale(friction);
 											totalTorque.add(frictionAForce);
