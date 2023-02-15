@@ -245,7 +245,7 @@
 
         <Button
             android:id="@+id/developerSettingsButton"
-            android:layout_width="400sp"
+            android:layout_width="300sp"
             android:layout_height="60sp"
             android:background="@drawable/theme_button"
             android:paddingLeft="20sp"
