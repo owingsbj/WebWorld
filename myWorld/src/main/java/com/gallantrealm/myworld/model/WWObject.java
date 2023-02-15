@@ -47,9 +47,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public float velocityX;
 	public float velocityY;
 	public float velocityZ;
-	public float aMomentumX;
-	public float aMomentumY;
-	public float aMomentumZ;
+	public float angularVelocityX;
+	public float angularVelocityY;
+	public float angularVelocityZ;
 	public float density = 1.0f;
 	public boolean solid = true;
 	public float elasticity;
@@ -201,9 +201,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		os.writeFloat(velocityX);
 		os.writeFloat(velocityY);
 		os.writeFloat(velocityZ);
-		os.writeFloat(aMomentumX);
-		os.writeFloat(aMomentumY);
-		os.writeFloat(aMomentumZ);
+		os.writeFloat(angularVelocityX);
+		os.writeFloat(angularVelocityY);
+		os.writeFloat(angularVelocityZ);
 		os.writeFloat(thrustX);
 		os.writeFloat(thrustY);
 		os.writeFloat(thrustZ);
@@ -292,9 +292,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		velocityX = is.readFloat();
 		velocityY = is.readFloat();
 		velocityZ = is.readFloat();
-		aMomentumX = is.readFloat();
-		aMomentumY = is.readFloat();
-		aMomentumZ = is.readFloat();
+		angularVelocityX = is.readFloat();
+		angularVelocityY = is.readFloat();
+		angularVelocityZ = is.readFloat();
 		thrustX = is.readFloat();
 		thrustY = is.readFloat();
 		thrustZ = is.readFloat();
@@ -410,7 +410,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			this.rotation.copyInto(r);
 			float deltaTime = (worldTime - lastMoveTime) / 1000.0f;
 			float angle = getAngularVelocityLength() * deltaTime;
-			r.spin(angle, aMomentumX, aMomentumY, aMomentumZ);
+			r.spin(angle, angularVelocityX, angularVelocityY, angularVelocityZ);
 
 			// Apply start and stop rotation limits if any
 			// TODO this logic can't be supported with quaternions.  Replace with slerp?
@@ -480,7 +480,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 //		float deltaTime = (worldTime - lastMoveTime) / 1000.0f;
 //		float newRotationX = rotationX + deltaTime * aMomentumX;
 //		float newRotationY = rotationY + deltaTime * aMomentumY;
-//		float newRotationZ = rotationZ + deltaTime * aMomentumZ;
+//		float newRotationZ = rotationZ + deltaTime * angularVelocityZ;
 //		if (startRotation != null) {
 //			if (rotationX > startRotation.x && newRotationX < startRotation.x) {
 //				return true;
@@ -764,13 +764,13 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final WWVector getAngularVelocity() {
-		return new WWVector(aMomentumX, aMomentumY, aMomentumZ);
+		return new WWVector(angularVelocityX, angularVelocityY, angularVelocityZ);
 	}
 
 	public final void getAngularVelocity(WWVector aVelocity) {
-		aVelocity.x = aMomentumX;
-		aVelocity.y = aMomentumY;
-		aVelocity.z = aMomentumZ;
+		aVelocity.x = angularVelocityX;
+		aVelocity.y = angularVelocityY;
+		aVelocity.z = angularVelocityZ;
 	}
 
 	public final void setAngularVelocity(WWVector aVelocity) {
@@ -778,7 +778,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final float getAngularVelocityLength() {
-		return (float) Math.sqrt(aMomentumX * aMomentumX + aMomentumY * aMomentumY + aMomentumZ * aMomentumZ);
+		return (float) Math.sqrt(angularVelocityX * angularVelocityX + angularVelocityY * angularVelocityY + angularVelocityZ * angularVelocityZ);
 	}
 
 	public final WWVector getThrust() {
@@ -894,9 +894,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			this.velocityZ = newVelocity.z;
 		}
 		if (newAMomentum != null) {
-			this.aMomentumX = newAMomentum.x;
-			this.aMomentumY = newAMomentum.y;
-			this.aMomentumZ = newAMomentum.z;
+			this.angularVelocityX = newAMomentum.x;
+			this.angularVelocityY = newAMomentum.y;
+			this.angularVelocityZ = newAMomentum.z;
 		}
 		this.lastMoveTime = newMoveTime;
 
@@ -1121,7 +1121,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 				}
 			}
 		}
-		boolean dynamic = velocityX != 0.0 || velocityY != 0.0 || velocityZ != 0.0 || aMomentumX != 0.0 || aMomentumY != 0.0 || aMomentumZ != 0.0;
+		boolean dynamic = velocityX != 0.0 || velocityY != 0.0 || velocityZ != 0.0 || angularVelocityX != 0.0 || angularVelocityY != 0.0 || angularVelocityZ != 0.0;
 		if (!dynamic && world != null && parentId != 0) {
 			WWObject parent = world.objects[parentId];
 			dynamic = parent.isDynamic();
@@ -1368,9 +1368,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		this.velocityX = newObject.velocityX;
 		this.velocityY = newObject.velocityY;
 		this.velocityZ = newObject.velocityZ;
-		this.aMomentumX = newObject.aMomentumX;
-		this.aMomentumY = newObject.aMomentumY;
-		this.aMomentumZ = newObject.aMomentumZ;
+		this.angularVelocityX = newObject.angularVelocityX;
+		this.angularVelocityY = newObject.angularVelocityY;
+		this.angularVelocityZ = newObject.angularVelocityZ;
 		this.density = newObject.density;
 		this.solid = newObject.solid;
 		this.elasticity = newObject.elasticity;
