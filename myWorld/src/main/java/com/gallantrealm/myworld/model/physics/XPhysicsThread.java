@@ -114,8 +114,8 @@ public class XPhysicsThread extends Thread {
 				synchronized (object) { // to keep it from being modified
 
 					// Get current orientation and momentum values.
-					object.getPosition(position, worldTime);
-					object.getRotation(rotation, worldTime);
+					object.getPosition(position);
+					object.getRotation(rotation);
 					object.getRotationPoint(rotationPoint);
 					object.getVelocity(velocity);
 					object.getAngularVelocity(aMomentum);
@@ -146,13 +146,13 @@ public class XPhysicsThread extends Thread {
 							// First, see if the objects are "close".  If they are, it is worth
 							// determining if they actually overlap
 							float maxExtent = FastMath.max(objectExtent, object2.extent);
-							object2.getPosition(position2, worldTime);
+							object2.getPosition(position2);
 							if (/* object2.parentId != 0 || */(Math.abs(position2.x - position.x) < maxExtent && Math.abs(position2.y - position.y) < maxExtent && Math.abs(position2.z - position.z) < maxExtent)) {
 
 								// Determine if the objects overlap, and the vector of overlap.  This
 								// vector points in the direction of the deepest overlap, and the length of the
 								// vector indicates the amount of overlap
-								object2.getRotation(rotation2, worldTime);
+								object2.getRotation(rotation2);
 								object.getOverlap(object2, position, rotation, rotationPoint, position2, rotation2, worldTime, tempPoint, tempPoint2, overlapPoint, overlapVector);
 
 								if (!overlapVector.isZero()) {
@@ -251,7 +251,7 @@ public class XPhysicsThread extends Thread {
 					velocity.z += totalForce.z * deltaTime;
 
 					// Limit velocity according to freedom
-					object.antiRotate(velocity, rotation, worldTime);
+					object.antiRotate(velocity, rotation);
 					if (!object.freedomMoveX) {
 						velocity.x = 0.0f;
 					}
@@ -261,7 +261,7 @@ public class XPhysicsThread extends Thread {
 					if (!object.freedomMoveZ) {
 						velocity.z = 0.0f;
 					}
-					object.rotate(velocity, rotation, worldTime);
+					object.rotate(velocity, rotation);
 
 					// Apply torque to object.
 //					object.antiRotate(torque, rotation); // so torque is relative to current object orientation
@@ -286,7 +286,7 @@ public class XPhysicsThread extends Thread {
 					// apply the object's own thrust and torque last, so it always influences
 					// but only if less than the max influence (this is a game after all)
 					if (velocity.length() < maxThrustInfluence) {
-						object.rotate(thrust, rotation, worldTime);
+						object.rotate(thrust, rotation);
 						velocity.x += thrust.x * deltaTime;
 						velocity.y += thrust.y * deltaTime;
 						velocity.z += thrust.z * deltaTime;

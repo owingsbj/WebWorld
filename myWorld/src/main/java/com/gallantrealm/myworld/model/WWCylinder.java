@@ -142,6 +142,6 @@ public class WWCylinder extends WWSimpleShape implements Serializable, Cloneable
 			penetration.scale(sizeZ); // alternate scaling that doesn't distort penetration
 		}
 //		penetration.scale(getSizeX(), getSizeY(), getSizeZ());   // the original scaling, distorted penetration vector
-		rotate(penetration, rotation, worldTime);
+		rotate(penetration, rotation);
 	}
 }

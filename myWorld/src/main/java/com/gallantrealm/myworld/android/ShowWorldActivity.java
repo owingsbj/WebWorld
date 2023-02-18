@@ -845,11 +845,11 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 										if (avatar == previouslyPickedObject && avatar != pickedObject) {
 											clientModel.setCameraObject(pickedObject);
 											clientModel.setCameraDistance(FastMath.max(clientModel.getCameraDistance(), pickedObject.extent * 4));
-											clientModel.setCameraPanUndamped(clientModel.getCameraPan() + avatar.getRotation(clientModel.world.getWorldTime()).getYaw());
+											clientModel.setCameraPanUndamped(clientModel.getCameraPan() + avatar.getRotation().getYaw());
 										} else if (avatar != previouslyPickedObject && avatar == pickedObject) {
 											clientModel.setCameraObject(pickedObject);
 											clientModel.setCameraDistance(FastMath.max(clientModel.getCameraDistance(), pickedObject.extent * 4));
-											clientModel.setCameraPanUndamped(clientModel.getCameraPan() - avatar.getRotation(clientModel.world.getWorldTime()).getYaw());
+											clientModel.setCameraPanUndamped(clientModel.getCameraPan() - avatar.getRotation().getYaw());
 										}
 									}
 								}

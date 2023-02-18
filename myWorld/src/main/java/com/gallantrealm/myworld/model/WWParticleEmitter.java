@@ -129,7 +129,7 @@ public class WWParticleEmitter extends WWObject {
 			}
 		}
 
-		rotate(penetrationVector, rotation, worldTime);
+		rotate(penetrationVector, rotation);
 	}
 	
 	public void createRendering(IRenderer renderer, long worldTime) {

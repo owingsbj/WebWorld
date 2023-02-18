@@ -124,7 +124,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public WWObject() {
 		sideAttributes = new SideAttributes[NSIDES];
 		for (int i = 0; i < NSIDES; i++) {
-			sideAttributes[i] = SideAttributes.getDefaultSurface();
+			sideAttributes[i] = SideAttributes.defaultSurface;
 		}
 	}
 
@@ -343,7 +343,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	 */
 	public final WWQuaternion getAbsoluteRotation(long worldTime) {
 		WWQuaternion r = new WWQuaternion();
-		getRotation(r, worldTime);
+		getRotation(r);
 		int p = parentId;
 		if (p != 0) {
 			WWObject parent = world.objects[p];
@@ -357,7 +357,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	 * Returns the rotation including contribution from parents
 	 */
 	public final WWQuaternion getAbsoluteRotation(WWQuaternion r, long worldTime) {
-		getRotation(r, worldTime);
+		getRotation(r);
 		int p = parentId;
 		if (p != 0) {
 			WWObject parent = world.objects[p];
@@ -394,65 +394,17 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final WWQuaternion getRotation() {
-		return getRotation(getWorldTime());
-	}
-
-	public final WWQuaternion getRotation(long worldTime) {
 		WWQuaternion r = new WWQuaternion();
-		getRotation(r, worldTime);
+		getRotation(r);
 		return r;
 	}
 
-	public final void getRotation(WWQuaternion r, long worldTime) {
-		if (fixed) {
-			this.rotation.copyInto(r);
-		} else {
-			this.rotation.copyInto(r);
-			float deltaTime = (worldTime - lastMoveTime) / 1000.0f;
-			float angle = getAngularVelocityLength() * deltaTime;
-			r.spin(angle, angularVelocityX, angularVelocityY, angularVelocityZ);
-
-			// Apply start and stop rotation limits if any
-			// TODO this logic can't be supported with quaternions.  Replace with slerp?
-//			if (startRotation != null) {
-//				if (rotationX > startRotation.x && rotation.x < startRotation.x) {
-//					rotation.x = startRotation.x;
-//				} else if (rotationX < startRotation.x && rotation.x > startRotation.x) {
-//					rotation.x = startRotation.x;
-//				}
-//				if (rotationY > startRotation.y && rotation.y < startRotation.y) {
-//					rotation.y = startRotation.y;
-//				} else if (rotationY < startRotation.y && rotation.y > startRotation.y) {
-//					rotation.y = startRotation.y;
-//				}
-//				if (rotationZ > startRotation.z && rotation.z < startRotation.z) {
-//					rotation.z = startRotation.z;
-//				} else if (rotationZ < startRotation.z && rotation.z > startRotation.z) {
-//					rotation.z = startRotation.z;
-//				}
-//			}
-//			if (stopRotation != null) {
-//				if (rotationX > stopRotation.x && rotation.x < stopRotation.x) {
-//					rotation.x = stopRotation.x;
-//				} else if (rotationX < stopRotation.x && rotation.x > stopRotation.x) {
-//					rotation.x = stopRotation.x;
-//				}
-//				if (rotationY > stopRotation.y && rotation.y < stopRotation.y) {
-//					rotation.y = stopRotation.y;
-//				} else if (rotationY < stopRotation.y && rotation.y > stopRotation.y) {
-//					rotation.y = stopRotation.y;
-//				}
-//				if (rotationZ > stopRotation.z && rotation.z < stopRotation.z) {
-//					rotation.z = stopRotation.z;
-//				} else if (rotationZ < stopRotation.z && rotation.z > stopRotation.z) {
-//					rotation.z = stopRotation.z;
-//				}
-//			}
-		}
+	public final void getRotation(WWQuaternion r) {
+		this.rotation.copyInto(r);
 	}
 
 	public final void getAnimatedRotation(WWQuaternion r, long worldTime) {
-		getRotation(r, worldTime);
+		getRotation(r);
 		processRotationAnimators(this, r, worldTime);
 	}
 
@@ -519,7 +471,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 //	}
 
 	public final void setRotation(float pitch, float roll, float yaw) {
-		setOrientation(getPosition(getWorldTime()), new WWQuaternion(pitch, roll, yaw), null, null, getWorldTime());
+		setOrientation(getPosition(), new WWQuaternion(pitch, roll, yaw), null, null, getWorldTime());
 	}
 
 	public final void setRotation(float[] rots) {
@@ -527,7 +479,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setRotation(WWQuaternion rotation) {
-		setOrientation(getPosition(getWorldTime()), rotation, null, null, getWorldTime());
+		setOrientation(getPosition(), rotation, null, null, getWorldTime());
 	}
 
 	public final WWVector getRotationPoint() {
@@ -558,63 +510,16 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		return position;
 	}
 
-	public final WWVector getPosition(long worldTime) {
+	public final WWVector getPosition() {
 		WWVector position = new WWVector();
-		getPosition(position, worldTime);
+		getPosition(position);
 		return position;
 	}
 
-	public final WWVector getPosition() {
-		return getPosition(getWorldTime());
-	}
-
-	public final void getPosition(WWVector position, long worldTime) {
-		if (fixed) {
-			position.x = positionX;
-			position.y = positionY;
-			position.z = positionZ;
-		} else {
-			// Determine position based on delta time since it was set and the velocity and acceleration
-			float deltaTime = (worldTime - lastMoveTime) / 1000.0f;
-			position.x = positionX + deltaTime * velocityX;
-			position.y = positionY + deltaTime * velocityY;
-			position.z = positionZ + deltaTime * velocityZ;
-			// Apply start and stop position limits if any
-			if (startPosition != null) {
-				if (positionX > startPosition.x && position.x < startPosition.x) {
-					position.x = startPosition.x;
-				} else if (positionX < startPosition.x && position.x > startPosition.x) {
-					position.x = startPosition.x;
-				}
-				if (positionY > startPosition.y && position.y < startPosition.y) {
-					position.y = startPosition.y;
-				} else if (positionY < startPosition.y && position.y > startPosition.y) {
-					position.y = startPosition.y;
-				}
-				if (positionZ > startPosition.z && position.z < startPosition.z) {
-					position.z = startPosition.z;
-				} else if (positionZ < startPosition.z && position.z > startPosition.z) {
-					position.z = startPosition.z;
-				}
-			}
-			if (stopPosition != null) {
-				if (positionX > stopPosition.x && position.x < stopPosition.x) {
-					position.x = stopPosition.x;
-				} else if (positionX < stopPosition.x && position.x > stopPosition.x) {
-					position.x = stopPosition.x;
-				}
-				if (positionY > stopPosition.y && position.y < stopPosition.y) {
-					position.y = stopPosition.y;
-				} else if (positionY < stopPosition.y && position.y > stopPosition.y) {
-					position.y = stopPosition.y;
-				}
-				if (positionZ > stopPosition.z && position.z < stopPosition.z) {
-					position.z = stopPosition.z;
-				} else if (positionZ < stopPosition.z && position.z > stopPosition.z) {
-					position.z = stopPosition.z;
-				}
-			}
-		}
+	public final void getPosition(WWVector position) {
+		position.x = positionX;
+		position.y = positionY;
+		position.z = positionZ;
 	}
 
 	transient long lastGetAbsolutePositionTime = -1;
@@ -629,17 +534,17 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			position.y = lastGetAbsolutePositionY;
 			position.z = lastGetAbsolutePositionZ;
 		} else {
-			getPosition(position, worldTime);
+			getPosition(position);
 			// if this is a member of a collection, adjust position according to parent's position/rotation
 			if (parentId != 0) {
 				WWObject parent = world.objects[parentId];
 				WWVector parentPosition = new WWVector();
 				WWQuaternion parentRotation = new WWQuaternion();
 				parent.getAbsolutePosition(parentPosition, worldTime);
-				parent.getRotation(parentRotation, worldTime);
+				parent.getRotation(parentRotation);
 				WWVector parentRotationPoint = parent.getRotationPoint();
 				// parent.antiTransform(position, parent.getPosition(lastMoveTime), parent.getRotation(lastMoveTime));
-				transform(position, parentPosition, parentRotation, parentRotationPoint, worldTime);
+				transform(position, parentPosition, parentRotation, parentRotationPoint);
 			}
 			lastGetAbsolutePositionX = position.x;
 			lastGetAbsolutePositionY = position.y;
@@ -662,12 +567,12 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			parent.getAbsoluteAnimatedRotation(parentRotation, worldTime);
 			WWVector parentRotationPoint = parent.getRotationPoint();
 			// parent.antiTransform(position, parent.getPosition(lastMoveTime), parent.getRotation(lastMoveTime));
-			transform(position, parentPosition, parentRotation, parentRotationPoint, worldTime);
+			transform(position, parentPosition, parentRotation, parentRotationPoint);
 		}
 	}
 
 	public final void getAnimatedPosition(WWVector position, long worldTime) {
-		getPosition(position, worldTime);
+		getPosition(position);
 		processPositionAnimators(this, position, worldTime);
 	}
 
@@ -690,11 +595,11 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setPosition(WWVector position) {
-		setOrientation(position, getRotation(getWorldTime()), null, null, getWorldTime());
+		setOrientation(position, getRotation(), null, null, getWorldTime());
 	}
 
 	public final void setPosition(float x, float y, float z) {
-		setOrientation(new WWVector(x, y, z), getRotation(getWorldTime()), null, null, getWorldTime());
+		setOrientation(new WWVector(x, y, z), getRotation(), null, null, getWorldTime());
 	}
 
 	public final void setPosition(float[] pos) {
@@ -756,7 +661,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setVelocity(WWVector velocity) {
-		setOrientation(getPosition(getWorldTime()), getRotation(getWorldTime()), velocity, null, getWorldTime());
+		setOrientation(getPosition(), getRotation(), velocity, null, getWorldTime());
 	}
 
 	public final float getVelocityLength() {
@@ -774,7 +679,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setAngularVelocity(WWVector aVelocity) {
-		setOrientation(getPosition(getWorldTime()), getRotation(getWorldTime()), null, aVelocity, getWorldTime());
+		setOrientation(getPosition(), getRotation(), null, aVelocity, getWorldTime());
 	}
 
 	public final float getAngularVelocityLength() {
@@ -1111,7 +1016,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public final boolean isDynamic() {
 		if (sideAttributes != null) {
 			for (int side = 0; side < NSIDES; side++) {
-				if (sideAttributes[side] != null) {
+				if (sideAttributes[side] != null && sideAttributes[side] != SideAttributes.defaultSurface) {
 					float textureVelocityX = sideAttributes[side].textureVelocityX;
 					float textureVelocityY = sideAttributes[side].textureVelocityY;
 					float textureAMomentum = sideAttributes[side].textureAMomentum;
@@ -1145,6 +1050,105 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		}
 	}
 
+	/**
+	 * Updates position, rotation and texture offsets of the object based on the
+	 * current time (passed in as worldTime).
+	 */
+	public void updateDynamicProperties(long timeIncrement) {
+			float deltaTime = timeIncrement / 1000.0f;
+
+			//System.out.println("WWObject.updateDynamicProperties velocity: "+getVelocityLength());
+
+			// update position and rotation
+			positionX += velocityX * deltaTime;
+			positionY += velocityY * deltaTime;
+			positionZ += velocityZ * deltaTime;
+//				if (startPosition != null) {
+//					if (positionX > startPosition.x && position.x < startPosition.x) {
+//						position.x = startPosition.x;
+//					} else if (positionX < startPosition.x && position.x > startPosition.x) {
+//						position.x = startPosition.x;
+//					}
+//					if (positionY > startPosition.y && position.y < startPosition.y) {
+//						position.y = startPosition.y;
+//					} else if (positionY < startPosition.y && position.y > startPosition.y) {
+//						position.y = startPosition.y;
+//					}
+//					if (positionZ > startPosition.z && position.z < startPosition.z) {
+//						position.z = startPosition.z;
+//					} else if (positionZ < startPosition.z && position.z > startPosition.z) {
+//						position.z = startPosition.z;
+//					}
+//				}
+//				if (stopPosition != null) {
+//					if (positionX > stopPosition.x && position.x < stopPosition.x) {
+//						position.x = stopPosition.x;
+//					} else if (positionX < stopPosition.x && position.x > stopPosition.x) {
+//						position.x = stopPosition.x;
+//					}
+//					if (positionY > stopPosition.y && position.y < stopPosition.y) {
+//						position.y = stopPosition.y;
+//					} else if (positionY < stopPosition.y && position.y > stopPosition.y) {
+//						position.y = stopPosition.y;
+//					}
+//					if (positionZ > stopPosition.z && position.z < stopPosition.z) {
+//						position.z = stopPosition.z;
+//					} else if (positionZ < stopPosition.z && position.z > stopPosition.z) {
+//						position.z = stopPosition.z;
+//					}
+//				}
+			if (angularVelocityX != 0 || angularVelocityY != 0 || angularVelocityZ != 0) {
+				float angle = getAngularVelocityLength() * deltaTime;
+				rotation.spin(angle, angularVelocityX, angularVelocityY, angularVelocityZ);
+	//			if (startRotation != null) {
+	//				if (rotationX > startRotation.x && rotation.x < startRotation.x) {
+	//					rotation.x = startRotation.x;
+	//				} else if (rotationX < startRotation.x && rotation.x > startRotation.x) {
+	//					rotation.x = startRotation.x;
+	//				}
+	//				if (rotationY > startRotation.y && rotation.y < startRotation.y) {
+	//					rotation.y = startRotation.y;
+	//				} else if (rotationY < startRotation.y && rotation.y > startRotation.y) {
+	//					rotation.y = startRotation.y;
+	//				}
+	//				if (rotationZ > startRotation.z && rotation.z < startRotation.z) {
+	//					rotation.z = startRotation.z;
+	//				} else if (rotationZ < startRotation.z && rotation.z > startRotation.z) {
+	//					rotation.z = startRotation.z;
+	//				}
+	//			}
+	//			if (stopRotation != null) {
+	//				if (rotationX > stopRotation.x && rotation.x < stopRotation.x) {
+	//					rotation.x = stopRotation.x;
+	//				} else if (rotationX < stopRotation.x && rotation.x > stopRotation.x) {
+	//					rotation.x = stopRotation.x;
+	//				}
+	//				if (rotationY > stopRotation.y && rotation.y < stopRotation.y) {
+	//					rotation.y = stopRotation.y;
+	//				} else if (rotationY < stopRotation.y && rotation.y > stopRotation.y) {
+	//					rotation.y = stopRotation.y;
+	//				}
+	//				if (rotationZ > stopRotation.z && rotation.z < stopRotation.z) {
+	//					rotation.z = stopRotation.z;
+	//				} else if (rotationZ < stopRotation.z && rotation.z > stopRotation.z) {
+	//					rotation.z = stopRotation.z;
+	//				}
+	//			}
+			}
+
+			// update textures offsets
+			for (int i = 0; i < NSIDES; i++) {
+				SideAttributes side = sideAttributes[i];
+				if (side != SideAttributes.defaultSurface) {
+					side.textureOffsetX += side.textureVelocityX * deltaTime;
+					side.textureOffsetY += side.textureVelocityY * deltaTime;
+					side.textureRotation += side.textureAMomentum * deltaTime;
+				}
+			}
+
+
+	}
+
 	public final WWVector getSize() {
 		return new WWVector(sizeX, sizeY, sizeZ);
 	}
@@ -1170,11 +1174,11 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	 */
 	public final WWVector getOverlapVector(WWObject object, long worldTime) {
 
-		WWVector position = getPosition(worldTime);
-		WWQuaternion rotation = getRotation(worldTime);
+		WWVector position = getPosition();
+		WWQuaternion rotation = getRotation();
 		WWVector rotationPoint = getRotationPoint();
-		WWVector objectPosition = object.getPosition(worldTime);
-		WWQuaternion objectRotation = object.getRotation(worldTime);
+		WWVector objectPosition = object.getPosition();
+		WWQuaternion objectRotation = object.getRotation();
 		WWVector tempPoint = new WWVector();
 		WWVector tempPoint2 = new WWVector();
 		WWVector overlapPoint = new WWVector();
@@ -1216,7 +1220,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 				} else {
 					constEdgePoints[i].copyInto(edgePoint);
 				}
-				transform(edgePoint, position, rotation, rotationPoint, worldTime);
+				transform(edgePoint, position, rotation, rotationPoint);
 				transformedEdgePoints[i] = edgePoint;
 			}
 			lastTransformedEdgePoints = transformedEdgePoints;
@@ -1273,21 +1277,21 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	/**
 	 * Rotate a point according to a given rotation.
 	 */
-	public static final void rotate(WWVector point, WWQuaternion rotation, long worldTime) {
+	public static final void rotate(WWVector point, WWQuaternion rotation) {
 		rotation.rotateVector(point);
 	}
 
 	/**
 	 * Anti-rotate a point, removing a given rotation. Note that this is mainly useful to perform on velocity/force vectors.
 	 */
-	public static final void antiRotate(WWVector point, WWQuaternion rotation, long worldTime) {
+	public static final void antiRotate(WWVector point, WWQuaternion rotation) {
 		rotation.antirotateVector(point);
 	}
 
 	/**
 	 * Transform a point according to a rotation and position at a given time.
 	 */
-	public static final void transform(WWVector point, WWVector position, WWQuaternion rotation, WWVector rotationPoint, long worldTime) {
+	public static final void transform(WWVector point, WWVector position, WWQuaternion rotation, WWVector rotationPoint) {
 		rotation.rotateVector(point);
 		point.add(position);
 	}
@@ -1307,13 +1311,13 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			long currenttime = getWorldTime();
 			clone.setLastModifyTime(currenttime);
 			// manually clone position and rotation as these change due to modified time
-			clone.setPosition(getPosition(currenttime));
-			clone.setRotation(getRotation(currenttime));
+			clone.setPosition(getPosition());
+			clone.setRotation(getRotation());
 		}
 		sideAttributes = new SideAttributes[NSIDES];
 		for (int i = 0; i < NSIDES; i++) {
-			if (clone.sideAttributes[i] == SideAttributes.getDefaultSurface()) {
-				sideAttributes[i] = SideAttributes.getDefaultSurface();
+			if (clone.sideAttributes[i] == SideAttributes.defaultSurface) {
+				sideAttributes[i] = SideAttributes.defaultSurface;
 			} else {
 				sideAttributes[i] = (SideAttributes) clone.sideAttributes[i].clone();
 			}
@@ -1342,8 +1346,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			long currenttime = getWorldTime();
 			clone.setLastModifyTime(currenttime);
 			// manually clone position and rotation as these change due to modified time
-			clone.setPosition(getPosition(currenttime));
-			clone.setRotation(getRotation(currenttime));
+			clone.setPosition(getPosition());
+			clone.setRotation(getRotation());
 		}
 		clone.behaviors = null;
 		return clone;
@@ -1940,21 +1944,6 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	public final void setColorCutout2(WWColor color) {
 		setColor(SIDE_CUTOUT2, color);
-	}
-
-	public final float getTextureRotation(int side, long worldTime) {
-		float deltaTime = (worldTime - lastMoveTime) / 1000.0f;
-		return sideAttributes[side].textureRotation + deltaTime * sideAttributes[side].textureAMomentum;
-	}
-
-	public final float getTextureOffsetX(int side, long worldTime) {
-		float deltaTime = (worldTime - lastMoveTime) / 1000.0f;
-		return sideAttributes[side].textureOffsetX + deltaTime * sideAttributes[side].textureVelocityX;
-	}
-
-	public final float getTextureOffsetY(int side, long worldTime) {
-		float deltaTime = (worldTime - lastMoveTime) / 1000.0f;
-		return sideAttributes[side].textureOffsetY + deltaTime * sideAttributes[side].textureVelocityY;
 	}
 
 	private final WWTexture getTexture(int side) {

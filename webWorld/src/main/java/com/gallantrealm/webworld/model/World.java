@@ -76,12 +76,12 @@ public class World extends WWWorld {
 	};
 
 	public World() throws Exception {
-		super(true, true, null, 15, true);
+		super(true, true, null, 0, true);
 		initializeWorld();
 	}
 
 	public World(String saveWorldFileName, String avatarName) throws Exception {
-		super(true, true, saveWorldFileName, 15, true);
+		super(true, true, saveWorldFileName, 0, true);
 		initializeWorld();
 	}
 

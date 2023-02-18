@@ -13,14 +13,11 @@ import com.gallantrealm.myworld.communication.Sendable;
 public final class SideAttributes implements Serializable, Cloneable, Sendable {
 	static final long serialVersionUID = 1L;
 
-	private static SideAttributes defaultSurface;
+	public static SideAttributes defaultSurface;
 
-	public static SideAttributes getDefaultSurface() {
-		if (defaultSurface == null) {
-			defaultSurface = new SideAttributes();
-			defaultSurface.isDefault = true;
-		}
-		return defaultSurface;
+	static {
+		defaultSurface = new SideAttributes();
+		defaultSurface.isDefault = true;
 	}
 
 	public float red = 1.0f;

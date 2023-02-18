@@ -791,11 +791,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				if (lastDrawFrameTime == 0) {
 					lastDrawFrameTime = drawFrameTime - 25;
 				}
-				if (world.getPhysicsIterationTime() == 0) { // physics running on rendering thread
-					world.performPhysicsIteration(Math.min(drawFrameTime - lastDrawFrameTime, 50));
-				}
 
-				// wait long enough for 30 fps (or 10 fps for power saver)
+				// wait long enough to match frame rate
 				try {
 					Thread.sleep(Math.max(0, clientModel.getFrameRate() - (drawFrameTime - lastDrawFrameTime)));
 					drawFrameTime = System.currentTimeMillis();
@@ -805,7 +802,11 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					}
 				} catch (InterruptedException e) {
 				}
-	
+
+				if (world.getPhysicsIterationTime() == 0) { // physics running on rendering thread
+					world.performPhysicsIteration(Math.min(drawFrameTime - lastDrawFrameTime, 50));
+				}
+
 				lastDrawFrameTime = drawFrameTime;
 	
 				GLWorld worldRendering = (GLWorld) world.getRendering();
@@ -1017,7 +1018,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				// Get avatar position
 				WWVector avatarPosition = new WWVector();
 				if (avatar != null) {
-					avatar.getPosition(avatarPosition, time);
+					avatar.getPosition(avatarPosition);
 				}
 	
 				// position the camera
@@ -1130,7 +1131,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 									// ((TranslucencyPrimitive) primitive).adjustTranslucencyForPerspective((float) transparencyPan, (float) transparencyTilt, clientModel.getCameraLocation(time), time);
 								}
 	
-								object.getPosition(objectPosition, time);
+								object.getPosition(objectPosition);
 	
 								// If the object is within the rendering threshold (considering size), mark it for rendering
 								if (object.parentId == 0) {
@@ -1228,7 +1229,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			cameraObject.getAbsoluteAnimatedPosition(cameraPoint, time);
 			if (avatar == cameraObject && cameraDistance < 10) {
 				WWVector point = new WWVector(0, 0, 0.75f);
-				cameraObject.rotate(point, cameraObjectRotation, time);
+				cameraObject.rotate(point, cameraObjectRotation);
 				cameraPoint.add(point); // so avatar is in lower part of screen
 			}
 		}
@@ -1277,10 +1278,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 						}
 						// First, see if the objects are "close". If they are, it is worth
 						// determining if they actually overlap
-						object.getPosition(position, time);
+						object.getPosition(position);
 						float extent = object.extent;
 						if (object.parentId != 0 || (Math.abs(position.x - cameraLocation.x) < extent && Math.abs(position.y - cameraLocation.y) < extent && Math.abs(position.z - cameraLocation.z) < extent)) {
-							object.getRotation(rotation, time);
+							object.getRotation(rotation);
 							object.getPenetration(cameraLocation, position, rotation, time, tempPoint, penetrationVector);
 							if (penetrationVector != null && penetrationVector.length() > 0 && limitedCameraDistance > 0.25) {
 								if (Math.abs(penetrationVector.z) > FastMath.max(Math.abs(penetrationVector.x), Math.abs(penetrationVector.y)) && cameraTilt < 45.0) {

@@ -45,6 +45,7 @@ public abstract class PhysicsThread extends Thread {
 				try {
 					long startTime = System.currentTimeMillis();
 					long timeIncrement = Math.min(startTime - lastStartTime, iterationTime);
+					updateDynamicProperties(timeIncrement);
 					performIteration(timeIncrement);
 					updateParticles(world.getWorldTime());
 
@@ -84,19 +85,30 @@ public abstract class PhysicsThread extends Thread {
 		int lastObjectIndex = world.lastObjectIndex;
 		for (int i = 0; i <= lastObjectIndex; i++) {
 			WWObject object = objects[i];
-			if (object != null && object.sound != null) {
+			if (object != null && object.sound != null && !object.deleted) {
 				object.updateSound();
 			}
 		}
 	}
 	
-	void updateParticles(long worldTime) {
+	public void updateParticles(long worldTime) {
 		WWObject[] objects = world.objects;
 		int lastObjectIndex = world.lastObjectIndex;
 		for (int i = 0; i <= lastObjectIndex; i++) {
 			WWObject object = objects[i];
-			if (object != null && object instanceof WWParticleEmitter) {
+			if (object != null && object instanceof WWParticleEmitter && !object.deleted) {
 				((WWParticleEmitter)object).updateAnimation(worldTime);
+			}
+		}
+	}
+
+	public void updateDynamicProperties(long timeIncrement) {
+		WWObject[] objects = world.objects;
+		int lastObjectIndex = world.lastObjectIndex;
+		for (int i = 0; i <= lastObjectIndex; i++) {
+			WWObject object = objects[i];
+			if (object != null && !object.fixed && !object.deleted) {
+				object.updateDynamicProperties(timeIncrement);
 			}
 		}
 	}

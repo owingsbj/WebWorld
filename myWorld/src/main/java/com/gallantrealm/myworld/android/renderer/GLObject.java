@@ -97,13 +97,14 @@ public abstract class GLObject extends GLRendering {
 
 	protected void adjustTextureCoords(GLSurface surface, int side) {
 		if (object.fixed) {
-			String textureUrl = object.sideAttributes[side].textureURL;
+			SideAttributes sideAttributes = object.sideAttributes[side];
+			String textureUrl = sideAttributes.textureURL;
 			if (textureUrl != null) {
 				float[] textureMatrix = new float[16];
 				Matrix.setIdentityM(textureMatrix, 0);
-				Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].textureScaleX, 1.0f / object.sideAttributes[side].textureScaleY, 1.0f);
-				Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(side, 0), object.getTextureOffsetY(side, 0), 0);
-				Matrix.rotateM(textureMatrix, 0, object.getTextureRotation(side, 0), 0, 0, 1);
+				Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
+				Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0);
+				Matrix.rotateM(textureMatrix, 0, sideAttributes.textureRotation, 0, 0, 1);
 				surface.adjustTextureCoords(textureMatrix);
 			}
 		}
@@ -255,8 +256,8 @@ public abstract class GLObject extends GLRendering {
 					color = new float[] { red, green, blue, 1.0f - trans };
 					if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
 						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
-						Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(WWObject.SIDE_ALL, worldTime), object.getTextureOffsetY(WWObject.SIDE_ALL, worldTime), 0.0f);
-						float textureRotation = object.getTextureRotation(WWObject.SIDE_ALL, worldTime);
+						Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0.0f);
+						float textureRotation = sideAttributes.textureRotation;
 						if (textureRotation != 0.0f) {
 							Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 						}
@@ -333,8 +334,8 @@ public abstract class GLObject extends GLRendering {
 							Matrix.setIdentityM(textureMatrix, 0);
 							if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
 								Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].textureScaleX, 1.0f / object.sideAttributes[side].textureScaleY, 1.0f);
-								Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(side, worldTime), object.getTextureOffsetY(side, worldTime), 0.0f);
-								float textureRotation = object.getTextureRotation(side, worldTime);
+								Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0.0f);
+								float textureRotation = sideAttributes.textureRotation;
 								if (textureRotation != 0.0f) {
 									Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 								}
@@ -403,8 +404,8 @@ public abstract class GLObject extends GLRendering {
 					Matrix.setIdentityM(textureMatrix, 0);
 					if (false) { // texture matrix is always baked into texture coords for groups
 						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
-						Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(WWObject.SIDE_ALL, worldTime), object.getTextureOffsetY(WWObject.SIDE_ALL, worldTime), 0.0f);
-						float textureRotation = object.getTextureRotation(WWObject.SIDE_ALL, worldTime);
+						Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0.0f);
+						float textureRotation = sideAttributes.textureRotation;
 						if (textureRotation != 0.0f) {
 							Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 						}

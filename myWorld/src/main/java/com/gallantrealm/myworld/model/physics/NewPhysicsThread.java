@@ -199,8 +199,8 @@ public class NewPhysicsThread extends PhysicsThread {
 
 									// Adjust the position of the objects so that they are not overlapping
 									if (!object.freedomMoveX || !object.freedomMoveY || !object.freedomMoveZ) {
-										WWObject.antiRotate(position, rotation, worldTime);
-										WWObject.antiRotate(overlapVector, rotation, worldTime);
+										WWObject.antiRotate(position, rotation);
+										WWObject.antiRotate(overlapVector, rotation);
 										if (object.freedomMoveX) {
 											position.x -= overlapVector.x;
 										}
@@ -210,8 +210,8 @@ public class NewPhysicsThread extends PhysicsThread {
 										if (object.freedomMoveZ) {
 											position.z -= overlapVector.z;
 										}
-										WWObject.rotate(position, rotation, worldTime);
-										WWObject.rotate(overlapVector, rotation, worldTime);
+										WWObject.rotate(position, rotation);
+										WWObject.rotate(overlapVector, rotation);
 									} else {
 										position.x -= overlapVector.x;
 										position.y -= overlapVector.y;
@@ -368,7 +368,7 @@ public class NewPhysicsThread extends PhysicsThread {
 
 				// Limit velocity according to freedom
 				if (!object.freedomMoveX || !object.freedomMoveY || !object.freedomMoveZ) {
-					WWObject.antiRotate(velocity, rotation, worldTime);
+					WWObject.antiRotate(velocity, rotation);
 					if (!object.freedomMoveX) {
 						velocity.x = 0.0f;
 					}
@@ -378,7 +378,7 @@ public class NewPhysicsThread extends PhysicsThread {
 					if (!object.freedomMoveZ) {
 						velocity.z = 0.0f;
 					}
-					WWObject.rotate(velocity, rotation, worldTime);
+					WWObject.rotate(velocity, rotation);
 				}
 
 				aMomentum.x += totalTorque.x * deltaTime;

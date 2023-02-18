@@ -109,6 +109,6 @@ public class WWTorus extends WWSimpleShape {
 //		penetration.scale(1.0, 1.0, 0.5 / 0.1875); // unadjust for z ring thickness difference
 //		penetration.scale(getSizeX(), getSizeY(), getSizeZ());	
 		penetration.scale(Math.min(Math.min(sizeX, sizeY), sizeZ)); // alternate scaling that doesn't distort penetration 
-		rotate(penetration, rotation, worldTime);
+		rotate(penetration, rotation);
 	}
 }

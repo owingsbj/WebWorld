@@ -90,7 +90,7 @@ public class WWSphere extends WWSimpleShape {
 			penetration.scale(tempPointLength - 0.5f);
 //			penetration.scale(getSizeX(), getSizeY(), getSizeZ());
 			penetration.scale(Math.min(Math.min(sizeX, sizeY), sizeZ)); // alternate scaling that doesn't distort penetration 
-			rotate(penetration, rotation, worldTime);
+			rotate(penetration, rotation);
 		} else {
 			float insidePenetrationLength = tempPointLength - 0.5f * hollow;
 			float outsidePenetrationLength = 0.5f - tempPointLength;
@@ -100,14 +100,14 @@ public class WWSphere extends WWSimpleShape {
 				tempPoint.copyInto(penetration);
 				penetration.scale(insidePenetrationLength);
 				penetration.scale(Math.min(Math.min(sizeX, sizeY), sizeZ)); // alternate scaling that doesn't distort penetration 
-				rotate(penetration, rotation, worldTime);
+				rotate(penetration, rotation);
 			} else {
 				// The penetration is the difference in the length from 1.0, pointing away from the sphere center,
 				// and readjusted for the sphere's size
 				tempPoint.copyInto(penetration);
 				penetration.scale(-outsidePenetrationLength);
 				penetration.scale(Math.min(Math.min(sizeX, sizeY), sizeZ)); // alternate scaling that doesn't distort penetration 
-				rotate(penetration, rotation, worldTime);
+				rotate(penetration, rotation);
 			}
 		}
 

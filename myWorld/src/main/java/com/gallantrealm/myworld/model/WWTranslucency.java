@@ -110,7 +110,7 @@ public class WWTranslucency extends WWObject {
 			}
 		}
 
-		rotate(penetrationVector, rotation, worldTime);
+		rotate(penetrationVector, rotation);
 	}
 
 }

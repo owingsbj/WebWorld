@@ -155,8 +155,8 @@ public class GLParticleEmitter extends GLObject {
 		Matrix.setIdentityM(textureMatrix, 0);
 		if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
 			Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
-			Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(WWObject.SIDE_ALL, worldTime), object.getTextureOffsetY(WWObject.SIDE_ALL, worldTime), 0.0f);
-			float textureRotation = object.getTextureRotation(WWObject.SIDE_ALL, worldTime);
+			Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0.0f);
+			float textureRotation = sideAttributes.textureRotation;
 			if (textureRotation != 0.0f) {
 				Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 			}

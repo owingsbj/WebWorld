@@ -152,6 +152,6 @@ public class WWBox extends WWSimpleShape {
 			}
 		}
 
-		rotate(penetration, rotation, worldTime);
+		rotate(penetration, rotation);
 	}
 }

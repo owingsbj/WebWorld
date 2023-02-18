@@ -102,7 +102,7 @@ public class WorldUpdatesAction extends ServerAction {
 		if (avatarId >= 0) {
 			WWObject avatar = world.objects[thisUser.getAvatarId()];
 			if (avatar != null) {
-				avatarPosition = avatar.getPosition(time);
+				avatarPosition = avatar.getPosition();
 			} else {
 				avatarPosition = new WWVector(0, 0, 0);
 			}
@@ -117,7 +117,7 @@ public class WorldUpdatesAction extends ServerAction {
 			if (object != null) {
 
 				// If the object is within rendering threshold (considering size), send any updates for it
-				object.getPosition(objectPosition, time);
+				object.getPosition(objectPosition);
 				if (avatarPosition.distanceFrom(objectPosition) / object.extent <= renderingThreshold) {
 					long lastObjectUpdateTime = objectsLastUpdateTime[i];
 					long objectCreateTime = object.getCreateTime();

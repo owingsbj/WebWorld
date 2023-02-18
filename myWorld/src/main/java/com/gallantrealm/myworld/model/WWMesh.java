@@ -293,7 +293,7 @@ public class WWMesh extends WWObject {
 			}
 		}
 
-		rotate(penetration, rotation, worldTime);
+		rotate(penetration, rotation);
 	}
 
 	/**

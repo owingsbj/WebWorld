@@ -158,7 +158,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 		if (position != null) {
 			WWObject avatar = AndroidClientModel.getClientModel().getAvatar();
 			long time = AndroidClientModel.getClientModel().world.getWorldTime();
-			distanceFrom = (float) Math.max(1.0, avatar.getPosition(time).distanceFrom(position));
+			distanceFrom = (float) Math.max(1.0, avatar.getPosition().distanceFrom(position));
 		} else {
 			distanceFrom = 1;
 		}
@@ -197,7 +197,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 		long time = AndroidClientModel.getClientModel().world.getWorldTime();
 		float distanceFrom = 1;
 		if (position != null) {
-			distanceFrom = FastMath.max(1.0f, avatar.getPosition(time).distanceFrom(position));
+			distanceFrom = FastMath.max(1.0f, avatar.getPosition().distanceFrom(position));
 		}
 //		if (distanceFrom < 100.0f) {
 		Integer soundId = soundMap.get(sound);
@@ -236,7 +236,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 		long time = AndroidClientModel.getClientModel().world.getWorldTime();
 		float distanceFrom = 1;
 		if (position != null) {
-			distanceFrom = FastMath.max(1.0f, avatar.getPosition(time).distanceFrom(position));
+			distanceFrom = FastMath.max(1.0f, avatar.getPosition().distanceFrom(position));
 		}
 //		if (distanceFrom < 100.0f) {
 		AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);

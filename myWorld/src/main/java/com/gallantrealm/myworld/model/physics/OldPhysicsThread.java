@@ -210,8 +210,8 @@ public class OldPhysicsThread extends PhysicsThread {
 				// Apply forces to object's velocity
 				WWVector rotatedForce = force.clone();
 				WWVector rotatedVelocity = velocity.clone();
-				object.antiRotate(rotatedForce, rotation, worldTime);
-				object.antiRotate(rotatedVelocity, rotation, worldTime);
+				object.antiRotate(rotatedForce, rotation);
+				object.antiRotate(rotatedVelocity, rotation);
 				if (!object.isFreedomMoveX()) {
 					rotatedForce.x = 0.0f;
 					rotatedVelocity.x = 0.0f;
@@ -227,7 +227,7 @@ public class OldPhysicsThread extends PhysicsThread {
 				rotatedVelocity.x += rotatedForce.x * deltaTime;
 				rotatedVelocity.y += rotatedForce.y * deltaTime;
 				rotatedVelocity.z += rotatedForce.z * deltaTime;
-				object.rotate(rotatedVelocity, rotation, worldTime);
+				object.rotate(rotatedVelocity, rotation);
 				velocity.x = rotatedVelocity.x;
 				velocity.y = rotatedVelocity.y;
 				velocity.z = rotatedVelocity.z;
@@ -235,8 +235,8 @@ public class OldPhysicsThread extends PhysicsThread {
 				// Apply thrust to object.  Apply last to overcome any friction
 				WWVector rotatedThrust = thrust.clone();
 				WWVector rotatedThrustVelocity = thrustVelocity.clone();
-				object.rotate(rotatedThrust, rotation, worldTime);
-				object.rotate(rotatedThrustVelocity, rotation, worldTime);
+				object.rotate(rotatedThrust, rotation);
+				object.rotate(rotatedThrustVelocity, rotation);
 				if (object.isFreedomMoveX() || object.isFreedomMoveY() || object.isFreedomMoveZ()) {
 					if (rotatedThrustVelocity.x < -0.1 && rotatedThrustVelocity.x < velocity.x) {
 						velocity.x = FastMath.max(rotatedThrustVelocity.x, velocity.x + rotatedThrust.x * 10.0f * deltaTime);

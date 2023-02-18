@@ -189,6 +189,6 @@ public class WWSculpty extends WWSimpleShape {
 			}
 		}
 
-		rotate(penetration, rotation, worldTime);
+		rotate(penetration, rotation);
 	}
 }

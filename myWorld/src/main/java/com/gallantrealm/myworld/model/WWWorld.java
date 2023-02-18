@@ -84,7 +84,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	transient long lastRenderingTime;
 
 	public WWWorld() {
-		this(true, true, null, 15, false);
+		this(true, true, null, 0, false);
 	}
 
 	/**
@@ -343,8 +343,8 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			WWVector newThrustVelocity = newObject.getThrustVelocity();
 			WWVector newTorque = newObject.getTorque();
 			WWVector newTorqueVelocity = newObject.getTorqueVelocity();
-			WWVector newPosition = newObject.getPosition(time);
-			WWQuaternion newRotation = newObject.getRotation(time);
+			WWVector newPosition = newObject.getPosition();
+			WWQuaternion newRotation = newObject.getRotation();
 			WWVector newVelocity = newObject.getVelocity();
 			WWVector newAMomentum = newObject.getAngularVelocity();
 			oldObject.setThrust(newThrust);
@@ -368,8 +368,8 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			WWVector newThrustVelocity = newObject.getThrustVelocity();
 			WWVector newTorque = newObject.getTorque();
 			WWVector newTorqueVelocity = newObject.getTorqueVelocity();
-			WWVector newPosition = oldObject.getPosition(time);
-			WWQuaternion newRotation = oldObject.getRotation(time);
+			WWVector newPosition = oldObject.getPosition();
+			WWQuaternion newRotation = oldObject.getRotation();
 			WWVector newVelocity = oldObject.getVelocity();
 			WWVector newAMomentum = oldObject.getAngularVelocity();
 			oldObject.setThrust(newThrust);
@@ -707,9 +707,9 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		if (collision.firstObject.getImpactSound() != null) {
 			WWVector position;
 			if (collision.firstObject.extent > collision.secondObject.extent) {
-				position = collision.secondObject.getPosition(time);
+				position = collision.secondObject.getPosition();
 			} else {
-				position = collision.firstObject.getPosition(time);
+				position = collision.firstObject.getPosition();
 			}
 			WWVector relativeVelocity = collision.firstObject.getVelocity();
 			WWVector secondVelocity = collision.secondObject.getVelocity();
@@ -724,9 +724,9 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		if (collision.secondObject.getImpactSound() != null) {
 			WWVector position;
 			if (collision.firstObject.extent > collision.secondObject.extent) {
-				position = collision.secondObject.getPosition(time);
+				position = collision.secondObject.getPosition();
 			} else {
-				position = collision.firstObject.getPosition(time);
+				position = collision.firstObject.getPosition();
 			}
 			WWVector relativeVelocity = collision.firstObject.getVelocity();
 			WWVector secondVelocity = collision.secondObject.getVelocity();
@@ -752,16 +752,16 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		if (collision.firstObject.getSlidingSound() != null) {
 			WWVector position;
 			if (collision.firstObject.extent > collision.secondObject.extent) {
-				position = collision.secondObject.getPosition(time);
+				position = collision.secondObject.getPosition();
 			} else {
-				position = collision.firstObject.getPosition(time);
+				position = collision.firstObject.getPosition();
 			}
 			WWVector relativeVelocity = collision.firstObject.getVelocity();
 			WWVector secondVelocity = collision.secondObject.getVelocity();
 			relativeVelocity.subtract(secondVelocity);
 			if (collision.firstObject.solid) {
-				WWVector perpendicular = collision.firstObject.getPosition(time);
-				WWVector secondPosition = collision.secondObject.getPosition(time);
+				WWVector perpendicular = collision.firstObject.getPosition();
+				WWVector secondPosition = collision.secondObject.getPosition();
 				perpendicular.subtract(secondPosition);
 				perpendicular.normalize();
 				relativeVelocity.cross(perpendicular);
@@ -778,16 +778,16 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		if (collision.secondObject.getSlidingSound() != null) {
 			WWVector position;
 			if (collision.firstObject.extent > collision.secondObject.extent) {
-				position = collision.secondObject.getPosition(time);
+				position = collision.secondObject.getPosition();
 			} else {
-				position = collision.firstObject.getPosition(time);
+				position = collision.firstObject.getPosition();
 			}
 			WWVector relativeVelocity = collision.firstObject.getVelocity();
 			WWVector secondVelocity = collision.secondObject.getVelocity();
 			relativeVelocity.subtract(secondVelocity);
 			if (collision.secondObject.solid) {
-				WWVector perpendicular = collision.firstObject.getPosition(time);
-				WWVector secondPosition = collision.secondObject.getPosition(time);
+				WWVector perpendicular = collision.firstObject.getPosition();
+				WWVector secondPosition = collision.secondObject.getPosition();
 				perpendicular.subtract(secondPosition);
 				perpendicular.normalize();
 				relativeVelocity.cross(perpendicular);
@@ -828,7 +828,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 				WWUser receivingUser = users[i];
 				if (receivingUser != null && !receivingUser.equals(sendingUser) && receivingUser.isConnected()) {
 					WWObject receivingAvatar = getObject(receivingUser.getAvatarId());
-					if (receivingAvatar != null & receivingAvatar.getPosition(time).distanceFrom(sendingAvatar.getPosition(time)) < distance) {
+					if (receivingAvatar != null & receivingAvatar.getPosition().distanceFrom(sendingAvatar.getPosition()) < distance) {
 						if (sendingUser != null) {
 							receivingUser.queueMessage(sendingUser.getName(), message);
 						} else {
@@ -934,7 +934,9 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 
 	public void performPhysicsIteration(long timeIncrement) {
 		if (physicsThread != null) {
+			physicsThread.updateDynamicProperties(timeIncrement);
 			physicsThread.performIteration(timeIncrement);
+			physicsThread.updateParticles(getWorldTime());
 		}
 	}
 

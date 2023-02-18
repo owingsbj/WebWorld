@@ -535,9 +535,9 @@ public class GLTranslucency extends GLObject  {
 							String textureUrl = sideAttributes.textureURL;
 							int textureId = renderer.getTexture(textureUrl, sideAttributes.texturePixelated);
 							Matrix.setIdentityM(textureMatrix, 0);
-							Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].textureScaleX, 1.0f / object.sideAttributes[side].textureScaleY, 1.0f);
-							Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(side, worldTime), object.getTextureOffsetY(side, worldTime), 0.0f);
-							float textureRotation = object.getTextureRotation(side, worldTime);
+							Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
+							Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0.0f);
+							float textureRotation = sideAttributes.textureRotation;
 							if (textureRotation != 0.0f) {
 								Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 							}
@@ -587,9 +587,9 @@ public class GLTranslucency extends GLObject  {
 							String textureUrl = sideAttributes.textureURL;
 							int textureId = renderer.getTexture(textureUrl, sideAttributes.texturePixelated);
 							Matrix.setIdentityM(textureMatrix, 0);
-							Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].textureScaleX, 1.0f / object.sideAttributes[side].textureScaleY, 1.0f);
-							Matrix.translateM(textureMatrix, 0, object.getTextureOffsetX(side, worldTime), object.getTextureOffsetY(side, worldTime), 0.0f);
-							float textureRotation = object.getTextureRotation(side, worldTime);
+							Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
+							Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0.0f);
+							float textureRotation = sideAttributes.textureRotation;
 							if (textureRotation != 0.0f) {
 								Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 							}
