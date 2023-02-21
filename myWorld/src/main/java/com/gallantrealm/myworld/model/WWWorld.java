@@ -711,7 +711,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			} else {
 				position = collision.firstObject.getPosition();
 			}
-			WWVector relativeVelocity = collision.firstObject.getVelocity();
+			WWVector relativeVelocity = collision.firstObject.getVelocity().clone();
 			WWVector secondVelocity = collision.secondObject.getVelocity();
 			relativeVelocity.subtract(secondVelocity);
 			WWVector collisionVector = collision.overlapVector.clone().normalize();
@@ -728,7 +728,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			} else {
 				position = collision.firstObject.getPosition();
 			}
-			WWVector relativeVelocity = collision.firstObject.getVelocity();
+			WWVector relativeVelocity = collision.firstObject.getVelocity().clone();
 			WWVector secondVelocity = collision.secondObject.getVelocity();
 			relativeVelocity.subtract(secondVelocity);
 			WWVector collisionVector = collision.overlapVector.clone().normalize();
@@ -756,7 +756,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			} else {
 				position = collision.firstObject.getPosition();
 			}
-			WWVector relativeVelocity = collision.firstObject.getVelocity();
+			WWVector relativeVelocity = collision.firstObject.getVelocity().clone();
 			WWVector secondVelocity = collision.secondObject.getVelocity();
 			relativeVelocity.subtract(secondVelocity);
 			if (collision.firstObject.solid) {

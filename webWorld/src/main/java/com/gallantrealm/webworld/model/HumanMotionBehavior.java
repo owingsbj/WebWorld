@@ -35,7 +35,7 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 			// when the avatar comes to a steep area, allow it to climb
 			float verticle = proximity.clone().normalize().cross(new WWVector(0, 0, 1)).length();
 			if (verticle > 0.5) {
-				object.velocityZ += 0.15f * verticle;
+				object.getVelocity().z += 0.15f * verticle;
 			}
 			
 		} else if (nearObject.density > object.density) {
@@ -53,7 +53,7 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 
 	@Override
 	public boolean timerEvent(WWObject object) {
-		float velocityForward = object.getVelocity().antirotate(object.getRotation()).y;
+		float velocityForward = object.getVelocity().clone().antirotate(object.getRotation()).y;
 		if (lastSlidOnSolid > world.getWorldTime() - 500) {
 			if (FastMath.abs(velocityForward) < 0.25) {
 				stop();

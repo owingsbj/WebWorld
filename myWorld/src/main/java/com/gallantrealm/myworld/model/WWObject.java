@@ -42,12 +42,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	// Physics properties
 	public boolean physical;
 	public boolean phantom;
-	public float velocityX;
-	public float velocityY;
-	public float velocityZ;
-	public float angularVelocityX;
-	public float angularVelocityY;
-	public float angularVelocityZ;
+	private WWVector velocity = new WWVector();
+	private WWVector angularVelocity = new WWVector();
 	public float density = 1.0f;
 	public boolean solid = true;
 	public float elasticity;
@@ -194,12 +190,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	final void sendPositionPrivate(DataOutputStreamX os) throws IOException {
 		os.writeKnownObject(position);
 		os.writeKnownObject(rotation);
-		os.writeFloat(velocityX);
-		os.writeFloat(velocityY);
-		os.writeFloat(velocityZ);
-		os.writeFloat(angularVelocityX);
-		os.writeFloat(angularVelocityY);
-		os.writeFloat(angularVelocityZ);
+		os.writeKnownObject(velocity);
+		os.writeKnownObject(angularVelocity);
 		os.writeFloat(thrustX);
 		os.writeFloat(thrustY);
 		os.writeFloat(thrustZ);
@@ -283,12 +275,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	final void receivePositionPrivate(DataInputStreamX is) throws IOException {
 		position  = (WWVector)is.readKnownObject(WWVector.class);
 		rotation = (WWQuaternion)is.readKnownObject(WWQuaternion.class);
-		velocityX = is.readFloat();
-		velocityY = is.readFloat();
-		velocityZ = is.readFloat();
-		angularVelocityX = is.readFloat();
-		angularVelocityY = is.readFloat();
-		angularVelocityZ = is.readFloat();
+		velocity = (WWVector)is.readKnownObject(WWVector.class);
+		angularVelocity = (WWVector)is.readKnownObject(WWVector.class);
 		thrustX = is.readFloat();
 		thrustY = is.readFloat();
 		thrustZ = is.readFloat();
@@ -639,13 +627,11 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final WWVector getVelocity() {
-		return new WWVector(velocityX, velocityY, velocityZ);
+		return velocity;
 	}
 
 	public final void getVelocity(WWVector velocity) {
-		velocity.x = velocityX;
-		velocity.y = velocityY;
-		velocity.z = velocityZ;
+		this.velocity.copyInto(velocity);
 	}
 
 	public final void setVelocity(WWVector velocity) {
@@ -653,17 +639,15 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final float getVelocityLength() {
-		return (float) Math.sqrt(velocityX * velocityX + velocityY * velocityY + velocityZ * velocityZ);
+		return (float) Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z);
 	}
 
 	public final WWVector getAngularVelocity() {
-		return new WWVector(angularVelocityX, angularVelocityY, angularVelocityZ);
+		return angularVelocity;
 	}
 
 	public final void getAngularVelocity(WWVector aVelocity) {
-		aVelocity.x = angularVelocityX;
-		aVelocity.y = angularVelocityY;
-		aVelocity.z = angularVelocityZ;
+		this.angularVelocity.copyInto(aVelocity);
 	}
 
 	public final void setAngularVelocity(WWVector aVelocity) {
@@ -671,7 +655,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final float getAngularVelocityLength() {
-		return (float) Math.sqrt(angularVelocityX * angularVelocityX + angularVelocityY * angularVelocityY + angularVelocityZ * angularVelocityZ);
+		return (float) Math.sqrt(angularVelocity.x * angularVelocity.x + angularVelocity.y * angularVelocity.y + angularVelocity.z * angularVelocity.z);
 	}
 
 	public final WWVector getThrust() {
@@ -780,14 +764,10 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		this.lastGetAbsolutePositionTime = -1;
 		newRotation.copyInto(this.rotation);
 		if (newVelocity != null) {
-			this.velocityX = newVelocity.x;
-			this.velocityY = newVelocity.y;
-			this.velocityZ = newVelocity.z;
+			newVelocity.copyInto(this.velocity);
 		}
 		if (newAMomentum != null) {
-			this.angularVelocityX = newAMomentum.x;
-			this.angularVelocityY = newAMomentum.y;
-			this.angularVelocityZ = newAMomentum.z;
+			newAMomentum.copyInto(this.angularVelocity);
 		}
 		this.lastMoveTime = newMoveTime;
 
@@ -1012,7 +992,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 				}
 			}
 		}
-		boolean dynamic = velocityX != 0.0 || velocityY != 0.0 || velocityZ != 0.0 || angularVelocityX != 0.0 || angularVelocityY != 0.0 || angularVelocityZ != 0.0;
+		boolean dynamic = velocity.x != 0.0 || velocity.y != 0.0 || velocity.z != 0.0 || angularVelocity.z != 0.0 || angularVelocity.y != 0.0 || angularVelocity.z != 0.0;
 		if (!dynamic && world != null && parentId != 0) {
 			WWObject parent = world.objects[parentId];
 			dynamic = parent.isDynamic();
@@ -1046,9 +1026,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			//System.out.println("WWObject.updateDynamicProperties velocity: "+getVelocityLength());
 
 			// update position and rotation
-			position.x += velocityX * deltaTime;
-			position.y += velocityY * deltaTime;
-			position.z += velocityZ * deltaTime;
+			position.x += velocity.x * deltaTime;
+			position.y += velocity.y * deltaTime;
+			position.z += velocity.z * deltaTime;
 //				if (startPosition != null) {
 //					if (positionX > startPosition.x && position.x < startPosition.x) {
 //						position.x = startPosition.x;
@@ -1083,9 +1063,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 //						position.z = stopPosition.z;
 //					}
 //				}
-			if (angularVelocityX != 0 || angularVelocityY != 0 || angularVelocityZ != 0) {
+			if (angularVelocity.x != 0 || angularVelocity.y != 0 || angularVelocity.z != 0) {
 				float angle = getAngularVelocityLength() * deltaTime;
-				rotation.spin(angle, angularVelocityX, angularVelocityY, angularVelocityZ);
+				rotation.spin(angle, angularVelocity.x, angularVelocity.y, angularVelocity.z);
 	//			if (startRotation != null) {
 	//				if (rotationX > startRotation.x && rotation.x < startRotation.x) {
 	//					rotation.x = startRotation.x;
@@ -1352,12 +1332,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		// Physics properties
 		this.physical = newObject.physical;
 		this.phantom = newObject.phantom;
-		this.velocityX = newObject.velocityX;
-		this.velocityY = newObject.velocityY;
-		this.velocityZ = newObject.velocityZ;
-		this.angularVelocityX = newObject.angularVelocityX;
-		this.angularVelocityY = newObject.angularVelocityY;
-		this.angularVelocityZ = newObject.angularVelocityZ;
+		newObject.velocity.copyInto(this.velocity);
+		newObject.angularVelocity.copyInto(this.angularVelocity);
 		this.density = newObject.density;
 		this.solid = newObject.solid;
 		this.elasticity = newObject.elasticity;

@@ -222,11 +222,11 @@ public class XPhysicsThread extends Thread {
 										if (friction > 0) {
 
 											// Friction is a force acting opposite of relative velocity/amomentum of the two items colliding.
-											WWVector frictionVForce = object2.getVelocity();
+											WWVector frictionVForce = object2.getVelocity().clone();
 											frictionVForce.subtract(velocity);
 											frictionVForce.scale(friction);
 											totalForce.add(frictionVForce);
-											WWVector frictionAForce = object2.getAngularVelocity();
+											WWVector frictionAForce = object2.getAngularVelocity().clone();
 											frictionAForce.subtract(aMomentum);
 											frictionAForce.scale(friction);
 											totalTorque.add(frictionAForce);

@@ -231,7 +231,7 @@ public class NewPhysicsThread extends PhysicsThread {
 											float objectMass = object.density * object.sizeX * object.sizeY * object.sizeZ;
 											float object2Mass = object2.density * object2.sizeX * object2.sizeY * object2.sizeZ;
 											WWVector forceVector = velocity.clone().scale(objectMass);
-											WWVector force2Vector = object2.getVelocity().scale(object2Mass);
+											WWVector force2Vector = object2.getVelocity().clone().scale(object2Mass);
 											WWVector totalForceVector = forceVector.add(force2Vector);
 											WWVector mirrorVector = unitOverlapVector.clone();
 											mirrorVector.scale(-1.0f);
@@ -326,7 +326,7 @@ public class NewPhysicsThread extends PhysicsThread {
 											// Determine the relative speed of the two object surfaces.  This is a factor
 											// of both the linear velocity and the angular velocity of the two objects.
 											WWVector relativeVelocity = velocity.clone().subtract(object2.getVelocity()).scale(10);    // need to add scale 10 to avoid sliding too much
-											relativeVelocity.add(aMomentum.clone().cross(collisionDirection).subtract(object2.getAngularVelocity().cross(collisionDirection)).scale(object.getExtent() / FastMath.PI / 2));
+											relativeVelocity.add(aMomentum.clone().cross(collisionDirection).subtract(object2.getAngularVelocity().clone().cross(collisionDirection)).scale(object.getExtent() / FastMath.PI / 2));
 
 											// Determine the relative angular momentum of the two objects at the impact point as well.
 											// The angular momentum of the object is tempered, averaging over these two momenta over time
@@ -341,7 +341,7 @@ public class NewPhysicsThread extends PhysicsThread {
 
 										} else { // solid-in-liquid/gas friction
 
-											WWVector frictionVForce = object2.getVelocity().subtract(velocity);
+											WWVector frictionVForce = object2.getVelocity().clone().subtract(velocity);
 											frictionVForce.scale(10 * friction);
 											totalForce.add(frictionVForce);
 											// TODO: Add angular velocity effect on force in liquids, to emulate paddlewheels
