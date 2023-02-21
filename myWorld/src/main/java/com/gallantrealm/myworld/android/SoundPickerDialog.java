@@ -81,7 +81,7 @@ public class SoundPickerDialog extends Dialog {
 				WWObject selectedObject = clientModel.getSelectedObject();
 				WWVector selectedPosition;
 				if (selectedObject != null) {
-					selectedPosition = selectedObject.getPosition().add(0, 0, selectedObject.getSize().z);
+					selectedPosition = selectedObject.getPosition().clone().add(0, 0, selectedObject.getSize().z);
 				} else {
 					selectedPosition = new WWVector(0, 0, 0);
 				}
@@ -134,7 +134,7 @@ public class SoundPickerDialog extends Dialog {
 							} else if ("water".equals(object.getName())) { // skip water
 							} else if ("avatar".equals(object.getName())) { // skip avatar
 							} else {
-								object.setPosition(object.getPosition().add(selectedPosition).subtract(keyx, keyy, keyz));
+								object.setPosition(object.getPosition().clone().add(selectedPosition).subtract(keyx, keyy, keyz));
 								world.addObject(object);
 								if (object.getParentId() == 0) {
 									object.setParentId(keystone);

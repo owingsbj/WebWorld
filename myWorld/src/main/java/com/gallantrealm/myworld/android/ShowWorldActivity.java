@@ -758,7 +758,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 						WWObject pickedObject = worldRenderer.waitForPickingDraw(null, (int) (event.getX(i)), (int) (worldView.getHeight() - event.getY(i)));
 						if (pickedObject != null) {
 							clientModel.world.pressObject(pickedObject, worldRenderer.pickedSide, worldRenderer.pickedOffsetX, worldRenderer.pickedOffsetY, clientModel.world.getUser(clientModel.getUserId()));
-							initialPressedObjectPosition = pickedObject.getPosition();
+							initialPressedObjectPosition = pickedObject.getPosition().clone();
 						}
 						lastPressedObject = pickedObject;
 					}

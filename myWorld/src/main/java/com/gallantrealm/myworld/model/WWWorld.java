@@ -782,11 +782,11 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			} else {
 				position = collision.firstObject.getPosition();
 			}
-			WWVector relativeVelocity = collision.firstObject.getVelocity();
+			WWVector relativeVelocity = collision.firstObject.getVelocity().clone();
 			WWVector secondVelocity = collision.secondObject.getVelocity();
 			relativeVelocity.subtract(secondVelocity);
 			if (collision.secondObject.solid) {
-				WWVector perpendicular = collision.firstObject.getPosition();
+				WWVector perpendicular = collision.firstObject.getPosition().clone();
 				WWVector secondPosition = collision.secondObject.getPosition();
 				perpendicular.subtract(secondPosition);
 				perpendicular.normalize();

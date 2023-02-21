@@ -1452,7 +1452,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	
 		WWObject cameraObject = clientModel.getCameraObject();
 		if (cameraObject != null) {
-			lastShadowCameraViewPosition = cameraObject.getPosition();
+			lastShadowCameraViewPosition = cameraObject.getPosition().clone();
 			lastShadowCameraViewPosition.x -= FastMath.sinDeg(clientModel.getCameraPan() + cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
 			lastShadowCameraViewPosition.y -= FastMath.cosDeg(clientModel.getCameraPan() + cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
 			Matrix.setLookAtM(sunViewMatrix, 0, //

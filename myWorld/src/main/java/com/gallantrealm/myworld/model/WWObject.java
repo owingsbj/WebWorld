@@ -27,9 +27,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	// Positioning properties
 	public long lastMoveTime;
-	private float positionX;
-	private float positionY;
-	private float positionZ;
+	private WWVector position = new WWVector();
 	private WWQuaternion rotation = new WWQuaternion();
 	public float rotationPointX;
 	public float rotationPointY;
@@ -194,9 +192,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	final void sendPositionPrivate(DataOutputStreamX os) throws IOException {
-		os.writeFloat(positionX);
-		os.writeFloat(positionY);
-		os.writeFloat(positionZ);
+		os.writeKnownObject(position);
 		os.writeKnownObject(rotation);
 		os.writeFloat(velocityX);
 		os.writeFloat(velocityY);
@@ -285,9 +281,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	final void receivePositionPrivate(DataInputStreamX is) throws IOException {
-		positionX = is.readFloat();
-		positionY = is.readFloat();
-		positionZ = is.readFloat();
+		position  = (WWVector)is.readKnownObject(WWVector.class);
 		rotation = (WWQuaternion)is.readKnownObject(WWQuaternion.class);
 		velocityX = is.readFloat();
 		velocityY = is.readFloat();
@@ -394,9 +388,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final WWQuaternion getRotation() {
-		WWQuaternion r = new WWQuaternion();
-		getRotation(r);
-		return r;
+		return rotation;
 	}
 
 	public final void getRotation(WWQuaternion r) {
@@ -471,7 +463,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 //	}
 
 	public final void setRotation(float pitch, float roll, float yaw) {
-		setOrientation(getPosition(), new WWQuaternion(pitch, roll, yaw), null, null, getWorldTime());
+		setOrientation(position, new WWQuaternion(pitch, roll, yaw), null, null, getWorldTime());
 	}
 
 	public final void setRotation(float[] rots) {
@@ -479,7 +471,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setRotation(WWQuaternion rotation) {
-		setOrientation(getPosition(), rotation, null, null, getWorldTime());
+		setOrientation(position, rotation, null, null, getWorldTime());
 	}
 
 	public final WWVector getRotationPoint() {
@@ -511,15 +503,11 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final WWVector getPosition() {
-		WWVector position = new WWVector();
-		getPosition(position);
 		return position;
 	}
 
 	public final void getPosition(WWVector position) {
-		position.x = positionX;
-		position.y = positionY;
-		position.z = positionZ;
+		this.position.copyInto(position);
 	}
 
 	transient long lastGetAbsolutePositionTime = -1;
@@ -595,11 +583,11 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setPosition(WWVector position) {
-		setOrientation(position, getRotation(), null, null, getWorldTime());
+		setOrientation(position, rotation, null, null, getWorldTime());
 	}
 
 	public final void setPosition(float x, float y, float z) {
-		setOrientation(new WWVector(x, y, z), getRotation(), null, null, getWorldTime());
+		setOrientation(new WWVector(x, y, z), rotation, null, null, getWorldTime());
 	}
 
 	public final void setPosition(float[] pos) {
@@ -661,7 +649,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setVelocity(WWVector velocity) {
-		setOrientation(getPosition(), getRotation(), velocity, null, getWorldTime());
+		setOrientation(position, rotation, velocity, null, getWorldTime());
 	}
 
 	public final float getVelocityLength() {
@@ -679,7 +667,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final void setAngularVelocity(WWVector aVelocity) {
-		setOrientation(getPosition(), getRotation(), null, aVelocity, getWorldTime());
+		setOrientation(position, rotation, null, aVelocity, getWorldTime());
 	}
 
 	public final float getAngularVelocityLength() {
@@ -788,11 +776,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 //
 //		}
 
-		this.positionX = newPosition.x;
-		this.positionY = newPosition.y;
-		this.positionZ = newPosition.z;
+		newPosition.copyInto(this.position);
 		this.lastGetAbsolutePositionTime = -1;
-		this.rotation = newRotation.clone();
+		newRotation.copyInto(this.rotation);
 		if (newVelocity != null) {
 			this.velocityX = newVelocity.x;
 			this.velocityY = newVelocity.y;
@@ -1060,9 +1046,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			//System.out.println("WWObject.updateDynamicProperties velocity: "+getVelocityLength());
 
 			// update position and rotation
-			positionX += velocityX * deltaTime;
-			positionY += velocityY * deltaTime;
-			positionZ += velocityZ * deltaTime;
+			position.x += velocityX * deltaTime;
+			position.y += velocityY * deltaTime;
+			position.z += velocityZ * deltaTime;
 //				if (startPosition != null) {
 //					if (positionX > startPosition.x && position.x < startPosition.x) {
 //						position.x = startPosition.x;
@@ -1224,8 +1210,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 				transformedEdgePoints[i] = edgePoint;
 			}
 			lastTransformedEdgePoints = transformedEdgePoints;
-			lastOverlapPosition = position;
-			lastOverlapRotation = rotation;
+			lastOverlapPosition = position.clone();
+			lastOverlapRotation = rotation.clone();
 		}
 
 		overlapVector.zero();
@@ -1310,9 +1296,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		if (world != null) {
 			long currenttime = getWorldTime();
 			clone.setLastModifyTime(currenttime);
-			// manually clone position and rotation as these change due to modified time
-			clone.setPosition(getPosition());
-			clone.setRotation(getRotation());
+			clone.position = position.clone();
+			clone.rotation = rotation.clone();
 		}
 		sideAttributes = new SideAttributes[NSIDES];
 		for (int i = 0; i < NSIDES; i++) {
@@ -1346,8 +1331,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			long currenttime = getWorldTime();
 			clone.setLastModifyTime(currenttime);
 			// manually clone position and rotation as these change due to modified time
-			clone.setPosition(getPosition());
-			clone.setRotation(getRotation());
+			clone.position = position.clone();
+			clone.rotation = rotation.clone();
 		}
 		clone.behaviors = null;
 		return clone;
@@ -1356,10 +1341,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public void copyFrom(WWObject newObject) {
 		// this.id = newObject.id;
 		this.lastMoveTime = newObject.lastMoveTime;
-		this.positionX = newObject.positionX;
-		this.positionY = newObject.positionY;
-		this.positionZ = newObject.positionZ;
-		this.rotation = newObject.rotation.clone();
+		newObject.position.copyInto(this.position);
+		newObject.rotation.copyInto(this.rotation);
 
 		// Grouping properties
 		this.parentId = newObject.parentId;

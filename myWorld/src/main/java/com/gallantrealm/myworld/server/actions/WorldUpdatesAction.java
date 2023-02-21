@@ -102,7 +102,7 @@ public class WorldUpdatesAction extends ServerAction {
 		if (avatarId >= 0) {
 			WWObject avatar = world.objects[thisUser.getAvatarId()];
 			if (avatar != null) {
-				avatarPosition = avatar.getPosition();
+				avatarPosition = avatar.getPosition().clone();
 			} else {
 				avatarPosition = new WWVector(0, 0, 0);
 			}

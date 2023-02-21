@@ -741,8 +741,8 @@ public abstract class ClientModel {
 
 			// It is nice to move the avatar to face away from the camera so camera pan becomes a poor man's rotate
 			if (FastMath.abs(cameraPan) > 5 && getAvatar() == getCameraObject() && world.isAutoTurnOnCameraPan()) {
-				WWQuaternion avatarRotation = avatar.getRotation();
-				avatar.setRotation(avatar.getRotation().yaw(cameraPan));
+				WWQuaternion avatarRotation = avatar.getRotation().clone();
+				avatar.setRotation(avatarRotation.yaw(cameraPan));
 				setCameraPanUndamped(0);
 				// TODO the above won't work with remote worlds, but something should be done
 			}
