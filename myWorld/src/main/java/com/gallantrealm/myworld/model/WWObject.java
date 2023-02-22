@@ -29,9 +29,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public long lastMoveTime;
 	private WWVector position = new WWVector();
 	private WWQuaternion rotation = new WWQuaternion();
-	public float rotationPointX;
-	public float rotationPointY;
-	public float rotationPointZ;
+	public WWVector rotationPoint = new WWVector();
 
 	// Grouping properties
 	public int parentId;
@@ -134,9 +132,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		os.writeFloat(extentx);
 		os.writeFloat(extenty);
 		os.writeFloat(extentz);
-		os.writeFloat(rotationPointX);
-		os.writeFloat(rotationPointY);
-		os.writeFloat(rotationPointZ);
+		os.writeKnownObject(rotationPoint);
 		os.writeKnownObjectArray(sideAttributes);
 		os.writeInt(parentId);
 		os.writeBoolean(gluedToParent);
@@ -204,9 +200,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		extentx = is.readFloat();
 		extenty = is.readFloat();
 		extentz = is.readFloat();
-		rotationPointX = is.readFloat();
-		rotationPointY = is.readFloat();
-		rotationPointZ = is.readFloat();
+		rotationPoint = (WWVector)is.readKnownObject(WWVector.class);
 		sideAttributes = (SideAttributes[]) is.readKnownObjectArray(SideAttributes.class);
 		parentId = is.readInt();
 		gluedToParent = is.readBoolean();
@@ -433,25 +427,21 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final WWVector getRotationPoint() {
-		return new WWVector(rotationPointX, rotationPointY, rotationPointZ);
+		return rotationPoint;
 	}
 
 	public final void getRotationPoint(WWVector r) {
-		r.x = rotationPointX;
-		r.y = rotationPointY;
-		r.z = rotationPointZ;
+		rotationPoint.copyInto(r);
 	}
 
 	public final void setRotationPoint(float[] rots) {
-		this.rotationPointX = rots[0];
-		this.rotationPointY = rots[1];
-		this.rotationPointZ = rots[2];
+		this.rotationPoint.x = rots[0];
+		this.rotationPoint.y = rots[1];
+		this.rotationPoint.z = rots[2];
 	}
 
 	public final void setRotationPoint(WWVector rotationPoint) {
-		this.rotationPointX = rotationPoint.x;
-		this.rotationPointY = rotationPoint.y;
-		this.rotationPointZ = rotationPoint.z;
+		this.rotationPoint = rotationPoint;
 	}
 
 	public final WWVector getAbsolutePosition(long worldTime) {
