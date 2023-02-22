@@ -1717,7 +1717,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	private final WWColor getColor(int side) {
-		return new WWColor(sideAttributes[side].red, sideAttributes[side].green, sideAttributes[side].blue);
+		return sideAttributes[side].color;
 	}
 
 	public final WWColor getColor() {
@@ -1781,9 +1781,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	private final void setColor(int side, WWColor color) {
-		getEditableSideAttributes(side).red = color.getRed();
-		getEditableSideAttributes(side).green = color.getGreen();
-		getEditableSideAttributes(side).blue = color.getBlue();
+		getEditableSideAttributes(side).color = color;
 	}
 
 	public final void setColor(WWColor color) {

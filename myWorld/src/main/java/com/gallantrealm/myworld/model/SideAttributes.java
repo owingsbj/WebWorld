@@ -20,9 +20,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		defaultSurface.isDefault = true;
 	}
 
-	public float red = 1.0f;
-	public float green = 1.0f;
-	public float blue = 1.0f;
+	public WWColor color = new WWColor();
 	public float transparency;
 	public float shininess = 0.0f;
 	public boolean fullBright;
@@ -54,9 +52,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 
 	@Override
 	public void send(DataOutputStreamX os) throws IOException {
-		os.writeFloat(red);
-		os.writeFloat(green);
-		os.writeFloat(blue);
+		os.writeKnownObject(color);
 		os.writeFloat(transparency);
 		os.writeFloat(shininess);
 		os.writeBoolean(fullBright);
@@ -75,9 +71,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 
 	@Override
 	public void receive(DataInputStreamX is) throws IOException {
-		red = is.readFloat();
-		green = is.readFloat();
-		blue = is.readFloat();
+		color = (WWColor)is.readKnownObject(WWColor.class);
 		transparency = is.readFloat();
 		shininess = is.readFloat();
 		fullBright = is.readBoolean();
@@ -95,13 +89,11 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 	}
 
 	public WWColor getColor() {
-		return new WWColor(red, green, blue);
+		return color;
 	}
 
 	public void setColor(WWColor color) {
-		red = color.getRed();
-		green = color.getGreen();
-		blue = color.getBlue();
+		this.color = color;
 	}
 
 	public WWTexture getTexture() {

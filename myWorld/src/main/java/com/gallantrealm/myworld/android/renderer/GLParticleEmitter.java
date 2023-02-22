@@ -136,9 +136,9 @@ public class GLParticleEmitter extends GLObject {
 		if (trans == 1.0 || trans > 0.0 && !drawtrans) {
 			return;
 		}
-		float red = sideAttributes.red;
-		float green = sideAttributes.green;
-		float blue = sideAttributes.blue;
+		float red = sideAttributes.color.getRed();
+		float green = sideAttributes.color.getGreen();
+		float blue = sideAttributes.color.getBlue();
 		float shininess = sideAttributes.shininess;
 		if (drawType == DRAW_TYPE_LEFT_EYE) { // red side
 			red = (red * 3 + green + blue) / 5.0f;

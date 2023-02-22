@@ -1,11 +1,16 @@
 package com.gallantrealm.myworld.model;
 
+import com.gallantrealm.myworld.communication.DataInputStreamX;
+import com.gallantrealm.myworld.communication.DataOutputStreamX;
+import com.gallantrealm.myworld.communication.Sendable;
+
+import java.io.IOException;
 import java.io.Serializable;
 
-public class WWColor implements Serializable {
+public class WWColor implements Serializable, Sendable {
 	private static final long serialVersionUID = 1L;
 
-	private int color;
+	private int color = 0xFFFFFF;
 
 	public WWColor() {
 	}
@@ -62,4 +67,13 @@ public class WWColor implements Serializable {
 		set(red, green, blue);
 	}
 
+	@Override
+	public void send(DataOutputStreamX os) throws IOException {
+		os.writeInt(color);
+	}
+
+	@Override
+	public void receive(DataInputStreamX is) throws IOException {
+		color = is.readInt();
+	}
 }

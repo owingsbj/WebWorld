@@ -240,9 +240,9 @@ public abstract class GLObject extends GLRendering {
 				} else {
 					float[] color = null;
 					float shininess = 0.0f;
-					float red = sideAttributes.red;
-					float green = sideAttributes.green;
-					float blue = sideAttributes.blue;
+					float red = sideAttributes.color.getRed();
+					float green = sideAttributes.color.getGreen();
+					float blue = sideAttributes.color.getBlue();
 					shininess = sideAttributes.shininess;
 					if (drawType == DRAW_TYPE_LEFT_EYE) { // red side
 						red = (red * 3 + green + blue) / 5.0f;
@@ -316,9 +316,9 @@ public abstract class GLObject extends GLRendering {
 							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false);
 						} else {
 
-							float red = sideAttributes.red;
-							float green = sideAttributes.green;
-							float blue = sideAttributes.blue;
+							float red = sideAttributes.color.getRed();
+							float green = sideAttributes.color.getGreen();
+							float blue = sideAttributes.color.getBlue();
 							shininess = sideAttributes.shininess;
 							if (drawType == DRAW_TYPE_LEFT_EYE) { // red side
 								red = (red * 3 + green + blue) / 5.0f;
@@ -410,9 +410,9 @@ public abstract class GLObject extends GLRendering {
 							Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 						}
 					}
-					float red = sideAttributes.red;
-					float green = sideAttributes.green;
-					float blue = sideAttributes.blue;
+					float red = sideAttributes.color.getRed();
+					float green = sideAttributes.color.getGreen();
+					float blue = sideAttributes.color.getBlue();
 					shininess = sideAttributes.shininess;
 					if (drawType == DRAW_TYPE_LEFT_EYE) { // red side
 						red = (red * 3 + green + blue) / 5.0f;
