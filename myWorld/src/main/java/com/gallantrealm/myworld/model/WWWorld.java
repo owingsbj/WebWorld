@@ -339,10 +339,10 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		if (oldObject != null) {
 			// synchronized (oldObject) {
 			long time = newObject.getLastMoveTime();
-			WWVector newThrust = newObject.getThrust();
-			WWVector newThrustVelocity = newObject.getThrustVelocity();
-			WWVector newTorque = newObject.getTorque();
-			WWVector newTorqueVelocity = newObject.getTorqueVelocity();
+			WWVector newThrust = newObject.getThrust().clone();
+			WWVector newThrustVelocity = newObject.getThrustVelocity().clone();
+			WWVector newTorque = newObject.getTorque().clone();
+			WWVector newTorqueVelocity = newObject.getTorqueVelocity().clone();
 			WWVector newPosition = newObject.getPosition();
 			WWQuaternion newRotation = newObject.getRotation();
 			WWVector newVelocity = newObject.getVelocity();
@@ -364,10 +364,10 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		if (oldObject != null) {
 			// synchronized (oldObject) {
 			long time = newObject.getLastMoveTime();
-			WWVector newThrust = newObject.getThrust();
-			WWVector newThrustVelocity = newObject.getThrustVelocity();
-			WWVector newTorque = newObject.getTorque();
-			WWVector newTorqueVelocity = newObject.getTorqueVelocity();
+			WWVector newThrust = newObject.getThrust().clone();
+			WWVector newThrustVelocity = newObject.getThrustVelocity().clone();
+			WWVector newTorque = newObject.getTorque().clone();
+			WWVector newTorqueVelocity = newObject.getTorqueVelocity().clone();
 			WWVector newPosition = oldObject.getPosition();
 			WWQuaternion newRotation = oldObject.getRotation();
 			WWVector newVelocity = oldObject.getVelocity();
@@ -533,7 +533,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	 * Overridden to not clone the user and objects lists.
 	 */
 	@Override
-	public Object clone() {
+	public WWWorld clone() {
 		WWWorld clone = (WWWorld) super.clone();
 		clone.users = null;
 		clone.objects = null;

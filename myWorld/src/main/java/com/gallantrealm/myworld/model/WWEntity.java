@@ -39,7 +39,7 @@ public abstract class WWEntity extends WWConstant implements Serializable, Clone
 	}
 
 	@Override
-	public Object clone()  {
+	public WWEntity clone()  {
 		WWEntity clone;
 		try {
 			clone = (WWEntity) super.clone();

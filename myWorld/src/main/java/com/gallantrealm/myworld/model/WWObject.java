@@ -54,18 +54,10 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public boolean freedomRotateX = true;
 	public boolean freedomRotateY = true;
 	public boolean freedomRotateZ = true;
-	public float thrustX;
-	public float thrustY;
-	public float thrustZ;
-	public float thrustVelocityX;
-	public float thrustVelocityY;
-	public float thrustVelocityZ;
-	public float torqueX;
-	public float torqueY;
-	public float torqueZ;
-	public float torqueVelocityX;
-	public float torqueVelocityY;
-	public float torqueVelocityZ;
+	private WWVector thrust = new WWVector();
+	private WWVector thrustVelocity = new WWVector();
+	private WWVector torque = new WWVector();
+	private WWVector torqueVelocity = new WWVector();
 
 	public boolean pickable = false; // indicates that the object can be focused on
 	public boolean penetratable = false; // indicates that camera is okay to penetrate into the object
@@ -192,18 +184,10 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		os.writeKnownObject(rotation);
 		os.writeKnownObject(velocity);
 		os.writeKnownObject(angularVelocity);
-		os.writeFloat(thrustX);
-		os.writeFloat(thrustY);
-		os.writeFloat(thrustZ);
-		os.writeFloat(thrustVelocityX);
-		os.writeFloat(thrustVelocityY);
-		os.writeFloat(thrustVelocityZ);
-		os.writeFloat(torqueX);
-		os.writeFloat(torqueY);
-		os.writeFloat(torqueZ);
-		os.writeFloat(torqueVelocityX);
-		os.writeFloat(torqueVelocityY);
-		os.writeFloat(torqueVelocityZ);
+		os.writeKnownObject(thrust);
+		os.writeKnownObject(thrustVelocity);
+		os.writeKnownObject(torque);
+		os.writeKnownObject(torqueVelocity);
 		os.writeKnownObject(stopPosition);
 		os.writeKnownObject(stopRotation);
 		os.writeLong(lastMoveTime);
@@ -277,18 +261,10 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		rotation = (WWQuaternion)is.readKnownObject(WWQuaternion.class);
 		velocity = (WWVector)is.readKnownObject(WWVector.class);
 		angularVelocity = (WWVector)is.readKnownObject(WWVector.class);
-		thrustX = is.readFloat();
-		thrustY = is.readFloat();
-		thrustZ = is.readFloat();
-		thrustVelocityX = is.readFloat();
-		thrustVelocityY = is.readFloat();
-		thrustVelocityZ = is.readFloat();
-		torqueX = is.readFloat();
-		torqueY = is.readFloat();
-		torqueZ = is.readFloat();
-		torqueVelocityX = is.readFloat();
-		torqueVelocityY = is.readFloat();
-		torqueVelocityZ = is.readFloat();
+		thrust = (WWVector)is.readKnownObject(WWVector.class);
+		thrustVelocity = (WWVector)is.readKnownObject(WWVector.class);
+		torque = (WWVector)is.readKnownObject(WWVector.class);
+		torqueVelocity = (WWVector)is.readKnownObject(WWVector.class);
 		stopPosition = (WWVector) is.readKnownObject(WWVector.class);
 		stopRotation = (WWVector) is.readKnownObject(WWVector.class);
 		lastMoveTime = is.readLong();
@@ -659,43 +635,35 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final WWVector getThrust() {
-		return new WWVector(thrustX, thrustY, thrustZ);
+		return thrust;
 	}
 
 	public final void setThrust(WWVector thrust) {
-		thrustX = thrust.x;
-		thrustY = thrust.y;
-		thrustZ = thrust.z;
+		this.thrust = thrust;
 	}
 
 	public final WWVector getThrustVelocity() {
-		return new WWVector(thrustVelocityX, thrustVelocityY, thrustVelocityZ);
+		return thrustVelocity;
 	}
 
 	public final void setThrustVelocity(WWVector thrustVelocity) {
-		thrustVelocityX = thrustVelocity.x;
-		thrustVelocityY = thrustVelocity.y;
-		thrustVelocityZ = thrustVelocity.z;
+		this.thrustVelocity = thrustVelocity;
 	}
 
 	public final WWVector getTorque() {
-		return new WWVector(torqueX, torqueY, torqueZ);
+		return torque;
 	}
 
 	public final void setTorque(WWVector torque) {
-		torqueX = torque.x;
-		torqueY = torque.y;
-		torqueZ = torque.z;
+		this.torque = torque;
 	}
 
 	public final WWVector getTorqueVelocity() {
-		return new WWVector(torqueVelocityX, torqueVelocityY, torqueVelocityZ);
+		return torqueVelocity;
 	}
 
 	public final void setTorqueVelocity(WWVector torqueVelocity) {
-		torqueVelocityX = torqueVelocity.x;
-		torqueVelocityY = torqueVelocity.y;
-		torqueVelocityZ = torqueVelocity.z;
+		this.torqueVelocity = torqueVelocity;
 	}
 
 	/**
@@ -1271,23 +1239,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	@Override
-	public Object clone() {
-		WWObject clone = (WWObject) super.clone();
-		if (world != null) {
-			long currenttime = getWorldTime();
-			clone.setLastModifyTime(currenttime);
-			clone.position = position.clone();
-			clone.rotation = rotation.clone();
-		}
-		sideAttributes = new SideAttributes[NSIDES];
-		for (int i = 0; i < NSIDES; i++) {
-			if (clone.sideAttributes[i] == SideAttributes.defaultSurface) {
-				sideAttributes[i] = SideAttributes.defaultSurface;
-			} else {
-				sideAttributes[i] = (SideAttributes) clone.sideAttributes[i].clone();
-			}
-		}
-
+	public WWObject clone() {
+		WWObject clone = cloneNoBehavior();
 		if (behaviors != null) {
 			// Need to clone behaviors and set owner in cloned behaviors to the cloned owner
 			clone.behaviors = behaviors.clone();
@@ -1305,15 +1258,29 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
-	public Object cloneNoBehavior() {
+	public WWObject cloneNoBehavior() {
 		WWObject clone = (WWObject) super.clone();
 		if (world != null) {
 			long currenttime = getWorldTime();
 			clone.setLastModifyTime(currenttime);
-			// manually clone position and rotation as these change due to modified time
 			clone.position = position.clone();
 			clone.rotation = rotation.clone();
 		}
+		clone.velocity = velocity.clone();
+		clone.angularVelocity = angularVelocity.clone();
+		clone.thrust = thrust.clone();
+		clone.thrustVelocity = thrustVelocity.clone();
+		clone.torque = torque.clone();
+		clone.torqueVelocity = torqueVelocity.clone();
+		sideAttributes = new SideAttributes[NSIDES];
+		for (int i = 0; i < NSIDES; i++) {
+			if (clone.sideAttributes[i] == SideAttributes.defaultSurface) {
+				sideAttributes[i] = SideAttributes.defaultSurface;
+			} else {
+				sideAttributes[i] = (SideAttributes) clone.sideAttributes[i].clone();
+			}
+		}
+
 		clone.behaviors = null;
 		return clone;
 	}
@@ -1344,18 +1311,10 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		this.freedomRotateX = newObject.freedomRotateX;
 		this.freedomRotateY = newObject.freedomRotateY;
 		this.freedomRotateZ = newObject.freedomRotateZ;
-		this.thrustX = newObject.thrustX;
-		this.thrustY = newObject.thrustY;
-		this.thrustZ = newObject.thrustZ;
-		this.thrustVelocityX = newObject.thrustVelocityX;
-		this.thrustVelocityY = newObject.thrustVelocityY;
-		this.thrustVelocityZ = newObject.thrustVelocityZ;
-		this.torqueX = newObject.torqueX;
-		this.torqueY = newObject.torqueY;
-		this.torqueZ = newObject.torqueZ;
-		this.torqueVelocityX = newObject.torqueVelocityX;
-		this.torqueVelocityY = newObject.torqueVelocityY;
-		this.torqueVelocityZ = newObject.torqueVelocityZ;
+		newObject.thrust.copyInto(this.thrust);
+		newObject.thrustVelocity.copyInto(this.thrustVelocity);
+		newObject.torque.copyInto(this.torque);
+		newObject.torqueVelocity.copyInto(this.torqueVelocity);
 
 		this.pickable = newObject.pickable;
 		this.penetratable = newObject.penetratable;

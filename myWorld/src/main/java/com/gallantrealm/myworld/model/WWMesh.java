@@ -39,7 +39,7 @@ public class WWMesh extends WWObject {
 	}
 
 	@Override
-	public Object clone() {
+	public WWMesh clone() {
 		WWMesh clone = (WWMesh) super.clone();
 		clone.mesh = mesh.clone();
 		return clone;

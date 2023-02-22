@@ -119,9 +119,9 @@ public class XPhysicsThread extends Thread {
 					object.getRotationPoint(rotationPoint);
 					object.getVelocity(velocity);
 					object.getAngularVelocity(aMomentum);
-					WWVector thrust = object.getThrust();
+					WWVector thrust = object.getThrust().clone();
 					float maxThrustInfluence = object.getThrustVelocity().length();
-					WWVector torque = object.getTorque();
+					WWVector torque = object.getTorque().clone();
 					float maxTorqueInfluence = object.getTorqueVelocity().length();
 
 					WWVector originalPosition = position.clone();
