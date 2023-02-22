@@ -19,11 +19,11 @@ public class GLMesh extends GLObject {
 	public GLMesh(AndroidRenderer renderer, WWMesh mesh, long worldTime) {
 		super(renderer, mesh, worldTime);
 		if (mesh.getBaseShape() == WWMesh.BASE_SHAPE_BOX) {
-			createBoxMesh(mesh.sizeX, mesh.sizeY, mesh.sizeZ, mesh.getCellsX(), mesh.getCellsY(), mesh.getMesh());
+			createBoxMesh(mesh.size.x, mesh.size.y, mesh.size.z, mesh.getCellsX(), mesh.getCellsY(), mesh.getMesh());
 		} else if (mesh.getBaseShape() == WWMesh.BASE_SHAPE_CYLINDER) {
-			createCylinderMesh(mesh.sizeX, mesh.sizeY, mesh.sizeZ, mesh.getCellsX(), mesh.getCellsY(), mesh.getMesh());
+			createCylinderMesh(mesh.size.x, mesh.size.y, mesh.size.z, mesh.getCellsX(), mesh.getCellsY(), mesh.getMesh());
 		} else if (mesh.getBaseShape() == WWMesh.BASE_SHAPE_SPHERE) {
-			createSphereMesh(mesh.sizeX, mesh.sizeY, mesh.sizeZ, mesh.getCellsX(), mesh.getCellsY(), mesh.getMesh());
+			createSphereMesh(mesh.size.x, mesh.size.y, mesh.size.z, mesh.getCellsX(), mesh.getCellsY(), mesh.getMesh());
 		}
 	}
 
@@ -119,9 +119,9 @@ public class GLMesh extends GLObject {
 
 		WWMesh meshObject = (WWMesh) getObject();
 		float[][] mesh = meshObject.getMesh();
-		float sizeX = getObject().sizeX;
-		float sizeY = getObject().sizeY;
-		float sizeZ = getObject().sizeZ;
+		float sizeX = getObject().size.x;
+		float sizeY = getObject().size.y;
+		float sizeZ = getObject().size.z;
 		int cellsX = meshObject.getCellsX();
 		int cellsY = meshObject.getCellsY();
 		float sizeXPerCell = sizeX / cellsX;

@@ -72,9 +72,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public String impactSound;
 	public String slidingSound;
 
-	public float sizeX = 1.0f;
-	public float sizeY = 1.0f;
-	public float sizeZ = 1.0f;
+	public WWVector size = new WWVector(1.0f, 1.0f, 1.0f);
 	public float extent = 1.732f;
 	public float extentx = 1.732f;
 	public float extenty = 1.732f;
@@ -116,9 +114,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	public WWObject(float sizeX, float sizeY, float sizeZ) {
 		this();
-		this.sizeX = sizeX;
-		this.sizeY = sizeY;
-		this.sizeZ = sizeZ;
+		this.size.x = sizeX;
+		this.size.y = sizeY;
+		this.size.z = sizeZ;
 		calculateExtents();
 	}
 
@@ -131,9 +129,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	@Override
 	public void send(DataOutputStreamX os) throws IOException {
 		os.writeInt(id);
-		os.writeFloat(sizeX);
-		os.writeFloat(sizeY);
-		os.writeFloat(sizeZ);
+		os.writeKnownObject(size);
 		os.writeFloat(extent);
 		os.writeFloat(extentx);
 		os.writeFloat(extenty);
@@ -203,9 +199,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	@Override
 	public void receive(DataInputStreamX is) throws IOException {
 		id = is.readInt();
-		sizeX = is.readFloat();
-		sizeY = is.readFloat();
-		sizeZ = is.readFloat();
+		size = (WWVector)is.readKnownObject(WWVector.class);
 		extent = is.readFloat();
 		extentx = is.readFloat();
 		extenty = is.readFloat();
@@ -1084,7 +1078,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	}
 
 	public final WWVector getSize() {
-		return new WWVector(sizeX, sizeY, sizeZ);
+		return size;
 	}
 
 	/**
@@ -1192,9 +1186,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	 */
 	protected WWVector[] getEdgePoints() {
 		if (edgePoints == null) {
-			float sx2 = sizeX / 2.0f;
-			float sy2 = sizeY / 2.0f;
-			float sz2 = sizeZ / 2.0f;
+			float sx2 = size.x / 2.0f;
+			float sy2 = size.y / 2.0f;
+			float sz2 = size.z / 2.0f;
 			edgePoints = new WWVector[]{
 					// - six center side points, starting with base, then front (for speed)
 					new WWVector(0, 0, -sz2), new WWVector(0, -sy2, 0), new WWVector(sx2, 0, 0), new WWVector(-sx2, 0, 0), new WWVector(0, sy2, 0), new WWVector(0, 0, sz2),
@@ -1648,31 +1642,29 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		rendering = null;
 	}
 
-//	public final float getSizeX() {
-//		return sizeX;
+//	public final float getsize.x() {
+//		return size.x;
 //	}
 //
 //	public final float getSizeY() {
-//		return sizeY;
+//		return size.y;
 //	}
 //
 //	public final float getSizeZ() {
-//		return sizeZ;
+//		return size.z;
 //	}
 
 	public final void setSize(WWVector v) {
-		sizeX = v.x;
-		sizeY = v.y;
-		sizeZ = v.z;
+		size = v;
 		calculateExtents();
 		edgePoints = null;
 		updateRendering();;
 	}
 
 	public final void setSize(float x, float y, float z) {
-		sizeX = x;
-		sizeY = y;
-		sizeZ = z;
+		size.x = x;
+		size.y = y;
+		size.z = z;
 		calculateExtents();
 		edgePoints = null;
 		updateRendering();
@@ -1688,12 +1680,12 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	protected void calculateExtents() {
 		if (fixed && parentId == 0) {
 			// TODO rotate the size to use as extents rather than the logic below.  It is more accurate and reduces physics load.
-			extent = (float) Math.sqrt(sizeX * sizeX + sizeY * sizeY + sizeZ * sizeZ) / 2.0f;
+			extent = (float) Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z) / 2.0f;
 			extentx = extent;
 			extenty = extent;
 			extentz = extent;
 		} else {
-			extent = (float) Math.sqrt(sizeX * sizeX + sizeY * sizeY + sizeZ * sizeZ) / 2.0f;
+			extent = (float) Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z) / 2.0f;
 			extentx = extent;
 			extenty = extent;
 			extentz = extent;
@@ -1967,18 +1959,18 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	 */
 	public final void setTexture(String textureName) {
 		getEditableSideAttributes(SIDE_ALL).textureURL = textureName;
-		getEditableSideAttributes(SIDE_TOP).textureScaleX = 10 / sizeX;
-		getEditableSideAttributes(SIDE_TOP).textureScaleY = 10 / sizeY;
-		getEditableSideAttributes(SIDE_BOTTOM).textureScaleX = 10 / sizeX;
-		getEditableSideAttributes(SIDE_BOTTOM).textureScaleY = 10 / sizeY;
-		getEditableSideAttributes(SIDE_SIDE1).textureScaleX = 10 / sizeX;
-		getEditableSideAttributes(SIDE_SIDE2).textureScaleX =  10 / sizeY;
-		getEditableSideAttributes(SIDE_SIDE3).textureScaleX =  10 / sizeX;
-		getEditableSideAttributes(SIDE_SIDE4).textureScaleX =  10 / sizeY;
-		getEditableSideAttributes(SIDE_SIDE1).textureScaleY = 10 / sizeZ;
-		getEditableSideAttributes(SIDE_SIDE2).textureScaleY = 10 / sizeZ;
-		getEditableSideAttributes(SIDE_SIDE3).textureScaleY = 10 / sizeZ;
-		getEditableSideAttributes(SIDE_SIDE4).textureScaleY = 10 / sizeZ;
+		getEditableSideAttributes(SIDE_TOP).textureScaleX = 10 / size.x;
+		getEditableSideAttributes(SIDE_TOP).textureScaleY = 10 / size.y;
+		getEditableSideAttributes(SIDE_BOTTOM).textureScaleX = 10 / size.x;
+		getEditableSideAttributes(SIDE_BOTTOM).textureScaleY = 10 / size.y;
+		getEditableSideAttributes(SIDE_SIDE1).textureScaleX = 10 / size.x;
+		getEditableSideAttributes(SIDE_SIDE2).textureScaleX =  10 / size.y;
+		getEditableSideAttributes(SIDE_SIDE3).textureScaleX =  10 / size.x;
+		getEditableSideAttributes(SIDE_SIDE4).textureScaleX =  10 / size.y;
+		getEditableSideAttributes(SIDE_SIDE1).textureScaleY = 10 / size.z;
+		getEditableSideAttributes(SIDE_SIDE2).textureScaleY = 10 / size.z;
+		getEditableSideAttributes(SIDE_SIDE3).textureScaleY = 10 / size.z;
+		getEditableSideAttributes(SIDE_SIDE4).textureScaleY = 10 / size.z;
 	}
 
 	public final void setTextureTop(WWTexture texture) {

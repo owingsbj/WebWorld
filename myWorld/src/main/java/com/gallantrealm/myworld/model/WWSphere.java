@@ -30,9 +30,9 @@ public class WWSphere extends WWSimpleShape {
 	@Override
 	protected WWVector[] getEdgePoints() {
 		if (edgePoints == null) {
-			float sx2 = sizeX / 2.0f;
-			float sy2 = sizeY / 2.0f;
-			float sz2 = sizeZ / 2.0f;
+			float sx2 = size.x / 2.0f;
+			float sy2 = size.y / 2.0f;
+			float sz2 = size.z / 2.0f;
 			edgePoints = new WWVector[] {
 					// - six center side points, starting with base, then front (for speed)
 					new WWVector(0, 0, -sz2), new WWVector(0, -sy2, 0), new WWVector(sx2, 0, 0), new WWVector(-sx2, 0, 0), new WWVector(0, sy2, 0), new WWVector(0, 0, sz2),
@@ -58,7 +58,7 @@ public class WWSphere extends WWSimpleShape {
 		antiTransform(tempPoint, position, rotation, worldTime);
 
 		// Scale the point down to unit scale, just to make it easier
-		tempPoint.scale(1.0f / sizeX, 1.0f / sizeY, 1.0f / sizeZ);
+		tempPoint.scale(1.0f / size.x, 1.0f / size.y, 1.0f / size.z);
 
 		// Doesnt overlap if normalized point is > 0.5 from center of sphere
 		float tempPointLength = tempPoint.length();
@@ -88,8 +88,8 @@ public class WWSphere extends WWSimpleShape {
 			// and readjusted for the sphere's size
 			tempPoint.copyInto(penetration);
 			penetration.scale(tempPointLength - 0.5f);
-//			penetration.scale(getSizeX(), getSizeY(), getSizeZ());
-			penetration.scale(Math.min(Math.min(sizeX, sizeY), sizeZ)); // alternate scaling that doesn't distort penetration 
+//			penetration.scale(getsize.x(), getSizeY(), getSizeZ());
+			penetration.scale(Math.min(Math.min(size.x, size.y), size.z)); // alternate scaling that doesn't distort penetration 
 			rotate(penetration, rotation);
 		} else {
 			float insidePenetrationLength = tempPointLength - 0.5f * hollow;
@@ -99,14 +99,14 @@ public class WWSphere extends WWSimpleShape {
 				// and readjusted for the sphere's size
 				tempPoint.copyInto(penetration);
 				penetration.scale(insidePenetrationLength);
-				penetration.scale(Math.min(Math.min(sizeX, sizeY), sizeZ)); // alternate scaling that doesn't distort penetration 
+				penetration.scale(Math.min(Math.min(size.x, size.y), size.z)); // alternate scaling that doesn't distort penetration 
 				rotate(penetration, rotation);
 			} else {
 				// The penetration is the difference in the length from 1.0, pointing away from the sphere center,
 				// and readjusted for the sphere's size
 				tempPoint.copyInto(penetration);
 				penetration.scale(-outsidePenetrationLength);
-				penetration.scale(Math.min(Math.min(sizeX, sizeY), sizeZ)); // alternate scaling that doesn't distort penetration 
+				penetration.scale(Math.min(Math.min(size.x, size.y), size.z)); // alternate scaling that doesn't distort penetration 
 				rotate(penetration, rotation);
 			}
 		}

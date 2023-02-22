@@ -58,9 +58,9 @@ public class WWCylinder extends WWSimpleShape implements Serializable, Cloneable
 	@Override
 	protected WWVector[] getEdgePoints() {
 		if (edgePoints == null) {
-			float sx2 = sizeX / 2.0f;
-			float sy2 = sizeY / 2.0f;
-			float sz2 = sizeZ / 2.0f;
+			float sx2 = size.x / 2.0f;
+			float sy2 = size.y / 2.0f;
+			float sz2 = size.z / 2.0f;
 			edgePoints = new WWVector[] {
 					// - six center side points, starting with base, then front (for speed)
 					new WWVector(0, 0, -sz2), new WWVector(0, -sy2, 0), new WWVector(sx2, 0, 0), new WWVector(-sx2, 0, 0), new WWVector(0, sy2, 0), new WWVector(0, 0, sz2),
@@ -86,7 +86,7 @@ public class WWCylinder extends WWSimpleShape implements Serializable, Cloneable
 		antiTransform(tempPoint, position, rotation, worldTime);
 
 		// Scale the point down to unit scale, just to make it easier
-		tempPoint.scale(1.0f / sizeX, 1.0f / sizeY, 1.0f / sizeZ);
+		tempPoint.scale(1.0f / size.x, 1.0f / size.y, 1.0f / size.z);
 
 		// Determine the radius distance. This is the distance to the center of the cylinder
 		float radiusDistanceSquared = tempPoint.x * tempPoint.x + tempPoint.y * tempPoint.y;
@@ -120,18 +120,18 @@ public class WWCylinder extends WWSimpleShape implements Serializable, Cloneable
 		float outsidePenetration = noOutsidePenetration ? 100 : 0.5f - radiusDistance;
 		float topPenetration = noTopPenetration ? 100 : 0.5f - tempPoint.z;
 		float bottomPenetration = noBottomPenetration ? 100 : tempPoint.z + 0.5f;
-		if (FastMath.min(insidePenetration, outsidePenetration) * FastMath.min(sizeX, sizeY) < FastMath.min(topPenetration, bottomPenetration) * sizeZ) { // side
+		if (FastMath.min(insidePenetration, outsidePenetration) * FastMath.min(size.x, size.y) < FastMath.min(topPenetration, bottomPenetration) * size.z) { // side
 
 			// Choose inside or outside
 			if (insidePenetration < outsidePenetration) { // inside
 				penetration.set(tempPoint.x, tempPoint.y, 0);
 				penetration.scale(insidePenetration);
-				penetration.scale(FastMath.min(sizeX, sizeY)); // alternate scaling that doesn't distort penetration
+				penetration.scale(FastMath.min(size.x, size.y)); // alternate scaling that doesn't distort penetration
 			} else { // outside
 //			penetration.set(-tempPoint.x * (0.5 - tempPoint.length()), -tempPoint.y * (0.5 - tempPoint.length()), 0);
 				penetration.set(tempPoint.x, tempPoint.y, 0);
 				penetration.scale(-outsidePenetration);
-				penetration.scale(FastMath.min(sizeX, sizeY)); // alternate scaling that doesn't distort penetration
+				penetration.scale(FastMath.min(size.x, size.y)); // alternate scaling that doesn't distort penetration
 			}
 		} else { // top/bottom
 			if (topPenetration < bottomPenetration) { // top
@@ -139,9 +139,9 @@ public class WWCylinder extends WWSimpleShape implements Serializable, Cloneable
 			} else { // bottom
 				penetration.set(0.0f, 0.0f, bottomPenetration);
 			}
-			penetration.scale(sizeZ); // alternate scaling that doesn't distort penetration
+			penetration.scale(size.z); // alternate scaling that doesn't distort penetration
 		}
-//		penetration.scale(getSizeX(), getSizeY(), getSizeZ());   // the original scaling, distorted penetration vector
+//		penetration.scale(getsize.x(), getSizeY(), getSizeZ());   // the original scaling, distorted penetration vector
 		rotate(penetration, rotation);
 	}
 }

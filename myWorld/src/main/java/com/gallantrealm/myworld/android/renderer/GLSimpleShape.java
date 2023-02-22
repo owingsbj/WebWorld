@@ -42,9 +42,9 @@ public class GLSimpleShape extends GLObject {
 	public void buildRendering() {
 		WWSimpleShape object = (WWSimpleShape)this.object;
 
-		float sizeX = object.sizeX;
-		float sizeY = object.sizeY;
-		float sizeZ = object.sizeZ;
+		float sizeX = object.size.x;
+		float sizeY = object.size.y;
+		float sizeZ = object.size.z;
 		float taperX = object.getTaperX();
 		float taperY = object.getTaperY();
 		float shearX = object.getShearX();

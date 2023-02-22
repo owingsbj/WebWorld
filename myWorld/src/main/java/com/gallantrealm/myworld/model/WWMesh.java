@@ -256,14 +256,14 @@ public class WWMesh extends WWObject {
 		float absTempPointZ = tempPoint.z > 0 ? tempPoint.z : -tempPoint.z;
 
 		// Get possible penetration in each dimension
-		float penetrationX = sizeX / 2.0f - absTempPointX;
-		float penetrationY = sizeY / 2.0f - absTempPointY;
+		float penetrationX = size.x / 2.0f - absTempPointX;
+		float penetrationY = size.y / 2.0f - absTempPointY;
 		float penetrationZ;
-		if (tempPoint.z > -sizeZ / 2.1f) { // very close to the bottom, so mesh can be very low
+		if (tempPoint.z > -size.z / 2.1f) { // very close to the bottom, so mesh can be very low
 			getMeshPenetration(tempPoint, penetration);
 			penetrationZ = penetration.z;
 		} else {
-			penetrationZ = sizeZ / 2.0f - absTempPointZ;
+			penetrationZ = size.z / 2.0f - absTempPointZ;
 		}
 
 		// If penetration is not occuring in all dimensions, then the point is not penetrating
@@ -286,7 +286,7 @@ public class WWMesh extends WWObject {
 				penetration.set(0, penetrationY, 0);
 			}
 		} else { // z
-			if (tempPoint.z > -sizeZ / 2.1f) { // to be very low so mesh points can be near 0
+			if (tempPoint.z > -size.z / 2.1f) { // to be very low so mesh points can be near 0
 				penetration.scale(-1);
 			} else {
 				penetration.set(0, 0, penetrationZ);
@@ -305,14 +305,14 @@ public class WWMesh extends WWObject {
 		float pz = point.z;
 
 		// Transform the point to the left, back, lower
-		px += sizeX / 2;
-		py += sizeY / 2;
-		pz += sizeZ / 2;
+		px += size.x / 2;
+		py += size.y / 2;
+		pz += size.z / 2;
 
 		// Scale the point down by the object size to make the calculations easier
-		px *= 1 / sizeX;
-		py *= 1 / sizeY;
-		pz *= 1 / sizeZ;
+		px *= 1 / size.x;
+		py *= 1 / size.y;
+		pz *= 1 / size.z;
 
 		// Determine the cell that the point is within
 		int cellX = (int) (px * cellsX);
@@ -339,11 +339,11 @@ public class WWMesh extends WWObject {
 
 		// 1 - determine the normal (penetration == normal after this)
 		if (offsetX + offsetY < 1) {
-			penetration.set(sizeX / cellsX, 0, sizeZ * (p2 - p1));
-			penetration.cross(0, -sizeY / cellsY, sizeZ * (p3 - p1));
+			penetration.set(size.x / cellsX, 0, size.z * (p2 - p1));
+			penetration.cross(0, -size.y / cellsY, size.z * (p3 - p1));
 		} else {
-			penetration.set(sizeX / cellsX, 0, sizeZ * (p4 - p3));
-			penetration.cross(0, -sizeY / cellsY, sizeZ * (p4 - p2));
+			penetration.set(size.x / cellsX, 0, size.z * (p4 - p3));
+			penetration.cross(0, -size.y / cellsY, size.z * (p4 - p2));
 		}
 		penetration.normalize();
 		penetration.y *= -1;
@@ -352,10 +352,10 @@ public class WWMesh extends WWObject {
 		float C = penetration.z;
 
 		// 2 - determine "D" using p2
-		float D = -A * sizeX * (cellX + 1) / cellsX - B * sizeY * cellY / cellsY - C * sizeZ * p2;
+		float D = -A * size.x * (cellX + 1) / cellsX - B * size.y * cellY / cellsY - C * size.z * p2;
 
 		// 3 - determine the distance (note that we wanted it to be signed so no abs)
-		float distance = (A * sizeX * px + B * sizeY * py + C * sizeZ * pz + D) / (float) Math.sqrt(A * A + B * B + C * C);
+		float distance = (A * size.x * px + B * size.y * py + C * size.z * pz + D) / (float) Math.sqrt(A * A + B * B + C * C);
 
 		penetration.scale(-distance);
 
@@ -379,14 +379,14 @@ public class WWMesh extends WWObject {
 		float pz = tempPoint.z;
 
 		// Transform the point to the left, back, lower
-		px += sizeX / 2;
-		py += sizeY / 2;
-		pz += sizeZ / 2;
+		px += size.x / 2;
+		py += size.y / 2;
+		pz += size.z / 2;
 
 		// Scale the point down by the object size to make the calculations easier
-		px *= 1 / sizeX;
-		py *= 1 / sizeY;
-		pz *= 1 / sizeZ;
+		px *= 1 / size.x;
+		py *= 1 / size.y;
+		pz *= 1 / size.z;
 
 		// Determine the cell that the point is within
 		int cellX = (int) (px * cellsX);
@@ -419,7 +419,7 @@ public class WWMesh extends WWObject {
 			value = p2 * (1.0f - offsetY) + zx * offsetY;
 		}
 
-		value = (value - 0.5f) * sizeZ;
+		value = (value - 0.5f) * size.z;
 
 		return value;
 	}
@@ -436,14 +436,14 @@ public class WWMesh extends WWObject {
 		float pz = point.z;
 
 		// Transform the point to the left, back, lower
-		px += sizeX / 2;
-		py += sizeY / 2;
-		pz += sizeZ / 2;
+		px += size.x / 2;
+		py += size.y / 2;
+		pz += size.z / 2;
 
 		// Scale the point down by the object size to make the calculations easier
-		px *= 1 / sizeX;
-		py *= 1 / sizeY;
-		pz *= 1 / sizeZ;
+		px *= 1 / size.x;
+		py *= 1 / size.y;
+		pz *= 1 / size.z;
 
 		// Determine the cell that the point is within
 		int cellX = (int) (px * cellsX);

@@ -79,9 +79,9 @@ public class WWTranslucency extends WWObject {
 		antiTransform(tempPoint, position, rotation, worldTime);
 
 		// Get possible penetration in each dimension
-		float penetrationX = sizeX / 2.0f - Math.abs(tempPoint.x);
-		float penetrationY = sizeY / 2.0f - Math.abs(tempPoint.y);
-		float penetrationZ = sizeZ / 2.0f - Math.abs(tempPoint.z);
+		float penetrationX = size.x / 2.0f - Math.abs(tempPoint.x);
+		float penetrationY = size.y / 2.0f - Math.abs(tempPoint.y);
+		float penetrationZ = size.z / 2.0f - Math.abs(tempPoint.z);
 
 		// If penetration is not occuring in all dimensions, then the point is not penetrating
 		if (penetrationX < 0 || penetrationY < 0 || penetrationZ < 0) {

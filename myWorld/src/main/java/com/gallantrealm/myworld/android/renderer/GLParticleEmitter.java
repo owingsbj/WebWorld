@@ -24,9 +24,9 @@ public class GLParticleEmitter extends GLObject {
 	public void buildRendering() {
 
 		// Create a simple box to use only for picking draws
-		float sizeX = object.sizeX;
-		float sizeY = object.sizeY;
-		float sizeZ = object.sizeZ;
+		float sizeX = object.size.x;
+		float sizeY = object.size.y;
+		float sizeZ = object.size.z;
 		Point2f[] polygon = new Point2f[] { new Point2f(-0.5f, -0.5f), new Point2f(0.5f, -0.5f), new Point2f(0.5f, 0.5f), new Point2f(-0.5f, 0.5f) };
 		int nvertices = polygon.length;
 		Point3f[] sweepPath = new Point3f[] { new Point3f(0.0f, 0.0f, -0.5f), new Point3f(0.0f, 0.0f, 0.5f) };

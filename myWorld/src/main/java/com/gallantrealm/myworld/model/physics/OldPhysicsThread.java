@@ -165,7 +165,7 @@ public class OldPhysicsThread extends PhysicsThread {
 									if (object.isFreedomMoveZ() && object2.getDensity() > 0.0) {
 										// Note: pressure is determined by how deep into the object.  This is an
 										// estimate here, based on the extent.  This will be correct only if the object is level (flat)
-										float pressure = FastMath.max(position2.z + object2.sizeZ / 2.0f - position.z, 0.0f);
+										float pressure = FastMath.max(position2.z + object2.size.z / 2.0f - position.z, 0.0f);
 										float boyancy = object2.getDensity() * pressure - object.getDensity();
 										if (boyancy > 0) {
 											velocity.z += (boyancy * deltaTime) * 30.0;

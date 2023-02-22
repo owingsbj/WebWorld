@@ -21,12 +21,12 @@ public class GLPlant extends GLObject {
 		// There are eight plant sides that criss-cross.
 		for (int i = 0; i < 4; i++) {
 			double r = Math.toRadians(i * 45);
-			float x1 = (float) (-0.5 * Math.sin(r) * plant.sizeX);
-			float y1 = (float) (-0.5 * Math.cos(r) * plant.sizeY);
-			float z1 = (float) (-0.5 * plant.sizeZ);
-			float x2 = (float) (0.5 * Math.sin(r) * plant.sizeX);
-			float y2 = (float) (0.5 * Math.cos(r) * plant.sizeY);
-			float z2 = (float) (0.5 * plant.sizeZ);
+			float x1 = (float) (-0.5 * Math.sin(r) * plant.size.x);
+			float y1 = (float) (-0.5 * Math.cos(r) * plant.size.y);
+			float z1 = (float) (-0.5 * plant.size.z);
+			float x2 = (float) (0.5 * Math.sin(r) * plant.size.x);
+			float y2 = (float) (0.5 * Math.cos(r) * plant.size.y);
+			float z2 = (float) (0.5 * plant.size.z);
 
 			GLSurface sideGeometry = new GLSurface(2, 2);
 			sideGeometry.setVertex(0, 0, x1, z1, y1);

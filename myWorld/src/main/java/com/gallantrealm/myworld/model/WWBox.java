@@ -55,9 +55,9 @@ public class WWBox extends WWSimpleShape {
 		antiTransform(tempPoint, position, rotation, worldTime);
 
 		// Get possible penetration in each dimension
-		float penetrationX = sizeX / 2.0f - (tempPoint.x < 0 ? -tempPoint.x : tempPoint.x);
-		float penetrationY = sizeY / 2.0f - (tempPoint.y < 0 ? -tempPoint.y : tempPoint.y);
-		float penetrationZ = sizeZ / 2.0f - (tempPoint.z < 0 ? -tempPoint.z : tempPoint.z);
+		float penetrationX = size.x / 2.0f - (tempPoint.x < 0 ? -tempPoint.x : tempPoint.x);
+		float penetrationY = size.y / 2.0f - (tempPoint.y < 0 ? -tempPoint.y : tempPoint.y);
+		float penetrationZ = size.z / 2.0f - (tempPoint.z < 0 ? -tempPoint.z : tempPoint.z);
 
 		// If penetration is not occuring in all dimensions, then the point is not penetrating
 		if (penetrationX < 0 || penetrationY < 0 || penetrationZ < 0) {
@@ -66,7 +66,7 @@ public class WWBox extends WWSimpleShape {
 		}
 
 		// Doesnt overlap if x,y < hollow point
-		if (hollow > 0 && Math.abs(tempPoint.x) < hollow * sizeX / 2.0f && Math.abs(tempPoint.y) < hollow * sizeY / 2.0f) {
+		if (hollow > 0 && Math.abs(tempPoint.x) < hollow * size.x / 2.0f && Math.abs(tempPoint.y) < hollow * size.y / 2.0f) {
 			penetration.zero();
 			return;
 		}
@@ -115,8 +115,8 @@ public class WWBox extends WWSimpleShape {
 		} else {
 
 			// Get possible inner penetration in each dimension
-			float innerPenetrationX = Math.abs(tempPoint.x) - sizeX / 2.0f * hollow;
-			float innerPenetrationY = Math.abs(tempPoint.y) - sizeY / 2.0f * hollow;
+			float innerPenetrationX = Math.abs(tempPoint.x) - size.x / 2.0f * hollow;
+			float innerPenetrationY = Math.abs(tempPoint.y) - size.y / 2.0f * hollow;
 
 			// Choose the dimension or inner dimension with the least penetration as the side that is penetrated
 			if (innerPenetrationY < 0 && innerPenetrationX < penetrationX && innerPenetrationX < penetrationY && innerPenetrationX < penetrationZ) {

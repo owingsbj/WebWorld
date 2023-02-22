@@ -36,9 +36,9 @@ public class GLTranslucency extends GLObject  {
 	}
 
 	public void buildRendering() {
-		this.sizeX = object.sizeX;
-		this.sizeY = object.sizeY;
-		this.sizeZ = object.sizeZ;
+		this.sizeX = object.size.x;
+		this.sizeY = object.size.y;
+		this.sizeZ = object.size.z;
 		this.layerDensity = ((WWTranslucency) object).getInsideLayerDensity();
 		this.layerTransparency = ((WWTranslucency) object).getInsideTransparency();
 		this.layerColor = ((WWTranslucency) object).getInsideColor();

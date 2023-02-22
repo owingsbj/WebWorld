@@ -28,9 +28,9 @@ public class WWTorus extends WWSimpleShape {
 	protected WWVector[] getEdgePoints() {
 		if (edgePoints == null) {
 			// TODO this is copied from cylinder. tune for torus
-			float sx2 = sizeX / 2.0f;
-			float sy2 = sizeY / 2.0f;
-			float sz2 = sizeZ / 2.0f;
+			float sx2 = size.x / 2.0f;
+			float sy2 = size.y / 2.0f;
+			float sz2 = size.z / 2.0f;
 			edgePoints = new WWVector[] {
 					// - six center side points
 					new WWVector(sx2, 0, 0), new WWVector(-sx2, 0, 0), new WWVector(0, sy2, 0), new WWVector(0, -sy2, 0), new WWVector(0, 0, sz2), new WWVector(0, 0, -sz2),
@@ -54,7 +54,7 @@ public class WWTorus extends WWSimpleShape {
 		antiTransform(tempPoint, position, rotation, worldTime);
 
 		// Scale the point down to unit scale, just to make it easier
-		tempPoint.scale(1.0f / sizeX, 1.0f / sizeY, 1.0f / sizeZ);
+		tempPoint.scale(1.0f / size.x, 1.0f / size.y, 1.0f / size.z);
 
 		tempPoint.scale(1.0f, 1.0f, 0.1875f / 0.5f); // adjust for z ring thickness difference
 
@@ -107,8 +107,8 @@ public class WWTorus extends WWSimpleShape {
 		penetration.subtract(ringCoreThicknessVector);
 
 //		penetration.scale(1.0, 1.0, 0.5 / 0.1875); // unadjust for z ring thickness difference
-//		penetration.scale(getSizeX(), getSizeY(), getSizeZ());	
-		penetration.scale(Math.min(Math.min(sizeX, sizeY), sizeZ)); // alternate scaling that doesn't distort penetration 
+//		penetration.scale(getsize.x(), getSizeY(), getSizeZ());	
+		penetration.scale(Math.min(Math.min(size.x, size.y), size.z)); // alternate scaling that doesn't distort penetration 
 		rotate(penetration, rotation);
 	}
 }
