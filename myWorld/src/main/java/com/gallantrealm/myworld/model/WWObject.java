@@ -935,9 +935,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		if (sideAttributes != null) {
 			for (int side = 0; side < NSIDES; side++) {
 				if (sideAttributes[side] != null && sideAttributes[side] != SideAttributes.defaultSurface) {
-					float textureVelocityX = sideAttributes[side].textureVelocityX;
-					float textureVelocityY = sideAttributes[side].textureVelocityY;
-					float textureAMomentum = sideAttributes[side].textureAMomentum;
+					float textureVelocityX = sideAttributes[side].texture.velocityX;
+					float textureVelocityY = sideAttributes[side].texture.velocityY;
+					float textureAMomentum = sideAttributes[side].texture.aMomentum;
 					if (textureVelocityX != 0 || textureVelocityY != 0 || textureAMomentum != 0) {
 						return true;
 					}
@@ -1058,9 +1058,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			for (int i = 0; i < NSIDES; i++) {
 				SideAttributes side = sideAttributes[i];
 				if (side != SideAttributes.defaultSurface) {
-					side.textureOffsetX += side.textureVelocityX * deltaTime;
-					side.textureOffsetY += side.textureVelocityY * deltaTime;
-					side.textureRotation += side.textureAMomentum * deltaTime;
+					side.texture.offsetX += side.texture.velocityX * deltaTime;
+					side.texture.offsetY += side.texture.velocityY * deltaTime;
+					side.texture.rotation += side.texture.aMomentum * deltaTime;
 				}
 			}
 
@@ -1847,18 +1847,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	private final WWTexture getTexture(int side) {
 		WWTexture texture = new WWTexture();
 		SideAttributes sideAttributes = getEditableSideAttributes(side);
-		texture.setName(sideAttributes.textureURL);
-		texture.setScaleX(sideAttributes.textureScaleX);
-		texture.setScaleY(sideAttributes.textureScaleY);
-		texture.setRotation(sideAttributes.textureRotation);
-		texture.setOffsetX(sideAttributes.textureOffsetX - 0.5f);
-		texture.setOffsetY(sideAttributes.textureOffsetY - 0.5f);
-		texture.setVelocityX(sideAttributes.textureVelocityX);
-		texture.setVelocityY(sideAttributes.textureVelocityY);
-		texture.setaMomentum(sideAttributes.textureAMomentum);
-		texture.setRefreshInterval(sideAttributes.textureRefreshInterval);
-		texture.setPixelated(sideAttributes.texturePixelated);
-		return texture;
+		return sideAttributes.texture;
 	}
 
 	public final WWTexture getTexture() {
@@ -1923,17 +1912,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	private final void setTexture(int side, WWTexture texture) {
 		SideAttributes sideAttributes = getEditableSideAttributes(side);
-		sideAttributes.textureURL = texture.getName();
-		sideAttributes.textureScaleX = texture.getScaleX();
-		sideAttributes.textureScaleY = texture.getScaleY();
-		sideAttributes.textureRotation = texture.getRotation();
-		sideAttributes.textureOffsetX = texture.getOffsetX() + 0.5f;
-		sideAttributes.textureOffsetY = texture.getOffsetY() + 0.5f;
-		sideAttributes.textureVelocityX = texture.getVelocityX();
-		sideAttributes.textureVelocityY = texture.getVelocityY();
-		sideAttributes.textureAMomentum = texture.getaMomentum();
-		sideAttributes.textureRefreshInterval = texture.getRefreshInterval();
-		sideAttributes.texturePixelated = texture.isPixelated();
+		sideAttributes.texture = texture;
 	}
 
 	public final void setTexture(WWTexture texture) {
@@ -1946,19 +1925,19 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	 * uniform on all sides.
 	 */
 	public final void setTexture(String textureName) {
-		getEditableSideAttributes(SIDE_ALL).textureURL = textureName;
-		getEditableSideAttributes(SIDE_TOP).textureScaleX = 10 / size.x;
-		getEditableSideAttributes(SIDE_TOP).textureScaleY = 10 / size.y;
-		getEditableSideAttributes(SIDE_BOTTOM).textureScaleX = 10 / size.x;
-		getEditableSideAttributes(SIDE_BOTTOM).textureScaleY = 10 / size.y;
-		getEditableSideAttributes(SIDE_SIDE1).textureScaleX = 10 / size.x;
-		getEditableSideAttributes(SIDE_SIDE2).textureScaleX =  10 / size.y;
-		getEditableSideAttributes(SIDE_SIDE3).textureScaleX =  10 / size.x;
-		getEditableSideAttributes(SIDE_SIDE4).textureScaleX =  10 / size.y;
-		getEditableSideAttributes(SIDE_SIDE1).textureScaleY = 10 / size.z;
-		getEditableSideAttributes(SIDE_SIDE2).textureScaleY = 10 / size.z;
-		getEditableSideAttributes(SIDE_SIDE3).textureScaleY = 10 / size.z;
-		getEditableSideAttributes(SIDE_SIDE4).textureScaleY = 10 / size.z;
+		getEditableSideAttributes(SIDE_ALL).texture.name = textureName;
+		getEditableSideAttributes(SIDE_TOP).texture.scaleX = 10 / size.x;
+		getEditableSideAttributes(SIDE_TOP).texture.scaleY = 10 / size.y;
+		getEditableSideAttributes(SIDE_BOTTOM).texture.scaleX = 10 / size.x;
+		getEditableSideAttributes(SIDE_BOTTOM).texture.scaleY = 10 / size.y;
+		getEditableSideAttributes(SIDE_SIDE1).texture.scaleX = 10 / size.x;
+		getEditableSideAttributes(SIDE_SIDE2).texture.scaleX =  10 / size.y;
+		getEditableSideAttributes(SIDE_SIDE3).texture.scaleX =  10 / size.x;
+		getEditableSideAttributes(SIDE_SIDE4).texture.scaleX =  10 / size.y;
+		getEditableSideAttributes(SIDE_SIDE1).texture.scaleY = 10 / size.z;
+		getEditableSideAttributes(SIDE_SIDE2).texture.scaleY = 10 / size.z;
+		getEditableSideAttributes(SIDE_SIDE3).texture.scaleY = 10 / size.z;
+		getEditableSideAttributes(SIDE_SIDE4).texture.scaleY = 10 / size.z;
 	}
 
 	public final void setTextureTop(WWTexture texture) {

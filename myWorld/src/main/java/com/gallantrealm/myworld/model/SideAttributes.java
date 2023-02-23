@@ -24,17 +24,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 	public float transparency;
 	public float shininess = 0.0f;
 	public boolean fullBright;
-	public String textureURL;
-	public float textureScaleX = 1.0f;
-	public float textureScaleY = 1.0f;
-	public float textureRotation;
-	public float textureOffsetX = 0.5f;
-	public float textureOffsetY = 0.5f;
-	public float textureVelocityX;
-	public float textureVelocityY;
-	public float textureAMomentum;
-	public long textureRefreshInterval;
-	public boolean texturePixelated;
+	public WWTexture texture = new WWTexture();
 	public boolean isDefault;
 
 	public SideAttributes() {
@@ -56,17 +46,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		os.writeFloat(transparency);
 		os.writeFloat(shininess);
 		os.writeBoolean(fullBright);
-		os.writeString(textureURL);
-		os.writeFloat(textureScaleX);
-		os.writeFloat(textureScaleY);
-		os.writeFloat(textureRotation);
-		os.writeFloat(textureOffsetX);
-		os.writeFloat(textureOffsetY);
-		os.writeFloat(textureVelocityX);
-		os.writeFloat(textureVelocityY);
-		os.writeFloat(textureAMomentum);
-		os.writeLong(textureRefreshInterval);
-		os.writeBoolean(texturePixelated);
+		os.writeKnownObject(texture);
 	}
 
 	@Override
@@ -75,17 +55,7 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 		transparency = is.readFloat();
 		shininess = is.readFloat();
 		fullBright = is.readBoolean();
-		textureURL = is.readString();
-		textureScaleX = is.readFloat();
-		textureScaleY = is.readFloat();
-		textureRotation = is.readFloat();
-		textureOffsetX = is.readFloat();
-		textureOffsetY = is.readFloat();
-		textureVelocityX = is.readFloat();
-		textureVelocityY = is.readFloat();
-		textureAMomentum = is.readFloat();
-		textureRefreshInterval = is.readLong();
-		texturePixelated = is.readBoolean();
+		texture = (WWTexture)is.readKnownObject(WWTexture.class);
 	}
 
 	public WWColor getColor() {
@@ -97,33 +67,11 @@ public final class SideAttributes implements Serializable, Cloneable, Sendable {
 	}
 
 	public WWTexture getTexture() {
-		WWTexture texture = new WWTexture();
-		texture.setName(textureURL);
-		texture.setScaleX(textureScaleX);
-		texture.setScaleY(textureScaleY);
-		texture.setRotation(textureRotation);
-		texture.setOffsetX(textureOffsetX - 0.5f);
-		texture.setOffsetY(textureOffsetY - 0.5f);
-		texture.setVelocityX(textureVelocityX);
-		texture.setVelocityY(textureVelocityY);
-		texture.setaMomentum(textureAMomentum);
-		texture.setRefreshInterval(textureRefreshInterval);
-		texture.setPixelated(texturePixelated);
 		return texture;
 	}
 
 	public void setTexture(WWTexture texture) {
-		textureURL = texture.getName();
-		textureScaleX = texture.getScaleX();
-		textureScaleY = texture.getScaleY();
-		textureRotation = texture.getRotation();
-		textureOffsetX = texture.getOffsetX() + 0.5f;
-		textureOffsetY = texture.getOffsetY() + 0.5f;
-		textureVelocityX = texture.getVelocityX();
-		textureVelocityY = texture.getVelocityY();
-		textureAMomentum = texture.getaMomentum();
-		textureRefreshInterval = texture.getRefreshInterval();
-		texturePixelated = texture.isPixelated();
+		this.texture = texture;
 	}
 
 }

@@ -98,13 +98,13 @@ public abstract class GLObject extends GLRendering {
 	protected void adjustTextureCoords(GLSurface surface, int side) {
 		if (object.fixed) {
 			SideAttributes sideAttributes = object.sideAttributes[side];
-			String textureUrl = sideAttributes.textureURL;
+			String textureUrl = sideAttributes.texture.name;
 			if (textureUrl != null) {
 				float[] textureMatrix = new float[16];
 				Matrix.setIdentityM(textureMatrix, 0);
-				Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
-				Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0);
-				Matrix.rotateM(textureMatrix, 0, sideAttributes.textureRotation, 0, 0, 1);
+				Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.texture.scaleX, 1.0f / sideAttributes.texture.scaleY, 1.0f);
+				Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0);
+				Matrix.rotateM(textureMatrix, 0, sideAttributes.texture.rotation, 0, 0, 1);
 				surface.adjustTextureCoords(textureMatrix);
 			}
 		}
@@ -255,21 +255,21 @@ public abstract class GLObject extends GLRendering {
 					}
 					color = new float[] { red, green, blue, 1.0f - trans };
 					if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
-						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
-						Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0.0f);
-						float textureRotation = sideAttributes.textureRotation;
+						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.texture.scaleX, 1.0f / sideAttributes.texture.scaleY, 1.0f);
+						Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
+						float textureRotation = sideAttributes.texture.rotation;
 						if (textureRotation != 0.0f) {
 							Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 						}
 					}
-					String textureUrl = sideAttributes.textureURL;
-					int textureId = renderer.getTexture(textureUrl, sideAttributes.texturePixelated);
+					String textureUrl = sideAttributes.texture.name;
+					int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
 					if (textureId != lastTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 						lastTextureId = textureId;
 					}
-					int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texturePixelated);
+					int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
 					if (bumpTextureId != lastBumpTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
@@ -333,21 +333,21 @@ public abstract class GLObject extends GLRendering {
 
 							Matrix.setIdentityM(textureMatrix, 0);
 							if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
-								Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].textureScaleX, 1.0f / object.sideAttributes[side].textureScaleY, 1.0f);
-								Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0.0f);
-								float textureRotation = sideAttributes.textureRotation;
+								Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].texture.scaleX, 1.0f / object.sideAttributes[side].texture.scaleY, 1.0f);
+								Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
+								float textureRotation = sideAttributes.texture.rotation;
 								if (textureRotation != 0.0f) {
 									Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 								}
 							}
-							String textureUrl = sideAttributes.textureURL;
-							int textureId = renderer.getTexture(textureUrl, sideAttributes.texturePixelated);
+							String textureUrl = sideAttributes.texture.name;
+							int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
 							if (textureId != lastTextureId) {
 								GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 								GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 								lastTextureId = textureId;
 							}
-							int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texturePixelated);
+							int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
 							if (bumpTextureId != lastBumpTextureId) {
 								GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 								GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
@@ -403,9 +403,9 @@ public abstract class GLObject extends GLRendering {
 			//	if (drawType != DRAW_TYPE_SHADOW) {
 					Matrix.setIdentityM(textureMatrix, 0);
 					if (false) { // texture matrix is always baked into texture coords for groups
-						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
-						Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0.0f);
-						float textureRotation = sideAttributes.textureRotation;
+						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.texture.scaleX, 1.0f / sideAttributes.texture.scaleY, 1.0f);
+						Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
+						float textureRotation = sideAttributes.texture.rotation;
 						if (textureRotation != 0.0f) {
 							Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 						}
@@ -424,14 +424,14 @@ public abstract class GLObject extends GLRendering {
 						blue = (blue * 3 + red) / 4.0f;
 					}
 					color = new float[] { red, green, blue, 1.0f - trans };
-					String textureUrl = sideAttributes.textureURL;
-					int textureId = renderer.getTexture(textureUrl, sideAttributes.texturePixelated);
+					String textureUrl = sideAttributes.texture.name;
+					int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
 					if (textureId != lastTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 						lastTextureId = textureId;
 					}
-					int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texturePixelated);
+					int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
 					if (bumpTextureId != lastBumpTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);

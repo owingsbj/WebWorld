@@ -154,21 +154,21 @@ public class GLParticleEmitter extends GLObject {
 		int fullBright = 1;
 		Matrix.setIdentityM(textureMatrix, 0);
 		if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
-			Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.textureScaleX, 1.0f / sideAttributes.textureScaleY, 1.0f);
-			Matrix.translateM(textureMatrix, 0, sideAttributes.textureOffsetX, sideAttributes.textureOffsetY, 0.0f);
-			float textureRotation = sideAttributes.textureRotation;
+			Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.texture.scaleX, 1.0f / sideAttributes.texture.scaleY, 1.0f);
+			Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
+			float textureRotation = sideAttributes.texture.rotation;
 			if (textureRotation != 0.0f) {
 				Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 			}
 		}
-		String textureUrl = sideAttributes.textureURL;
-		int textureId = renderer.getTexture(textureUrl, sideAttributes.texturePixelated);
+		String textureUrl = sideAttributes.texture.name;
+		int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
 		if (textureId != lastTextureId) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 			lastTextureId = textureId;
 		}
-		int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texturePixelated);
+		int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
 		if (bumpTextureId != lastBumpTextureId) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);

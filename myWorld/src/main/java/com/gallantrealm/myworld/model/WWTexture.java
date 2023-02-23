@@ -13,55 +13,55 @@ import java.io.Serializable;
 public class WWTexture implements Serializable, Cloneable, Sendable {
 	private static final long serialVersionUID = 1L;
 
-	private String name;
-	private float scaleX = 1.0f;
-	private float scaleY = 1.0f;
-	private float rotation;
-	private float offsetX;
-	private float offsetY;
-	private float velocityX;
-	private float velocityY;
-	private float aMomentum;
-	private long refreshInterval;
-	private boolean pixelated;
+	public String name;
+	public float scaleX = 1.0f;
+	public float scaleY = 1.0f;
+	public float rotation;
+	public float offsetX;
+	public float offsetY;
+	public float velocityX;
+	public float velocityY;
+	public float aMomentum;
+	public long refreshInterval;
+	public boolean pixelated;
 	
 	public WWTexture() {
 	}
 	
-	public WWTexture(String url) {
-		this.setName(url);
+	public WWTexture(String name) {
+		this.name = name;
 	}
 	
-	public WWTexture(String url, float scaleX, float scaleY) {
-		this.setName(url);
-		this.setScaleX(scaleX);
-		this.setScaleY(scaleY);
+	public WWTexture(String name, float scaleX, float scaleY) {
+		this.name = name;
+		this.scaleX = scaleX;
+		this.scaleY = scaleY;
 	}
 	
-	public WWTexture(String url, float scaleX, float scaleY, float rotation) {
-		this.setName(url);
-		this.setScaleX(scaleX);
-		this.setScaleY(scaleY);
-		this.setRotation(rotation);
+	public WWTexture(String name, float scaleX, float scaleY, float rotation) {
+		this.name = name;
+		this.scaleX = scaleX;
+		this.scaleY = scaleY;
+		this.rotation = rotation;
 	}
 	
-	public WWTexture(String url, float scaleX, float scaleY, float rotation, float offsetX, float offsetY) {
-		this.setName(url);
-		this.setScaleX(scaleX);
-		this.setScaleY(scaleY);
-		this.setRotation(rotation);
-		this.setOffsetX(offsetX);
-		this.setOffsetY(offsetY);
+	public WWTexture(String name, float scaleX, float scaleY, float rotation, float offsetX, float offsetY) {
+		this.name = name;
+		this.scaleX = scaleX;
+		this.scaleY = scaleY;
+		this.rotation = rotation;
+		this.offsetX = offsetX;
+		this.offsetY = offsetY;
 	}
 	
-	public WWTexture(String url, float scaleX, float scaleY, float rotation, float offsetX, float offsetY, boolean pixelate) {
-		this.setName(url);
-		this.setScaleX(scaleX);
-		this.setScaleY(scaleY);
-		this.setRotation(rotation);
-		this.setOffsetX(offsetX);
-		this.setOffsetY(offsetY);
-		this.setPixelated(pixelate);
+	public WWTexture(String name, float scaleX, float scaleY, float rotation, float offsetX, float offsetY, boolean pixelated) {
+		this.name = name;
+		this.scaleX = scaleX;
+		this.scaleY = scaleY;
+		this.rotation = rotation;
+		this.offsetX = offsetX;
+		this.offsetY = offsetY;
+		this.pixelated = pixelated;
 	}
 	
 	public String getName() {
@@ -193,6 +193,5 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 	public String toString() {
 		return "Texture<"+getName()+" "+getScaleX()+" "+getScaleY()+" "+" "+getRotation()+" "+getOffsetX()+" "+getOffsetY()+" "+ isPixelated()+">";
 	}
-
 
 }
