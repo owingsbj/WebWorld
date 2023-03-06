@@ -1,12 +1,22 @@
 package com.gallantrealm.webworld.model;
 
 import com.gallantrealm.myworld.FastMath;
+import com.gallantrealm.myworld.model.WWMatrix;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
 
+/**
+ * Provides basic human-like bipedal behavior.  Options can be set to make it more/less
+ * human:
+ * - breathing -- turns on an adidtional behavior that has the avatar torso expand to look as if the avatar was breathing.
+ * - atEase -- turns on an additional behavior that has the avatar lean from side to side when standing after a while.
+ */
 public final class HumanMotionBehavior extends AnimationBehavior {
 	private static final long serialVersionUID = 1L;
+
+	private boolean breathing = true;
+	private boolean atEase = true;
 
 	private long lastSlidOnSolid = -1000;
 	private long lastSlidThruLiquid = -1000;
@@ -92,6 +102,41 @@ public final class HumanMotionBehavior extends AnimationBehavior {
 		}
 		setTimer(50); // to repeat
 		return false;
+	}
+
+	public boolean isBreathing() {
+		return breathing;
+	}
+
+	public void setBreathing(boolean breathing) {
+		this.breathing = breathing;
+	}
+
+	public boolean isAtEase() {
+		return atEase;
+	}
+
+	public void setAtEase(boolean atEase) {
+		this.atEase = atEase;
+	}
+
+	@Override
+	public void postAnimateModelMatrix(WWObject object, WWMatrix modelMatrix, long time) {
+		super.postAnimateModelMatrix(object, modelMatrix, time);
+		if (breathing && "torso".equals(object.name)) {
+			// expand torso in y dimension every 4 seconds to simulate breathing
+			float expansion = 0.04f  * (0.5f + FastMath.sin(2.0f * FastMath.PI * time / 4000));
+			modelMatrix.scale(
+					1.0f,
+					1.0f + expansion,
+					1.0f
+			);
+			modelMatrix.move(
+					0.0f,
+					-object.size.y * expansion / 2.5f,
+					0.0f);
+		}
+
 	}
 
 }

@@ -7,7 +7,7 @@ import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
 
-public class AnimationBehavior extends WWAnimation {
+public class AnimationBehavior extends Behavior {
 	private static final long serialVersionUID = 1L;
 
 	private String type;
