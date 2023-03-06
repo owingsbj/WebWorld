@@ -223,6 +223,13 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 		return this;
 	}
 
+	public final WWVector abs() {
+		x = FastMath.abs(x);
+		y = FastMath.abs(y);
+		z = FastMath.abs(z);
+		return this;
+	}
+
 	public final WWVector negate() {
 		x = -x;
 		y = -y;
