@@ -103,7 +103,7 @@ public class GLParticleEmitter extends GLObject {
 			return;
 		}
 		if (drawType == DRAW_TYPE_PICKING) {
-			float[] modelMatrix = getModelMatrix(worldTime);
+			float[] modelMatrix = getAnimatedModelMatrix(worldTime);
 			Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
 			Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
 			Matrix.setIdentityM(textureMatrix, 0);

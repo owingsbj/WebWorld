@@ -3,6 +3,7 @@ package com.gallantrealm.myworld.android.renderer;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.model.SideAttributes;
+import com.gallantrealm.myworld.model.WWMatrix;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWQuaternion;
 import com.gallantrealm.myworld.model.WWVector;
@@ -157,6 +158,9 @@ public abstract class GLObject extends GLRendering {
 	public float[] compositeModelMatrix = new float[16];
 	long compositeModelMatrixTime = -1;
 
+	/**
+	 * Returns the matrix for this object with no animation applied
+	 */
 	public final float[] getModelMatrix(long worldTime) {
 		if (modelMatrix == null) {
 			snap(worldTime);
@@ -172,6 +176,16 @@ public abstract class GLObject extends GLRendering {
 			}
 			return compositeModelMatrix;
 		}
+	}
+
+	/**
+	 * Returns the model matrix with animations applied.
+	 */
+	public final float[] getAnimatedModelMatrix(long worldTime) {
+		float[] modelMatrix = getModelMatrix(worldTime);
+		float[] animatedMatrix = modelMatrix.clone();
+		object.postAnimateModelMatrix(object, new WWMatrix(animatedMatrix), worldTime);
+		return animatedMatrix;
 	}
 
 	float[] mvMatrix = new float[16];
@@ -210,7 +224,7 @@ public abstract class GLObject extends GLRendering {
 			SideAttributes sideAttributes = object.sideAttributes[WWObject.SIDE_ALL];
 			float trans = sideAttributes.transparency;
 			if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
-				float[] modelMatrix = getModelMatrix(worldTime);
+				float[] modelMatrix = getAnimatedModelMatrix(worldTime);
 				Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
 				Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
 				Matrix.setIdentityM(textureMatrix, 0);
@@ -285,7 +299,7 @@ public abstract class GLObject extends GLRendering {
 			// Non-monolithic drawing. Draw each surface separately
 			boolean sideDrawn = false;
 
-			float[] modelMatrix = getModelMatrix(worldTime);
+			float[] modelMatrix = getAnimatedModelMatrix(worldTime);
 			Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
 			Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
 

@@ -127,7 +127,7 @@ public class GLTranslucency extends GLObject  {
 		float cameraTilt = clientModel.getDampedCameraTilt();
 		WWVector position = new WWVector();
 		object.getAnimatedPosition(position, worldTime);
-		modelMatrix = getModelMatrix(worldTime);
+		modelMatrix = getAnimatedModelMatrix(worldTime);
 		Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
 		Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
 		for (int side = 0; side < WWObject.NSIDES; side++) {

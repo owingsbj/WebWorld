@@ -21,12 +21,25 @@ public abstract class WWAnimation extends WWBehavior {
 
 	/**
 	 * Returns true if the animation is running client-side. Animations typically only occur on clients.
-	 * 
-	 * @return
 	 */
 	@Override
 	public boolean isOnClient() {
 		return owner.world.isOnClient();
+	}
+
+	/**
+	 * Allows the model matrix of an object to be modified before rendering.  This version happens
+	 * before the model matrix has been used to position child objects child objects will also be impacted.
+	 */
+	public void preAnimateModelMatrix(WWObject object, WWMatrix modelMatrix, long time) {
+	}
+
+	/**
+	 * Allows the model matrix of an object to be modified before rendering.  This version happens
+	 * after the model matrix has been used to position child objects so it will not impact the rendering
+	 * of child objects.
+	 */
+	public void postAnimateModelMatrix(WWObject object, WWMatrix modelMatrix, long time) {
 	}
 
 	/**
