@@ -150,6 +150,7 @@ public abstract class GLObject extends GLRendering {
 			rotation.toMatrix(tempMatrix);
 			Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, tempMatrix, 0);
 			Matrix.translateM(modelMatrix, 0, -object.rotationPoint.x, -object.rotationPoint.z, -object.rotationPoint.y);
+			object.preAnimateModelMatrix(object, new WWMatrix(modelMatrix), worldTime);
 			object.lastRenderingTime = worldTime;
 		}
 	}

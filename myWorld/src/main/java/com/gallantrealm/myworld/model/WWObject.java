@@ -574,6 +574,21 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		return stopRotation.clone();
 	}
 
+	public final void preAnimateModelMatrix(WWObject object, WWMatrix m, long worldTime) {
+		if (behaviors != null) {
+			for (int i = 0; i < behaviors.length; i++) {
+				WWBehavior behavior = behaviors[i].behavior;
+				if (behavior instanceof WWAnimation) {
+					WWAnimation animation = (WWAnimation) behavior;
+					animation.preAnimateModelMatrix(object, m, worldTime);
+				}
+			}
+		}
+		if (parentId != 0) {
+			world.objects[parentId].preAnimateModelMatrix(object, m, worldTime);
+		}
+	}
+
 	public final void postAnimateModelMatrix(WWObject object, WWMatrix m, long worldTime) {
 		if (behaviors != null) {
 			for (int i = 0; i < behaviors.length; i++) {
