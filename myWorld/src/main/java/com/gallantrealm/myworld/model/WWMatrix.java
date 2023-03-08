@@ -48,6 +48,12 @@ public class WWMatrix implements Cloneable {
 		move(v.x, v.y, v.z);
 	}
 
+	public void antirotate(WWQuaternion q) {
+		float[] qm = new float[16];
+		q.clone().invert().toMatrix(qm);
+		Matrix.multiplyMM(m, 0, m, 0, qm, 0);
+	}
+
 	public void rotate(WWQuaternion q) {
 		float[] qm = new float[16];
 		q.toMatrix(qm);
