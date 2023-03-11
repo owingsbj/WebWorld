@@ -72,8 +72,18 @@ public class WWMatrix implements Cloneable {
 		scale(v.x, v.y, v.z);
 	}
 
+	public void scale(float s) {
+		scale(s, s, s);
+	}
+
+	public void shear(float x, float y, float z) {
+		m[4] += x;
+		m[6] += y;
+		m[7] += z;
+	}
+
 	public void shear(WWVector v) {
-		// todo
+		shear(v.x, v.y, v.z);
 	}
 
 	public void taper(WWVector v) {
