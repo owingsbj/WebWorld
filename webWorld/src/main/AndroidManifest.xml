@@ -27,6 +27,7 @@
     <application
         android:icon="@drawable/icon"
         android:label="WebWorld"
+        android:largeHeap="true"
         android:usesCleartextTraffic="true">
  <!-- 
         <meta-data
