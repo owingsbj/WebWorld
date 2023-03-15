@@ -1073,7 +1073,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					}
 	
 					WWObject[] objects = world.getObjects();
-					WWVector objectPosition = new WWVector();
 					for (int i = 0; i <= world.lastObjectIndex; i++) {
 						WWObject object = objects[i];
 						if (object != null) {
@@ -1089,10 +1088,24 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	
 								// Else the object is not deleted
 							} else {
-	
+
+								// If the object is within the rendering threshold (considering size), mark it for rendering
+								if (object.parentId == 0) {
+									if (avatarPosition.distanceFrom(object.getPosition()) / object.extent <= clientModel.world.getRenderingThreshold()) {
+										object.renderit = true;
+									} else {
+										object.renderit = false;
+									}
+								} else {
+									WWObject parentObject = world.objects[object.parentId];
+									object.renderit = parentObject.renderit;    // assumes parent preceeds child in creation order
+								}
+
+								// If marked for rendering and a rendering doesn't exist, create it
 								// Create the rendering if not created
-								if (object.getRendering() == null) {
+								if (object.renderit && object.getRendering() == null) {
 									object.createRendering(this, time);
+
 									// If the new object is the user's avatar, set camera position on it
 									if (clientModel.getAvatar() == object) {
 										if (clientModel.getCameraObject() == null) {
@@ -1110,47 +1123,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 										// clientModel.setCameraPan(0.0f);
 									}
 								}
-	
-								// Update the rendering if the object has been updated
-								// else if (object.getLastRenderingTime() < object.getLastModifyTime()) {
-								// IRendering rendering = object.getRendering();
-								// rendering.update();
-								// }
-	
-								// Reorient the rendering if the object has been moved
-								// else if (object.isDynamic() || object.getLastRenderingTime() < object.getLastMoveTime()) {
-								// IRendering rendering = object.getRendering();
-								// rendering.orient(time);
-								// }
-	
-								// If it is a translucency, reorient the translucency layers to face the camera
-								if (object instanceof WWTranslucency) {
-									float transparencyTilt = clientModel.getDampedCameraTilt();
-									float transparencyPan = clientModel.getDampedCameraPan();
-									// Primitive primitive = ((WWTranslucency) object).getJava3dPrimitive();
-									// ((TranslucencyPrimitive) primitive).adjustTranslucencyForPerspective((float) transparencyPan, (float) transparencyTilt, clientModel.getCameraLocation(time), time);
-								}
-	
-								object.getPosition(objectPosition);
-	
-								// If the object is within the rendering threshold (considering size), mark it for rendering
-								if (object.parentId == 0) {
-									if (avatarPosition.distanceFrom(objectPosition) / object.extent <= clientModel.world.getRenderingThreshold()) {
-										object.renderit = true;
-									} else {
-										object.renderit = false;
-									}
-								} else {
-									WWObject parentObject = world.objects[object.parentId];
-									if (parentObject.parentId == 0) {
-										if (avatarPosition.distanceFrom(parentObject.getPosition()) / object.extent <= clientModel.world.getRenderingThreshold()) {
-											object.renderit = true;
-										} else {
-											object.renderit = false;
-										}
-									} else {
-										object.renderit = true;
-									}
+
+								// If not marked for rendering and a rendering exists, delete it
+								if (object.renderit == false && object.getRendering() != null) {
+									object.dropRendering();
 								}
 	
 							}
