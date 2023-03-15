@@ -11,6 +11,7 @@ public class Plant extends WWPlant {
 	
 	public Plant() {
 		penetratable = true;
+		monolithic = true;
 	}
 	
 	private EventBehavior getEventBehavior() {

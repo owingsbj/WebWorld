@@ -9,6 +9,11 @@ import com.gallantrealm.myworld.client.renderer.IRenderer;
 public class WWPlant extends WWObject {
 	static final long serialVersionUID = 1L;
 
+	public static final String TYPE_TREE = "tree";
+	public static final String TYPE_GRASS = "grass";
+
+	private String type = TYPE_TREE;
+
 	public WWPlant() {
 		setPhantom(true);
 	}
@@ -28,4 +33,11 @@ public class WWPlant extends WWObject {
 		penetrationVector.zero();
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 }
