@@ -19,12 +19,12 @@ public class WWMesh extends WWObject {
 	int baseShape;
 	public int cellsX = 16;
 	public int cellsY = 16;
-	private float[][] mesh = new float[cellsX + 1][cellsY + 1];
+	private short[][] mesh = new short[cellsX + 1][cellsY + 1];
 
 	public WWMesh() {
 		for (int cy = 0; cy <= cellsY; cy++) {
 			for (int cx = 0; cx <= cellsX; cx++) {
-				mesh[cx][cy] = ((float) Math.random()) * 0.2f + 0.5f; // some randomness so it is obviously a mesh
+				mesh[cx][cy] = 5000; // TODO derive from old mesh
 			}
 		}
 	}
@@ -33,7 +33,7 @@ public class WWMesh extends WWObject {
 		super(sizeX, sizeY, sizeZ);
 		for (int cy = 0; cy <= cellsY; cy++) {
 			for (int cx = 0; cx <= cellsX; cx++) {
-				mesh[cx][cy] = ((float) Math.random()) * 0.2f + 0.5f; // some randomness so it is obviously a mesh
+				mesh[cx][cy] = 5000; // TODO derive from old mesh
 			}
 		}
 	}
@@ -62,26 +62,14 @@ public class WWMesh extends WWObject {
 		return cellsY;
 	}
 
-	public final float[][] getMesh() {
-		if (mesh == null) {
-			mesh = new float[cellsX + 1][cellsY + 1];
-			for (int cy = 0; cy <= cellsY; cy++) {
-				for (int cx = 0; cx <= cellsX; cx++) {
-					mesh[cx][cy] = ((float) Math.random()) * 0.2f + 0.5f; // some randomness so it is obviously a mesh
-				}
-			}
-		}
-		return mesh;
-	}
-
 	public final void setMeshSize(int cellsX, int cellsY) {
 		int oldCellsX = this.cellsX;
 		int oldCellsY = this.cellsY;
-		float[][] oldmesh = mesh;
-		mesh = new float[cellsX + 1][cellsY + 1];
+		short[][] oldmesh = mesh;
+		mesh = new short[cellsX + 1][cellsY + 1];
 		for (int cy = 0; cy <= cellsY; cy++) {
 			for (int cx = 0; cx <= cellsX; cx++) {
-				mesh[cx][cy] = 0.5f; // TODO derive from old mesh
+				mesh[cx][cy] = 5000; // TODO derive from old mesh
 			}
 		}
 		this.cellsX = cellsX;
@@ -94,7 +82,7 @@ public class WWMesh extends WWObject {
 	}
 
 	public final float getMeshPoint(int cx, int cy) {
-		return mesh[cx][cy];
+		return mesh[cx][cy] / 10000.0f;
 	}
 
 	/**
@@ -107,18 +95,18 @@ public class WWMesh extends WWObject {
 		} else if (value < 0.01f) {
 			value = 0.01f;
 		}
-		mesh[cx][cy] = value;
+		mesh[cx][cy] =  (short)(10000 * value);
 		updateRendering();
 	}
 
 	public final void raiseMeshPoint(int cx, int cy, float value) {
-		if (value > mesh[cx][cy]) {
+		if (value > getMeshPoint(cx, cy)) {
 			setMeshPoint(cx, cy, value);
 		}
 	}
 
 	public final void lowerMeshPoint(int cx, int cy, float value) {
-		if (value < mesh[cx][cy]) {
+		if (value < getMeshPoint(cx, cy)) {
 			setMeshPoint(cx, cy, value);
 		}
 	}
@@ -217,7 +205,7 @@ public class WWMesh extends WWObject {
 		os.writeInt(cellsY);
 		for (int cy = 0; cy <= cellsY; cy++) {
 			for (int cx = 0; cx <= cellsX; cx++) {
-				os.writeFloat(mesh[cx][cy]);
+				os.writeShort(mesh[cx][cy]);
 			}
 		}
 		super.send(os);
@@ -228,10 +216,10 @@ public class WWMesh extends WWObject {
 		baseShape = is.readInt();
 		cellsX = is.readInt();
 		cellsY = is.readInt();
-		mesh = new float[cellsX + 1][cellsY + 1];
+		mesh = new short[cellsX + 1][cellsY + 1];
 		for (int cy = 0; cy <= cellsY; cy++) {
 			for (int cx = 0; cx <= cellsX; cx++) {
-				mesh[cx][cy] = is.readFloat();
+				mesh[cx][cy] = is.readShort();
 			}
 		}
 		super.receive(is);
@@ -332,10 +320,10 @@ public class WWMesh extends WWObject {
 		// See http://mathinsight.org/distance_point_plane
 		// Note: Take into account the fact that rendering is using triangle strips. The quads in the mesh
 		// are actually specifying triangles.
-		float p1 = mesh[cellX][cellY];
-		float p2 = mesh[cellX + 1][cellY];
-		float p3 = mesh[cellX][cellY + 1];
-		float p4 = mesh[cellX + 1][cellY + 1];
+		float p1 = getMeshPoint(cellX, cellY);
+		float p2 = getMeshPoint(cellX + 1, cellY);
+		float p3 = getMeshPoint(cellX, cellY + 1);
+		float p4 = getMeshPoint(cellX + 1, cellY + 1);
 
 		// 1 - determine the normal (penetration == normal after this)
 		if (offsetX + offsetY < 1) {
@@ -405,10 +393,10 @@ public class WWMesh extends WWObject {
 		// See http://mathinsight.org/distance_point_plane
 		// Note: Take into account the fact that rendering is using triangle strips. The quads in the mesh
 		// are actually specifying triangles.
-		float p1 = mesh[cellX][cellY];
-		float p2 = mesh[cellX + 1][cellY];
-		float p3 = mesh[cellX][cellY + 1];
-		float p4 = mesh[cellX + 1][cellY + 1];
+		float p1 = getMeshPoint(cellX, cellY);
+		float p2 = getMeshPoint(cellX + 1, cellY);
+		float p3 = getMeshPoint(cellX, cellY + 1);
+		float p4 = getMeshPoint(cellX + 1, cellY + 1);
 
 		float value;
 		if (offsetX + offsetY < 1) { // the triangle using p3, p2, p1
