@@ -3,6 +3,7 @@ package com.gallantrealm.myworld.android.renderer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import android.opengl.GLES20;
@@ -13,7 +14,7 @@ import android.opengl.Matrix;
  */
 public final class GLSurface {
 
-	public static final int MAX_VERTICES = 65536; // limited in size by indices addressability (unsigned short)
+	public static final int MAX_VERTICES = 4194304;    // TODO -- consider making this an advanced settings
 	public static final int MAX_POINT_VERTICES = 1000;
 	private static boolean buffersAllocated;
 	private static FloatBuffer vertices;
@@ -23,7 +24,7 @@ public final class GLSurface {
 	private static ByteBuffer bitangents;
 	private static FloatBuffer textureCoords;
 	private static ShortBuffer extras;
-	private static ShortBuffer indices;
+	private static IntBuffer indices;
 	private static int nextFreeVertex = 0;
 	private static int nextFreeIndex = 0;
 
@@ -81,7 +82,7 @@ public final class GLSurface {
 
 			bb = ByteBuffer.allocateDirect(MAX_VERTICES * 2 * 2 * 3);
 			bb.order(ByteOrder.nativeOrder());
-			indices = bb.asShortBuffer();
+			indices = bb.asIntBuffer();
 
 			int[] bufferIds = new int[8];
 			GLES20.glGenBuffers(8, bufferIds, 0);
@@ -263,12 +264,12 @@ public final class GLSurface {
 		for (int y = 0; y < height - 1; y++) {
 			for (int x = 0; x < width - 1; x++) {
 				int vertex = baseVertex + (y * width + x);
-				indices.put(index++, (short) (vertex));
-				indices.put(index++, (short) (vertex + 1));
-				indices.put(index++, (short) (vertex + width));
-				indices.put(index++, (short) (vertex + 1));
-				indices.put(index++, (short) (vertex + width + 1));
-				indices.put(index++, (short) (vertex + width));
+				indices.put(index++, vertex);
+				indices.put(index++, vertex + 1);
+				indices.put(index++, vertex + width);
+				indices.put(index++, vertex + 1);
+				indices.put(index++, vertex + width + 1);
+				indices.put(index++, vertex + width);
 			}
 		}
 	}

@@ -213,7 +213,7 @@ public abstract class Shader {
 			GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
 			lastProgram = currentProgram;
 		}
-		GLES30.glDrawElements(GLES30.GL_TRIANGLES, nindices, GLES30.GL_UNSIGNED_SHORT, baseIndex * 2); // indices);
+		GLES30.glDrawElements(GLES30.GL_TRIANGLES, nindices, GLES30.GL_UNSIGNED_INT, baseIndex * 4); // indices);
 		// AndroidRenderer.checkGlError();
 	}
 
