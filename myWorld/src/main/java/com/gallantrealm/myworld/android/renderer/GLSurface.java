@@ -506,7 +506,7 @@ public final class GLSurface {
 		System.out.println("-indices");
 		indices.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
-		GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, nextFreeIndex * 2, indices, GLES20.GL_STATIC_DRAW);
+		GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, nextFreeIndex * 4, indices, GLES20.GL_STATIC_DRAW);
 
 //		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 //		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
