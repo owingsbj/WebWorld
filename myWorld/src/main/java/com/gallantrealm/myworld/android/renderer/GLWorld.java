@@ -39,7 +39,7 @@ public class GLWorld implements IRendering {
 		int lastObjectIndex = world.lastObjectIndex;
 		for (int i = 0; i <= lastObjectIndex; i++) {
 			WWObject object = objects[i];
-			if (object != null && object.rendering != null) {
+			if (object != null && object.renderit && object.rendering != null) {
 				((GLRendering) object.rendering).snap(worldTime);
 			}
 		}
@@ -63,7 +63,7 @@ public class GLWorld implements IRendering {
 		int largestGroup = 0;
 		for (int i = 0; i <= lastObjectIndex; i++) {
 			WWObject object = objects[i];
-			if (object != null && object.rendering != null) {
+			if (object != null && object.renderit && object.rendering != null) {
 				largestGroup = (object.group > largestGroup) ? object.group : largestGroup;
 				if (!drawnOnce || ((drawType == DRAW_TYPE_PICKING || object.group == 0))) { // && renderer.isVisible(adjustedCameraPosition, object, worldTime, temp))) {
 					if (!object.shadowless || drawType != DRAW_TYPE_SHADOW) {
@@ -83,7 +83,7 @@ public class GLWorld implements IRendering {
 					ArrayList<GLSurface> surfacesList = new ArrayList<GLSurface>();
 					for (int i = 0; i <= lastObjectIndex; i++) {
 						WWObject object = objects[i];
-						if (object != null && object.rendering != null && object.group == g) {
+						if (object != null && object.renderit && object.rendering != null && object.group == g) {
 							tokenObject = object;
 							GLSurface[] sides = ((GLObject) object.rendering).sides;
 							for (int s = 0; s < sides.length; s++) {
@@ -103,7 +103,7 @@ public class GLWorld implements IRendering {
 			}
 			for (int g = 0; g < largestGroup; g++) {
 				WWObject tokenObject = drawGroupsObject[g];
-				if (tokenObject != null && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency == 0) { // && tokenObject.renderit) {
+				if (tokenObject != null && tokenObject.renderit && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency == 0) { // && tokenObject.renderit) {
 					if (!tokenObject.shadowless || drawType != DRAW_TYPE_SHADOW) {
 						((GLObject) tokenObject.rendering).drawSurfaces(shader, drawGroups[g], viewMatrix, sunViewMatrix, worldTime, drawType, false);
 					}
@@ -119,7 +119,7 @@ public class GLWorld implements IRendering {
 			// draw translucent (non-groups)
 			for (int i = 0; i <= lastObjectIndex; i++) {
 				WWObject object = objects[i];
-				if (object != null && object.rendering != null && (object.group == 0 || !drawnOnce)) { // && renderer.isVisible(adjustedCameraPosition, object, worldTime, temp)) {
+				if (object != null && object.renderit && object.rendering != null && (object.group == 0 || !drawnOnce)) { // && renderer.isVisible(adjustedCameraPosition, object, worldTime, temp)) {
 					((GLRendering) object.rendering).draw(shader, viewMatrix, sunViewMatrix, worldTime, drawType, true);
 				}
 			}
@@ -128,7 +128,7 @@ public class GLWorld implements IRendering {
 			if (drawType != DRAW_TYPE_PICKING && drawnOnce) {
 				for (int g = 0; g < drawGroups.length; g++) {
 					WWObject tokenObject = drawGroupsObject[g];
-					if (tokenObject != null && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency > 0) { // && tokenObject.renderit) {
+					if (tokenObject != null && tokenObject.renderit && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency > 0) { // && tokenObject.renderit) {
 						sortSurfaces(drawGroups[g], viewMatrix);
 // ((GLObject) tokenObject.rendering).drawSurfaces(shader, drawGroups[g], viewMatrix, sunViewMatrix, worldTime, drawType, true);
 						GLSurface[] surface = new GLSurface[1];
@@ -144,7 +144,7 @@ public class GLWorld implements IRendering {
 			if (drawType != DRAW_TYPE_PICKING && drawnOnce) {
 				for (int i = 0; i <= lastObjectIndex; i++) {
 					WWObject object = objects[i];
-					if (object != null && object.rendering != null && object instanceof WWTranslucency && (object.group == 0 || !drawnOnce) && object.renderit) {
+					if (object != null && object.renderit && object.rendering != null && object instanceof WWTranslucency && (object.group == 0 || !drawnOnce) && object.renderit) {
 						// ((GLTranslucency) object.rendering).drawCurtain(shader, worldTime, viewMatrix, sunViewMatrix, drawType, true);
 					}
 				}
