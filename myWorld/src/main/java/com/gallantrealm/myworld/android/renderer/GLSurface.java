@@ -78,7 +78,7 @@ public final class GLSurface {
 			bb.order(ByteOrder.nativeOrder());
 			extras = bb.asShortBuffer();
 
-			bb = ByteBuffer.allocateDirect(MAX_VERTICES * 2 * 2 * 3);
+			bb = ByteBuffer.allocateDirect(MAX_VERTICES * 4 * 6);
 			bb.order(ByteOrder.nativeOrder());
 			indices = bb.asIntBuffer();
 
