@@ -14,7 +14,7 @@ import android.opengl.Matrix;
  */
 public final class GLSurface {
 
-	public static final int MAX_VERTICES = 4194304;    // TODO -- consider making this an advanced settings
+	public static final int MAX_VERTICES = 1000000;    // TODO -- consider making this an advanced settings
 	public static final int MAX_POINT_VERTICES = 1000;
 	private static boolean buffersAllocated;
 	private static FloatBuffer vertices;
@@ -36,18 +36,16 @@ public final class GLSurface {
 	private static int bitangentsBufferId;
 	private static int textureCoordsBufferId;
 	private static int indicesBufferId;
-	static boolean needsBufferBinding;
-	static AndroidRenderer renderer = ((AndroidRenderer) AndroidRenderer.androidRenderer);
-	
+
 	public float[] firstVertex = new float[4];
 	public float[] sortVec = new float[4];
-	
+
 	public boolean equals(Object o) {
 		return this.sortVec[2] == ((GLSurface)o).sortVec[2];
 	}
 
-	public static void initializeVertexBuffer() {
-		System.out.println("initializeVertexBuffer entered");
+	public static void initializeVertexBuffers() {
+		System.out.println(">GLSurface.initializeVertexBuffers");
 
 		if (!buffersAllocated) {
 			GLES20.glDeleteBuffers(6, new int[] { verticesBufferId, normalsBufferId, tangentsBufferId, bitangentsBufferId, textureCoordsBufferId, indicesBufferId }, 0);
@@ -97,8 +95,6 @@ public final class GLSurface {
 			buffersAllocated = true;
 		}
 
-		needsBufferBinding = true;
-
 		vertices.clear();
 		normals.clear();
 		tangents.clear();
@@ -107,19 +103,27 @@ public final class GLSurface {
 		indices.clear();
 		nextFreeVertex = 0;
 		nextFreeIndex = 0;
-		System.out.println("initializeVertexBuffer leaving");
+
+		bindBuffers();
+
+		System.out.println("<GLSurface.initializeVertexBuffers");
 	}
 
 	int width; // number of vertices wide
 	int height; // number of vertices high
 	int baseVertex;
+	int nvertices;
 	int baseIndex;
 	int nindices;
+	boolean needsBufferUpdating;
 
 	public GLSurface(int width, int height) {
+		if (!buffersAllocated) {
+			initializeVertexBuffers();;
+		}
 		this.width = width;
 		this.height = height;
-		int nvertices = width * height;
+		this.nvertices = width * height;
 		if (nextFreeVertex + nvertices >= MAX_VERTICES) {
 			System.err.println("No more free vertices!!!");
 			baseVertex = -1;
@@ -139,7 +143,7 @@ public final class GLSurface {
 	}
 
 	public int getVertexCount() {
-		return width * height;
+		return nvertices;
 	}
 
 	public void getVertex(int x, int y, Point3f point) {
@@ -189,6 +193,7 @@ public final class GLSurface {
 			firstVertex[1] = py;
 			firstVertex[2] = pz;
 		}
+		needsBufferUpdating = true;
 	}
 
 	public void getVertex(int vertex, Point3f point) {
@@ -214,6 +219,7 @@ public final class GLSurface {
 			firstVertex[1] = point.y;
 			firstVertex[2] = point.z;
 		}
+		needsBufferUpdating = true;
 	}
 
 	public void getNormal(int x, int y, Point3f normal) {
@@ -234,6 +240,7 @@ public final class GLSurface {
 		normals.put(vertex * 3, (byte) (normal.x * 127));
 		normals.put(vertex * 3 + 1, (byte) (normal.y * 127));
 		normals.put(vertex * 3 + 2, (byte) (normal.z * 127));
+		needsBufferUpdating = true;
 	}
 
 	public void setTangent(int x, int y, Point3f tangent) {  // the tangent to the normal
@@ -244,6 +251,7 @@ public final class GLSurface {
 		tangents.put(vertex * 3, (byte) (tangent.x * 127));
 		tangents.put(vertex * 3 + 1, (byte) (tangent.y * 127));
 		tangents.put(vertex * 3 + 2, (byte) (tangent.z * 127));
+		needsBufferUpdating = true;
 	}
 
 	public void setBitangent(int x, int y, Point3f bitangent) {  // another tangent to the normal, perpendicular to tangent
@@ -254,6 +262,7 @@ public final class GLSurface {
 		bitangents.put(vertex * 3, (byte) (bitangent.x * 127));
 		bitangents.put(vertex * 3 + 1, (byte) (bitangent.y * 127));
 		bitangents.put(vertex * 3 + 2, (byte) (bitangent.z * 127));
+		needsBufferUpdating = true;
 	}
 
 	public void generateIndices() {
@@ -272,6 +281,7 @@ public final class GLSurface {
 				indices.put(index++, vertex + width);
 			}
 		}
+		needsBufferUpdating = true;
 	}
 
 	/**
@@ -292,6 +302,7 @@ public final class GLSurface {
 				index++;
 			}
 		}
+		needsBufferUpdating = true;
 	}
 
 	/**
@@ -467,73 +478,113 @@ public final class GLSurface {
 	}
 
 	/**
-	 * Binds the buffers so that they will be able to be "sent" to the graphics chip.
+	 * Binds the buffers so that they will be able to be "sent" to the GPU.
 	 */
-	private static final void bindBuffers() {
-		System.out.println("binding buffers");
+	private static void bindBuffers() {
+		System.out.println("GLSurface.bindBuffers");
 
 		// the vertex coordinates
-		System.out.println("-vertices");
 		vertices.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, verticesBufferId);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, nextFreeVertex * 4 * 3, vertices, GLES20.GL_STATIC_DRAW);
+		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertices.capacity() * 4, vertices, GLES20.GL_DYNAMIC_DRAW);
+		checkGLError();
 
 		// the normal info
-		System.out.println("-normals");
 		normals.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, normalsBufferId);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, nextFreeVertex * 1 * 3, normals, GLES20.GL_STATIC_DRAW);
+		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, normals.capacity(), normals, GLES20.GL_DYNAMIC_DRAW);
+		checkGLError();
 
 		// the tangents info
-		System.out.println("-tangents");
 		tangents.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, tangentsBufferId);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, nextFreeVertex * 1 * 3, tangents, GLES20.GL_STATIC_DRAW);
+		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, tangents.capacity(), tangents, GLES20.GL_DYNAMIC_DRAW);
+		checkGLError();
 
 		// the bitangents info
-		System.out.println("-bitangents");
 		bitangents.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, bitangentsBufferId);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, nextFreeVertex * 1 * 3, bitangents, GLES20.GL_STATIC_DRAW);
+		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, bitangents.capacity(), bitangents, GLES20.GL_DYNAMIC_DRAW);
+		checkGLError();
 
 		// texture coordinates
-		System.out.println("-texture coords");
 		textureCoords.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, textureCoordsBufferId);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, nextFreeVertex * 4 * 2, textureCoords, GLES20.GL_STATIC_DRAW);
+		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, textureCoords.capacity() * 4, textureCoords, GLES20.GL_DYNAMIC_DRAW);
+		checkGLError();
 
 		// indices
-		System.out.println("-indices");
 		indices.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
-		GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, nextFreeIndex * 4, indices, GLES20.GL_STATIC_DRAW);
+		GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, indices.capacity() * 4, indices, GLES20.GL_DYNAMIC_DRAW);
+		checkGLError();
 
-//		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-//		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
-//
-//		GLES20.glFinish();
-//		int status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER);
-//		if (status != GLES20.GL_FRAMEBUFFER_COMPLETE) {
-//			throw new RuntimeException("Frame buffer not complete: " + status);
-//		}
-		
 		Shader.setBuffers(verticesBufferId, normalsBufferId, tangentsBufferId, bitangentsBufferId, textureCoordsBufferId, indicesBufferId, pointVerticesBufferId, pointVertices, extrasBufferId, extras);
+	}
 
-		needsBufferBinding = false;
-		System.out.println("binding buffers completed");
+	/**
+	 * Sends this surfaces buffer data to the GPU to update the rendering of this surface.
+	 */
+	private  void updateBuffers() {
+		System.out.println("GLSurface.updateBuffers");
+
+		// the vertex coordinates
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, verticesBufferId);
+		vertices.position(baseVertex * 3);
+		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 4 * 3 , nvertices * 4 * 3 , vertices);
+		checkGLError();
+
+		// the normal info
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, normalsBufferId);
+		normals.position(baseVertex * 3);
+		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 1 * 3, nvertices * 1 * 3, normals);
+		checkGLError();
+
+		// the tangents info
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, tangentsBufferId);
+		tangents.position(baseVertex * 3);
+		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 1 * 3, nvertices * 1 * 3, tangents);
+		checkGLError();
+
+		// the bitangents info
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, bitangentsBufferId);
+		bitangents.position(baseVertex * 3);
+		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 1 * 3, nvertices * 1 * 3, bitangents);
+		checkGLError();
+
+		// texture coordinates
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, textureCoordsBufferId);
+		textureCoords.position(baseVertex * 2);
+		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 4 * 2, nvertices * 4 * 2, textureCoords);
+		checkGLError();
+
+		// indices
+		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
+		indices.position(baseIndex);
+		GLES20.glBufferSubData(GLES20.GL_ELEMENT_ARRAY_BUFFER, baseIndex * 4, nindices * 4, indices);
+		checkGLError();
+
+		needsBufferUpdating = false;
+	}
+
+	private static void checkGLError() {
+		int error = GLES20.glGetError();
+		if (error != 0) {
+			System.out.println("-- GL Error "+error);
+		}
 	}
 
 	/**
 	 * Draws the surface
 	 */
-	public final void draw(Shader shader, int drawType, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, boolean fullBright, boolean alphaTest) {
+	public void draw(Shader shader, int drawType, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, boolean fullBright, boolean alphaTest) {
 
 		if (baseVertex < 0) { // overflow
 			return;
 		}
 
-		if (needsBufferBinding) {
-			bindBuffers();
+		if (needsBufferUpdating) {
+			updateBuffers();
 		}
 
 		// indices.position(baseIndex * 2);
@@ -545,9 +596,12 @@ public final class GLSurface {
 	 * This variant of the draw will draw a group of surfaces that are adjacent in the buffers. This can be used to reduce the number of GL calls that are made for drawing an object. The requirement however is that all of the surfaces have the same
 	 * texture parameters.
 	 */
-	public static final void drawMonolith(Shader shader, GLSurface[] surfaces, int drawType, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, boolean fullBright, boolean alphaTest) {
-		if (needsBufferBinding) {
-			bindBuffers();
+	public static void drawMonolith(Shader shader, GLSurface[] surfaces, int drawType, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, boolean fullBright, boolean alphaTest) {
+
+		for (int i = 0; i < surfaces.length; i++) {
+			if (surfaces[i] != null && surfaces[i].needsBufferUpdating) {
+				surfaces[i].updateBuffers();
+			}
 		}
 
 		int baseIndex = 10000000; // 32000;

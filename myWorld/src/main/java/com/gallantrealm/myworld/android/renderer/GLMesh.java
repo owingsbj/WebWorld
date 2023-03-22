@@ -136,8 +136,6 @@ public class GLMesh extends GLObject {
 			}
 		}
 		topGeometry.generateNormals();
-		topGeometry.needsBufferBinding = true;
-
 	}
 
 	private void createCylinderMesh(float sizeX, float sizeY, float sizeZ, int cellsX, int cellsY) {

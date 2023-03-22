@@ -158,7 +158,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	public static final boolean USE_DEPTH_SHADER = true;
 	public static HashMap<String, GLSurface[]> geometryCache = new HashMap();
 
-	public static boolean clearRenderings;
+	private static boolean clearRenderings;
 	public static long nrenders = 0;
 
 	public static void clearRenderings() {
@@ -1028,7 +1028,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				if ((nrenders % (333 / clientModel.getFrameRate())) == 0) {
 	
 					if (clearRenderings) {
-						System.out.println("clear renderings entered");
+						System.out.println("AndroidRenderer.preRender: clear renderings entered");
 	
 						// synchronized (world) {
 						WWObject[] objects = world.getObjects();
@@ -1043,7 +1043,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 						}
 						((GLWorld) world.getRendering()).drawnOnce = false;
 						geometryCache.clear();
-						GLSurface.initializeVertexBuffer();
+						GLSurface.initializeVertexBuffers();
 						((GLWorld) world.getRendering()).drawnOnce = false;
 						((GLWorld) world.getRendering()).drawGroups = null;
 						// textureCache.clear();
@@ -1051,7 +1051,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 						clearRenderings = false;
 						// }
 	
-						System.out.println("creating renderings for objects that are part of rendering groups");
+						System.out.println("AndroidRenderer.preRender: creating renderings for objects that are part of rendering groups");
 						// note this is needed to make sure the surfaces are adjacent in the vertex buffer
 						int largestGroup = 0;
 						for (int i = 0; i <= world.lastObjectIndex; i++) {
@@ -1069,7 +1069,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 							}
 						}
 	
-						System.out.println("clear renderings leave");
+						System.out.println("AndroidRenderer.preRender: clear renderings leave");
 					}
 	
 					WWObject[] objects = world.getObjects();
@@ -1104,6 +1104,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 								// If marked for rendering and a rendering doesn't exist, create it
 								// Create the rendering if not created
 								if (object.renderit && object.getRendering() == null) {
+									System.out.println("AndroidRenderer.prerender: creating rendering for "+object);
 									object.createRendering(this, time);
 
 									// If the new object is the user's avatar, set camera position on it
@@ -1124,11 +1125,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 									}
 								}
 
-								// If not marked for rendering and a rendering exists, delete it
-								if (object.renderit == false && object.getRendering() != null) {
-									object.dropRendering();
-								}
-	
 							}
 						} // object != null
 					} // for all objects

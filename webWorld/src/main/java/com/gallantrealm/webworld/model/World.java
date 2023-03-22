@@ -589,14 +589,12 @@ public class World extends WWWorld {
 	@Override
 	public int addObject(WWObject object) {
 		int id = super.addObject(object);
-		AndroidRenderer.clearRenderings();
 		return id;
 	}
 
 	public void removeObject(WWObject object) {
 		if (object != null) {
 			super.removeObject(object.getId());
-			AndroidRenderer.clearRenderings();
 			if (clientModel.getSelectedObject() == object) {
 				clientModel.setSelectedObject(null);
 			}
