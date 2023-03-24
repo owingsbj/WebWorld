@@ -116,7 +116,7 @@ public class GLTranslucency extends GLObject  {
 	}
 
 	@Override
-	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans) {
+	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans, boolean mini) {
 		if (drawType == DRAW_TYPE_PICKING  || drawType == DRAW_TYPE_SHADOW ) {
 			// can't pick or shadow translucencies
 			return;

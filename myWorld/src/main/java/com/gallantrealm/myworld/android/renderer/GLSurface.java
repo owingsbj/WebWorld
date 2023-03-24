@@ -115,6 +115,8 @@ public final class GLSurface {
 	int nvertices;
 	int baseIndex;
 	int nindices;
+	int baseIndexMini;
+	int nindicesMini;
 	boolean needsBufferUpdating;
 
 	public GLSurface(int width, int height) {
@@ -133,13 +135,16 @@ public final class GLSurface {
 		nextFreeVertex += nvertices;
 
 		nindices = (width - 1) * (height - 1) * 2 * 3;
+		nindicesMini = (width - 1) * (height - 1) * 2 * 3;   // can be optimized, but be careful
 
 		baseIndex = nextFreeIndex;
 		nextFreeIndex += nindices;
+		baseIndexMini = nextFreeIndex;
+		nextFreeIndex += nindicesMini;
 
 		generateTextureCoords();
 
-		generateIndices();
+		//generateIndices();
 	}
 
 	public int getVertexCount() {
@@ -194,6 +199,31 @@ public final class GLSurface {
 			firstVertex[2] = pz;
 		}
 		needsBufferUpdating = true;
+	}
+
+	private boolean independentVertices(int vertex1, int vertex2, int vertex3) {
+		int v1 = vertex1 * 3;
+		int v2 = vertex2 * 3;
+		int v3 = vertex3 * 3;
+		float v1x = vertices.get(v1);
+		float v1y = vertices.get(v1 + 1);
+		float v1z = vertices.get(v1 + 2);
+		float v2x = vertices.get(v2);
+		float v2y = vertices.get(v2 + 1);
+		float v2z = vertices.get(v2 + 2);
+		float v3x = vertices.get(v3);
+		float v3y = vertices.get(v3 + 1);
+		float v3z = vertices.get(v3 + 2);
+		if (v1x == v2x && v1y == v2y && v1z == v2z) {
+			return false;
+		}
+		if (v1x == v3x && v1y == v3y && v1z == v3z) {
+			return false;
+		}
+		if (v2x == v3x && v2y == v3y && v2z == v3z) {
+			return false;
+		}
+		return true;
 	}
 
 	public void getVertex(int vertex, Point3f point) {
@@ -269,18 +299,86 @@ public final class GLSurface {
 		if (baseVertex < 0) { // overflow
 			return;
 		}
+
+		// the full set of vertices
 		int index = baseIndex; // * 2 * 3;
 		for (int y = 0; y < height - 1; y++) {
 			for (int x = 0; x < width - 1; x++) {
 				int vertex = baseVertex + (y * width + x);
-				indices.put(index++, vertex);
-				indices.put(index++, vertex + 1);
-				indices.put(index++, vertex + width);
-				indices.put(index++, vertex + 1);
-				indices.put(index++, vertex + width + 1);
-				indices.put(index++, vertex + width);
+				if (independentVertices(vertex, vertex + 1, vertex + width)) {
+					indices.put(index++, vertex);
+					indices.put(index++, vertex + 1);
+					indices.put(index++, vertex + width);
+				}
+				if (independentVertices(vertex + 1, vertex + width + 1, vertex + width)) {
+					indices.put(index++, vertex + 1);
+					indices.put(index++, vertex + width + 1);
+					indices.put(index++, vertex + width);
+				}
 			}
 		}
+		nindices = index - baseIndex;
+
+		// the mini set of vertices (1/4 of the vertices, only if large enough)
+		index = baseIndexMini;
+		if (height <= 2) {
+			if (width <= 2) {
+				for (int i = 0; i < nindices; i++) {
+					indices.put(index++, indices.get(baseIndex + i));
+				}
+				nindicesMini = nindices;
+			} else {
+				for (int x = 0; x < width - 2; x+=2) {
+					int vertex = baseVertex + x;
+					if (independentVertices(vertex, vertex + 2, vertex + width)) {
+						indices.put(index++, vertex);
+						indices.put(index++, vertex + 2);
+						indices.put(index++, vertex + width);
+					}
+					if (independentVertices(vertex + 2, vertex + 2 + width, vertex + width)) {
+						indices.put(index++, vertex + 2);
+						indices.put(index++, vertex + 2 + width);
+						indices.put(index++, vertex + width);
+					}
+				}
+				nindicesMini = index - baseIndexMini;
+			}
+		} else {
+			if (width <= 2) {
+				for (int y = 0; y < height - 2; y += 2) {
+					int vertex = baseVertex + (y * width);
+					if (independentVertices(vertex, vertex + 1, vertex + 2 * width)) {
+						indices.put(index++, vertex);
+						indices.put(index++, vertex + 1);
+						indices.put(index++, vertex + 2 * width);
+					}
+					if (independentVertices(vertex + 1, vertex + 1 + 2 * width, vertex + 2 * width)) {
+						indices.put(index++, vertex + 1);
+						indices.put(index++, vertex + 1 + 2 * width);
+						indices.put(index++, vertex + 2 * width);
+					}
+				}
+				nindicesMini = index - baseIndexMini;
+			} else {
+				for (int y = 0; y < height - 2; y += 2) {
+					for (int x = 0; x < width - 2; x += 2) {
+						int vertex = baseVertex + (y * width + x);
+						if (independentVertices(vertex, vertex + 2, vertex + 2 * width)) {
+							indices.put(index++, vertex);
+							indices.put(index++, vertex + 2);
+							indices.put(index++, vertex + 2 * width);
+						}
+						if (independentVertices(vertex + 2, vertex + 2 + 2 * width, vertex + 2 * width)) {
+							indices.put(index++, vertex + 2);
+							indices.put(index++, vertex + 2 + 2 * width);
+							indices.put(index++, vertex + 2 * width);
+						}
+					}
+				}
+				nindicesMini = index - baseIndexMini;
+			}
+		}
+
 		needsBufferUpdating = true;
 	}
 
@@ -559,9 +657,14 @@ public final class GLSurface {
 		checkGLError();
 
 		// indices
+		generateIndices();   // to take advantage of removing any zero-area triangles
 		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
 		indices.position(baseIndex);
 		GLES20.glBufferSubData(GLES20.GL_ELEMENT_ARRAY_BUFFER, baseIndex * 4, nindices * 4, indices);
+		checkGLError();
+		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
+		indices.position(baseIndexMini);
+		GLES20.glBufferSubData(GLES20.GL_ELEMENT_ARRAY_BUFFER, baseIndexMini * 4, nindicesMini * 4, indices);
 		checkGLError();
 
 		needsBufferUpdating = false;
@@ -587,9 +690,23 @@ public final class GLSurface {
 			updateBuffers();
 		}
 
-		// indices.position(baseIndex * 2);
-		shader.drawTriangles((width - 1) * (height - 1) * 2 * 3, baseIndex, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
+		shader.drawTriangles(nindices, baseIndex, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
+	}
 
+	/**
+	 * Draws the surface with few vertices
+	 */
+	public void drawMini(Shader shader, int drawType, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, boolean fullBright, boolean alphaTest) {
+
+		if (baseVertex < 0) { // overflow
+			return;
+		}
+
+		if (needsBufferUpdating) {
+			updateBuffers();
+		}
+
+		shader.drawTriangles(nindicesMini, baseIndexMini, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
 	}
 
 	/**

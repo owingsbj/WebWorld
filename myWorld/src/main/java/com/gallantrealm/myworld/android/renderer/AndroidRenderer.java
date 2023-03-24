@@ -1091,14 +1091,21 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 								// If the object is within the rendering threshold (considering size), mark it for rendering
 								if (object.parentId == 0) {
-									if (avatarPosition.distanceFrom(object.getPosition()) / object.extent <= clientModel.world.getRenderingThreshold()) {
+									float renderDistance = avatarPosition.distanceFrom(object.getPosition());
+									if (renderDistance / object.extent <= clientModel.world.getRenderingThreshold()) {
 										object.renderit = true;
+										if (renderDistance / object.extent > clientModel.world.getRenderingThreshold() / 2) {
+											object.renderMini = true;
+										} else {
+											object.renderMini = false;
+										}
 									} else {
 										object.renderit = false;
 									}
 								} else {
 									WWObject parentObject = world.objects[object.parentId];
 									object.renderit = parentObject.renderit;    // assumes parent preceeds child in creation order
+									object.renderMini = parentObject.renderMini;
 								}
 
 								// If marked for rendering and a rendering doesn't exist, create it

@@ -202,7 +202,7 @@ public abstract class GLObject extends GLRendering {
 	}
 
 	@Override
-	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans) {
+	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans, boolean mini) {
 
 // Note: This optimization is disabled so that textures with transparent pixels are taken into account
 // when determining shadows.  This lets plants cast shadows.
@@ -370,7 +370,11 @@ public abstract class GLObject extends GLRendering {
 							}
 							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha);
+							if (mini) {
+								geometry.drawMini(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha);
+							} else {
+								geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha);
+							}
 						}
 					}
 				}

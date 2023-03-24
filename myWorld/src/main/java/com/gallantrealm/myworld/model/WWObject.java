@@ -83,8 +83,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	// Transient (rendering related) values
 	// Note: the Java3d rendering has a primitive within a transform group within a branch group.
 	public transient IRendering rendering;
-	public boolean renderit;
+	public transient boolean renderit;
 	public transient long lastRenderingTime;
+	public transient boolean renderMini;
 
 	public boolean alwaysRender;
 
