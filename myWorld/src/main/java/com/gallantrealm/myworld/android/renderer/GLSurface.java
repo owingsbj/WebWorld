@@ -9,6 +9,8 @@ import java.nio.ShortBuffer;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
+import com.gallantrealm.myworld.model.WWObject;
+
 /**
  * Encapsulates the creation of triangles for a surface and the normals and texture coordinates for it.
  */
@@ -117,6 +119,8 @@ public final class GLSurface {
 	int nindices;
 	int baseIndexMini;
 	int nindicesMini;
+	int baseIndexMicro;
+	int nindicesMicro;
 	boolean needsBufferUpdating;
 
 	public GLSurface(int width, int height) {
@@ -134,17 +138,9 @@ public final class GLSurface {
 		baseVertex = nextFreeVertex;
 		nextFreeVertex += nvertices;
 
-		nindices = (width - 1) * (height - 1) * 2 * 3;
-		nindicesMini = (width - 1) * (height - 1) * 2 * 3;   // can be optimized, but be careful
-
-		baseIndex = nextFreeIndex;
-		nextFreeIndex += nindices;
-		baseIndexMini = nextFreeIndex;
-		nextFreeIndex += nindicesMini;
-
 		generateTextureCoords();
 
-		//generateIndices();
+		generateIndices();
 	}
 
 	public int getVertexCount() {
@@ -199,31 +195,6 @@ public final class GLSurface {
 			firstVertex[2] = pz;
 		}
 		needsBufferUpdating = true;
-	}
-
-	private boolean independentVertices(int vertex1, int vertex2, int vertex3) {
-		int v1 = vertex1 * 3;
-		int v2 = vertex2 * 3;
-		int v3 = vertex3 * 3;
-		float v1x = vertices.get(v1);
-		float v1y = vertices.get(v1 + 1);
-		float v1z = vertices.get(v1 + 2);
-		float v2x = vertices.get(v2);
-		float v2y = vertices.get(v2 + 1);
-		float v2z = vertices.get(v2 + 2);
-		float v3x = vertices.get(v3);
-		float v3y = vertices.get(v3 + 1);
-		float v3z = vertices.get(v3 + 2);
-		if (v1x == v2x && v1y == v2y && v1z == v2z) {
-			return false;
-		}
-		if (v1x == v3x && v1y == v3y && v1z == v3z) {
-			return false;
-		}
-		if (v2x == v3x && v2y == v3y && v2z == v3z) {
-			return false;
-		}
-		return true;
 	}
 
 	public void getVertex(int vertex, Point3f point) {
@@ -295,91 +266,65 @@ public final class GLSurface {
 		needsBufferUpdating = true;
 	}
 
-	public void generateIndices() {
+	// only done once, at surface creation.  The index buffer is also updated.
+	private void generateIndices() {
 		if (baseVertex < 0) { // overflow
 			return;
 		}
 
 		// the full set of vertices
-		int index = baseIndex; // * 2 * 3;
+		baseIndex = nextFreeIndex;
 		for (int y = 0; y < height - 1; y++) {
 			for (int x = 0; x < width - 1; x++) {
 				int vertex = baseVertex + (y * width + x);
-				if (independentVertices(vertex, vertex + 1, vertex + width)) {
-					indices.put(index++, vertex);
-					indices.put(index++, vertex + 1);
-					indices.put(index++, vertex + width);
-				}
-				if (independentVertices(vertex + 1, vertex + width + 1, vertex + width)) {
-					indices.put(index++, vertex + 1);
-					indices.put(index++, vertex + width + 1);
-					indices.put(index++, vertex + width);
-				}
+				indices.put(nextFreeIndex++, vertex);
+				indices.put(nextFreeIndex++, vertex + 1);
+				indices.put(nextFreeIndex++, vertex + width);
+				indices.put(nextFreeIndex++, vertex + 1);
+				indices.put(nextFreeIndex++, vertex + width + 1);
+				indices.put(nextFreeIndex++, vertex + width);
 			}
 		}
-		nindices = index - baseIndex;
+		nindices = nextFreeIndex - baseIndex;
 
-		// the mini set of vertices (1/4 of the vertices, only if large enough)
-		index = baseIndexMini;
-		if (height <= 2) {
-			if (width <= 2) {
-				for (int i = 0; i < nindices; i++) {
-					indices.put(index++, indices.get(baseIndex + i));
-				}
-				nindicesMini = nindices;
-			} else {
-				for (int x = 0; x < width - 2; x+=2) {
-					int vertex = baseVertex + x;
-					if (independentVertices(vertex, vertex + 2, vertex + width)) {
-						indices.put(index++, vertex);
-						indices.put(index++, vertex + 2);
-						indices.put(index++, vertex + width);
-					}
-					if (independentVertices(vertex + 2, vertex + 2 + width, vertex + width)) {
-						indices.put(index++, vertex + 2);
-						indices.put(index++, vertex + 2 + width);
-						indices.put(index++, vertex + width);
-					}
-				}
-				nindicesMini = index - baseIndexMini;
-			}
-		} else {
-			if (width <= 2) {
-				for (int y = 0; y < height - 2; y += 2) {
-					int vertex = baseVertex + (y * width);
-					if (independentVertices(vertex, vertex + 1, vertex + 2 * width)) {
-						indices.put(index++, vertex);
-						indices.put(index++, vertex + 1);
-						indices.put(index++, vertex + 2 * width);
-					}
-					if (independentVertices(vertex + 1, vertex + 1 + 2 * width, vertex + 2 * width)) {
-						indices.put(index++, vertex + 1);
-						indices.put(index++, vertex + 1 + 2 * width);
-						indices.put(index++, vertex + 2 * width);
-					}
-				}
-				nindicesMini = index - baseIndexMini;
-			} else {
-				for (int y = 0; y < height - 2; y += 2) {
-					for (int x = 0; x < width - 2; x += 2) {
-						int vertex = baseVertex + (y * width + x);
-						if (independentVertices(vertex, vertex + 2, vertex + 2 * width)) {
-							indices.put(index++, vertex);
-							indices.put(index++, vertex + 2);
-							indices.put(index++, vertex + 2 * width);
-						}
-						if (independentVertices(vertex + 2, vertex + 2 + 2 * width, vertex + 2 * width)) {
-							indices.put(index++, vertex + 2);
-							indices.put(index++, vertex + 2 + 2 * width);
-							indices.put(index++, vertex + 2 * width);
-						}
-					}
-				}
-				nindicesMini = index - baseIndexMini;
+		// the mini set of vertices.  Divides the vertices into a 8x4 grid, which makes most things octahedral
+		baseIndexMini = nextFreeIndex;
+		int xInc = Math.max(width / 8, 1);
+		int yInc = Math.max(height / 4, 1);
+		for (int y = 0; y < height - yInc; y += yInc) {
+			for (int x = 0; x < width - xInc; x += xInc) {
+				int vertex = baseVertex + (y * width + x);
+				indices.put(nextFreeIndex++, vertex);
+				indices.put(nextFreeIndex++, vertex + xInc);
+				indices.put(nextFreeIndex++, vertex + yInc * width);
+				indices.put(nextFreeIndex++, vertex + xInc);
+				indices.put(nextFreeIndex++, vertex + xInc + yInc * width);
+				indices.put(nextFreeIndex++, vertex + yInc * width);
 			}
 		}
+		nindicesMini = nextFreeIndex - baseIndexMini;
 
-		needsBufferUpdating = true;
+		// the micro set of vertices.  Divides the vertices into a 4x2 grid, which makes most things cuboidal
+		baseIndexMicro = nextFreeIndex;
+		xInc = Math.max(width / 4, 1);
+		yInc = Math.max(height / 2, 1);
+		for (int y = 0; y < height - yInc; y += yInc) {
+			for (int x = 0; x < width - xInc; x += xInc) {
+				int vertex = baseVertex + (y * width + x);
+				indices.put(nextFreeIndex++, vertex);
+				indices.put(nextFreeIndex++, vertex + xInc);
+				indices.put(nextFreeIndex++, vertex + yInc * width);
+				indices.put(nextFreeIndex++, vertex + xInc);
+				indices.put(nextFreeIndex++, vertex + xInc + yInc * width);
+				indices.put(nextFreeIndex++, vertex + yInc * width);
+			}
+		}
+		nindicesMicro = nextFreeIndex - baseIndexMicro;
+
+		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
+		indices.position(baseIndex);
+		GLES20.glBufferSubData(GLES20.GL_ELEMENT_ARRAY_BUFFER, baseIndex * 4, (nextFreeIndex - baseIndex) * 4, indices);
+		checkGLError();
 	}
 
 	/**
@@ -656,16 +601,7 @@ public final class GLSurface {
 		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 4 * 2, nvertices * 4 * 2, textureCoords);
 		checkGLError();
 
-		// indices
-		generateIndices();   // to take advantage of removing any zero-area triangles
-		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
-		indices.position(baseIndex);
-		GLES20.glBufferSubData(GLES20.GL_ELEMENT_ARRAY_BUFFER, baseIndex * 4, nindices * 4, indices);
-		checkGLError();
-		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
-		indices.position(baseIndexMini);
-		GLES20.glBufferSubData(GLES20.GL_ELEMENT_ARRAY_BUFFER, baseIndexMini * 4, nindicesMini * 4, indices);
-		checkGLError();
+		// Note:  The indices buffer is independent of the vertex values so it doesn't need updating
 
 		needsBufferUpdating = false;
 	}
@@ -680,7 +616,7 @@ public final class GLSurface {
 	/**
 	 * Draws the surface
 	 */
-	public void draw(Shader shader, int drawType, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, boolean fullBright, boolean alphaTest) {
+	public void draw(Shader shader, int drawType, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, boolean fullBright, boolean alphaTest, int lod) {
 
 		if (baseVertex < 0) { // overflow
 			return;
@@ -690,57 +626,13 @@ public final class GLSurface {
 			updateBuffers();
 		}
 
-		shader.drawTriangles(nindices, baseIndex, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
-	}
-
-	/**
-	 * Draws the surface with few vertices
-	 */
-	public void drawMini(Shader shader, int drawType, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, boolean fullBright, boolean alphaTest) {
-
-		if (baseVertex < 0) { // overflow
-			return;
+		if (lod == WWObject.RENDER_LOD_FULL) {
+			shader.drawTriangles(nindices, baseIndex, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
+		} else if (lod == WWObject.RENDER_LOD_MINI) {
+			shader.drawTriangles(nindicesMini, baseIndexMini, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
+		} else if (lod == WWObject.RENDER_LOD_MICRO) {
+			shader.drawTriangles(nindicesMicro, baseIndexMicro, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
 		}
-
-		if (needsBufferUpdating) {
-			updateBuffers();
-		}
-
-		shader.drawTriangles(nindicesMini, baseIndexMini, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
-	}
-
-	/**
-	 * This variant of the draw will draw a group of surfaces that are adjacent in the buffers. This can be used to reduce the number of GL calls that are made for drawing an object. The requirement however is that all of the surfaces have the same
-	 * texture parameters.
-	 */
-	public static void drawMonolith(Shader shader, GLSurface[] surfaces, int drawType, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, boolean fullBright, boolean alphaTest) {
-
-		for (int i = 0; i < surfaces.length; i++) {
-			if (surfaces[i] != null && surfaces[i].needsBufferUpdating) {
-				surfaces[i].updateBuffers();
-			}
-		}
-
-		int baseIndex = 10000000; // 32000;
-		int nindices = 0;
-		int slen = surfaces.length;
-		for (int i = 0; i < slen; i++) {
-			GLSurface surface = surfaces[i];
-			if (surface != null) {
-				if (surface.baseVertex < 0) { // overflow
-					continue;
-				}
-				int newIndex = surface.baseIndex;
-				if (newIndex < baseIndex) {
-					baseIndex = newIndex;
-				}
-				nindices += (surface.width - 1) * (surface.height - 1) * 2 * 3;
-			}
-		}
-
-		// indices.position(baseIndex * 2);
-		shader.drawTriangles(nindices, baseIndex, modelMatrix, mvMatrix, sunMvMatrix,  textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
-
 	}
 
 }

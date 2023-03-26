@@ -67,7 +67,7 @@ public class GLWorld implements IRendering {
 				largestGroup = (object.group > largestGroup) ? object.group : largestGroup;
 				if (!drawnOnce || ((drawType == DRAW_TYPE_PICKING || object.group == 0))) { // && renderer.isVisible(adjustedCameraPosition, object, worldTime, temp))) {
 					if (!object.shadowless || drawType != DRAW_TYPE_SHADOW) {
-						((GLRendering) object.rendering).draw(shader, viewMatrix, sunViewMatrix, worldTime, drawType, false, object.renderMini);
+						((GLRendering) object.rendering).draw(shader, viewMatrix, sunViewMatrix, worldTime, drawType, false, object.renderLod);
 					}
 				}
 			}
@@ -120,7 +120,7 @@ public class GLWorld implements IRendering {
 			for (int i = 0; i <= lastObjectIndex; i++) {
 				WWObject object = objects[i];
 				if (object != null && object.renderit && object.rendering != null && (object.group == 0 || !drawnOnce)) { // && renderer.isVisible(adjustedCameraPosition, object, worldTime, temp)) {
-					((GLRendering) object.rendering).draw(shader, viewMatrix, sunViewMatrix, worldTime, drawType, true, false);
+					((GLRendering) object.rendering).draw(shader, viewMatrix, sunViewMatrix, worldTime, drawType, true, WWObject.RENDER_LOD_FULL);
 				}
 			}
 

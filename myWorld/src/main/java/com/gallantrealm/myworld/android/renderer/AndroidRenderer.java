@@ -17,7 +17,6 @@ import javax.microedition.khronos.opengles.GL10;
 import com.gallantrealm.android.HttpFileCache;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.android.AndroidClientModel;
-import com.gallantrealm.myworld.android.R;
 import com.gallantrealm.myworld.client.model.ClientModel;
 import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.client.renderer.IRendering;
@@ -1091,21 +1090,23 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 								// If the object is within the rendering threshold (considering size), mark it for rendering
 								if (object.parentId == 0) {
-									float renderDistance = avatarPosition.distanceFrom(object.getPosition());
-									if (renderDistance / object.extent <= clientModel.world.getRenderingThreshold()) {
-										object.renderit = true;
-										if (renderDistance / object.extent > clientModel.world.getRenderingThreshold() / 2) {
-											object.renderMini = true;
-										} else {
-											object.renderMini = false;
-										}
-									} else {
+									float renderDistance = lastDeterminedCameraPosition.distanceFrom(object.getPosition()) / object.extent;
+									if (renderDistance  > clientModel.world.getRenderingThreshold()) {
 										object.renderit = false;
+									} else {
+										object.renderit = true;
+										if (renderDistance > 100) {
+											object.renderLod = WWObject.RENDER_LOD_MICRO;
+										} else if (renderDistance > 50) {
+											object.renderLod = WWObject.RENDER_LOD_MINI;
+										} else {
+											object.renderLod = WWObject.RENDER_LOD_FULL;
+										}
 									}
 								} else {
 									WWObject parentObject = world.objects[object.parentId];
 									object.renderit = parentObject.renderit;    // assumes parent preceeds child in creation order
-									object.renderMini = parentObject.renderMini;
+									object.renderLod = parentObject.renderLod;
 								}
 
 								// If marked for rendering and a rendering doesn't exist, create it
@@ -1155,6 +1156,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	public final ISoundGenerator getSoundGenerator() {
 		return soundGenerator;
 	}
+
+	private WWVector lastDeterminedCameraPosition;
 
 	/**
 	 * Move the camera to the current camera position, pan, tilt and distance. This also dampens the camera movements, to make the shifting of the camera more obvious and natural.
@@ -1275,6 +1278,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					}
 				}
 			}
+			lastDeterminedCameraPosition = cameraLocation;
 		}
 		limitedCameraDistance = FastMath.max(clientModel.minCameraDistance, limitedCameraDistance);
 		lastLimitedCameraDistance = limitedCameraDistance;

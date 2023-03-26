@@ -202,7 +202,7 @@ public abstract class GLObject extends GLRendering {
 	}
 
 	@Override
-	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans, boolean mini) {
+	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans, int lod) {
 
 // Note: This optimization is disabled so that textures with transparent pixels are taken into account
 // when determining shadows.  This lets plants cast shadows.
@@ -233,7 +233,6 @@ public abstract class GLObject extends GLRendering {
 				// send to the shader
 				if (drawType == DRAW_TYPE_PICKING) {
 					float[] color = null;
-					float shininess = 0.0f;
 					int id = object.getId();
 					float red = (((id & 0xF00) >> 8) + 0.5f) / 16.0f;
 					float green = (((id & 0x00F0) >> 4) + 0.5f) / 16.0f;
@@ -251,14 +250,17 @@ public abstract class GLObject extends GLRendering {
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 						lastBumpTextureId = bumpTextureId;
 					}
-					GLSurface.drawMonolith(shader, sides, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, true, false);
+					for (int i = 0; i < sides.length; i++) {
+						if (sides[i] != null) {
+							sides[i].draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false, lod);
+						}
+					}
 				} else {
 					float[] color = null;
-					float shininess = 0.0f;
 					float red = sideAttributes.color.getRed();
 					float green = sideAttributes.color.getGreen();
 					float blue = sideAttributes.color.getBlue();
-					shininess = sideAttributes.shininess;
+					float shininess = sideAttributes.shininess;
 					if (drawType == DRAW_TYPE_LEFT_EYE) { // red side
 						red = (red * 3 + green + blue) / 5.0f;
 						green = 0;
@@ -291,7 +293,11 @@ public abstract class GLObject extends GLRendering {
 						lastBumpTextureId = bumpTextureId;
 					}
 					boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
-					GLSurface.drawMonolith(shader, sides, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha);
+					for (int i = 0; i < sides.length; i++) {
+						if (sides[i] != null) {
+							sides[i].draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, true, false, lod);
+						}
+					}
 				}
 			}
 
@@ -328,7 +334,7 @@ public abstract class GLObject extends GLRendering {
 						}
 						if (drawType == DRAW_TYPE_PICKING) { // || drawType == DRAW_TYPE_SHADOW) {
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false);
+							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false, WWObject.RENDER_LOD_FULL);
 						} else {
 
 							float red = sideAttributes.color.getRed();
@@ -370,11 +376,7 @@ public abstract class GLObject extends GLRendering {
 							}
 							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							if (mini) {
-								geometry.drawMini(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha);
-							} else {
-								geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha);
-							}
+							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
 						}
 					}
 				}
@@ -460,7 +462,11 @@ public abstract class GLObject extends GLRendering {
 			//	}
 
 				// Note: model is identity so mvMatrix == viewMatrix and sunMvMatrix == sunViewMatrix below
-				GLSurface.drawMonolith(shader, groupSurfaces, drawType, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha);
+				for (int i = 0; i < groupSurfaces.length; i++) {
+					if (groupSurfaces[i] != null) {
+						groupSurfaces[i].draw(shader, drawType, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, WWObject.RENDER_LOD_FULL);
+					}
+				}
 			}
 //		}
 

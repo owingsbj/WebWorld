@@ -116,7 +116,7 @@ public class GLTranslucency extends GLObject  {
 	}
 
 	@Override
-	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans, boolean mini) {
+	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans, int lod) {
 		if (drawType == DRAW_TYPE_PICKING  || drawType == DRAW_TYPE_SHADOW ) {
 			// can't pick or shadow translucencies
 			return;
@@ -180,7 +180,7 @@ public class GLTranslucency extends GLObject  {
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, cutoutMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha);
+							geometry.draw(shader, drawType, cutoutMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
 						}
 					}
 					
@@ -198,7 +198,7 @@ public class GLTranslucency extends GLObject  {
 							float blue = ((id & 0x00F) + 0.5f) / 16.0f;
 							float[] color = new float[] {red, green, blue, 1.0f};
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false);
+							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false, lod);
 						} else {
 							WWColor sideColor = sideAttributes.getColor();
 							float[] color;
@@ -232,7 +232,7 @@ public class GLTranslucency extends GLObject  {
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha);
+							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
 						}
 					}
 				}

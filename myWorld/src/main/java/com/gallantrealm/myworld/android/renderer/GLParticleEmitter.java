@@ -98,7 +98,7 @@ public class GLParticleEmitter extends GLObject {
 	float[] particleBuffer;
 
 	@Override
-	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans, boolean mini) {
+	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans, int lod) {
 		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
 			return;
 		}
@@ -125,7 +125,11 @@ public class GLParticleEmitter extends GLObject {
 				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 				lastBumpTextureId = bumpTextureId;
 			}
-			GLSurface.drawMonolith(shader, sides, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false);
+			for (int i = 0; i < sides.length; i++) {
+				if (sides[i] != null) {
+					sides[i].draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false, lod);
+				}
+			}
 			return;
 		}
 		if (emitter.particles == null || !emitter.animating) { // no particles yet

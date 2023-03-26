@@ -85,7 +85,10 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public transient IRendering rendering;
 	public transient boolean renderit;
 	public transient long lastRenderingTime;
-	public transient boolean renderMini;
+	public transient int renderLod;
+	public static final int RENDER_LOD_FULL = 0;
+	public static final int RENDER_LOD_MINI = 1;
+	public static final int RENDER_LOD_MICRO = 2;
 
 	public boolean alwaysRender;
 
