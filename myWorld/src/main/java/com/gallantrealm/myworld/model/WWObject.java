@@ -89,6 +89,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	public static final int RENDER_LOD_FULL = 0;
 	public static final int RENDER_LOD_MINI = 1;
 	public static final int RENDER_LOD_MICRO = 2;
+	public static final int RENDER_LOD_NANO = 3;
 
 	public boolean alwaysRender;
 

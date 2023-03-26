@@ -1025,10 +1025,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	
 				// Three times a second, check for changes to the rendering and render/derender objects
 				if ((nrenders % (333 / clientModel.getFrameRate())) == 0) {
-	
+
 					if (clearRenderings) {
 						System.out.println("AndroidRenderer.preRender: clear renderings entered");
-	
+
 						// synchronized (world) {
 						WWObject[] objects = world.getObjects();
 						for (int i = 0; i < objects.length; i++) {
@@ -1049,7 +1049,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 						nrenders = 0;
 						clearRenderings = false;
 						// }
-	
+
 						System.out.println("AndroidRenderer.preRender: creating renderings for objects that are part of rendering groups");
 						// note this is needed to make sure the surfaces are adjacent in the vertex buffer
 						int largestGroup = 0;
@@ -1067,77 +1067,79 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 								}
 							}
 						}
-	
+
 						System.out.println("AndroidRenderer.preRender: clear renderings leave");
 					}
-	
-					WWObject[] objects = world.getObjects();
-					for (int i = 0; i <= world.lastObjectIndex; i++) {
-						WWObject object = objects[i];
-						if (object != null) {
-	
-							// If the object is deleted
-							if (object.deleted) {
-	
-								// Delete the rendering if it exists
-								IRendering rendering = object.getRendering();
-								if (rendering != null) {
-									object.dropRendering();
-								}
-	
-								// Else the object is not deleted
-							} else {
-
-								// If the object is within the rendering threshold (considering size), mark it for rendering
-								if (object.parentId == 0) {
-									float renderDistance = lastDeterminedCameraPosition.distanceFrom(object.getPosition()) / object.extent;
-									if (renderDistance  > clientModel.world.getRenderingThreshold()) {
-										object.renderit = false;
-									} else {
-										object.renderit = true;
-										if (renderDistance > 100) {
-											object.renderLod = WWObject.RENDER_LOD_MICRO;
-										} else if (renderDistance > 50) {
-											object.renderLod = WWObject.RENDER_LOD_MINI;
-										} else {
-											object.renderLod = WWObject.RENDER_LOD_FULL;
-										}
-									}
-								} else {
-									WWObject parentObject = world.objects[object.parentId];
-									object.renderit = parentObject.renderit;    // assumes parent preceeds child in creation order
-									object.renderLod = parentObject.renderLod;
-								}
-
-								// If marked for rendering and a rendering doesn't exist, create it
-								// Create the rendering if not created
-								if (object.renderit && object.getRendering() == null) {
-									System.out.println("AndroidRenderer.prerender: creating rendering for "+object);
-									object.createRendering(this, time);
-
-									// If the new object is the user's avatar, set camera position on it
-									if (clientModel.getAvatar() == object) {
-										if (clientModel.getCameraObject() == null) {
-											clientModel.setCameraObject(object);
-										}
-										if (clientModel.getCameraObject() == object) {
-											if (clientModel.cameraInitiallyFacingAvatar) {
-												clientModel.setCameraPan(180);
-												clientModel.setCameraDistance(clientModel.initiallyFacingDistance);
-												clientModel.setCameraTilt(30.0f);
-											}
-										}
-										// clientModel.setCameraDistance(2.0f);
-										// clientModel.setCameraTilt(5.0f);
-										// clientModel.setCameraPan(0.0f);
-									}
-								}
-
-							}
-						} // object != null
-					} // for all objects
 				}
 	
+				WWObject[] objects = world.getObjects();
+				for (int i = 0; i <= world.lastObjectIndex; i++) {
+					WWObject object = objects[i];
+					if (object != null) {
+
+						// If the object is deleted
+						if (object.deleted) {
+
+							// Delete the rendering if it exists
+							IRendering rendering = object.getRendering();
+							if (rendering != null) {
+								object.dropRendering();
+							}
+
+							// Else the object is not deleted
+						} else {
+
+							// If the object is within the rendering threshold (considering size), mark it for rendering
+							if (object.parentId == 0) {
+								float renderDistance = lastDeterminedCameraPosition.distanceFrom(object.getPosition()) / object.extent;
+								if (renderDistance  > clientModel.world.getRenderingThreshold()) {
+									object.renderit = false;
+								} else {
+									object.renderit = true;
+									if (renderDistance > 100) {
+										object.renderLod = WWObject.RENDER_LOD_NANO;
+									} else if (renderDistance > 50) {
+										object.renderLod = WWObject.RENDER_LOD_MICRO;
+									} else if (renderDistance > 25) {
+										object.renderLod = WWObject.RENDER_LOD_MINI;
+									} else {
+										object.renderLod = WWObject.RENDER_LOD_FULL;
+									}
+								}
+							} else {
+								WWObject parentObject = world.objects[object.parentId];
+								object.renderit = parentObject.renderit;    // assumes parent preceeds child in creation order
+								object.renderLod = parentObject.renderLod;
+							}
+
+							// If marked for rendering and a rendering doesn't exist, create it
+							// Create the rendering if not created
+							if (object.renderit && object.getRendering() == null) {
+								System.out.println("AndroidRenderer.prerender: creating rendering for "+object);
+								object.createRendering(this, time);
+
+								// If the new object is the user's avatar, set camera position on it
+								if (clientModel.getAvatar() == object) {
+									if (clientModel.getCameraObject() == null) {
+										clientModel.setCameraObject(object);
+									}
+									if (clientModel.getCameraObject() == object) {
+										if (clientModel.cameraInitiallyFacingAvatar) {
+											clientModel.setCameraPan(180);
+											clientModel.setCameraDistance(clientModel.initiallyFacingDistance);
+											clientModel.setCameraTilt(30.0f);
+										}
+									}
+									// clientModel.setCameraDistance(2.0f);
+									// clientModel.setCameraTilt(5.0f);
+									// clientModel.setCameraPan(0.0f);
+								}
+							}
+
+						}
+					} // object != null
+				} // for all objects
+
 				nrenders++;
 	
 			}

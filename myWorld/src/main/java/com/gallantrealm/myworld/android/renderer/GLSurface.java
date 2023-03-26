@@ -121,6 +121,8 @@ public final class GLSurface {
 	int nindicesMini;
 	int baseIndexMicro;
 	int nindicesMicro;
+	int baseIndexNano;
+	int nindicesNano;
 	boolean needsBufferUpdating;
 
 	public GLSurface(int width, int height) {
@@ -287,10 +289,10 @@ public final class GLSurface {
 		}
 		nindices = nextFreeIndex - baseIndex;
 
-		// the mini set of vertices.  Divides the vertices into a 8x4 grid, which makes most things octahedral
+		// the mini set of vertices.  Divides the vertices into a 16x8 grid
 		baseIndexMini = nextFreeIndex;
-		int xInc = Math.max(width / 8, 1);
-		int yInc = Math.max(height / 4, 1);
+		int xInc = Math.max(width / 16, 1);
+		int yInc = Math.max(height / 8, 1);
 		for (int y = 0; y < height - yInc; y += yInc) {
 			for (int x = 0; x < width - xInc; x += xInc) {
 				int vertex = baseVertex + (y * width + x);
@@ -304,8 +306,25 @@ public final class GLSurface {
 		}
 		nindicesMini = nextFreeIndex - baseIndexMini;
 
-		// the micro set of vertices.  Divides the vertices into a 4x2 grid, which makes most things cuboidal
+		// the micro set of vertices.  Divides the vertices into a 8x4 grid, which makes most things cuboidal
 		baseIndexMicro = nextFreeIndex;
+		xInc = Math.max(width / 8, 1);
+		yInc = Math.max(height / 4, 1);
+		for (int y = 0; y < height - yInc; y += yInc) {
+			for (int x = 0; x < width - xInc; x += xInc) {
+				int vertex = baseVertex + (y * width + x);
+				indices.put(nextFreeIndex++, vertex);
+				indices.put(nextFreeIndex++, vertex + xInc);
+				indices.put(nextFreeIndex++, vertex + yInc * width);
+				indices.put(nextFreeIndex++, vertex + xInc);
+				indices.put(nextFreeIndex++, vertex + xInc + yInc * width);
+				indices.put(nextFreeIndex++, vertex + yInc * width);
+			}
+		}
+		nindicesMicro = nextFreeIndex - baseIndexMicro;
+
+		// the nano set of vertices.  Divides the vertices into a 4x2 grid, which makes most things cuboidal
+		baseIndexNano = nextFreeIndex;
 		xInc = Math.max(width / 4, 1);
 		yInc = Math.max(height / 2, 1);
 		for (int y = 0; y < height - yInc; y += yInc) {
@@ -319,7 +338,7 @@ public final class GLSurface {
 				indices.put(nextFreeIndex++, vertex + yInc * width);
 			}
 		}
-		nindicesMicro = nextFreeIndex - baseIndexMicro;
+		nindicesNano = nextFreeIndex - baseIndexNano;
 
 		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
 		indices.position(baseIndex);
@@ -632,6 +651,8 @@ public final class GLSurface {
 			shader.drawTriangles(nindicesMini, baseIndexMini, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
 		} else if (lod == WWObject.RENDER_LOD_MICRO) {
 			shader.drawTriangles(nindicesMicro, baseIndexMicro, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
+		} else if (lod == WWObject.RENDER_LOD_NANO) {
+			shader.drawTriangles(nindicesNano, baseIndexNano, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
 		}
 	}
 
