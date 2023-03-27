@@ -336,6 +336,7 @@ public class GLSimpleShape extends GLObject {
 					}
 				}
 			}
+			baseGeometry.generateTextureCoordsXZ(-1.0f, -1.0f);
 			adjustGeometry(baseGeometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			adjustTextureCoords(baseGeometry, WWObject.SIDE_BOTTOM);
 			baseGeometry.generateNormals();
