@@ -188,7 +188,7 @@ public abstract class Shader {
 			if (aPositionLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, verticesBufferId);
 				GLES30.glEnableVertexAttribArray(aPositionLocation);
-				GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 3 * 4, 0); // vertices);
+				GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_HALF_FLOAT, false, 3 * 2, 0); // vertices);
 			}
 			if (aNormalLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, normalsBufferId);
@@ -208,7 +208,7 @@ public abstract class Shader {
 			if (aTextureCoordLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, textureCoordsBufferId);
 				GLES30.glEnableVertexAttribArray(aTextureCoordLocation);
-				GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_FLOAT, false, 2 * 4, 0); // textureCoords);
+				GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_HALF_FLOAT, false, 2 * 2, 0); // textureCoords);
 			}
 			GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
 			lastProgram = currentProgram;
@@ -287,7 +287,7 @@ public abstract class Shader {
 		if (aPositionLocation >= 0) {
 			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, verticesBufferId);
 			GLES30.glEnableVertexAttribArray(aPositionLocation);
-			GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 3 * 4, 0); // vertices);
+			GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_HALF_FLOAT, false, 3 * 2, 0); // vertices);
 		}
 		if (aNormalLocation >= 0) {
 			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, normalsBufferId);
@@ -308,7 +308,7 @@ public abstract class Shader {
 			if (aTextureCoordLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, textureCoordsBufferId);
 				GLES30.glEnableVertexAttribArray(aTextureCoordLocation);
-				GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_FLOAT, false, 2 * 4, 0); // textureCoords);
+				GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_HALF_FLOAT, false, 2 * 2, 0); // textureCoords);
 			}
 			GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
 			lastProgram = currentProgram;

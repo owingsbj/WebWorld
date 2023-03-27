@@ -8,6 +8,7 @@ import java.nio.ShortBuffer;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.util.Half;
 
 import com.gallantrealm.myworld.model.WWObject;
 
@@ -19,12 +20,12 @@ public final class GLSurface {
 	public static final int MAX_VERTICES = 1000000;    // TODO -- consider making this an advanced settings
 	public static final int MAX_POINT_VERTICES = 1000;
 	private static boolean buffersAllocated;
-	private static FloatBuffer vertices;
+	private static ShortBuffer vertices;
 	private static FloatBuffer pointVertices;
 	private static ByteBuffer normals;
 	private static ByteBuffer tangents;
 	private static ByteBuffer bitangents;
-	private static FloatBuffer textureCoords;
+	private static ShortBuffer textureCoords;
 	private static ShortBuffer extras;
 	private static IntBuffer indices;
 	private static int nextFreeVertex = 0;
@@ -46,15 +47,23 @@ public final class GLSurface {
 		return this.sortVec[2] == ((GLSurface)o).sortVec[2];
 	}
 
+	public static float halfToFloat(short h) {
+		return (new Half(h)).floatValue();
+	}
+
+	public static short floatToHalf(float f) {
+		return (short)(Half.toHalf(f));
+	}
+
 	public static void initializeVertexBuffers() {
 		System.out.println(">GLSurface.initializeVertexBuffers");
 
 		if (!buffersAllocated) {
 			GLES20.glDeleteBuffers(6, new int[] { verticesBufferId, normalsBufferId, tangentsBufferId, bitangentsBufferId, textureCoordsBufferId, indicesBufferId }, 0);
 
-			ByteBuffer bb = ByteBuffer.allocateDirect(MAX_VERTICES * 4 * 3);
+			ByteBuffer bb = ByteBuffer.allocateDirect(MAX_VERTICES * 2 * 3);
 			bb.order(ByteOrder.nativeOrder());
-			vertices = bb.asFloatBuffer();
+			vertices = bb.asShortBuffer();
 
 			bb = ByteBuffer.allocateDirect(MAX_POINT_VERTICES * 4 * 3);
 			bb.order(ByteOrder.nativeOrder());
@@ -72,15 +81,15 @@ public final class GLSurface {
 			bb.order(ByteOrder.nativeOrder());
 			bitangents = bb;
 
-			bb = ByteBuffer.allocateDirect(MAX_VERTICES * 4 * 2);
+			bb = ByteBuffer.allocateDirect(MAX_VERTICES * 2 * 2);
 			bb.order(ByteOrder.nativeOrder());
-			textureCoords = bb.asFloatBuffer();
+			textureCoords = bb.asShortBuffer();
 
 			bb = ByteBuffer.allocateDirect(MAX_POINT_VERTICES * 2 * 2);
 			bb.order(ByteOrder.nativeOrder());
 			extras = bb.asShortBuffer();
 
-			bb = ByteBuffer.allocateDirect(MAX_VERTICES * 4 * 6);
+			bb = ByteBuffer.allocateDirect(MAX_VERTICES * 4 * 6 * 4);
 			bb.order(ByteOrder.nativeOrder());
 			indices = bb.asIntBuffer();
 
@@ -154,9 +163,9 @@ public final class GLSurface {
 			return;
 		}
 		int vertex = baseVertex + (y * width + x);
-		point.x = vertices.get(vertex * 3);
-		point.y = vertices.get(vertex * 3 + 1);
-		point.z = vertices.get(vertex * 3 + 2);
+		point.x = halfToFloat(vertices.get(vertex * 3));
+		point.y = halfToFloat(vertices.get(vertex * 3 + 1));
+		point.z = halfToFloat(vertices.get(vertex * 3 + 2));
 	}
 
 	public float getVertexX(int x, int y) {
@@ -164,7 +173,7 @@ public final class GLSurface {
 			return 0;
 		}
 		int vertex = baseVertex + (y * width + x);
-		return vertices.get(vertex * 3);
+		return halfToFloat(vertices.get(vertex * 3));
 	}
 
 	public float getVertexY(int x, int y) {
@@ -172,7 +181,7 @@ public final class GLSurface {
 			return 0;
 		}
 		int vertex = baseVertex + (y * width + x);
-		return vertices.get(vertex * 3 + 1);
+		return halfToFloat(vertices.get(vertex * 3 + 1));
 	}
 
 	public float getVertexZ(int x, int y) {
@@ -180,7 +189,7 @@ public final class GLSurface {
 			return 0;
 		}
 		int vertex = baseVertex + (y * width + x);
-		return vertices.get(vertex * 3 + 2);
+		return halfToFloat(vertices.get(vertex * 3 + 2));
 	}
 
 	public void setVertex(int x, int y, float px, float py, float pz) {
@@ -188,9 +197,9 @@ public final class GLSurface {
 			return;
 		}
 		int vertex = baseVertex + (y * width + x);
-		vertices.put(vertex * 3, px);
-		vertices.put(vertex * 3 + 1, py);
-		vertices.put(vertex * 3 + 2, pz);
+		vertices.put(vertex * 3, floatToHalf(px));
+		vertices.put(vertex * 3 + 1, floatToHalf(py));
+		vertices.put(vertex * 3 + 2, floatToHalf(pz));
 		if (vertex == baseVertex) {
 			firstVertex[0] = px;
 			firstVertex[1] = py;
@@ -204,9 +213,9 @@ public final class GLSurface {
 			return;
 		}
 		vertex += baseVertex;
-		point.x = vertices.get(vertex * 3);
-		point.y = vertices.get(vertex * 3 + 1);
-		point.z = vertices.get(vertex * 3 + 2);
+		point.x = halfToFloat(vertices.get(vertex * 3));
+		point.y = halfToFloat(vertices.get(vertex * 3 + 1));
+		point.z = halfToFloat(vertices.get(vertex * 3 + 2));
 	}
 
 	public void setVertex(int vertex, Point3f point) {
@@ -214,9 +223,9 @@ public final class GLSurface {
 			return;
 		}
 		vertex += baseVertex;
-		vertices.put(vertex * 3, point.x);
-		vertices.put(vertex * 3 + 1, point.y);
-		vertices.put(vertex * 3 + 2, point.z);
+		vertices.put(vertex * 3, floatToHalf(point.x));
+		vertices.put(vertex * 3 + 1, floatToHalf(point.y));
+		vertices.put(vertex * 3 + 2, floatToHalf(point.z));
 		if (vertex == baseVertex) {
 			firstVertex[0] = point.x;
 			firstVertex[1] = point.y;
@@ -359,8 +368,8 @@ public final class GLSurface {
 			float ycoord = 1.0f / (height - 1) * (height - y - 1) - 0.5f;
 			for (int x = 0; x < width; x++) {
 				float xcoord = 0.5f - 1.0f / (width - 1) * x;
-				textureCoords.put(index * 2, xcoord);
-				textureCoords.put(index * 2 + 1, ycoord);
+				textureCoords.put(index * 2, floatToHalf(xcoord));
+				textureCoords.put(index * 2 + 1, floatToHalf(ycoord));
 				index++;
 			}
 		}
@@ -377,8 +386,8 @@ public final class GLSurface {
 		int index = baseVertex;
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				textureCoords.put(index * 2, xScale * getVertexX(x, y));
-				textureCoords.put(index * 2 + 1, yScale * getVertexY(x, y));
+				textureCoords.put(index * 2, floatToHalf(xScale * getVertexX(x, y)));
+				textureCoords.put(index * 2 + 1, floatToHalf(yScale * getVertexY(x, y)));
 				index++;
 			}
 		}
@@ -394,8 +403,8 @@ public final class GLSurface {
 		int index = baseVertex;
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				textureCoords.put(index * 2, xScale * getVertexX(x, y));
-				textureCoords.put(index * 2 + 1, zScale * getVertexZ(x, y));
+				textureCoords.put(index * 2, floatToHalf(xScale * getVertexX(x, y)));
+				textureCoords.put(index * 2 + 1, floatToHalf(zScale * getVertexZ(x, y)));
 				index++;
 			}
 		}
@@ -411,8 +420,8 @@ public final class GLSurface {
 		int index = baseVertex;
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				textureCoords.put(index * 2, yScale * getVertexY(x, y));
-				textureCoords.put(index * 2 + 1, zScale * getVertexZ(x, y));
+				textureCoords.put(index * 2, floatToHalf(yScale * getVertexY(x, y)));
+				textureCoords.put(index * 2 + 1, floatToHalf(zScale * getVertexZ(x, y)));
 				index++;
 			}
 		}
@@ -427,8 +436,8 @@ public final class GLSurface {
 			return;
 		}
 		int vertex = baseVertex + (y * width + x);
-		textureCoords.put(vertex * 2, px);
-		textureCoords.put(vertex * 2 + 1, py);
+		textureCoords.put(vertex * 2, floatToHalf(px));
+		textureCoords.put(vertex * 2 + 1, floatToHalf(py));
 	}
 
 	public void adjustTextureCoords(float[] textureMatrix) {
@@ -447,8 +456,8 @@ public final class GLSurface {
 				xcoord = resultVec[0];
 				ycoord = resultVec[1];
 
-				textureCoords.put(index * 2, xcoord);
-				textureCoords.put(index * 2 + 1, ycoord);
+				textureCoords.put(index * 2, floatToHalf(xcoord));
+				textureCoords.put(index * 2 + 1, floatToHalf(ycoord));
 				index++;
 			}
 		}
@@ -548,7 +557,7 @@ public final class GLSurface {
 		// the vertex coordinates
 		vertices.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, verticesBufferId);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertices.capacity() * 4, vertices, GLES20.GL_DYNAMIC_DRAW);
+		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertices.capacity() * 2, vertices, GLES20.GL_DYNAMIC_DRAW);
 		checkGLError();
 
 		// the normal info
@@ -572,7 +581,7 @@ public final class GLSurface {
 		// texture coordinates
 		textureCoords.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, textureCoordsBufferId);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, textureCoords.capacity() * 4, textureCoords, GLES20.GL_DYNAMIC_DRAW);
+		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, textureCoords.capacity() * 2, textureCoords, GLES20.GL_DYNAMIC_DRAW);
 		checkGLError();
 
 		// indices
@@ -593,7 +602,7 @@ public final class GLSurface {
 		// the vertex coordinates
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, verticesBufferId);
 		vertices.position(baseVertex * 3);
-		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 4 * 3 , nvertices * 4 * 3 , vertices);
+		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 2 * 3 , nvertices * 2 * 3 , vertices);
 		checkGLError();
 
 		// the normal info
@@ -617,7 +626,7 @@ public final class GLSurface {
 		// texture coordinates
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, textureCoordsBufferId);
 		textureCoords.position(baseVertex * 2);
-		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 4 * 2, nvertices * 4 * 2, textureCoords);
+		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 2 * 2, nvertices * 2 * 2, textureCoords);
 		checkGLError();
 
 		// Note:  The indices buffer is independent of the vertex values so it doesn't need updating
