@@ -58,6 +58,11 @@ public class GLSimpleShape extends GLObject {
 		boolean roundedTop = object.isRoundedTop();
 		boolean roundedBottom = object.isRoundedBottom();
 
+		// to reduce the vertices used, quantize the sizes (by 1/100th)
+		sizeX = ((int)(sizeX * 100)) / 100.0f;
+		sizeY = ((int)(sizeY * 100)) / 100.0f;
+		sizeZ = ((int)(sizeZ * 100)) / 100.0f;
+
 		// optimize to share geometry
 		String geometryMapKey = null;
 		if (!object.fixed) {
