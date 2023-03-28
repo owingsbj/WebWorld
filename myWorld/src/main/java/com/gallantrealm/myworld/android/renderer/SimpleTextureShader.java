@@ -11,14 +11,14 @@ public class SimpleTextureShader extends Shader {
 			"\n" +
 			"uniform mat4 viewMatrix;\n" +
 			"uniform mat4 modelMatrix;\n" +
-			"uniform mat4 colorTextureMatrix;\n" +
+			"uniform mat4 textureMatrix;\n" +
 			"\n" +
 			"varying vec2 textureCoord;\n" +
 			"varying vec3 mNormal;\n" +
 			"\n" +
 			"void main() {\n" +
 			"	gl_Position = viewMatrix * modelMatrix * aPosition;\n" +
-			"	textureCoord = (colorTextureMatrix * vec4(aTextureCoord.x, aTextureCoord.y, 1.0, 1.0)).xy;\n" +
+			"	textureCoord = (textureMatrix * vec4(aTextureCoord.x, aTextureCoord.y, 1.0, 1.0)).xy;\n" +
 			"	mNormal = normalize((modelMatrix * vec4(aNormal, 0.0)).xyz);\n" +
 			"}";
 

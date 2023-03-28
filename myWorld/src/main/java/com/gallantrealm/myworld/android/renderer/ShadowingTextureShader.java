@@ -19,7 +19,7 @@ public class ShadowingTextureShader extends Shader {
 			"uniform mat4 modelMatrix;\n" + //
 			"uniform mat4 viewMatrix;\n" + //
 			"uniform mat4 sunViewMatrix;\n" + //
-			"uniform mat4 colorTextureMatrix;\n" + //
+			"uniform mat4 textureMatrix;\n" + //
 			"uniform vec3 viewPosition; \n" + //
 			"uniform bool pointDraw; \n" + //
 			"\n" + //
@@ -42,7 +42,7 @@ public class ShadowingTextureShader extends Shader {
 			"	mBitangent = normalize((modelMatrix * vec4(aBitangent, 0.0)).xyz);\n" + //
 			"	surfaceToCamera = normalize(viewPosition); \n" + //
 			"	surfaceToLight = normalize(sunPosition); \n" + //
-			"	textureCoord = (colorTextureMatrix * vec4(aTextureCoord.x, aTextureCoord.y, 1.0, 1.0)).xy;\n" + //
+			"	textureCoord = (textureMatrix * vec4(aTextureCoord.x, aTextureCoord.y, 1.0, 1.0)).xy;\n" + //
 			"	fogDepth = gl_Position.z;\n" + //
 			"	if (pointDraw) { \n" + // used for rendering particles
 			"		gl_PointSize = aTextureCoord.x * 10.0 / (1.0 + gl_Position.z); \n" + //

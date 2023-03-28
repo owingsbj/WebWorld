@@ -25,7 +25,7 @@ public abstract class Shader {
 	private int modelMatrixLocation = -1;
 	private int viewMatrixLocation = -1;
 	private int sunViewMatrixLocation = -1;
-	private int colorTextureMatrixLocation = -1;
+	private int textureMatrixLocation = -1;
 
 	private int colorTextureLocation = -1;
 	private int shadowMapTextureLocation = -1;
@@ -151,8 +151,8 @@ public abstract class Shader {
 		if (program != lastProgram) {
 			GLES30.glUseProgram(program);
 		}
-		if (colorTextureMatrixLocation >= 0) {
-			GLES30.glUniformMatrix4fv(colorTextureMatrixLocation, 1, false, textureMatrix, 0);
+		if (textureMatrixLocation >= 0) {
+			GLES30.glUniformMatrix4fv(textureMatrixLocation, 1, false, textureMatrix, 0);
 			// AndroidRenderer.checkGlError();
 		}
 		if (colorLocation >= 0) {
@@ -229,8 +229,8 @@ public abstract class Shader {
 			GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_SHORT, false, 2 * 2, 0); // textureCoords);
 		}
 
-		if (colorTextureMatrixLocation >= 0) {
-			GLES30.glUniformMatrix4fv(colorTextureMatrixLocation, 1, false, textureMatrix, 0);
+		if (textureMatrixLocation >= 0) {
+			GLES30.glUniformMatrix4fv(textureMatrixLocation, 1, false, textureMatrix, 0);
 			// AndroidRenderer.checkGlError();
 		}
 		if (colorLocation >= 0) {
@@ -319,7 +319,7 @@ public abstract class Shader {
 		viewMatrixLocation = GLES30.glGetUniformLocation(program, "viewMatrix");
 		sunViewMatrixLocation = GLES30.glGetUniformLocation(program, "sunViewMatrix");
 		viewPositionLocation = GLES30.glGetUniformLocation(program, "viewPosition");
-		colorTextureMatrixLocation = GLES30.glGetUniformLocation(program, "colorTextureMatrix");
+		textureMatrixLocation = GLES30.glGetUniformLocation(program, "textureMatrix");
 
 		colorLocation = GLES30.glGetUniformLocation(program, "color");
 		shininessLocation = GLES30.glGetUniformLocation(program, "shininess");
