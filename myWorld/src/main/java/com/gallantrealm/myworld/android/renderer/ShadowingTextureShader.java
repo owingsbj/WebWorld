@@ -16,10 +16,9 @@ public class ShadowingTextureShader extends Shader {
 			"uniform lowp vec4 sunColor;\n" + //
 			"uniform lowp float sunIntensity;\n" + //
 			"uniform lowp float ambientLightIntensity;\n" + //
-			"uniform mat4 mvMatrix;\n" + //
-			"uniform mat4 sunMvMatrix;\n" + //
 			"uniform mat4 modelMatrix;\n" + //
 			"uniform mat4 viewMatrix;\n" + //
+			"uniform mat4 sunViewMatrix;\n" + //
 			"uniform mat4 colorTextureMatrix;\n" + //
 			"uniform vec3 viewPosition; \n" + //
 			"uniform bool pointDraw; \n" + //
@@ -35,8 +34,8 @@ public class ShadowingTextureShader extends Shader {
 			"out float pointAlpha; \n" + //
 			"\n" + //
 			"void main() {\n" + //
-			"	gl_Position = mvMatrix * aPosition;\n" + //
-			"	shadowCoord = sunMvMatrix * aPosition; \n" + //
+			"	gl_Position = viewMatrix * modelMatrix * aPosition;\n" + //
+			"	shadowCoord = sunViewMatrix * modelMatrix * aPosition; \n" + //
 			"	shadowCoord = (shadowCoord / shadowCoord.w + 1.0) /2.0;\n" + //
 			"	mNormal = normalize((modelMatrix * vec4(aNormal, 0.0)).xyz);\n" + //
 			"	mTangent = normalize((modelMatrix * vec4(aTangent, 0.0)).xyz);\n" + //

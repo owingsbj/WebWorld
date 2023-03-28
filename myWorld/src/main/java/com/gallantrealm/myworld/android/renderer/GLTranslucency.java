@@ -116,7 +116,7 @@ public class GLTranslucency extends GLObject  {
 	}
 
 	@Override
-	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans, int lod) {
+	public void draw(Shader shader, float[] viewMatrix, long worldTime, int drawType, boolean drawtrans, int lod) {
 		if (drawType == DRAW_TYPE_PICKING  || drawType == DRAW_TYPE_SHADOW ) {
 			// can't pick or shadow translucencies
 			return;
@@ -128,8 +128,6 @@ public class GLTranslucency extends GLObject  {
 		WWVector position = new WWVector();
 		object.getAnimatedPosition(position, worldTime);
 		modelMatrix = getAnimatedModelMatrix(worldTime);
-		Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
 		for (int side = 0; side < WWObject.NSIDES; side++) {
 			if (sides[side] != null) {
 				SideAttributes sideAttributes = object.sideAttributes[side];
@@ -142,9 +140,7 @@ public class GLTranslucency extends GLObject  {
 						cameraPan += clientModel.getAvatar().getRotation().getYaw();
 					}
 					Matrix.rotateM(cutoutMatrix, 0, cameraPan, 0.0f, 1.0f, 0.0f);
-					Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, cutoutMatrix, 0);
-					Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, cutoutMatrix, 0);
-
+					shader.setModelMatrix(cutoutMatrix);
 					float trans = sideAttributes.transparency;
 					if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
 						if (drawType != DRAW_TYPE_PICKING) {
@@ -180,15 +176,12 @@ public class GLTranslucency extends GLObject  {
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, cutoutMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
+							geometry.draw(shader, drawType,  textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
 						}
 					}
 					
-					// Need to restore the mv and sunMv matrices as they were adjusted using cutoutMatrix above
-					Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-					Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
-					
 				} else {
+					shader.setModelMatrix(modelMatrix);
 					float trans = sideAttributes.transparency;
 					if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
 						if (drawType == DRAW_TYPE_PICKING) {
@@ -198,7 +191,7 @@ public class GLTranslucency extends GLObject  {
 							float blue = ((id & 0x00F) + 0.5f) / 16.0f;
 							float[] color = new float[] {red, green, blue, 1.0f};
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false, lod);
+							geometry.draw(shader, drawType, textureMatrix, color, 0.0f, true, false, lod);
 						} else {
 							WWColor sideColor = sideAttributes.getColor();
 							float[] color;
@@ -232,7 +225,7 @@ public class GLTranslucency extends GLObject  {
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
+							geometry.draw(shader, drawType, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
 						}
 					}
 				}

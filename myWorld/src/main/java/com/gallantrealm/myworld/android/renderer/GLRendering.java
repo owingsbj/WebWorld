@@ -6,7 +6,7 @@ public abstract class GLRendering implements IRendering {
 
 	public abstract void snap(long worldTime);
 	
-	public abstract void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean transparency, int lod);
+	public abstract void draw(Shader shader, float[] viewMatrix, long worldTime, int drawType, boolean transparency, int lod);
 
 	public abstract void updateRendering();
 }

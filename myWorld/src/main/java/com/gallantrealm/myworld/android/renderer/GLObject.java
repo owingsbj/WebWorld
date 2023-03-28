@@ -189,20 +189,8 @@ public abstract class GLObject extends GLRendering {
 		return animatedMatrix;
 	}
 
-	float[] mvMatrix = new float[16];
-	float[] sunMvMatrix = new float[16];
-	long sunMvMatrixTime = -1;
-
-	public final float[] getSunMvMatrix(long worldTime, float[] modelMatrix, float[] sunViewMatrix) {
-		if (worldTime != sunMvMatrixTime) {
-			Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
-			sunMvMatrixTime = worldTime;
-		}
-		return sunMvMatrix;
-	}
-
 	@Override
-	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans, int lod) {
+	public void draw(Shader shader, float[] viewMatrix, long worldTime, int drawType, boolean drawtrans, int lod) {
 
 // Note: This optimization is disabled so that textures with transparent pixels are taken into account
 // when determining shadows.  This lets plants cast shadows.
@@ -226,8 +214,7 @@ public abstract class GLObject extends GLRendering {
 			float trans = sideAttributes.transparency;
 			if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
 				float[] modelMatrix = getAnimatedModelMatrix(worldTime);
-				Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-				Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
+				shader.setModelMatrix(modelMatrix);
 				Matrix.setIdentityM(textureMatrix, 0);
 
 				// send to the shader
@@ -252,7 +239,7 @@ public abstract class GLObject extends GLRendering {
 					}
 					for (int i = 0; i < sides.length; i++) {
 						if (sides[i] != null) {
-							sides[i].draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false, lod);
+							sides[i].draw(shader, drawType, textureMatrix, color, 0.0f, true, false, lod);
 						}
 					}
 				} else {
@@ -295,7 +282,7 @@ public abstract class GLObject extends GLRendering {
 					boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 					for (int i = 0; i < sides.length; i++) {
 						if (sides[i] != null) {
-							sides[i].draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, true, false, lod);
+							sides[i].draw(shader, drawType, textureMatrix, color, shininess, true, false, lod);
 						}
 					}
 				}
@@ -307,9 +294,7 @@ public abstract class GLObject extends GLRendering {
 			boolean sideDrawn = false;
 
 			float[] modelMatrix = getAnimatedModelMatrix(worldTime);
-			Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-			Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
-
+			shader.setModelMatrix(modelMatrix);
 			float[] color = null;
 			float shininess = 0.0f;
 			for (int side = 0; side < WWObject.NSIDES; side++) {
@@ -334,7 +319,7 @@ public abstract class GLObject extends GLRendering {
 						}
 						if (drawType == DRAW_TYPE_PICKING) { // || drawType == DRAW_TYPE_SHADOW) {
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false, WWObject.RENDER_LOD_FULL);
+							geometry.draw(shader, drawType, textureMatrix, color, 0.0f, true, false, WWObject.RENDER_LOD_FULL);
 						} else {
 
 							float red = sideAttributes.color.getRed();
@@ -376,7 +361,7 @@ public abstract class GLObject extends GLRendering {
 							}
 							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
+							geometry.draw(shader, drawType, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
 						}
 					}
 				}
@@ -388,7 +373,7 @@ public abstract class GLObject extends GLRendering {
 	 * Draw a group of surfaces. The surfaces belong to this object and all objects in the same group, and were collected earlier using collectSurfaces. Since all surfaces have similar texture, the texture attributes are applied once for
 	 * all and a monolithic draw is done.
 	 */
-	public void drawSurfaces(Shader shader, GLSurface[] groupSurfaces, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans) {
+	public void drawSurfaces(Shader shader, GLSurface[] groupSurfaces, float[] viewMatrix, long worldTime, int drawType, boolean drawtrans) {
 
 // Note: This optimization is disabled so that textures with transparent pixels are taken into account
 // when determining shadows.  This lets plants cast shadows.
@@ -420,6 +405,7 @@ public abstract class GLObject extends GLRendering {
 			if ((drawtrans && trans > 0.0) || (!drawtrans && trans == 0.0)) {
 				// float[] modelMatrix = getModelMatrix(worldTime);
 				Matrix.setIdentityM(modelMatrix, 0);
+				shader.setModelMatrix(modelMatrix);
 				boolean hasAlpha = false;
 			//	if (drawType != DRAW_TYPE_SHADOW) {
 					Matrix.setIdentityM(textureMatrix, 0);
@@ -464,7 +450,7 @@ public abstract class GLObject extends GLRendering {
 				// Note: model is identity so mvMatrix == viewMatrix and sunMvMatrix == sunViewMatrix below
 				for (int i = 0; i < groupSurfaces.length; i++) {
 					if (groupSurfaces[i] != null) {
-						groupSurfaces[i].draw(shader, drawType, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, WWObject.RENDER_LOD_FULL);
+						groupSurfaces[i].draw(shader, drawType, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, WWObject.RENDER_LOD_FULL);
 					}
 				}
 			}

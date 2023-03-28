@@ -12,7 +12,7 @@ import android.opengl.GLES30;
 public abstract class Shader {
 
 	// programs, both non-alpha testing (faster) and alpha testing (slower)
-	private int program, alphaProgram;
+	private int program;
 
 	private int aPositionLocation = -1;
 	private int aNormalLocation = -1;
@@ -24,6 +24,7 @@ public abstract class Shader {
 	private int sunMvMatrixLocation = -1;
 	private int modelMatrixLocation = -1;
 	private int viewMatrixLocation = -1;
+	private int sunViewMatrixLocation = -1;
 	private int colorTextureMatrixLocation = -1;
 
 	private int colorTextureLocation = -1;
@@ -44,8 +45,6 @@ public abstract class Shader {
 
 	public final void setSunPosition(float x, float y, float z) {
 		if (sunPositionLocation >= 0) {
-			GLES30.glUseProgram(alphaProgram);
-			GLES30.glUniform3fv(sunPositionLocation, 1, new float[] { x, z, y }, 0);
 			GLES30.glUseProgram(program);
 			GLES30.glUniform3fv(sunPositionLocation, 1, new float[] { x, z, y }, 0);
 			lastProgram = -1;
@@ -54,8 +53,6 @@ public abstract class Shader {
 
 	public final void setViewPosition(float x, float y, float z) {
 		if (viewPositionLocation >= 0) {
-			GLES30.glUseProgram(alphaProgram);
-			GLES30.glUniform3fv(viewPositionLocation, 1, new float[] { x, z, y }, 0);
 			GLES30.glUseProgram(program);
 			GLES30.glUniform3fv(viewPositionLocation, 1, new float[] { x, z, y }, 0);
 			lastProgram = -1;
@@ -64,8 +61,6 @@ public abstract class Shader {
 
 	public final void setSunColor(float red, float green, float blue) {
 		if (sunColorLocation >= 0) {
-			GLES30.glUseProgram(alphaProgram);
-			GLES30.glUniform4fv(sunColorLocation, 1, new float[] { red, green, blue, 1.0f }, 0);
 			GLES30.glUseProgram(program);
 			GLES30.glUniform4fv(sunColorLocation, 1, new float[] { red, green, blue, 1.0f }, 0);
 			lastProgram = -1;
@@ -74,8 +69,6 @@ public abstract class Shader {
 
 	public final void setSunIntensity(float sunIntensity) {
 		if (sunIntensityLocation >= 0) {
-			GLES30.glUseProgram(alphaProgram);
-			GLES30.glUniform1f(sunIntensityLocation, sunIntensity);
 			GLES30.glUseProgram(program);
 			GLES30.glUniform1f(sunIntensityLocation, sunIntensity);
 			lastProgram = -1;
@@ -84,8 +77,6 @@ public abstract class Shader {
 
 	public final void setAmbientLightIntensity(float ambientLightIntensity) {
 		if (ambientLightIntensityLocation >= 0) {
-			GLES30.glUseProgram(alphaProgram);
-			GLES30.glUniform1f(ambientLightIntensityLocation, ambientLightIntensity);
 			GLES30.glUseProgram(program);
 			GLES30.glUniform1f(ambientLightIntensityLocation, ambientLightIntensity);
 			lastProgram = -1;
@@ -94,8 +85,6 @@ public abstract class Shader {
 
 	public final void setFogDensity(float fogDensity) {
 		if (fogDensityLocation >= 0) {
-			GLES30.glUseProgram(alphaProgram);
-			GLES30.glUniform1f(fogDensityLocation, fogDensity);
 			GLES30.glUseProgram(program);
 			GLES30.glUniform1f(fogDensityLocation, fogDensity);
 			lastProgram = -1;
@@ -104,10 +93,24 @@ public abstract class Shader {
 
 	public final void setViewMatrix(float[] viewMatrix) {
 		if (viewMatrixLocation >= 0) {
-			GLES30.glUseProgram(alphaProgram);
-			GLES30.glUniformMatrix4fv(viewMatrixLocation, 1, false, viewMatrix, 0);
 			GLES30.glUseProgram(program);
 			GLES30.glUniformMatrix4fv(viewMatrixLocation, 1, false, viewMatrix, 0);
+			lastProgram = -1;
+		}
+	}
+
+	public final void setSunViewMatrix(float[] sunViewMatrix) {
+		if (sunViewMatrixLocation >= 0) {
+			GLES30.glUseProgram(program);
+			GLES30.glUniformMatrix4fv(sunViewMatrixLocation, 1, false, sunViewMatrix, 0);
+			lastProgram = -1;
+		}
+	}
+
+	public final void setModelMatrix(float[] modelMatrix) {
+		if (modelMatrixLocation >= 0) {
+			GLES30.glUseProgram(program);
+			GLES30.glUniformMatrix4fv(modelMatrixLocation, 1, false, modelMatrix, 0);
 			lastProgram = -1;
 		}
 	}
@@ -144,27 +147,9 @@ public abstract class Shader {
 	 * @param nindices
 	 * @param baseIndex
 	 */
-	public final void drawTriangles(int nindices, int baseIndex, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, int fullBright, boolean alphaTest) {
-		int currentProgram;
-		if (alphaTest) {
-			currentProgram = alphaProgram;
-		} else {
-			currentProgram = program;
-		}
-		if (currentProgram != lastProgram) {
-			GLES30.glUseProgram(currentProgram);
-		}
-		if (modelMatrixLocation >= 0) {
-			GLES30.glUniformMatrix4fv(modelMatrixLocation, 1, false, modelMatrix, 0);
-			// AndroidRenderer.checkGlError();
-		}
-		if (mvMatrixLocation >= 0) {
-			GLES30.glUniformMatrix4fv(mvMatrixLocation, 1, false, mvMatrix, 0);
-			// AndroidRenderer.checkGlError();
-		}
-		if (sunMvMatrixLocation >= 0) {
-			GLES30.glUniformMatrix4fv(sunMvMatrixLocation, 1, false, sunMvMatrix, 0);
-			// AndroidRenderer.checkGlError();
+	public final void drawTriangles(int nindices, int baseIndex, float[] textureMatrix, float[] color, float shininess, int fullBright, boolean alphaTest) {
+		if (program != lastProgram) {
+			GLES30.glUseProgram(program);
 		}
 		if (colorTextureMatrixLocation >= 0) {
 			GLES30.glUniformMatrix4fv(colorTextureMatrixLocation, 1, false, textureMatrix, 0);
@@ -184,7 +169,7 @@ public abstract class Shader {
 			GLES30.glUniform1i(pointDrawLocation, 0);
 		}
 
-		if (currentProgram != lastProgram) { // need to rebind
+		if (program != lastProgram) { // need to rebind
 			if (aPositionLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, verticesBufferId);
 				GLES30.glEnableVertexAttribArray(aPositionLocation);
@@ -211,7 +196,7 @@ public abstract class Shader {
 				GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_HALF_FLOAT, false, 2 * 2, 0); // textureCoords);
 			}
 			GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
-			lastProgram = currentProgram;
+			lastProgram = program;
 		}
 		GLES30.glDrawElements(GLES30.GL_TRIANGLES, nindices, GLES30.GL_UNSIGNED_INT, baseIndex * 4); // indices);
 		// AndroidRenderer.checkGlError();
@@ -220,15 +205,9 @@ public abstract class Shader {
 	/**
 	 * Draw all points given the id's of the buffers containing vertex information.  This is used for particle emitters.
 	 */
-	public final void drawPoints(int nindices, float[] pointVertices, short[] extras, float[] modelMatrix, float[] mvMatrix, float[] sunMvMatrix, float[] textureMatrix, float[] color, float shininess, int fullBright, boolean alphaTest) {
-		int currentProgram;
-		if (alphaTest) {
-			currentProgram = alphaProgram;
-		} else {
-			currentProgram = program;
-		}
-		if (currentProgram != lastProgram) {
-			GLES30.glUseProgram(currentProgram);
+	public final void drawPoints(int nindices, float[] pointVertices, short[] extras, float[] textureMatrix, float[] color, float shininess, int fullBright, boolean alphaTest) {
+		if (program != lastProgram) {
+			GLES30.glUseProgram(program);
 		}
 		// use a unique vertex buffer since point data changes
 		if (aPositionLocation >= 0) {
@@ -250,18 +229,6 @@ public abstract class Shader {
 			GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_SHORT, false, 2 * 2, 0); // textureCoords);
 		}
 
-		if (modelMatrixLocation >= 0) {
-			GLES30.glUniformMatrix4fv(modelMatrixLocation, 1, false, modelMatrix, 0);
-			// AndroidRenderer.checkGlError();
-		}
-		if (mvMatrixLocation >= 0) {
-			GLES30.glUniformMatrix4fv(mvMatrixLocation, 1, false, mvMatrix, 0);
-			// AndroidRenderer.checkGlError();
-		}
-		if (sunMvMatrixLocation >= 0) {
-			GLES30.glUniformMatrix4fv(sunMvMatrixLocation, 1, false, sunMvMatrix, 0);
-			// AndroidRenderer.checkGlError();
-		}
 		if (colorTextureMatrixLocation >= 0) {
 			GLES30.glUniformMatrix4fv(colorTextureMatrixLocation, 1, false, textureMatrix, 0);
 			// AndroidRenderer.checkGlError();
@@ -294,7 +261,7 @@ public abstract class Shader {
 			GLES30.glEnableVertexAttribArray(aNormalLocation);
 			GLES30.glVertexAttribPointer(aNormalLocation, 3, GLES30.GL_BYTE, false, 3 * 1, 0); // normals);
 		}
-		if (currentProgram != lastProgram) {
+		if (program != lastProgram) {
 			if (aTangentLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, tangentsBufferId);
 				GLES30.glEnableVertexAttribArray(aTangentLocation);
@@ -311,7 +278,7 @@ public abstract class Shader {
 				GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_HALF_FLOAT, false, 2 * 2, 0); // textureCoords);
 			}
 			GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
-			lastProgram = currentProgram;
+			lastProgram = program;
 		}
 
 	}
@@ -330,8 +297,7 @@ public abstract class Shader {
 		System.out.println(">" + this.getClass().getSimpleName() + ".init");
 
 		// create the programs
-		program = createProgram(vs, fs);
-		alphaProgram = createProgram(vs, afs);
+		program = createProgram(vs, afs);
 
 		// get the locations of all shader vars (assumed same for program and alphaProgram)
 		System.out.println(this.getClass().getSimpleName() + ": getting locations of shader vars");
@@ -351,6 +317,7 @@ public abstract class Shader {
 		sunMvMatrixLocation = GLES30.glGetUniformLocation(program, "sunMvMatrix");
 		modelMatrixLocation = GLES30.glGetUniformLocation(program, "modelMatrix");
 		viewMatrixLocation = GLES30.glGetUniformLocation(program, "viewMatrix");
+		sunViewMatrixLocation = GLES30.glGetUniformLocation(program, "sunViewMatrix");
 		viewPositionLocation = GLES30.glGetUniformLocation(program, "viewPosition");
 		colorTextureMatrixLocation = GLES30.glGetUniformLocation(program, "colorTextureMatrix");
 
@@ -367,17 +334,6 @@ public abstract class Shader {
 		AndroidRenderer.ignoreGlError();
 
 		System.out.println(this.getClass().getSimpleName() + ": Mapping textures to shader vars");
-		GLES30.glUseProgram(alphaProgram);
-		AndroidRenderer.checkGlError();
-		GLES30.glUniform1i(colorTextureLocation, 0);
-		AndroidRenderer.checkGlError();
-		GLES30.glUniform1i(shadowMapTextureLocation, 1);
-		AndroidRenderer.checkGlError();
-		GLES30.glUniform1i(staticShadowMapTextureLocation, 2);
-		AndroidRenderer.checkGlError();
-		GLES30.glUniform1i(bumpMapTextureLocation, 3);
-		AndroidRenderer.checkGlError();
-
 		GLES30.glUseProgram(program);
 		AndroidRenderer.checkGlError();
 		GLES30.glUniform1i(colorTextureLocation, 0);

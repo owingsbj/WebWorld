@@ -12,13 +12,14 @@ public class DepthShader extends Shader {
 			"attribute vec4 aPosition; \n" +
 			"attribute vec2 aTextureCoord;\n" +
 			"\n" +
-			"uniform mat4 mvMatrix; \n" +
+			"uniform mat4 modelMatrix; \n" +
+			"uniform mat4 viewMatrix; \n" +
 			"uniform mat4 colorTextureMatrix;\n" +
 			"\n" +
 			"varying vec2 textureCoord;\n" +
 			"\n" +
 			"void main() { \n" +
-			"	gl_Position = mvMatrix * aPosition; \n" +
+			"	gl_Position = viewMatrix * modelMatrix * aPosition; \n" +
 			"	textureCoord = (colorTextureMatrix * vec4(aTextureCoord.x, aTextureCoord.y, 1.0, 1.0)).xy;\n" +
 			"}";
 	

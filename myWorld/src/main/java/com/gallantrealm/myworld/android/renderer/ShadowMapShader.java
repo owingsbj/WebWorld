@@ -10,14 +10,15 @@ public class ShadowMapShader extends Shader {
 				"in vec4 aPosition; \n" + //
 				"in lowp vec2 aTextureCoord;\n" +
 				"\n" + //
-				"uniform mat4 sunMvMatrix; \n" + //
+				"uniform mat4 modelMatrix; \n" + //
+				"uniform mat4 sunViewMatrix; \n" + //
 				"uniform vec3 viewPosition; \n" + //
 				"uniform mat4 colorTextureMatrix;\n" +
 				"\n" +
 				"out lowp vec2 textureCoord;\n" +
 				"\n" + //
 				"void main() { \n" + //
-				"	gl_Position = sunMvMatrix  * aPosition; \n" + //
+				"	gl_Position = sunViewMatrix * modelMatrix * aPosition; \n" + //
 				"	textureCoord = (colorTextureMatrix * vec4(aTextureCoord.x, aTextureCoord.y, 1.0, 1.0)).xy;\n" +
 				"} \n";
 		String fs = "" + //

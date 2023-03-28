@@ -881,7 +881,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					GLES20.glColorMask(true, false, false, true);
 	
 					// draw
-					worldRendering.draw(textureShader, viewMatrix, sunViewMatrix, time, GLWorld.DRAW_TYPE_LEFT_EYE);
+					worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_LEFT_EYE);
 	
 					// transform according to camera - right eye
 					dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
@@ -904,7 +904,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	
 					// draw again
 					GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
-					worldRendering.draw(textureShader, viewMatrix, sunViewMatrix, time, GLWorld.DRAW_TYPE_RIGHT_EYE);
+					worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_RIGHT_EYE);
 	
 					GLES20.glColorMask(true, true, true, true);
 	
@@ -928,16 +928,17 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					if (USE_DEPTH_SHADER) {
 						// Do a depth-only draw
 						GLES20.glColorMask(false, false, false, false);
-						worldRendering.draw(depthShader, viewMatrix, sunViewMatrix, time, GLWorld.DRAW_TYPE_SHADOW);
+						depthShader.setViewMatrix(viewMatrix);
+						worldRendering.draw(depthShader, viewMatrix, time, GLWorld.DRAW_TYPE_SHADOW);
 						// Followed by a full draw
 						GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 						GLES20.glColorMask(true, true, true, true);
 						GLES20.glDepthMask(false);
-						worldRendering.draw(textureShader, viewMatrix, sunViewMatrix, time, GLWorld.DRAW_TYPE_MONO);
+						worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_MONO);
 						GLES20.glDepthMask(true);
 						GLES20.glDepthFunc(GLES20.GL_LESS);
 					} else {
-						worldRendering.draw(textureShader, viewMatrix, sunViewMatrix, time, GLWorld.DRAW_TYPE_MONO);
+						worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_MONO);
 					}
 				}
 			} catch (Exception e) {
@@ -1455,13 +1456,15 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	
 		// modelviewprojection matrix
 		Matrix.multiplyMM(sunViewMatrix, 0, sunProjectionMatrix, 0, sunViewMatrix, 0);
+		shadowMapShader.setSunViewMatrix(sunViewMatrix);
+		textureShader.setSunViewMatrix(sunViewMatrix);
 	
 		GLES20.glColorMask(false, false, false, false); // no sense drawing colors
 	
 		// Draw the objects
 		if (clientModel.world != null) {
 			GLWorld worldRendering = (GLWorld) clientModel.world.getRendering();
-			worldRendering.draw(shadowMapShader, sunViewMatrix, sunViewMatrix, time, GLWorld.DRAW_TYPE_SHADOW);
+			worldRendering.draw(shadowMapShader, viewMatrix, time, GLWorld.DRAW_TYPE_SHADOW);
 		}
 	
 		// restore settings to what's needed for normal draw
@@ -1505,9 +1508,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
 		Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
 		Matrix.translateM(viewMatrix, 0, -x, -z, -y);
+		textureShader.setViewMatrix(viewMatrix);
 	
 		GLWorld worldRendering = (GLWorld) clientModel.world.getRendering();
-		worldRendering.draw(textureShader, viewMatrix, sunViewMatrix, time, GLWorld.DRAW_TYPE_PICKING);
+		worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_PICKING);
 		GLES20.glFlush();
 		GLES20.glFinish();
 	

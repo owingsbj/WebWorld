@@ -98,14 +98,13 @@ public class GLParticleEmitter extends GLObject {
 	float[] particleBuffer;
 
 	@Override
-	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType, boolean drawtrans, int lod) {
+	public void draw(Shader shader, float[] viewMatrix, long worldTime, int drawType, boolean drawtrans, int lod) {
 		if (drawType == DRAW_TYPE_SHADOW || shader instanceof DepthShader) {
 			return;
 		}
 		if (drawType == DRAW_TYPE_PICKING) {
 			float[] modelMatrix = getAnimatedModelMatrix(worldTime);
-			Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-			Matrix.multiplyMM(sunMvMatrix, 0, sunViewMatrix, 0, modelMatrix, 0);
+			shader.setModelMatrix(modelMatrix);
 			Matrix.setIdentityM(textureMatrix, 0);
 			float[] color = null;
 			int id = object.getId();
@@ -127,7 +126,7 @@ public class GLParticleEmitter extends GLObject {
 			}
 			for (int i = 0; i < sides.length; i++) {
 				if (sides[i] != null) {
-					sides[i].draw(shader, drawType, modelMatrix, mvMatrix, sunMvMatrix, textureMatrix, color, 0.0f, true, false, lod);
+					sides[i].draw(shader, drawType, textureMatrix, color, 0.0f, true, false, lod);
 				}
 			}
 			return;
@@ -193,9 +192,9 @@ public class GLParticleEmitter extends GLObject {
 		}
 		float[] modelMatrix = new float[16];
 		Matrix.setIdentityM(modelMatrix, 0);
-
+		shader.setModelMatrix(modelMatrix);
 		// draw points
-		shader.drawPoints(emitter.particleCount, vertices, extras, modelMatrix, viewMatrix, sunViewMatrix, textureMatrix, color, shininess, fullBright, true);
+		shader.drawPoints(emitter.particleCount, vertices, extras, textureMatrix, color, shininess, fullBright, true);
 	}
 
 	@Override

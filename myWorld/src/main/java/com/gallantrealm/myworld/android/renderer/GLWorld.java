@@ -50,7 +50,7 @@ public class GLWorld implements IRendering {
 	public GLSurface[][] drawGroups;
 	public WWObject[] drawGroupsObject;
 
-	public void draw(Shader shader, float[] viewMatrix, float[] sunViewMatrix, long worldTime, int drawType) {
+	public void draw(Shader shader, float[] viewMatrix, long worldTime, int drawType) {
 
 		// And all the objects
 		WWObject[] objects = world.objects;
@@ -67,7 +67,7 @@ public class GLWorld implements IRendering {
 				largestGroup = (object.group > largestGroup) ? object.group : largestGroup;
 				if (!drawnOnce || ((drawType == DRAW_TYPE_PICKING || object.group == 0))) { // && renderer.isVisible(adjustedCameraPosition, object, worldTime, temp))) {
 					if (!object.shadowless || drawType != DRAW_TYPE_SHADOW) {
-						((GLRendering) object.rendering).draw(shader, viewMatrix, sunViewMatrix, worldTime, drawType, false, object.renderLod);
+						((GLRendering) object.rendering).draw(shader, viewMatrix, worldTime, drawType, false, object.renderLod);
 					}
 				}
 			}
@@ -105,7 +105,7 @@ public class GLWorld implements IRendering {
 				WWObject tokenObject = drawGroupsObject[g];
 				if (tokenObject != null && tokenObject.renderit && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency == 0) { // && tokenObject.renderit) {
 					if (!tokenObject.shadowless || drawType != DRAW_TYPE_SHADOW) {
-						((GLObject) tokenObject.rendering).drawSurfaces(shader, drawGroups[g], viewMatrix, sunViewMatrix, worldTime, drawType, false);
+						((GLObject) tokenObject.rendering).drawSurfaces(shader, drawGroups[g], viewMatrix, worldTime, drawType, false);
 					}
 				}
 			}
@@ -120,7 +120,7 @@ public class GLWorld implements IRendering {
 			for (int i = 0; i <= lastObjectIndex; i++) {
 				WWObject object = objects[i];
 				if (object != null && object.renderit && object.rendering != null && (object.group == 0 || !drawnOnce)) { // && renderer.isVisible(adjustedCameraPosition, object, worldTime, temp)) {
-					((GLRendering) object.rendering).draw(shader, viewMatrix, sunViewMatrix, worldTime, drawType, true, WWObject.RENDER_LOD_FULL);
+					((GLRendering) object.rendering).draw(shader, viewMatrix, worldTime, drawType, true, WWObject.RENDER_LOD_FULL);
 				}
 			}
 
@@ -134,7 +134,7 @@ public class GLWorld implements IRendering {
 						GLSurface[] surface = new GLSurface[1];
 						for (int s = 0; s < drawGroups[g].length; s++) {
 							surface[0] = drawGroups[g][s];
-							((GLObject) tokenObject.rendering).drawSurfaces(shader, surface, viewMatrix, sunViewMatrix, worldTime, drawType, true);
+							((GLObject) tokenObject.rendering).drawSurfaces(shader, surface, viewMatrix, worldTime, drawType, true);
 						}
 					}
 				}
