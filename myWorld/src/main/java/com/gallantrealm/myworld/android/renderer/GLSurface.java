@@ -597,7 +597,6 @@ public final class GLSurface {
 	 * Sends this surfaces buffer data to the GPU to update the rendering of this surface.
 	 */
 	private  void updateBuffers() {
-		System.out.println("GLSurface.updateBuffers");
 
 		// the vertex coordinates
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, verticesBufferId);
