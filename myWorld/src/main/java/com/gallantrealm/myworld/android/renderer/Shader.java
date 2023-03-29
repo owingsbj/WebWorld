@@ -20,8 +20,6 @@ public abstract class Shader {
 	private int aBitangentLocation = -1;
 	private int aTextureCoordLocation = -1;
 
-	private int mvMatrixLocation = -1;
-	private int sunMvMatrixLocation = -1;
 	private int modelMatrixLocation = -1;
 	private int viewMatrixLocation = -1;
 	private int sunViewMatrixLocation = -1;
@@ -45,77 +43,96 @@ public abstract class Shader {
 
 	public final void setSunPosition(float x, float y, float z) {
 		if (sunPositionLocation >= 0) {
-			GLES30.glUseProgram(program);
+			if (program != lastProgram) {
+				GLES30.glUseProgram(program);
+				lastProgram = program;
+			}
 			GLES30.glUniform3fv(sunPositionLocation, 1, new float[] { x, z, y }, 0);
-			lastProgram = -1;
 		}
 	}
 
 	public final void setViewPosition(float x, float y, float z) {
 		if (viewPositionLocation >= 0) {
-			GLES30.glUseProgram(program);
+			if (program != lastProgram) {
+				GLES30.glUseProgram(program);
+				lastProgram = program;
+			}
 			GLES30.glUniform3fv(viewPositionLocation, 1, new float[] { x, z, y }, 0);
-			lastProgram = -1;
 		}
 	}
 
 	public final void setSunColor(float red, float green, float blue) {
 		if (sunColorLocation >= 0) {
-			GLES30.glUseProgram(program);
+			if (program != lastProgram) {
+				GLES30.glUseProgram(program);
+				lastProgram = program;
+			}
 			GLES30.glUniform4fv(sunColorLocation, 1, new float[] { red, green, blue, 1.0f }, 0);
-			lastProgram = -1;
 		}
 	}
 
 	public final void setSunIntensity(float sunIntensity) {
 		if (sunIntensityLocation >= 0) {
-			GLES30.glUseProgram(program);
+			if (program != lastProgram) {
+				GLES30.glUseProgram(program);
+				lastProgram = program;
+			}
 			GLES30.glUniform1f(sunIntensityLocation, sunIntensity);
-			lastProgram = -1;
 		}
 	}
 
 	public final void setAmbientLightIntensity(float ambientLightIntensity) {
 		if (ambientLightIntensityLocation >= 0) {
-			GLES30.glUseProgram(program);
+			if (program != lastProgram) {
+				GLES30.glUseProgram(program);
+				lastProgram = program;
+			}
 			GLES30.glUniform1f(ambientLightIntensityLocation, ambientLightIntensity);
-			lastProgram = -1;
 		}
 	}
 
 	public final void setFogDensity(float fogDensity) {
 		if (fogDensityLocation >= 0) {
-			GLES30.glUseProgram(program);
+			if (program != lastProgram) {
+				GLES30.glUseProgram(program);
+				lastProgram = program;
+			}
 			GLES30.glUniform1f(fogDensityLocation, fogDensity);
-			lastProgram = -1;
 		}
 	}
 
 	public final void setViewMatrix(float[] viewMatrix) {
 		if (viewMatrixLocation >= 0) {
-			GLES30.glUseProgram(program);
+			if (program != lastProgram) {
+				GLES30.glUseProgram(program);
+				lastProgram = program;
+			}
 			GLES30.glUniformMatrix4fv(viewMatrixLocation, 1, false, viewMatrix, 0);
-			lastProgram = -1;
 		}
 	}
 
 	public final void setSunViewMatrix(float[] sunViewMatrix) {
 		if (sunViewMatrixLocation >= 0) {
-			GLES30.glUseProgram(program);
+			if (program != lastProgram) {
+				GLES30.glUseProgram(program);
+				lastProgram = program;
+			}
 			GLES30.glUniformMatrix4fv(sunViewMatrixLocation, 1, false, sunViewMatrix, 0);
-			lastProgram = -1;
 		}
 	}
 
 	public final void setModelMatrix(float[] modelMatrix) {
 		if (modelMatrixLocation >= 0) {
-			GLES30.glUseProgram(program);
+			if (program != lastProgram) {
+				GLES30.glUseProgram(program);
+				lastProgram = program;
+			}
 			GLES30.glUniformMatrix4fv(modelMatrixLocation, 1, false, modelMatrix, 0);
-			lastProgram = -1;
 		}
 	}
 
 	static int lastProgram;
+	static int lastDrawProgram;
 	static int verticesBufferId;
 	static int normalsBufferId;
 	static int tangentsBufferId;
@@ -139,6 +156,7 @@ public abstract class Shader {
 		Shader.pointVerticesBuffer = pointVerticesBuffer;
 		Shader.extrasBufferId = extrasBufferId;
 		Shader.extrasBuffer = extrasBuffer;
+		lastDrawProgram = -1;
 	}
 
 	/**
@@ -150,6 +168,7 @@ public abstract class Shader {
 	public final void drawTriangles(int nindices, int baseIndex, float[] textureMatrix, float[] color, float shininess, int fullBright, boolean alphaTest) {
 		if (program != lastProgram) {
 			GLES30.glUseProgram(program);
+			lastProgram = program;
 		}
 		if (textureMatrixLocation >= 0) {
 			GLES30.glUniformMatrix4fv(textureMatrixLocation, 1, false, textureMatrix, 0);
@@ -165,11 +184,8 @@ public abstract class Shader {
 		if (fullBrightLocation >= 0) {
 			GLES30.glUniform1i(fullBrightLocation, fullBright);
 		}
-		if (pointDrawLocation >= 0) {
-			GLES30.glUniform1i(pointDrawLocation, 0);
-		}
 
-		if (program != lastProgram) { // need to rebind
+		if (program != lastDrawProgram) { // need to rebind
 			if (aPositionLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, verticesBufferId);
 				GLES30.glEnableVertexAttribArray(aPositionLocation);
@@ -196,7 +212,7 @@ public abstract class Shader {
 				GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_HALF_FLOAT, false, 2 * 2, 0); // textureCoords);
 			}
 			GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
-			lastProgram = program;
+			lastDrawProgram = program;
 		}
 		GLES30.glDrawElements(GLES30.GL_TRIANGLES, nindices, GLES30.GL_UNSIGNED_INT, baseIndex * 4); // indices);
 		// AndroidRenderer.checkGlError();
@@ -208,25 +224,7 @@ public abstract class Shader {
 	public final void drawPoints(int nindices, float[] pointVertices, short[] extras, float[] textureMatrix, float[] color, float shininess, int fullBright, boolean alphaTest) {
 		if (program != lastProgram) {
 			GLES30.glUseProgram(program);
-		}
-		// use a unique vertex buffer since point data changes
-		if (aPositionLocation >= 0) {
-			pointVerticesBuffer.clear();
-			pointVerticesBuffer.put(pointVertices);
-			pointVerticesBuffer.position(0);
-			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, pointVerticesBufferId);
-			GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, nindices * 4 * 3, pointVerticesBuffer, GLES30.GL_DYNAMIC_DRAW);
-			GLES30.glEnableVertexAttribArray(aPositionLocation);
-			GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 3 * 4, 0); // vertices);
-		}
-		if (aTextureCoordLocation >= 0) {
-			extrasBuffer.clear();
-			extrasBuffer.put(extras);
-			extrasBuffer.position(0);
-			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, extrasBufferId);
-			GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, nindices * 2 * 2, extrasBuffer, GLES30.GL_DYNAMIC_DRAW);
-			GLES30.glEnableVertexAttribArray(aTextureCoordLocation);
-			GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_SHORT, false, 2 * 2, 0); // textureCoords);
+			lastProgram = program;
 		}
 
 		if (textureMatrixLocation >= 0) {
@@ -247,6 +245,26 @@ public abstract class Shader {
 			GLES30.glUniform1i(pointDrawLocation, 1);
 		}
 
+		// use a unique vertex buffer since point data changes
+		if (aPositionLocation >= 0) {
+			pointVerticesBuffer.clear();
+			pointVerticesBuffer.put(pointVertices);
+			pointVerticesBuffer.position(0);
+			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, pointVerticesBufferId);
+			GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, nindices * 4 * 3, pointVerticesBuffer, GLES30.GL_DYNAMIC_DRAW);
+			GLES30.glEnableVertexAttribArray(aPositionLocation);
+			GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 3 * 4, 0); // vertices);
+		}
+		if (aTextureCoordLocation >= 0) {
+			extrasBuffer.clear();
+			extrasBuffer.put(extras);
+			extrasBuffer.position(0);
+			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, extrasBufferId);
+			GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, nindices * 2 * 2, extrasBuffer, GLES30.GL_DYNAMIC_DRAW);
+			GLES30.glEnableVertexAttribArray(aTextureCoordLocation);
+			GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_SHORT, false, 2 * 2, 0); // textureCoords);
+		}
+
 		GLES30.glDrawArrays(GLES30.GL_POINTS, 0, nindices);
 		// AndroidRenderer.checkGlError();
 
@@ -256,31 +274,15 @@ public abstract class Shader {
 			GLES30.glEnableVertexAttribArray(aPositionLocation);
 			GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_HALF_FLOAT, false, 3 * 2, 0); // vertices);
 		}
-		if (aNormalLocation >= 0) {
-			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, normalsBufferId);
-			GLES30.glEnableVertexAttribArray(aNormalLocation);
-			GLES30.glVertexAttribPointer(aNormalLocation, 3, GLES30.GL_BYTE, false, 3 * 1, 0); // normals);
-		}
-		if (program != lastProgram) {
-			if (aTangentLocation >= 0) {
-				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, tangentsBufferId);
-				GLES30.glEnableVertexAttribArray(aTangentLocation);
-				GLES30.glVertexAttribPointer(aTangentLocation, 3, GLES30.GL_BYTE, false, 3 * 1, 0); // tangents);
-			}
-			if (aBitangentLocation >= 0) {
-				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, bitangentsBufferId);
-				GLES30.glEnableVertexAttribArray(aBitangentLocation);
-				GLES30.glVertexAttribPointer(aBitangentLocation, 3, GLES30.GL_BYTE, false, 3 * 1, 0); // bitangents);
-			}
-			if (aTextureCoordLocation >= 0) {
-				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, textureCoordsBufferId);
-				GLES30.glEnableVertexAttribArray(aTextureCoordLocation);
-				GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_HALF_FLOAT, false, 2 * 2, 0); // textureCoords);
-			}
-			GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
-			lastProgram = program;
+		if (aTextureCoordLocation >= 0) {
+			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, textureCoordsBufferId);
+			GLES30.glEnableVertexAttribArray(aTextureCoordLocation);
+			GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_HALF_FLOAT, false, 2 * 2, 0); // textureCoords);
 		}
 
+		if (pointDrawLocation >= 0) {
+			GLES30.glUniform1i(pointDrawLocation, 0);
+		}
 	}
 
 	/**
@@ -313,8 +315,6 @@ public abstract class Shader {
 		sunIntensityLocation = GLES30.glGetUniformLocation(program, "sunIntensity");
 		ambientLightIntensityLocation = GLES30.glGetUniformLocation(program, "ambientLightIntensity");
 		fullBrightLocation = GLES30.glGetUniformLocation(program, "fullBright");
-		mvMatrixLocation = GLES30.glGetUniformLocation(program, "mvMatrix");
-		sunMvMatrixLocation = GLES30.glGetUniformLocation(program, "sunMvMatrix");
 		modelMatrixLocation = GLES30.glGetUniformLocation(program, "modelMatrix");
 		viewMatrixLocation = GLES30.glGetUniformLocation(program, "viewMatrix");
 		sunViewMatrixLocation = GLES30.glGetUniformLocation(program, "sunViewMatrix");
