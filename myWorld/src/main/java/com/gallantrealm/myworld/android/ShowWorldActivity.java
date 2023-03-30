@@ -193,12 +193,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			worldView.setEGLContextClientVersion(3);   // to use the shadowing shaders, requiring es3
 			System.out.println(" ShowWorldActivity.onCreate using OpenGL ES 3");
 		} catch (Exception e) {
-			System.out.println(" ShowWorldActivity.onCreate forcing simple rendering due to lack of OpenGL ES 3 support");
-			clientModel.setSimpleRendering(true);    // override to simple rendering
-		}
-		if (!clientModel.isSimpleRendering()) {
-			worldView.setEGLContextClientVersion(2);	// use the non-shadowing shaders, only requiring es2
-			System.out.println(" ShowWorldActivity.onCreate using OpenGL ES 2");
+			System.out.println(" ShowWorldActivity.onCreate failing due to lack of OpenGL ES 3 support");
 		}
 //		worldView.setEGLContextFactory(new MyWorldContextFactory());
 			// Note: setEGLConfigChooser fails on different systems, no matter what I do. So going with defaults (usually 8,8,8,16 but not necessarily)
