@@ -24,21 +24,6 @@ public class ShadowMapShader extends Shader {
 		String fs = "" + //
 				"#version 300 es\n" + //
 				"precision highp float; \n" + //
-				"\n" +
-				"uniform lowp sampler2D colorTexture; // the texture of the material\n" +
-				"\n" + //
-				"in lowp vec2 textureCoord; // the location on the texture\n" +
-				"\n" + //
-				"out vec4 fragColor; \n" + //
-				"\n" + //
-				"void main() { \n" + //
-				"	lowp vec4 textureColor = texture(colorTexture, textureCoord); \n" +
-				"	// note: above line shouldn't be needed but shader doesn't work right if it is removed\n" +
-				"	fragColor = vec4(1.0); // needed or linker errors sometimes \n" + //
-				"} \n";
-		String afs = "" + //
-				"#version 300 es\n" + //
-				"precision highp float; \n" + //
 				"\n" + //
 				"uniform lowp sampler2D colorTexture; // the texture of the material\n" +
 				"\n" + //
@@ -53,7 +38,7 @@ public class ShadowMapShader extends Shader {
 				"	} \n" +
 				"	fragColor = vec4(1.0); // needed or linker errors sometimes \n" + //
 				"} \n";
-		init(vs, fs, afs);
+		init(vs, fs);
 	}
 
 }

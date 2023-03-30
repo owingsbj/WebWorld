@@ -50,68 +50,7 @@ public class ShadowingTextureShader extends Shader {
 			"	} \n" + //
 			"}";
 	
-	public static final 		String fs = //
-			"#version 300 es\n" + //
-			"precision highp float; \n" + //
-			"\n" + //
-			"uniform lowp vec4 color; \n" + //
-			"uniform lowp sampler2D colorTexture; \n" + //
-			"uniform lowp vec4 sunColor;\n" + //
-			"uniform lowp float shininess; \n" + //
-			"uniform lowp float sunIntensity; \n" + //
-			"uniform bool fullBright; \n" + //
-			"uniform lowp float ambientLightIntensity; \n" + //
-			"uniform highp sampler2DShadow shadowMapTexture; \n" + //
-			"uniform vec3 sunPosition;\n" + //
-			"uniform vec3 viewPosition;\n" + //
-			"uniform lowp sampler2D bumpTexture; \n" + //
-			"uniform bool pointDraw; \n" + //
-			"\n" + //
-			"in lowp vec2 textureCoord; // the location on the texture \n" + //
-			"in lowp vec3 mNormal;\n" + //
-			"in lowp vec3 mTangent;\n" + //
-			"in lowp vec3 mBitangent;\n" + //
-			"in vec3 surfaceToCamera; \n" + //
-			"in vec3 surfaceToLight; \n" + //
-			"in highp vec4 shadowCoord; // location on the shadow map \n" + //
-			"in float pointAlpha; \n" + //
-			"\n" + //
-			"uniform lowp float fogDensity; \n" + //
-			"in float fogDepth; \n" + //
-			"\n" + //
-			"out vec4 fragColor; \n" + //
-			"\n" + //
-			"void main() { \n" + //
-			"	lowp vec4 textureColor = texture(colorTexture, textureCoord); \n" + //
-			"	if (pointDraw) { \n" + //
-			"		textureColor = texture(colorTexture, gl_PointCoord) * vec4(1.0, 1.0, 1.0, pointAlpha); \n" + //
-			"	} \n" + //
-			"	lowp float shadow = 1.0; \n" + //
-			" 	if (shadowCoord.x > 0.0 && shadowCoord.y > 0.0 && shadowCoord.x < 1.0 && shadowCoord.y < 1.0) { \n" + //
-			"		shadow = texture(shadowMapTexture, shadowCoord.xyz); \n" + //
-			"	} \n" + //
-			"	lowp float diffuseLightIntensity = 0.0; \n" + //
-			"	lowp float specularLightIntensity = 0.0; \n" + //
-			"	lowp float bumpReveal = 0.0;\n" + //
-			"	if (fullBright) { \n" + //
-			"		diffuseLightIntensity = 1.0; \n" + //
-			"	} else { \n" + //
-			"		lowp vec4 bump = (texture(bumpTexture, textureCoord) - 0.5) * 2.0; \n" + //
-			"		lowp vec3 bumpNormal = bump.r * mTangent + bump.g * mBitangent + bump.b * mNormal; \n" + //
-			"		diffuseLightIntensity = shadow * sunIntensity * max(0.0,dot(sunPosition, -bumpNormal));\n" + //
-			"		bumpReveal = min(0.0, shadow * dot(sunPosition, -bumpNormal) * 0.25 * ambientLightIntensity); \n" + //
-			"		lowp float specular = max(0.0, dot(surfaceToCamera, reflect(-surfaceToLight, bumpNormal))); \n" + //
-			"		specularLightIntensity = shadow * sunIntensity * clamp(pow(specular, 1.0 + 50.0* shininess) * 2.5 * shininess, 0.0, 1.0); \n" + //
-			"	} \n" + //
-			"	lowp float sValue = max(ambientLightIntensity+bumpReveal, diffuseLightIntensity); \n" + //
-			"	fragColor = sunColor * (specularLightIntensity * vec4(1.0) + color * textureColor * vec4(sValue, sValue, sValue, 1.0)); \n" + //
-			"	if (fogDensity > 0.0) { \n" + //
-			"		lowp float fog = clamp(exp(-fogDensity*fogDensity * abs(fogDepth) * abs(fogDepth) / 5000.0  ), 0.0, 1.0); \n" + //
-			"		fragColor = mix(vec4(1.0), fragColor, fog); \n" + //
-			"	} \n" + //
-			"}";
-
-	public static final 		String afs = 
+	public static final 		String fs =
 			"#version 300 es\n" + //
 			"precision highp float; \n" + //
 			"\n" + //
@@ -171,7 +110,7 @@ public class ShadowingTextureShader extends Shader {
 			"}";
 
 	public ShadowingTextureShader() {
-		init(vs, fs, afs);
+		init(vs, fs);
 	}
 	
 }
