@@ -285,16 +285,22 @@ public final class GLSurface {
 
 		// the full set of vertices
 		baseIndex = nextFreeIndex;
+		boolean newLine = false;
 		for (int y = 0; y < height - 1; y++) {
-			for (int x = 0; x < width - 1; x++) {
-				int vertex = baseVertex + (y * width + x);
-				indices.put(nextFreeIndex++, vertex);
-				indices.put(nextFreeIndex++, vertex + 1);
-				indices.put(nextFreeIndex++, vertex + width);
-				indices.put(nextFreeIndex++, vertex + 1);
-				indices.put(nextFreeIndex++, vertex + width + 1);
-				indices.put(nextFreeIndex++, vertex + width);
+			if (newLine) {  // add degenerate triangle
+				indices.put(nextFreeIndex, indices.get(nextFreeIndex-1));
+				nextFreeIndex++;
 			}
+			for (int x = 0; x < width; x++) {
+				int vertex = baseVertex + (y * width + x);
+				if (newLine) { // add degenerate triangle
+					indices.put(nextFreeIndex++, vertex + width);
+					newLine = false;
+				}
+				indices.put(nextFreeIndex++, vertex + width);
+				indices.put(nextFreeIndex++, vertex);
+			}
+			newLine = true;
 		}
 		nindices = nextFreeIndex - baseIndex;
 
@@ -302,16 +308,22 @@ public final class GLSurface {
 		baseIndexMini = nextFreeIndex;
 		int xInc = Math.max(width / 16, 1);
 		int yInc = Math.max(height / 8, 1);
+		newLine = false;
 		for (int y = 0; y < height - yInc; y += yInc) {
-			for (int x = 0; x < width - xInc; x += xInc) {
-				int vertex = baseVertex + (y * width + x);
-				indices.put(nextFreeIndex++, vertex);
-				indices.put(nextFreeIndex++, vertex + xInc);
-				indices.put(nextFreeIndex++, vertex + yInc * width);
-				indices.put(nextFreeIndex++, vertex + xInc);
-				indices.put(nextFreeIndex++, vertex + xInc + yInc * width);
-				indices.put(nextFreeIndex++, vertex + yInc * width);
+			if (newLine) {  // add degenerate triangle
+				indices.put(nextFreeIndex, indices.get(nextFreeIndex-1));
+				nextFreeIndex++;
 			}
+			for (int x = 0; x < width; x += xInc) {
+				int vertex = baseVertex + (y * width + x);
+				if (newLine) { // add degenerate triangle
+					indices.put(nextFreeIndex++, vertex + yInc * width);
+					newLine = false;
+				}
+				indices.put(nextFreeIndex++, vertex + yInc * width);
+				indices.put(nextFreeIndex++, vertex);
+			}
+			newLine = true;
 		}
 		nindicesMini = nextFreeIndex - baseIndexMini;
 
@@ -319,16 +331,22 @@ public final class GLSurface {
 		baseIndexMicro = nextFreeIndex;
 		xInc = Math.max(width / 8, 1);
 		yInc = Math.max(height / 4, 1);
+		newLine = false;
 		for (int y = 0; y < height - yInc; y += yInc) {
-			for (int x = 0; x < width - xInc; x += xInc) {
-				int vertex = baseVertex + (y * width + x);
-				indices.put(nextFreeIndex++, vertex);
-				indices.put(nextFreeIndex++, vertex + xInc);
-				indices.put(nextFreeIndex++, vertex + yInc * width);
-				indices.put(nextFreeIndex++, vertex + xInc);
-				indices.put(nextFreeIndex++, vertex + xInc + yInc * width);
-				indices.put(nextFreeIndex++, vertex + yInc * width);
+			if (newLine) {  // add degenerate triangle
+				indices.put(nextFreeIndex, indices.get(nextFreeIndex-1));
+				nextFreeIndex++;
 			}
+			for (int x = 0; x < width; x += xInc) {
+				int vertex = baseVertex + (y * width + x);
+				if (newLine) { // add degenerate triangle
+					indices.put(nextFreeIndex++, vertex + yInc * width);
+					newLine = false;
+				}
+				indices.put(nextFreeIndex++, vertex + yInc * width);
+				indices.put(nextFreeIndex++, vertex);
+			}
+			newLine = true;
 		}
 		nindicesMicro = nextFreeIndex - baseIndexMicro;
 
@@ -336,23 +354,29 @@ public final class GLSurface {
 		baseIndexNano = nextFreeIndex;
 		xInc = Math.max(width / 4, 1);
 		yInc = Math.max(height / 2, 1);
+		newLine = false;
 		for (int y = 0; y < height - yInc; y += yInc) {
-			for (int x = 0; x < width - xInc; x += xInc) {
-				int vertex = baseVertex + (y * width + x);
-				indices.put(nextFreeIndex++, vertex);
-				indices.put(nextFreeIndex++, vertex + xInc);
-				indices.put(nextFreeIndex++, vertex + yInc * width);
-				indices.put(nextFreeIndex++, vertex + xInc);
-				indices.put(nextFreeIndex++, vertex + xInc + yInc * width);
-				indices.put(nextFreeIndex++, vertex + yInc * width);
+			if (newLine) {  // add degenerate triangle
+				indices.put(nextFreeIndex, indices.get(nextFreeIndex-1));
+				nextFreeIndex++;
 			}
+			for (int x = 0; x < width; x += xInc) {
+				int vertex = baseVertex + (y * width + x);
+				if (newLine) { // add degenerate triangle
+					indices.put(nextFreeIndex++, vertex + yInc * width);
+					newLine = false;
+				}
+				indices.put(nextFreeIndex++, vertex + yInc * width);
+				indices.put(nextFreeIndex++, vertex);
+			}
+			newLine = true;
 		}
 		nindicesNano = nextFreeIndex - baseIndexNano;
 
 		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
 		indices.position(baseIndex);
 		GLES20.glBufferSubData(GLES20.GL_ELEMENT_ARRAY_BUFFER, baseIndex * 4, (nextFreeIndex - baseIndex) * 4, indices);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 	}
 
 	/**
@@ -553,42 +577,43 @@ public final class GLSurface {
 	 */
 	private static void bindBuffers() {
 		System.out.println("GLSurface.bindBuffers");
+		AndroidRenderer.ignoreGlError();
 
 		// the vertex coordinates
 		vertices.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, verticesBufferId);
 		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertices.capacity() * 2, vertices, GLES20.GL_DYNAMIC_DRAW);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 
 		// the normal info
 		normals.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, normalsBufferId);
 		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, normals.capacity(), normals, GLES20.GL_DYNAMIC_DRAW);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 
 		// the tangents info
 		tangents.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, tangentsBufferId);
 		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, tangents.capacity(), tangents, GLES20.GL_DYNAMIC_DRAW);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 
 		// the bitangents info
 		bitangents.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, bitangentsBufferId);
 		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, bitangents.capacity(), bitangents, GLES20.GL_DYNAMIC_DRAW);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 
 		// texture coordinates
 		textureCoords.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, textureCoordsBufferId);
 		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, textureCoords.capacity() * 2, textureCoords, GLES20.GL_DYNAMIC_DRAW);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 
 		// indices
 		indices.position(0);
 		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
 		GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, indices.capacity() * 4, indices, GLES20.GL_DYNAMIC_DRAW);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 
 		Shader.setBuffers(verticesBufferId, normalsBufferId, tangentsBufferId, bitangentsBufferId, textureCoordsBufferId, indicesBufferId, pointVerticesBufferId, pointVertices, extrasBufferId, extras);
 	}
@@ -597,47 +622,41 @@ public final class GLSurface {
 	 * Sends this surfaces buffer data to the GPU to update the rendering of this surface.
 	 */
 	private  void updateBuffers() {
+		AndroidRenderer.ignoreGlError();
 
 		// the vertex coordinates
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, verticesBufferId);
 		vertices.position(baseVertex * 3);
 		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 2 * 3 , nvertices * 2 * 3 , vertices);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 
 		// the normal info
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, normalsBufferId);
 		normals.position(baseVertex * 3);
 		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 1 * 3, nvertices * 1 * 3, normals);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 
 		// the tangents info
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, tangentsBufferId);
 		tangents.position(baseVertex * 3);
 		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 1 * 3, nvertices * 1 * 3, tangents);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 
 		// the bitangents info
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, bitangentsBufferId);
 		bitangents.position(baseVertex * 3);
 		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 1 * 3, nvertices * 1 * 3, bitangents);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 
 		// texture coordinates
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, textureCoordsBufferId);
 		textureCoords.position(baseVertex * 2);
 		GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, baseVertex * 2 * 2, nvertices * 2 * 2, textureCoords);
-		checkGLError();
+		AndroidRenderer.checkGlError();
 
 		// Note:  The indices buffer is independent of the vertex values so it doesn't need updating
 
 		needsBufferUpdating = false;
-	}
-
-	private static void checkGLError() {
-		int error = GLES20.glGetError();
-		if (error != 0) {
-			System.out.println("-- GL Error "+error);
-		}
 	}
 
 	/**
@@ -654,13 +673,13 @@ public final class GLSurface {
 		}
 
 		if (lod == WWObject.RENDER_LOD_FULL) {
-			shader.drawTriangles(nindices, baseIndex, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
+			shader.drawTriangleStrip(nindices, baseIndex, textureMatrix, color, shininess, fullBright ? 1 : 0);
 		} else if (lod == WWObject.RENDER_LOD_MINI) {
-			shader.drawTriangles(nindicesMini, baseIndexMini, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
+			shader.drawTriangleStrip(nindicesMini, baseIndexMini, textureMatrix, color, shininess, fullBright ? 1 : 0);
 		} else if (lod == WWObject.RENDER_LOD_MICRO) {
-			shader.drawTriangles(nindicesMicro, baseIndexMicro, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
+			shader.drawTriangleStrip(nindicesMicro, baseIndexMicro, textureMatrix, color, shininess, fullBright ? 1 : 0);
 		} else if (lod == WWObject.RENDER_LOD_NANO) {
-			shader.drawTriangles(nindicesNano, baseIndexNano, textureMatrix, color, shininess, fullBright ? 1 : 0, alphaTest);
+			shader.drawTriangleStrip(nindicesNano, baseIndexNano, textureMatrix, color, shininess, fullBright ? 1 : 0);
 		}
 	}
 
