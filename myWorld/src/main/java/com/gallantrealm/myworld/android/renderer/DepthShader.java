@@ -23,13 +23,7 @@ public class DepthShader extends Shader {
 			"	textureCoord = (textureMatrix * vec4(aTextureCoord.x, aTextureCoord.y, 1.0, 1.0)).xy;\n" +
 			"}";
 	
-	public static final String fs = "\n" +
-			"precision highp float; \n" +
-			"\n" +
-			"void main() { \n" +
-			"	gl_FragColor = vec4(1.0); // needed or linker errors sometimes \n" +
-			"}";
-	public static final String afs = "" + //
+	public static final String fs = "" + //
 			"precision highp float; \n" + //
 			"\n" + //
 			"uniform sampler2D colorTexture; // the texture of the material\n" +
@@ -45,7 +39,7 @@ public class DepthShader extends Shader {
 			"} \n";
 
 	public DepthShader() {
-		init(vs, fs, afs);
+		init(vs, fs);
 	}
 
 }
