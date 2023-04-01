@@ -155,13 +155,13 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	}
 
 	public static final boolean USE_DEPTH_SHADER = true;
-	public static HashMap<String, GLSurface[]> geometryCache = new HashMap();
+	public HashMap<String, GLSurface[]> geometryCache = new HashMap();
 
-	private static boolean clearRenderings;
-	public static long nrenders = 0;
+	private boolean clearRenderingsNeeded;
+	private long nrenders = 0;
 
-	public static void clearRenderings() {
-		clearRenderings = true;
+	public void clearRenderings() {
+		clearRenderingsNeeded = true;
 		nrenders = 0;
 	}
 
@@ -771,188 +771,186 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 	@Override
 	public void onDrawFrame(GL10 unused) {
-		GLES20.glGetError(); // to clear error flag
-	
-			if (!surfaceCreated) { // happens early when creating surface
-				return;
-			}
-	
-			WWWorld world = clientModel.world;
-			if (world == null) { // happens on on disconnect
-				return;
-			} else if (world.getRendering() == null) { // this happens on disconnect sometimes too
-				return;
-			}
-	
-			try { // catch any other rendering exceptions
-	
-				long drawFrameTime = System.currentTimeMillis();
-				if (lastDrawFrameTime == 0) {
-					lastDrawFrameTime = drawFrameTime - 25;
-				}
+		AndroidRenderer.ignoreGlError();  // make sure errors are clear
 
-				// wait long enough to match frame rate
-				try {
-					Thread.sleep(Math.max(0, clientModel.getFrameRate() - (drawFrameTime - lastDrawFrameTime)));
-					drawFrameTime = System.currentTimeMillis();
-					if (lastStatusUpdateTime < drawFrameTime - 1000) {
-						clientModel.setActualFrameRate((int)(1000 / (drawFrameTime - lastDrawFrameTime)));
-						lastStatusUpdateTime = drawFrameTime;
-					}
-				} catch (InterruptedException e) {
-				}
-
-				if (world.getPhysicsIterationTime() == 0) { // physics running on rendering thread
-					world.performPhysicsIteration(Math.min(drawFrameTime - lastDrawFrameTime, 50));
-				}
-
-				lastDrawFrameTime = drawFrameTime;
-	
-				GLWorld worldRendering = (GLWorld) world.getRendering();
-	
-				long time;
-				synchronized (world) {
-					time = world.getWorldTime();
-					worldRendering.snap(time);
-				}
-				preRender(time);
-				
-				// Generate the shadow map texture(s)
-				if (hasDepthTexture && !clientModel.isSimpleRendering() && world.supportsShadows() && worldRendering.drawnOnce) {
-					// generate view matrix for perspective shadow map
-					WWVector dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
-					WWVector dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, clientModel.getDampedCameraPan());
-					rotate(dampCameraDistanceVector, dampCameraRotationVector);
-					float x = dampXCamera + dampCameraDistanceVector.x;
-					float y = dampYCamera + dampCameraDistanceVector.y;
-					float z = dampZCamera + dampCameraDistanceVector.z;
-					clientModel.setDampedCameraLocation(x, y, z);
-					Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
-					Matrix.translateM(viewMatrix, 0, -x, -z, -y);
-					shadowMapShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
-					generateShadowMap(time, viewMatrix);
-				}
-	
-				WWColor sunColor = world.getSunColor();
-				float sunIntensity = world.getSunIntensity();
-				float ambientLightIntensity = world.getAmbientLightIntensity();
-	
-				// Sunlight (note, must be done each frame for some unknown reason)
-				WWVector normalizedSunPosition = clientModel.world.getSunDirection().normalize();
-				textureShader.setSunPosition(normalizedSunPosition.x, normalizedSunPosition.y, normalizedSunPosition.z);
-				textureShader.setSunColor(sunColor.getRed(), sunColor.getGreen(), sunColor.getBlue());
-				textureShader.setSunIntensity(sunIntensity);
-				textureShader.setAmbientLightIntensity(ambientLightIntensity);
-	
-				if (threadWaitingForPick != null) {
-					pickingDraw(time, viewMatrix);
-					initializeStandardDraw();
-				}
-	
-				// Fog
-				textureShader.setFogDensity(world.getFogDensity());
-	
-				// Clear to background color
-				WWColor skyColor = world.getSkyColor();
-				GLES20.glClearColor(skyColor.getRed(), skyColor.getGreen(), skyColor.getBlue(), 1);
-				GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-	
-				if (clientModel.isStereoscopic()) {
-	
-					// transform according to camera - left eye
-					WWVector dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
-					dampCameraDistanceVector.add(stereoAmount * -0.02f * dampCameraDistance, 0, 0);
-					WWVector dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, absoluteCameraPan);
-					rotate(dampCameraDistanceVector, dampCameraRotationVector);
-					float x = dampXCamera + dampCameraDistanceVector.x;
-					float y = dampYCamera + dampCameraDistanceVector.y;
-					float z = dampZCamera + dampCameraDistanceVector.z;
-					clientModel.setDampedCameraLocation(x, y, z);
-					Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, stereoAmount * 1.0f, 0, 1, 0);
-					Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
-					Matrix.translateM(viewMatrix, 0, -x, -z, -y);
-					textureShader.setViewMatrix(viewMatrix);
-					textureShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
-	
-					GLES20.glColorMask(true, false, false, true);
-	
-					// draw
-					worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_LEFT_EYE);
-	
-					// transform according to camera - right eye
-					dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
-					dampCameraDistanceVector.add(stereoAmount * 0.02f * dampCameraDistance, 0, 0);
-					dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, absoluteCameraPan);
-					rotate(dampCameraDistanceVector, dampCameraRotationVector);
-					x = dampXCamera + dampCameraDistanceVector.x;
-					y = dampYCamera + dampCameraDistanceVector.y;
-					z = dampZCamera + dampCameraDistanceVector.z;
-					clientModel.setDampedCameraLocation(x, y, z);
-					Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, stereoAmount * -1.0f, 0, 1, 0);
-					Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
-					Matrix.translateM(viewMatrix, 0, -x, -z, -y);
-					textureShader.setViewMatrix(viewMatrix);
-					textureShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
-	
-					GLES20.glColorMask(false, true, true, true);
-	
-					// draw again
-					GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
-					worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_RIGHT_EYE);
-	
-					GLES20.glColorMask(true, true, true, true);
-	
-				} else {
-	
-					// transform according to camera
-					WWVector dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
-					WWVector dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, absoluteCameraPan);
-					rotate(dampCameraDistanceVector, dampCameraRotationVector);
-					float x = dampXCamera + dampCameraDistanceVector.x;
-					float y = dampYCamera + dampCameraDistanceVector.y;
-					float z = dampZCamera + dampCameraDistanceVector.z;
-					clientModel.setDampedCameraLocation(x, y, z);
-					Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
-					Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
-					Matrix.translateM(viewMatrix, 0, -x, -z, -y);
-					textureShader.setViewMatrix(viewMatrix);
-					textureShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
-	
-					if (USE_DEPTH_SHADER) {
-						// Do a depth-only draw
-						GLES20.glColorMask(false, false, false, false);
-						depthShader.setViewMatrix(viewMatrix);
-						worldRendering.draw(depthShader, viewMatrix, time, GLWorld.DRAW_TYPE_SHADOW);
-						// Followed by a full draw
-						GLES20.glDepthFunc(GLES20.GL_LEQUAL);
-						GLES20.glColorMask(true, true, true, true);
-						GLES20.glDepthMask(false);
-						worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_MONO);
-						GLES20.glDepthMask(true);
-						GLES20.glDepthFunc(GLES20.GL_LESS);
-					} else {
-						worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_MONO);
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-	
-			// checkGlError();
-	
-			if (clientModel.world != null) {
-				clientModel.world.setRendered(true);
-			}
-			// Note: Used to delay physics start till here, but this caused a physics thread leak (would restart physics while pausing world)
-			world.setRendered(true);
+		if (!surfaceCreated) { // happens early when creating surface
+			return;
 		}
+
+		WWWorld world = clientModel.world;
+		if (world == null) { // happens on on disconnect
+			return;
+		} else if (world.getRendering() == null) { // this happens on disconnect sometimes too
+			return;
+		}
+
+		try { // catch any other rendering exceptions
+
+			long drawFrameTime = System.currentTimeMillis();
+			if (lastDrawFrameTime == 0) {
+				lastDrawFrameTime = drawFrameTime - 25;
+			}
+
+			// wait long enough to match frame rate
+			try {
+				Thread.sleep(Math.max(0, 32 - (drawFrameTime - lastDrawFrameTime)));
+				drawFrameTime = System.currentTimeMillis();
+				if (lastStatusUpdateTime < drawFrameTime - 1000) {
+					clientModel.setActualFrameRate((int)(1000 / (drawFrameTime - lastDrawFrameTime)));
+					lastStatusUpdateTime = drawFrameTime;
+				}
+			} catch (InterruptedException e) {
+			}
+
+			if (world.getPhysicsIterationTime() == 0) { // physics running on rendering thread
+				world.performPhysicsIteration(Math.min(drawFrameTime - lastDrawFrameTime, 50));
+			}
+
+			lastDrawFrameTime = drawFrameTime;
+
+			GLWorld worldRendering = (GLWorld) world.getRendering();
+
+			long time;
+			synchronized (world) {
+				time = world.getWorldTime();
+				worldRendering.snap(time);
+			}
+			preRender(time);
+
+			// Generate the shadow map texture(s)
+			if (hasDepthTexture && !clientModel.isSimpleRendering() && world.supportsShadows() && worldRendering.drawnOnce) {
+				// generate view matrix for perspective shadow map
+				WWVector dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
+				WWVector dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, clientModel.getDampedCameraPan());
+				rotate(dampCameraDistanceVector, dampCameraRotationVector);
+				float x = dampXCamera + dampCameraDistanceVector.x;
+				float y = dampYCamera + dampCameraDistanceVector.y;
+				float z = dampZCamera + dampCameraDistanceVector.z;
+				clientModel.setDampedCameraLocation(x, y, z);
+				Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
+				Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
+				Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
+				Matrix.translateM(viewMatrix, 0, -x, -z, -y);
+				shadowMapShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
+				generateShadowMap(time, viewMatrix);
+			}
+
+			AndroidRenderer.checkGlError();  // make sure errors are clear
+
+			// Sunlight
+			textureShader.setSunPosition(world.getSunDirectionX(), world.getSunDirectionY(), world.getSunDirectionZ());
+			WWColor sunColor = world.getSunColor();
+			textureShader.setSunColor(sunColor.getRed(), sunColor.getGreen(), sunColor.getBlue());
+			textureShader.setSunIntensity(world.getSunIntensity());
+			textureShader.setAmbientLightIntensity(world.getAmbientLightIntensity());
+
+			// Fog
+			textureShader.setFogDensity(world.getFogDensity());
+
+			if (threadWaitingForPick != null) {
+				pickingDraw(time, viewMatrix);
+				initializeStandardDraw();
+			}
+
+			// Clear to background color
+			WWColor skyColor = world.getSkyColor();
+			GLES20.glClearColor(skyColor.getRed(), skyColor.getGreen(), skyColor.getBlue(), 1);
+			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+			if (clientModel.isStereoscopic()) {
+
+				// transform according to camera - left eye
+				WWVector dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
+				dampCameraDistanceVector.add(stereoAmount * -0.02f * dampCameraDistance, 0, 0);
+				WWVector dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, absoluteCameraPan);
+				rotate(dampCameraDistanceVector, dampCameraRotationVector);
+				float x = dampXCamera + dampCameraDistanceVector.x;
+				float y = dampYCamera + dampCameraDistanceVector.y;
+				float z = dampZCamera + dampCameraDistanceVector.z;
+				clientModel.setDampedCameraLocation(x, y, z);
+				Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
+				Matrix.rotateM(viewMatrix, 0, stereoAmount * 1.0f, 0, 1, 0);
+				Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
+				Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
+				Matrix.translateM(viewMatrix, 0, -x, -z, -y);
+				textureShader.setViewMatrix(viewMatrix);
+				textureShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
+
+				GLES20.glColorMask(true, false, false, true);
+
+				// draw
+				worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_LEFT_EYE);
+
+				// transform according to camera - right eye
+				dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
+				dampCameraDistanceVector.add(stereoAmount * 0.02f * dampCameraDistance, 0, 0);
+				dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, absoluteCameraPan);
+				rotate(dampCameraDistanceVector, dampCameraRotationVector);
+				x = dampXCamera + dampCameraDistanceVector.x;
+				y = dampYCamera + dampCameraDistanceVector.y;
+				z = dampZCamera + dampCameraDistanceVector.z;
+				clientModel.setDampedCameraLocation(x, y, z);
+				Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
+				Matrix.rotateM(viewMatrix, 0, stereoAmount * -1.0f, 0, 1, 0);
+				Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
+				Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
+				Matrix.translateM(viewMatrix, 0, -x, -z, -y);
+				textureShader.setViewMatrix(viewMatrix);
+				textureShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
+
+				GLES20.glColorMask(false, true, true, true);
+
+				// draw again
+				GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
+				worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_RIGHT_EYE);
+
+				GLES20.glColorMask(true, true, true, true);
+
+			} else {
+
+				// transform according to camera
+				WWVector dampCameraDistanceVector = new WWVector(0, dampCameraDistance, 0);
+				WWVector dampCameraRotationVector = new WWVector(-absoluteCameraTilt, 0, absoluteCameraPan);
+				rotate(dampCameraDistanceVector, dampCameraRotationVector);
+				float x = dampXCamera + dampCameraDistanceVector.x;
+				float y = dampYCamera + dampCameraDistanceVector.y;
+				float z = dampZCamera + dampCameraDistanceVector.z;
+				clientModel.setDampedCameraLocation(x, y, z);
+				Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
+				Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
+				Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
+				Matrix.translateM(viewMatrix, 0, -x, -z, -y);
+				textureShader.setViewMatrix(viewMatrix);
+				textureShader.setViewPosition(dampCameraDistanceVector.x, dampCameraDistanceVector.y, dampCameraDistanceVector.z);
+
+				if (USE_DEPTH_SHADER) {
+					// Do a depth-only draw
+					GLES20.glColorMask(false, false, false, false);
+					depthShader.setViewMatrix(viewMatrix);
+					worldRendering.draw(depthShader, viewMatrix, time, GLWorld.DRAW_TYPE_SHADOW);
+					// Followed by a full draw
+					GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+					GLES20.glColorMask(true, true, true, true);
+					GLES20.glDepthMask(false);
+					worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_MONO);
+					GLES20.glDepthMask(true);
+					GLES20.glDepthFunc(GLES20.GL_LESS);
+				} else {
+					worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_MONO);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// checkGlError();
+
+		if (clientModel.world != null) {
+			clientModel.world.setRendered(true);
+		}
+		// Note: Used to delay physics start till here, but this caused a physics thread leak (would restart physics while pausing world)
+		world.setRendered(true);
+	}
 
 	public final void rotate(WWVector point, WWVector rotation) {
 
@@ -1027,7 +1025,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				// Three times a second, check for changes to the rendering and render/derender objects
 				if ((nrenders % (333 / clientModel.getFrameRate())) == 0) {
 
-					if (clearRenderings) {
+					if (clearRenderingsNeeded) {
 						System.out.println("AndroidRenderer.preRender: clear renderings entered");
 
 						// synchronized (world) {
@@ -1048,7 +1046,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 						((GLWorld) world.getRendering()).drawGroups = null;
 						// textureCache.clear();
 						nrenders = 0;
-						clearRenderings = false;
+						clearRenderingsNeeded = false;
 						// }
 
 						System.out.println("AndroidRenderer.preRender: creating renderings for objects that are part of rendering groups");
