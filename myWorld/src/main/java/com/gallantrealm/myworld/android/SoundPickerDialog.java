@@ -144,7 +144,6 @@ public class SoundPickerDialog extends Dialog {
 					}
 					worldObjectStream.close();
 					SoundPickerDialog.this.dismiss();
-					AndroidRenderer.clearRenderings();
 				} catch (Exception e) {
 					e.printStackTrace();
 					// TODO add some kind of error feedback
