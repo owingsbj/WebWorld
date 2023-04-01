@@ -181,14 +181,8 @@ public class StartWorldActivity extends GallantActivity {
 				});
 			}
 			// serveLocalWorld(world);
-			Timer t = new Timer();
-			t.schedule(new TimerTask() {
-				public void run() {
-					Intent intent = new Intent(StartWorldActivity.this, ShowWorldActivity.class);
-					startActivity(intent);
-					StartWorldActivity.this.finish();
-				}
-			}, 2500l);
+			Intent intent = new Intent(StartWorldActivity.this, ShowWorldActivity.class);
+			startActivity(intent);
 		} catch (final Exception e) {
 			e.printStackTrace();
 			runOnUiThread(new Runnable() {
@@ -239,15 +233,8 @@ public class StartWorldActivity extends GallantActivity {
 				});
 			}
 			// serveLocalWorld(world);
-			Timer t = new Timer();
-			t.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					Intent intent = new Intent(StartWorldActivity.this, ShowWorldActivity.class);
-					startActivity(intent);
-					StartWorldActivity.this.finish();
-				}
-			}, 2500l);
+			Intent intent = new Intent(StartWorldActivity.this, ShowWorldActivity.class);
+			startActivity(intent);
 		} catch (final Exception e) {
 			e.printStackTrace();
 			runOnUiThread(new Runnable() {
