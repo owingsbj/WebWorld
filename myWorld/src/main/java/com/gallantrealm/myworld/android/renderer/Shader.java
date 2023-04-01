@@ -6,13 +6,15 @@ package com.gallantrealm.myworld.android.renderer;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.Arrays;
+
 import android.opengl.GLES30;
 import android.opengl.GLES30;
 
 public abstract class Shader {
 
 	// programs, both non-alpha testing (faster) and alpha testing (slower)
-	private int program;
+	public int program = -1;
 
 	private int aPositionLocation = -1;
 	private int aNormalLocation = -1;
@@ -47,7 +49,14 @@ public abstract class Shader {
 				GLES30.glUseProgram(program);
 				lastProgram = program;
 			}
-			GLES30.glUniform3fv(sunPositionLocation, 1, new float[] { x, z, y }, 0);
+			// must be normalized
+			float length = (float) Math.sqrt(x * x + y * y + z * z);
+			if (length > 0) {
+				x = x / length;
+				y = y / length;
+				z = z / length;
+			}
+			GLES30.glUniform3f(sunPositionLocation, x, z, y);
 			AndroidRenderer.checkGlError();
 		}
 	}
@@ -58,7 +67,14 @@ public abstract class Shader {
 				GLES30.glUseProgram(program);
 				lastProgram = program;
 			}
-			GLES30.glUniform3fv(viewPositionLocation, 1, new float[] { x, z, y }, 0);
+			// must be normalized
+			float length = (float) Math.sqrt(x * x + y * y + z * z);
+			if (length > 0) {
+				x = x / length;
+				y = y / length;
+				z = z / length;
+			}
+			GLES30.glUniform3f(viewPositionLocation, x, z, y);
 			AndroidRenderer.checkGlError();
 		}
 	}
@@ -69,7 +85,7 @@ public abstract class Shader {
 				GLES30.glUseProgram(program);
 				lastProgram = program;
 			}
-			GLES30.glUniform4fv(sunColorLocation, 1, new float[] { red, green, blue, 1.0f }, 0);
+			GLES30.glUniform4f(sunColorLocation, red, green, blue, 1.0f);
 			AndroidRenderer.checkGlError();
 		}
 	}
@@ -168,6 +184,7 @@ public abstract class Shader {
 		lastDrawProgram = -1;
 	}
 
+	private float[] lastTextureMatrix = new float[16];
 	/**
 	 * Draw all triangles given the id's of the buffers containing vertex information.
 	 * 
@@ -180,8 +197,11 @@ public abstract class Shader {
 			lastProgram = program;
 		}
 		if (textureMatrixLocation >= 0) {
-			GLES30.glUniformMatrix4fv(textureMatrixLocation, 1, false, textureMatrix, 0);
-			AndroidRenderer.checkGlError();
+			if (!Arrays.equals(textureMatrix, lastTextureMatrix)) {
+				GLES30.glUniformMatrix4fv(textureMatrixLocation, 1, false, textureMatrix, 0);
+				AndroidRenderer.checkGlError();
+				System.arraycopy(textureMatrix, 0, lastTextureMatrix, 0, 16);
+			}
 		}
 		if (colorLocation >= 0) {
 			GLES30.glUniform4fv(colorLocation, 1, color, 0);

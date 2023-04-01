@@ -28,8 +28,6 @@ public class ShadowingTextureShader extends Shader {
 			"out lowp vec3 mNormal;\n" + //
 			"out lowp vec3 mTangent;\n" + //
 			"out lowp vec3 mBitangent;\n" + //
-			"out vec3 surfaceToCamera; \n" + //
-			"out vec3 surfaceToLight; \n" + //
 			"out float fogDepth;\n" + //
 			"out float pointAlpha; \n" + //
 			"\n" + //
@@ -40,8 +38,6 @@ public class ShadowingTextureShader extends Shader {
 			"	mNormal = normalize((modelMatrix * vec4(aNormal, 0.0)).xyz);\n" + //
 			"	mTangent = normalize((modelMatrix * vec4(aTangent, 0.0)).xyz);\n" + //
 			"	mBitangent = normalize((modelMatrix * vec4(aBitangent, 0.0)).xyz);\n" + //
-			"	surfaceToCamera = normalize(viewPosition); \n" + //
-			"	surfaceToLight = normalize(sunPosition); \n" + //
 			"	textureCoord = (textureMatrix * vec4(aTextureCoord.x, aTextureCoord.y, 1.0, 1.0)).xy;\n" + //
 			"	fogDepth = gl_Position.z;\n" + //
 			"	if (pointDraw) { \n" + // used for rendering particles
@@ -71,8 +67,6 @@ public class ShadowingTextureShader extends Shader {
 			"in lowp vec3 mNormal;\n" + //
 			"in lowp vec3 mTangent;\n" + //
 			"in lowp vec3 mBitangent;\n" + //
-			"in vec3 surfaceToCamera; \n" + //
-			"in vec3 surfaceToLight; \n" + //
 			"in highp vec4 shadowCoord; // location on the shadow map \n" + //
 			"in float pointAlpha; \n" + //
 			"\n" + //
@@ -98,7 +92,7 @@ public class ShadowingTextureShader extends Shader {
 			"      lowp vec4 bump = (texture(bumpTexture, textureCoord) - 0.5) * 2.0; \n" + //
 			"      lowp vec3 bumpNormal = bump.r * mTangent + bump.g * mBitangent + bump.b * mNormal; \n" + //
 			"	    diffuseLightIntensity = shadow * sunIntensity * max(-0.0,dot(sunPosition, -bumpNormal));\n" + //
-			"	    lowp float specular = max(0.0, dot(surfaceToCamera, reflect(-surfaceToLight, bumpNormal))); \n" + //
+			"	    lowp float specular = max(0.0, dot(viewPosition, reflect(-sunPosition, bumpNormal))); \n" + //
 			"	    specularLightIntensity = shadow * sunIntensity * clamp(pow(specular, 1.0+ 50.0* shininess) * 2.5 * shininess, 0.0, 1.0); \n" + //
 			"  } \n" + //
 			"	lowp float sValue = max(ambientLightIntensity, diffuseLightIntensity); \n" + //
