@@ -66,6 +66,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 		soundMap = new HashMap<String, Integer>();
 
 		// load all the predefined sounds
+		System.out.print(" AndroidSoundGenerator.constructor loading predefined sounds: ");
 		loadSound("awful", R.raw.sound_awful);
 		loadSound("bang", R.raw.sound_bang);
 		loadSound("beep", R.raw.sound_beep);
@@ -112,15 +113,16 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 		loadSound("winningSound", R.raw.sound_winning);
 		loadSound("winningSound2", R.raw.sound_winning2);
 		loadSound("wood", R.raw.sound_wood);
+		System.out.println();
 
 		// soundGeneratorThread.start();
 		System.out.println("<AndroidSoundGenerator.constructor");
 	}
 
 	void loadSound(String soundName, int resId) {
+		System.out.print(soundName + " ");
 		loadingCount.incrementAndGet();
 		soundMap.put(soundName, soundPool.load(context, resId, 0));
-		System.out.println("AndroidSoundGenerator.loadSound loading sound " + soundName);
 	}
 
 	public void loadSound(String urlString) {
