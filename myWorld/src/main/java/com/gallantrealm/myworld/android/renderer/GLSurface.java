@@ -59,8 +59,6 @@ public final class GLSurface {
 		System.out.println(">GLSurface.initializeVertexBuffers");
 
 		if (!buffersAllocated) {
-			GLES20.glDeleteBuffers(6, new int[] { verticesBufferId, normalsBufferId, tangentsBufferId, bitangentsBufferId, textureCoordsBufferId, indicesBufferId }, 0);
-
 			ByteBuffer bb = ByteBuffer.allocateDirect(MAX_VERTICES * 2 * 3);
 			bb.order(ByteOrder.nativeOrder());
 			vertices = bb.asShortBuffer();
@@ -118,6 +116,27 @@ public final class GLSurface {
 		bindBuffers();
 
 		System.out.println("<GLSurface.initializeVertexBuffers");
+	}
+
+	public static void destroyVertexBuffers() {
+		System.out.println(">GLSurface.destroyVertexBuffers");
+
+		if (!buffersAllocated) {
+			GLES20.glDeleteBuffers(6, new int[] { verticesBufferId, normalsBufferId, tangentsBufferId, bitangentsBufferId, textureCoordsBufferId, indicesBufferId }, 0);
+
+			vertices = null;
+			pointVertices = null;
+			normals = null;
+			tangents = null;
+			bitangents = null;
+			textureCoords = null;
+			extras = null;
+			indices = null;
+
+			buffersAllocated = false;
+		}
+
+		System.out.println("<GLSurface.destroyVertexBuffers");
 	}
 
 	int width; // number of vertices wide
