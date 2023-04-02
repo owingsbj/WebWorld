@@ -824,6 +824,11 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			}
 			preRender(time);
 
+			if (threadWaitingForPick != null) {
+				pickingDraw(time, viewMatrix);
+				initializeStandardDraw();
+			}
+
 			// Generate the shadow map texture(s)
 			if (hasDepthTexture && !clientModel.isSimpleRendering() && world.supportsShadows() && worldRendering.drawnOnce) {
 				// generate view matrix for perspective shadow map
@@ -853,11 +858,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 			// Fog
 			textureShader.setFogDensity(world.getFogDensity());
-
-			if (threadWaitingForPick != null) {
-				pickingDraw(time, viewMatrix);
-				initializeStandardDraw();
-			}
 
 			// Clear to background color
 			WWColor skyColor = world.getSkyColor();
