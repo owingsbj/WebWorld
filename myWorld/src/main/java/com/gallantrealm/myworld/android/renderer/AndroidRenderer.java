@@ -163,7 +163,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		return adjustedCameraPosition;
 	}
 
-	public static final boolean USE_DEPTH_SHADER = true;
+	public static final boolean USE_DEPTH_SHADER = false;
 	public HashMap<String, GLSurface[]> geometryCache = new HashMap();
 
 	private boolean clearRenderingsNeeded;
