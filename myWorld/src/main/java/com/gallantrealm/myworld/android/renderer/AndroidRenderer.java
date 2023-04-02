@@ -115,6 +115,15 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		return androidRenderer;
 	}
 
+	public void destroy() {
+		getSoundGenerator().destroy();
+		GLSurface.destroyVertexBuffers();
+		textureCache.clear();
+		normalTextureCache.clear();
+		hasAlphaCache.clear();
+		geometryCache.clear();
+	}
+
 	private static final int viswindow = 60; // this needs to be based on zoom someday
 	static final int SHADOW_MAP_WIDTH = 2048;
 	static final int SHADOW_MAP_HEIGHT = 2048;
@@ -193,18 +202,16 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		int error;
 		RuntimeException exception = null;
 		while ((error = GLES30.glGetError()) != GLES30.GL_NO_ERROR) {
-			exception = new RuntimeException("GLES error " + error + ": " + GLU.gluErrorString(error));
-			exception.printStackTrace();
-		}
-		if (exception != null) {
-			throw exception;
+			Throwable t = new Throwable();
+			t.fillInStackTrace();
+			StackTraceElement caller = t.getStackTrace()[1];
+			System.out.println("AndroidRenderer.checkGlError " + error + ": " + GLU.gluErrorString(error) + " at " + caller);
 		}
 	}
 
 	public static void ignoreGlError() {
 		int error;
 		while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-			System.out.println("AndroidRenderer.ignoreGlError " + error + ": " + GLU.gluErrorString(error));
 		}
 	}
 

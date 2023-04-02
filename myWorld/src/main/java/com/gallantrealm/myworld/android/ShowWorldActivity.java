@@ -672,7 +672,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 	@Override
 	protected void onDestroy() {
 		System.out.println(">ShowWorldActivity.onDestroy");
-		worldRenderer.getSoundGenerator().destroy();
+		worldRenderer.destroy();
 		super.onDestroy();
 		System.out.println("<ShowWorldActivity.onDestroy");
 	}
