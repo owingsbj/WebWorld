@@ -1036,6 +1036,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 						System.out.println("AndroidRenderer.preRender: clear renderings entered");
 
 						// synchronized (world) {
+						System.out.println("AndroidRenderer.preRender: dropping renderings for all objects");
 						WWObject[] objects = world.getObjects();
 						for (int i = 0; i < objects.length; i++) {
 							WWObject object = objects[i];
@@ -1046,6 +1047,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 								}
 							}
 						}
+
+						System.out.println("AndroidRenderer.preRender: clearing rendering cache");
 						((GLWorld) world.getRendering()).drawnOnce = false;
 						geometryCache.clear();
 						GLSurface.initializeVertexBuffers();
@@ -1121,7 +1124,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 							// If marked for rendering and a rendering doesn't exist, create it
 							// Create the rendering if not created
 							if (object.renderit && object.getRendering() == null) {
-								System.out.println("AndroidRenderer.prerender: creating rendering for "+object);
+								//System.out.println("AndroidRenderer.prerender: creating rendering for "+object);
 								object.createRendering(this, time);
 
 								// If the new object is the user's avatar, set camera position on it
