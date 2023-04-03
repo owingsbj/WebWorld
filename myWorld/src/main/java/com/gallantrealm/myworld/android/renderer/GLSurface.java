@@ -490,8 +490,8 @@ public final class GLSurface {
 		int index = baseVertex;
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				float xcoord = textureCoords.get(index * 2);
-				float ycoord = textureCoords.get(index * 2 + 1);
+				float xcoord = halfToFloat(textureCoords.get(index * 2));
+				float ycoord = halfToFloat(textureCoords.get(index * 2 + 1));
 
 				float[] rhsVec = new float[] { xcoord, ycoord, 1, 1 };
 				float[] resultVec = new float[4];
