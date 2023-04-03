@@ -184,6 +184,9 @@ public abstract class GLObject extends GLRendering {
 	 */
 	public final float[] getAnimatedModelMatrix(long worldTime) {
 		float[] modelMatrix = getModelMatrix(worldTime);
+		if (object.behaviors == null && object.parentId == 0) {
+			return modelMatrix;
+		}
 		float[] animatedMatrix = modelMatrix.clone();
 		object.postAnimateModelMatrix(object, new WWMatrix(animatedMatrix), worldTime);
 		return animatedMatrix;
