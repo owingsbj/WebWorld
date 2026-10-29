@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
- * Used for representing rotation.  A quarternion has four values that allow the rotation of an object to be represented
- * in a fashion suitable for arithmetic with other rotations, avoiding the 'gimble lock' problem.
+ * Used for representing rotation. A quaternion has four values that allow the rotation of an object to be represented
+ * in a fashion suitable for arithmetic with other rotations, avoiding the 'gimbal lock' problem.
  */
 public class WWQuaternion implements Cloneable, Serializable, Sendable {
     private static final long serialVersionUID = 1L;
@@ -31,11 +31,20 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
     }
 
     /**
-     * Constructor taking euler values (in degrees).  The values
+     * Constructor taking euler values (in degrees). The values
      * are applied pitch first, then roll, then yaw.
      */
     public WWQuaternion(float pitch, float roll, float yaw) {
         set(pitch, roll, yaw);
+    }
+
+    public final WWQuaternion set(float w, float x, float y, float z) {
+        this.w = w;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        normalize();
+        return this;
     }
 
     public final WWQuaternion set(float pitch, float roll, float yaw) {
@@ -65,8 +74,8 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
 
         w = cosXcosYcosZ - sinXsinYsinZ;
         x = sinXcosYcosZ + cosXsinYsinZ;
-        y = cosXsinYcosZ + sinXcosYsinZ;
-        z = cosXcosYsinZ - sinXsinYcosZ;
+        y = cosXsinYcosZ - sinXcosYsinZ;
+        z = cosXcosYsinZ + sinXsinYcosZ;
 
         normalize();
         return this;
@@ -79,21 +88,54 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
     public WWQuaternion(float angle, float x, float y, float z) {
         angle = FastMath.toRadians(angle);
         float mag = (float)Math.sqrt(x * x + y * y + z * z);
-        if (mag < 0.01) {
+        if (mag < 1e-6f) {
+            this.w = 1.0f;
+            this.x = 0.0f;
+            this.y = 0.0f;
+            this.z = 0.0f;
             return;
         }
-        x = x / mag;
-        y = y / mag;
-        z = z / mag;
-        if (angle < 0.01) {
-            return;
-        }
+        x /= mag;
+        y /= mag;
+        z /= mag;
         float halfAngle = 0.5f * angle;
         float sin = FastMath.sin(halfAngle);
         this.w = FastMath.cos(halfAngle);
         this.x = sin * x;
         this.y = sin * y;
         this.z = sin * z;
+    }
+
+    public final float getW() {
+        return w;
+    }
+
+    public final float getX() {
+        return x;
+    }
+
+    public final float getY() {
+        return y;
+    }
+
+    public final float getZ() {
+        return z;
+    }
+
+    public final void setW(float w) {
+        this.w = w;
+    }
+
+    public final void setX(float x) {
+        this.x = x;
+    }
+
+    public final void setY(float y) {
+        this.y = y;
+    }
+
+    public final void setZ(float z) {
+        this.z = z;
     }
 
     @Override
@@ -161,7 +203,9 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
         float sqx = x * x;
         float sqy = y * y;
         float sqz = z * z;
-        float roll = (float)Math.asin(2 * (x * z + y * w) / (sqx + sqz + sqy + sqw));
+        float val = 2 * (x * z + y * w) / (sqx + sqz + sqy + sqw);
+        val = Math.max(-1.0f, Math.min(1.0f, val));
+        float roll = (float)Math.asin(val);
         return FastMath.toDegrees(roll);
     }
 
@@ -179,10 +223,14 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
 
     private final void normalize() {
         float norm = (float) Math.sqrt(w * w + x * x + y * y + z * z);
-        if (norm == 0) {
-            w = 1.0f; // reset back to zero'd quarternion
+        if (norm < 1e-6f) {
+            w = 1.0f;
+            x = 0.0f;
+            y = 0.0f;
+            z = 0.0f;
+            return;
         }
-        float n = (float)(1.0 / Math.sqrt(norm));
+        float n = 1.0f / norm;
         w *= n;
         x *= n;
         y *= n;
@@ -208,35 +256,15 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
 
     // return the quaternion conjugate
     public final WWQuaternion conjugate() {
-        w = w;
         x = -x;
         y = -y;
         z = -z;
         return this;
     }
 
-// Note: Add and subtract aren't very useful for quaternions
-// that represent rotations, so not enabling them.
-//
-//    public final WWQuaternion add(WWQuaternion b) {
-//        w += b.w;
-//        x += b.x;
-//        y += b.y;
-//        z += b.z;
-//        return this;
-//    }
-//
-//    public final WWQuaternion subtract(WWQuaternion b) {
-//        w -= b.w;
-//        x -= b.x;
-//        y -= b.y;
-//        z -= b.z;
-//        return this;
-//    }
-
     /**
-     * Adds the rotation effects of quarternion q to this quaternion
-     * in such a way that it is as if this quarternion had initially
+     * Adds the rotation effects of quaternion q to this quaternion
+     * in such a way that it is as if this quaternion had initially
      * been turned by q.
      * (This is the same as quaternion multiplication where
      * the parameter q is the left-hand-side.)
@@ -254,7 +282,7 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
     }
 
     /**
-     * Adds the rotation effects of quarternion q to this quaternion.
+     * Adds the rotation effects of quaternion q to this quaternion.
      * (This is the same as quaternion multiplication where
      * the parameter q is the right-hand-side.)
      */
@@ -276,16 +304,23 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
      * in the opposing direction.
      */
     public final WWQuaternion invert() {
-        float i = w * w + x * x + y * y + z * z;
-        w = w / i;
-        x = -x / i;
-        y = -y / i;
-        z = -z / i;
+        float normSq = w * w + x * x + y * y + z * z;
+        if (normSq < 1e-6f) {
+            w = 1.0f;
+            x = 0.0f;
+            y = 0.0f;
+            z = 0.0f;
+            return this;
+        }
+        w = w / normSq;
+        x = -x / normSq;
+        y = -y / normSq;
+        z = -z / normSq;
         return this;
     }
 
     /**
-     * A rotation using the inverse of q.  This undoes
+     * A rotation using the inverse of q. This undoes
      * the rotation performed by rotate(q).
      */
     public final WWQuaternion antirotate(WWQuaternion q) {
@@ -301,11 +336,14 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
         if (v.isZero()) {
             return;
         }
-        float w = this.w, x = this.x, y = this.z, z = this.y;
-        float vx = v.x, vy = v.z, vz = v.y;
-        v.x = w * w * vx + 2 * y * w * vz - 2 * z * w * vy + x * x * vx + 2 * y * x * vy + 2 * z * x * vz - z * z * vx - y * y * vx;
-        v.z = 2 * x * y * vx + y * y * vy + 2 * z * y * vz + 2 * w * z * vx - z * z * vy + w * w * vy - 2 * x * w * vz - x * x * vy;
-        v.y = 2 * x * z * vx + 2 * y * z * vy + z * z * vz - 2 * w * y * vx - y * y * vz + 2 * w * x * vy - x * x * vz + w * w * vz;
+        // Standard 3D vector rotation by quaternion v' = v + w*t + q_v x t, where t = 2 * (q_v x v)
+        float tx = 2.0f * (y * v.z - z * v.y);
+        float ty = 2.0f * (z * v.x - x * v.z);
+        float tz = 2.0f * (x * v.y - y * v.x);
+
+        v.x += w * tx + (y * tz - z * ty);
+        v.y += w * ty + (z * tx - x * tz);
+        v.z += w * tz + (x * ty - y * tx);
     }
 
     public final void antirotateVector(WWVector v) {
@@ -370,26 +408,26 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
         float zz = z * z;
         float zw = z * w;
 
-        // the matrix has y and z switched (opengl convention)
-        mat[0] = 1 - 2 * (yy + zz);
-        mat[2] = 2 * (xy - zw);
-        mat[1] = 2 * (xz + yw);
-        mat[3] = 0;
+        // OpenGL column-major matrix converting World space (X, Y=forward, Z=up) to OpenGL space (X, Y=up, Z=depth)
+        mat[0] = 1.0f - 2.0f * (yy + zz);
+        mat[1] = 2.0f * (xz - yw);
+        mat[2] = 2.0f * (xy + zw);
+        mat[3] = 0.0f;
 
-        mat[8] = 2 * (xy + zw);
-        mat[10] = 1 - 2 * (xx + zz);
-        mat[9] = 2 * (yz - xw);
-        mat[11] = 0;
+        mat[4] = 2.0f * (xz + yw);
+        mat[5] = 1.0f - 2.0f * (xx + yy);
+        mat[6] = 2.0f * (yz - xw);
+        mat[7] = 0.0f;
 
-        mat[4] = 2 * (xz - yw);
-        mat[6] = 2 * (yz + xw);
-        mat[5] = 1 - 2 * (xx + yy);
-        mat[7] = 0;
+        mat[8] = 2.0f * (xy - zw);
+        mat[9] = 2.0f * (yz + xw);
+        mat[10] = 1.0f - 2.0f * (xx + zz);
+        mat[11] = 0.0f;
 
-        mat[12] = 0;
-        mat[13] = 0;
-        mat[14] = 0;
-        mat[15] = 1;
+        mat[12] = 0.0f;
+        mat[13] = 0.0f;
+        mat[14] = 0.0f;
+        mat[15] = 1.0f;
     }
 
 }
