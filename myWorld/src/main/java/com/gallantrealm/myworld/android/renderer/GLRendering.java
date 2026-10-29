@@ -1,7 +1,9 @@
 package com.gallantrealm.myworld.android.renderer;
 
 import com.gallantrealm.myworld.client.renderer.IRendering;
+import androidx.annotation.UiThread;
 
+@UiThread
 public abstract class GLRendering implements IRendering {
 
 	public abstract void snap(long worldTime);
