@@ -49,10 +49,6 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 
 	@Override
 	public final String toString() {
-		//String formattedx = String.format("%+.4f", x);
-		//String formattedy = String.format("%+.4f", y);
-		//String formattedz = String.format("%+.4f", z);
-		//return "<" + formattedx + "," + formattedy + "," + formattedz + ">";
 		return "<" + x + ", " + y + ", " + z + ">";
 	}
 
@@ -137,26 +133,17 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 	 * Returns the reflection of the vector, given a vector normal to the mirror of reflection.
 	 */
 	public final WWVector getReflection(WWVector mirror) {
-		WWVector mirrorNormal = mirror.clone();
-		mirrorNormal.normalize();
-		float length = this.length();
-		WWVector normal = this.clone();
-		normal.normalize();
-		WWVector reflection = new WWVector((normal.x + 2 * mirrorNormal.x), (normal.y + 2 * mirrorNormal.y), (normal.z + 2 * mirrorNormal.z));
-		reflection.normalize();
-		reflection.scale(length);
-		return reflection;
+		WWVector n = mirror.clone().normalize();
+		float dot2 = 2.0f * dot(n);
+		return new WWVector(x - dot2 * n.x, y - dot2 * n.y, z - dot2 * n.z);
 	}
 
 	/**
 	 * Normalizes this vector.
 	 */
 	public final WWVector normalize() {
-//		if (free) {
-//			throw new RuntimeException("Attempting to use an already freed vector");
-//		}
 		float length = length();
-		if (length <= 0.000001) {
+		if (length <= 0.000001f) {
 			x = 0;
 			y = 0;
 			z = 0;
@@ -215,7 +202,7 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 		z *= sz;
 		return this;
 	}
-	
+
 	public final WWVector scale(WWVector v) {
 		x *= v.x;
 		y *= v.y;
@@ -290,14 +277,17 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 	 */
 	public final WWVector reduce(float reduction) {
 		float length = length();
-		if (length == 0.0f) {
+		if (length <= 0.000001f) {
+			x = 0;
+			y = 0;
+			z = 0;
 			return this;
 		}
 		float newLength = FastMath.max(0.0f, length - reduction);
-		normalize();
-		x = x * newLength;
-		y = y * newLength;
-		z = z * newLength;
+		float scale = newLength / length;
+		x *= scale;
+		y *= scale;
+		z *= scale;
 		return this;
 	}
 
@@ -329,18 +319,12 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 	}
 
 	public final void send(DataOutputStreamX os) throws IOException {
-//		if (free) {
-//			throw new RuntimeException("Attempting to use an already freed vector");
-//		}
 		os.writeFloat(x);
 		os.writeFloat(y);
 		os.writeFloat(z);
 	}
 
 	public final void receive(DataInputStreamX is) throws IOException {
-//		if (free) {
-//			throw new RuntimeException("Attempting to use an already freed vector");
-//		}
 		x = is.readFloat();
 		y = is.readFloat();
 		z = is.readFloat();
