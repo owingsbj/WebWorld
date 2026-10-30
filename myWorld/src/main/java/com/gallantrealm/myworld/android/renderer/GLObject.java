@@ -18,10 +18,16 @@ public abstract class GLObject extends GLRendering {
 	static int lastTextureId;
 	static int lastBumpTextureId;
 
+	static float[] identityMatrix = new float[16];
+	static {
+		Matrix.setIdentityM(identityMatrix, 0);
+	}
+
 	protected final WWObject object;
 	protected final AndroidRenderer renderer;
 
 	protected GLSurface[] sides = new GLSurface[WWObject.NSIDES];
+	protected final float[] tempColor = new float[4];
 
 	protected GLObject(AndroidRenderer renderer, WWObject object, long worldTime) {
 		this.renderer = renderer;
@@ -48,44 +54,51 @@ public abstract class GLObject extends GLRendering {
 	/**
 	 * Apply all of the distortion effects to the geometry. These effects do not require any knowledge of the object itself, just its coordinates, so they can be applied after the initial geometry has been determined.
 	 */
-	protected void adjustGeometry(GLSurface surface, float sizeX, float sizeY, float sizeZ, float taperX, float taperY, float shearX, float shearY, float twist) {
+	protected void adjustGeometry(GLSurface surface, float sizeX, float sizeY, float sizeZ,
+								  float taperX, float taperY, float shearX, float shearY, float twist) {
 		int vertexCount = surface.getVertexCount();
 		Point3f coordinate = new Point3f();
+
+		// Pre-calculate constants outside the vertex loop
+		boolean hasTwist = (twist != 0.0f);
+		float twistFactor = twist * 2.0f * (float) Math.PI / sizeZ;
+
+		float[] lhsMat = (object.group != 0) ? getModelMatrix(0) : null;
+		float[] rhsVec = (object.group != 0) ? new float[4] : null;
+		float[] resultVec = (object.group != 0) ? new float[4] : null;
 
 		for (int i = 0; i < vertexCount; i++) {
 			surface.getVertex(i, coordinate);
 
-			// Note: The order of these actions is important. They are done so editing the object is easier.
-			// Note: coordinate.z is the y coordinate, and coordinate.y is the z coordinate (java3d and myworld are
-			// different)
-
 			// Taper
 			float zoffset = coordinate.y + 0.5f;
-			coordinate.x = coordinate.x * (1.0f - taperX * zoffset);
-			coordinate.z = coordinate.z * (1.0f - taperY * zoffset);
+			if (taperX != 0.0f) coordinate.x *= (1.0f - taperX * zoffset);
+			if (taperY != 0.0f) coordinate.z *= (1.0f - taperY * zoffset);
 
 			// Shear
-			coordinate.x = coordinate.x + shearX * zoffset;
-			coordinate.z = coordinate.z + shearY * zoffset;
+			if (shearX != 0.0f) coordinate.x += shearX * zoffset;
+			if (shearY != 0.0f) coordinate.z += shearY * zoffset;
 
 			// Resize
-			coordinate.x = coordinate.x * sizeX;
-			coordinate.y = coordinate.y * sizeZ;
-			coordinate.z = coordinate.z * sizeY;
+			coordinate.x *= sizeX;
+			coordinate.y *= sizeZ;
+			coordinate.z *= sizeY;
 
-			// Twist
-			float r = (float) Math.sqrt(coordinate.x * coordinate.x + coordinate.z * coordinate.z);
-			float theta = FastMath.atan2(coordinate.x, coordinate.z);
-			float thetaDelta = (coordinate.y / sizeZ + 0.5f) * twist * 2.0f * (float) Math.PI;
-			coordinate.x = r * (float) Math.sin(theta + thetaDelta);
-			coordinate.z = r * (float) Math.cos(theta + thetaDelta);
+			// Twist (Only computed if twist != 0)
+			if (hasTwist) {
+				float r = (float) Math.sqrt(coordinate.x * coordinate.x + coordinate.z * coordinate.z);
+				float theta = FastMath.atan2(coordinate.x, coordinate.z);
+				float thetaDelta = (coordinate.y + 0.5f * sizeZ) * twistFactor;
+				coordinate.x = r * (float) Math.sin(theta + thetaDelta);
+				coordinate.z = r * (float) Math.cos(theta + thetaDelta);
+			}
 
-			// Model matrix -- add in only when completely fixed
+			// Model matrix transformation for groups
 			if (object.group != 0) {
-				// Note: only groups because other places need to be changed
-				float[] lhsMat = getModelMatrix(0);
-				float[] rhsVec = new float[] { coordinate.x, coordinate.y, coordinate.z, 1 };
-				float[] resultVec = new float[4];
+				rhsVec[0] = coordinate.x;
+				rhsVec[1] = coordinate.y;
+				rhsVec[2] = coordinate.z;
+				rhsVec[3] = 1.0f;
 				Matrix.multiplyMV(resultVec, 0, lhsMat, 0, rhsVec, 0);
 				coordinate.x = resultVec[0];
 				coordinate.y = resultVec[1];
@@ -113,24 +126,25 @@ public abstract class GLObject extends GLRendering {
 
 	private static float[] tempMatrix = new float[16];
 
-	/**
-	 * Adjust position and rotations for GL according to parent(s)
-	 */
-	private void parentalAdjust(float[] modelMatrix, int parentId, long worldTime) {
-		WWObject parent = object.world.objects[parentId];
-		parentId = parent.parentId;
-		if (parentId != 0) {
-			parentalAdjust(modelMatrix, parentId, worldTime);
-		}
-		WWVector position = new WWVector();
-		parent.getAnimatedPosition(position, worldTime);
-		// GLES20.glTranslatef(position.x, position.z, position.y);
-		Matrix.translateM(modelMatrix, 0, position.x, position.z, position.y);
-		WWQuaternion rotation = new WWQuaternion();
-		parent.getAnimatedRotation(rotation, worldTime);
-		rotation.toMatrix(tempMatrix);
-		Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, tempMatrix, 0);
-	}
+// Note:  This method is currently not used by kept here in case the logic is needed in the future
+//	/**
+//	 * Adjust position and rotations for GL according to parent(s)
+//	 */
+//	private void parentalAdjust(float[] modelMatrix, int parentId, long worldTime) {
+//		WWObject parent = object.world.objects[parentId];
+//		parentId = parent.parentId;
+//		if (parentId != 0) {
+//			parentalAdjust(modelMatrix, parentId, worldTime);
+//		}
+//		WWVector position = new WWVector();
+//		parent.getAnimatedPosition(position, worldTime);
+//		// GLES20.glTranslatef(position.x, position.z, position.y);
+//		Matrix.translateM(modelMatrix, 0, position.x, position.z, position.y);
+//		WWQuaternion rotation = new WWQuaternion();
+//		parent.getAnimatedRotation(rotation, worldTime);
+//		rotation.toMatrix(tempMatrix);
+//		Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, tempMatrix, 0);
+//	}
 
 	private final WWVector position = new WWVector();
 	private final WWQuaternion rotation = new WWQuaternion();
@@ -158,6 +172,9 @@ public abstract class GLObject extends GLRendering {
 	// Used for the combined model matrix when it is a child object
 	public float[] compositeModelMatrix = new float[16];
 	long compositeModelMatrixTime = -1;
+
+	private final float[] animatedMatrix = new float[16];
+	private final WWMatrix animatedWWMatrix = new WWMatrix(animatedMatrix);
 
 	/**
 	 * Returns the matrix for this object with no animation applied
@@ -187,8 +204,8 @@ public abstract class GLObject extends GLRendering {
 		if (object.behaviors == null && object.parentId == 0) {
 			return modelMatrix;
 		}
-		float[] animatedMatrix = modelMatrix.clone();
-		object.postAnimateModelMatrix(object, new WWMatrix(animatedMatrix), worldTime);
+		System.arraycopy(modelMatrix, 0, animatedMatrix, 0, 16);
+		object.postAnimateModelMatrix(object, animatedWWMatrix, worldTime);
 		return animatedMatrix;
 	}
 
@@ -222,12 +239,11 @@ public abstract class GLObject extends GLRendering {
 
 				// send to the shader
 				if (drawType == DRAW_TYPE_PICKING) {
-					float[] color = null;
 					int id = object.getId();
-					float red = (((id & 0xF00) >> 8) + 0.5f) / 16.0f;
-					float green = (((id & 0x00F0) >> 4) + 0.5f) / 16.0f;
-					float blue = ((id & 0x00F) + 0.5f) / 16.0f;
-					color = new float[] { red, green, blue, 1.0f };
+					tempColor[0] = (((id & 0xF00) >> 8) + 0.5f) / 16.0f;
+					tempColor[1] = (((id & 0x00F0) >> 4) + 0.5f) / 16.0f;
+					tempColor[2] = ((id & 0x00F) + 0.5f) / 16.0f;
+					tempColor[3] = 1.0f;
 					int textureId = renderer.getTexture("white", true);
 					if (textureId != lastTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -242,25 +258,28 @@ public abstract class GLObject extends GLRendering {
 					}
 					for (int i = 0; i < sides.length; i++) {
 						if (sides[i] != null) {
-							sides[i].draw(shader, drawType, textureMatrix, color, 0.0f, true, false, lod);
+							sides[i].draw(shader, drawType, textureMatrix, tempColor, 0.0f, true, false, lod);
 						}
 					}
 				} else {
-					float[] color = null;
 					float red = sideAttributes.color.getRed();
 					float green = sideAttributes.color.getGreen();
 					float blue = sideAttributes.color.getBlue();
 					float shininess = sideAttributes.shininess;
+					boolean fullBright = sideAttributes.fullBright;
 					if (drawType == DRAW_TYPE_LEFT_EYE) { // red side
 						red = (red * 3 + green + blue) / 5.0f;
 						green = 0;
 						blue = 0;
 					} else if (drawType == DRAW_TYPE_RIGHT_EYE) { // cyan side
-						red = 0;
 						green = (green * 3 + red) / 4.0f;
 						blue = (blue * 3 + red) / 4.0f;
+						red = 0;
 					}
-					color = new float[] { red, green, blue, 1.0f - trans };
+					tempColor[0] = red;
+					tempColor[1] = green;
+					tempColor[2] = blue;
+					tempColor[3] = 1.0f - trans;
 					if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
 						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.texture.scaleX, 1.0f / sideAttributes.texture.scaleY, 1.0f);
 						Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
@@ -285,7 +304,7 @@ public abstract class GLObject extends GLRendering {
 					boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 					for (int i = 0; i < sides.length; i++) {
 						if (sides[i] != null) {
-							sides[i].draw(shader, drawType, textureMatrix, color, shininess, true, false, lod);
+							sides[i].draw(shader, drawType, textureMatrix, tempColor, shininess, fullBright, hasAlpha, lod);
 						}
 					}
 				}
@@ -294,78 +313,57 @@ public abstract class GLObject extends GLRendering {
 		} else {
 
 			// Non-monolithic drawing. Draw each surface separately
-			boolean sideDrawn = false;
-
 			float[] modelMatrix = getAnimatedModelMatrix(worldTime);
 			shader.setModelMatrix(modelMatrix);
-			float[] color = null;
-			float shininess = 0.0f;
+
 			for (int side = 0; side < WWObject.NSIDES; side++) {
 				if (sides[side] != null) {
 					SideAttributes sideAttributes = object.sideAttributes[side];
 					float trans = sideAttributes.transparency;
 					if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
-						if (!sideDrawn) {
-							if (drawType == DRAW_TYPE_PICKING) {
-								// if (!object.isPickable()) {
-								// return;
-								// }
-								int id = object.getId();
-								float red = (((id & 0xF00) >> 8) + 0.5f) / 16.0f;
-								float green = (((id & 0x00F0) >> 4) + 0.5f) / 16.0f;
-								float blue = ((id & 0x00F) + 0.5f) / 16.0f;
-								color = new float[] { red, green, blue, 1.0f };
-								shininess = 0.0f;
-								color = new float[] { 0, 0, 1, 1 };
-							}
-							sideDrawn = true;
+						float red = sideAttributes.color.getRed();
+						float green = sideAttributes.color.getGreen();
+						float blue = sideAttributes.color.getBlue();
+						float shininess = sideAttributes.shininess;
+						if (drawType == DRAW_TYPE_LEFT_EYE) { // red side
+							red = (red * 3 + green + blue) / 5.0f;
+							green = 0;
+							blue = 0;
+						} else if (drawType == DRAW_TYPE_RIGHT_EYE) { // cyan side
+							green = (green * 3 + red) / 4.0f;
+							blue = (blue * 3 + red) / 4.0f;
+							red = 0;
 						}
-						if (drawType == DRAW_TYPE_PICKING) { // || drawType == DRAW_TYPE_SHADOW) {
-							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, textureMatrix, color, 0.0f, true, false, WWObject.RENDER_LOD_FULL);
-						} else {
+						tempColor[0] = red;
+						tempColor[1] = green;
+						tempColor[2] = blue;
+						tempColor[3] = 1.0f - trans;
 
-							float red = sideAttributes.color.getRed();
-							float green = sideAttributes.color.getGreen();
-							float blue = sideAttributes.color.getBlue();
-							shininess = sideAttributes.shininess;
-							if (drawType == DRAW_TYPE_LEFT_EYE) { // red side
-								red = (red * 3 + green + blue) / 5.0f;
-								green = 0;
-								blue = 0;
-							} else if (drawType == DRAW_TYPE_RIGHT_EYE) { // cyan side
-								red = 0;
-								green = (green * 3 + red) / 4.0f;
-								blue = (blue * 3 + red) / 4.0f;
+						Matrix.setIdentityM(textureMatrix, 0);
+						if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
+							Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].texture.scaleX, 1.0f / object.sideAttributes[side].texture.scaleY, 1.0f);
+							Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
+							float textureRotation = sideAttributes.texture.rotation;
+							if (textureRotation != 0.0f) {
+								Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 							}
-							color = new float[] { red, green, blue, 1.0f - trans };
-
-							Matrix.setIdentityM(textureMatrix, 0);
-							if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
-								Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].texture.scaleX, 1.0f / object.sideAttributes[side].texture.scaleY, 1.0f);
-								Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
-								float textureRotation = sideAttributes.texture.rotation;
-								if (textureRotation != 0.0f) {
-									Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
-								}
-							}
-							String textureUrl = sideAttributes.texture.name;
-							int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
-							if (textureId != lastTextureId) {
-								GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-								GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-								lastTextureId = textureId;
-							}
-							int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
-							if (bumpTextureId != lastBumpTextureId) {
-								GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
-								GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
-								lastBumpTextureId = bumpTextureId;
-							}
-							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
-							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
 						}
+						String textureUrl = sideAttributes.texture.name;
+						int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
+						if (textureId != lastTextureId) {
+							GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+							lastTextureId = textureId;
+						}
+						int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
+						if (bumpTextureId != lastBumpTextureId) {
+							GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
+							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
+							lastBumpTextureId = bumpTextureId;
+						}
+						boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
+						GLSurface geometry = sides[side];
+						geometry.draw(shader, drawType, textureMatrix, tempColor, shininess, sideAttributes.fullBright, hasAlpha, lod);
 					}
 				}
 			}
@@ -403,23 +401,19 @@ public abstract class GLObject extends GLRendering {
 			}
 
 			float trans = sideAttributes.transparency;
-			float[] color = null;
 			float shininess = 0.0f;
 			if ((drawtrans && trans > 0.0) || (!drawtrans && trans == 0.0)) {
-				// float[] modelMatrix = getModelMatrix(worldTime);
-				Matrix.setIdentityM(modelMatrix, 0);
-				shader.setModelMatrix(modelMatrix);
+				shader.setModelMatrix(identityMatrix);
 				boolean hasAlpha = false;
 			//	if (drawType != DRAW_TYPE_SHADOW) {
 					Matrix.setIdentityM(textureMatrix, 0);
-					if (false) { // texture matrix is always baked into texture coords for groups
-						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.texture.scaleX, 1.0f / sideAttributes.texture.scaleY, 1.0f);
-						Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
-						float textureRotation = sideAttributes.texture.rotation;
-						if (textureRotation != 0.0f) {
-							Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
-						}
-					}
+					// Note: The texture matrix is baked into the texture coords for groups.  Otherwise, the following code would be needed
+					//	Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.texture.scaleX, 1.0f / sideAttributes.texture.scaleY, 1.0f);
+					//	Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
+					//	float textureRotation = sideAttributes.texture.rotation;
+					//	if (textureRotation != 0.0f) {
+					//		Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
+					//	}
 					float red = sideAttributes.color.getRed();
 					float green = sideAttributes.color.getGreen();
 					float blue = sideAttributes.color.getBlue();
@@ -429,11 +423,14 @@ public abstract class GLObject extends GLRendering {
 						green = 0;
 						blue = 0;
 					} else if (drawType == DRAW_TYPE_RIGHT_EYE) { // cyan side
-						red = 0;
 						green = (green * 3 + red) / 4.0f;
 						blue = (blue * 3 + red) / 4.0f;
+						red = 0;
 					}
-					color = new float[] { red, green, blue, 1.0f - trans };
+					tempColor[0] = red;
+					tempColor[1] = green;
+					tempColor[2] = blue;
+					tempColor[3] = 1.0f - trans;
 					String textureUrl = sideAttributes.texture.name;
 					int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
 					if (textureId != lastTextureId) {
@@ -453,7 +450,7 @@ public abstract class GLObject extends GLRendering {
 				// Note: model is identity so mvMatrix == viewMatrix and sunMvMatrix == sunViewMatrix below
 				for (int i = 0; i < groupSurfaces.length; i++) {
 					if (groupSurfaces[i] != null) {
-						groupSurfaces[i].draw(shader, drawType, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, WWObject.RENDER_LOD_FULL);
+						groupSurfaces[i].draw(shader, drawType, textureMatrix, tempColor, shininess, sideAttributes.fullBright, hasAlpha, WWObject.RENDER_LOD_FULL);
 					}
 				}
 			}
