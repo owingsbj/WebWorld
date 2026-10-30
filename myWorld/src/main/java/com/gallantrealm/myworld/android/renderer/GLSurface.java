@@ -44,11 +44,12 @@ public final class GLSurface {
 	public float[] sortVec = new float[4];
 
 	public boolean equals(Object o) {
-		return this.sortVec[2] == ((GLSurface)o).sortVec[2];
+		return o instanceof GLSurface && this.sortVec[2] == ((GLSurface)o).sortVec[2];
 	}
 
+	@SuppressWarnings("HalfFloat")
 	public static float halfToFloat(short h) {
-		return (new Half(h)).floatValue();
+		return Half.toFloat(h);
 	}
 
 	public static short floatToHalf(float f) {
@@ -121,8 +122,8 @@ public final class GLSurface {
 	public static void destroyVertexBuffers() {
 		System.out.println(">GLSurface.destroyVertexBuffers");
 
-		if (!buffersAllocated) {
-			GLES20.glDeleteBuffers(6, new int[] { verticesBufferId, normalsBufferId, tangentsBufferId, bitangentsBufferId, textureCoordsBufferId, indicesBufferId }, 0);
+		if (buffersAllocated) {
+			GLES20.glDeleteBuffers(8, new int[] { verticesBufferId, normalsBufferId, tangentsBufferId, bitangentsBufferId, textureCoordsBufferId, indicesBufferId, pointVerticesBufferId, extrasBufferId }, 0);
 
 			vertices = null;
 			pointVertices = null;
@@ -155,7 +156,7 @@ public final class GLSurface {
 
 	public GLSurface(int width, int height) {
 		if (!buffersAllocated) {
-			initializeVertexBuffers();;
+			initializeVertexBuffers();
 		}
 		this.width = width;
 		this.height = height;
@@ -406,14 +407,16 @@ public final class GLSurface {
 		if (baseVertex < 0) { // overflow
 			return;
 		}
-		int index = baseVertex;
-		for (int y = 0; y < height; y++) {
-			float ycoord = 1.0f / (height - 1) * (height - y - 1) - 0.5f;
-			for (int x = 0; x < width; x++) {
-				float xcoord = 0.5f - 1.0f / (width - 1) * x;
-				textureCoords.put(index * 2, floatToHalf(xcoord));
-				textureCoords.put(index * 2 + 1, floatToHalf(ycoord));
-				index++;
+		if (width >= 2 && height >= 2) {
+			int index = baseVertex;
+			for (int y = 0; y < height; y++) {
+				float ycoord = 1.0f / (height - 1) * (height - y - 1) - 0.5f;
+				for (int x = 0; x < width; x++) {
+					float xcoord = 0.5f - 1.0f / (width - 1) * x;
+					textureCoords.put(index * 2, floatToHalf(xcoord));
+					textureCoords.put(index * 2 + 1, floatToHalf(ycoord));
+					index++;
+				}
 			}
 		}
 		needsBufferUpdating = true;
@@ -484,23 +487,20 @@ public final class GLSurface {
 	}
 
 	public void adjustTextureCoords(float[] textureMatrix) {
-		if (baseVertex < 0) { // overflow
-			return;
-		}
+		if (baseVertex < 0) return;
 		int index = baseVertex;
+		float[] rhsVec = new float[] { 0, 0, 1, 1 };
+		float[] resultVec = new float[4];
+
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				float xcoord = halfToFloat(textureCoords.get(index * 2));
-				float ycoord = halfToFloat(textureCoords.get(index * 2 + 1));
+				rhsVec[0] = halfToFloat(textureCoords.get(index * 2));
+				rhsVec[1] = halfToFloat(textureCoords.get(index * 2 + 1));
 
-				float[] rhsVec = new float[] { xcoord, ycoord, 1, 1 };
-				float[] resultVec = new float[4];
 				Matrix.multiplyMV(resultVec, 0, textureMatrix, 0, rhsVec, 0);
-				xcoord = resultVec[0];
-				ycoord = resultVec[1];
 
-				textureCoords.put(index * 2, floatToHalf(xcoord));
-				textureCoords.put(index * 2 + 1, floatToHalf(ycoord));
+				textureCoords.put(index * 2, floatToHalf(resultVec[0]));
+				textureCoords.put(index * 2 + 1, floatToHalf(resultVec[1]));
 				index++;
 			}
 		}
@@ -545,7 +545,7 @@ public final class GLSurface {
 	private void getSafeVertex(int x, int y, Point3f p, boolean stitchx, boolean stitchy) {
 		if (x < 0) {
 			if (stitchx) {
-				x = width - 2;
+				x = Math.max(0, width - 2);
 			} else {
 				x = 0;
 			}
@@ -558,7 +558,7 @@ public final class GLSurface {
 		}
 		if (y < 0) {
 			if (stitchy) {
-				y = height - 2;
+				y = Math.max(0, height - 2);
 			} else {
 				y = 0;
 			}
@@ -586,9 +586,11 @@ public final class GLSurface {
 
 	private void normalize(Point3f v) {
 		float mag = (float) Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-		v.x = v.x / mag;
-		v.y = v.y / mag;
-		v.z = v.z / mag;
+		if (mag > 0.00001f) {
+			v.x = v.x / mag;
+			v.y = v.y / mag;
+			v.z = v.z / mag;
+		}
 	}
 
 	/**
@@ -674,6 +676,12 @@ public final class GLSurface {
 		AndroidRenderer.checkGlError();
 
 		// Note:  The indices buffer is independent of the vertex values so it doesn't need updating
+
+		vertices.position(0);
+		normals.position(0);
+		tangents.position(0);
+		bitangents.position(0);
+		textureCoords.position(0);
 
 		needsBufferUpdating = false;
 	}
