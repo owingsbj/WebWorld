@@ -51,7 +51,6 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class ShowWorldActivity extends GallantActivity implements OnTouchListener, ClientModelChangedListener, AlertListener, SensorEventListener {
 
-	PowerManager.WakeLock wakelock;
 	SensorManager sensorManager;
 	Sensor orientationSensor;
 	Sensor accelerometerSensor;
@@ -186,7 +185,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		wakelock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "ShowWorldActivity:WakeLock");
 
 		worldView = (GLSurfaceView) findViewById(R.id.worldView);
 		try {
@@ -203,7 +201,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		worldView.setRenderer(worldRenderer);
 		worldRenderer.initializeCameraPosition();
 
-		if (!pm.isScreenOn()) { // avoid rendering continuously if screen is off
+		if (!pm.isInteractive()) { // avoid rendering continuously if screen is off
 			worldView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 		}
 
@@ -309,7 +307,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		});
 
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		if (pm.isScreenOn()) { // don't resume rendering and physics unless screen is actually displayed
+		if (pm.isInteractive()) { // don't resume rendering and physics unless screen is actually displayed
 
 			worldView.onResume();
 
@@ -327,7 +325,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		updateTitleAndStatus();
 		clientModel.cameraToViewpoint();
 		clientModel.forceAvatar(0, 0, 0, 0, 0, 0);
-		wakelock.acquire();
 
 		if (clientModel.world != null) {
 			clientModel.world.displayed();
@@ -602,7 +599,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		clientModel.setContext(this);
 
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		if (pm.isScreenOn()) { // don't actually resume unless screen is displayed
+		if (pm.isInteractive()) { // don't actually resume unless screen is displayed
 
 			clientModel.flashMessage(" ", false);
 
@@ -611,8 +608,8 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			// bjo worldRenderer.clearTextureCache();
 			// bjo worldRenderer.clearRenderings();
 			worldRenderer.getSoundGenerator().resume();
-			if (sensorManager != null && clientModel.useSensors()) {
-				System.out.println("Registering acceleromentor listener");
+			if (sensorManager != null && accelerometerSensor != null && clientModel.useSensors()) {
+				System.out.println("Registering accelerometer listener");
 				sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
 				// sensorManager.registerListener(this, magneticFieldSensor, SensorManager.SENSOR_DELAY_GAME);
 			}
@@ -648,7 +645,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 	protected void onStop() {
 		System.out.println(">ShowWorldActivity.onStop");
 		super.onStop();
-		wakelock.release();
 		worldView.onPause();
 		if (clientModel.isLocalWorld()) {
 			if (clientModel.world != null) {
@@ -672,6 +668,8 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 	@Override
 	protected void onDestroy() {
 		System.out.println(">ShowWorldActivity.onDestroy");
+		clientModel.removeClientModelChangedListener(this);
+		clientModel.setAlertListener(null);
 		worldRenderer.destroy();
 		super.onDestroy();
 		System.out.println("<ShowWorldActivity.onDestroy");
@@ -1668,20 +1666,6 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			clientModel.lastTexturePickerDialog.onActivityResult(requestCode, resultCode, data);
 			clientModel.lastTexturePickerDialog = null;
 		}
-	}
-
-	private void sendKey(final int keyCode) {
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					Instrumentation inst = new Instrumentation();
-					inst.sendKeyDownUpSync(keyCode);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}.start();
 	}
 
 	@SuppressLint("NewApi")
