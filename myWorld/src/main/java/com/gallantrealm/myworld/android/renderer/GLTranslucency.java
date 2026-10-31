@@ -145,15 +145,21 @@ public class GLTranslucency extends GLObject  {
 					if ((drawtrans && trans > 0.0 && trans < 1.0) || (!drawtrans && trans == 0.0)) {
 						if (drawType != DRAW_TYPE_PICKING) {
 							WWColor sideColor = sideAttributes.getColor();
-							float[] color;
+							float red, green, blue, alpha;
 							if (trans == 0.0) {
 								GLES20.glDisable(GLES20.GL_BLEND);
 								// GLES20.glMaterialfv(GLES20.GL_FRONT_AND_BACK, GLES20.GL_AMBIENT_AND_DIFFUSE, new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f }, 0);
-								color = new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f };
+								red = sideColor.getRed();
+								green = sideColor.getGreen();
+								blue = sideColor.getBlue();
+								alpha = 1.0f;
 							} else {
 								GLES20.glEnable(GLES20.GL_BLEND);
 								// GLES20.glMaterialfv(GLES20.GL_FRONT_AND_BACK, GLES20.GL_AMBIENT_AND_DIFFUSE, new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f - trans }, 0);
-								color = new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f - trans };
+								red = sideColor.getRed();
+								green = sideColor.getGreen();
+								blue = sideColor.getBlue();
+								alpha = 1.0f - trans;
 							}
 							float shininess = sideAttributes.shininess;
 
@@ -176,7 +182,7 @@ public class GLTranslucency extends GLObject  {
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType,  textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
+							geometry.draw(shader, drawType,  textureMatrix, red, green, blue, alpha, shininess, sideAttributes.fullBright, hasAlpha, lod);
 						}
 					}
 					
@@ -189,20 +195,26 @@ public class GLTranslucency extends GLObject  {
 							float red = (((id & 0xF00) >> 8) + 0.5f) / 16.0f;
 							float green = (((id & 0x00F0) >> 4) + 0.5f) / 16.0f;
 							float blue = ((id & 0x00F) + 0.5f) / 16.0f;
-							float[] color = new float[] {red, green, blue, 1.0f};
+							float alpha = 1.0f;
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, textureMatrix, color, 0.0f, true, false, lod);
+							geometry.draw(shader, drawType, textureMatrix, red, green, blue, alpha, 0.0f, true, false, lod);
 						} else {
 							WWColor sideColor = sideAttributes.getColor();
-							float[] color;
+							float red, green, blue, alpha;
 							if (trans == 0.0) {
 								GLES20.glDisable(GLES20.GL_BLEND);
 								// GLES20.glMaterialfv(GLES20.GL_FRONT_AND_BACK, GLES20.GL_AMBIENT_AND_DIFFUSE, new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f }, 0);
-								color = new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f };
+								red = sideColor.getRed();
+								green = sideColor.getGreen();
+								blue = sideColor.getBlue();
+								alpha = 1.0f;
 							} else {
 								GLES20.glEnable(GLES20.GL_BLEND);
 								// GLES20.glMaterialfv(GLES20.GL_FRONT_AND_BACK, GLES20.GL_AMBIENT_AND_DIFFUSE, new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f - trans }, 0);
-								color = new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 1.0f - trans };
+								red = sideColor.getRed();
+								green = sideColor.getGreen();
+								blue = sideColor.getBlue();
+								alpha = 1.0f - trans;
 							}
 							float shininess = sideAttributes.shininess;
 
@@ -225,7 +237,7 @@ public class GLTranslucency extends GLObject  {
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
-							geometry.draw(shader, drawType, textureMatrix, color, shininess, sideAttributes.fullBright, hasAlpha, lod);
+							geometry.draw(shader, drawType, textureMatrix, red, green, blue, alpha, shininess, sideAttributes.fullBright, hasAlpha, lod);
 						}
 					}
 				}

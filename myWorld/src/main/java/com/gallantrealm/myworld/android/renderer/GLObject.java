@@ -27,7 +27,6 @@ public abstract class GLObject extends GLRendering {
 	protected final AndroidRenderer renderer;
 
 	protected GLSurface[] sides = new GLSurface[WWObject.NSIDES];
-	protected final float[] tempColor = new float[4];
 
 	protected GLObject(AndroidRenderer renderer, WWObject object, long worldTime) {
 		this.renderer = renderer;
@@ -240,10 +239,10 @@ public abstract class GLObject extends GLRendering {
 				// send to the shader
 				if (drawType == DRAW_TYPE_PICKING) {
 					int id = object.getId();
-					tempColor[0] = (((id & 0xF00) >> 8) + 0.5f) / 16.0f;
-					tempColor[1] = (((id & 0x00F0) >> 4) + 0.5f) / 16.0f;
-					tempColor[2] = ((id & 0x00F) + 0.5f) / 16.0f;
-					tempColor[3] = 1.0f;
+					float red = (((id & 0xF00) >> 8) + 0.5f) / 16.0f;
+					float green = (((id & 0x00F0) >> 4) + 0.5f) / 16.0f;
+					float blue = ((id & 0x00F) + 0.5f) / 16.0f;
+					float alpha = 1.0f;
 					int textureId = renderer.getTexture("white", true);
 					if (textureId != lastTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -258,7 +257,7 @@ public abstract class GLObject extends GLRendering {
 					}
 					for (int i = 0; i < sides.length; i++) {
 						if (sides[i] != null) {
-							sides[i].draw(shader, drawType, textureMatrix, tempColor, 0.0f, true, false, lod);
+							sides[i].draw(shader, drawType, textureMatrix, red, green, blue, alpha, 0.0f, true, false, lod);
 						}
 					}
 				} else {
@@ -276,10 +275,7 @@ public abstract class GLObject extends GLRendering {
 						blue = (blue * 3 + red) / 4.0f;
 						red = 0;
 					}
-					tempColor[0] = red;
-					tempColor[1] = green;
-					tempColor[2] = blue;
-					tempColor[3] = 1.0f - trans;
+					float alpha = 1.0f - trans;
 					if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
 						Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.texture.scaleX, 1.0f / sideAttributes.texture.scaleY, 1.0f);
 						Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
@@ -304,7 +300,7 @@ public abstract class GLObject extends GLRendering {
 					boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 					for (int i = 0; i < sides.length; i++) {
 						if (sides[i] != null) {
-							sides[i].draw(shader, drawType, textureMatrix, tempColor, shininess, fullBright, hasAlpha, lod);
+							sides[i].draw(shader, drawType, textureMatrix, red, green, blue, alpha, shininess, fullBright, hasAlpha, lod);
 						}
 					}
 				}
@@ -334,10 +330,7 @@ public abstract class GLObject extends GLRendering {
 							blue = (blue * 3 + red) / 4.0f;
 							red = 0;
 						}
-						tempColor[0] = red;
-						tempColor[1] = green;
-						tempColor[2] = blue;
-						tempColor[3] = 1.0f - trans;
+						float alpha = 1.0f - trans;
 
 						Matrix.setIdentityM(textureMatrix, 0);
 						if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
@@ -363,7 +356,7 @@ public abstract class GLObject extends GLRendering {
 						}
 						boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
 						GLSurface geometry = sides[side];
-						geometry.draw(shader, drawType, textureMatrix, tempColor, shininess, sideAttributes.fullBright, hasAlpha, lod);
+						geometry.draw(shader, drawType, textureMatrix, red, green, blue, alpha, shininess, sideAttributes.fullBright, hasAlpha, lod);
 					}
 				}
 			}
@@ -427,10 +420,7 @@ public abstract class GLObject extends GLRendering {
 						blue = (blue * 3 + red) / 4.0f;
 						red = 0;
 					}
-					tempColor[0] = red;
-					tempColor[1] = green;
-					tempColor[2] = blue;
-					tempColor[3] = 1.0f - trans;
+					float alpha = 1.0f - trans;
 					String textureUrl = sideAttributes.texture.name;
 					int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
 					if (textureId != lastTextureId) {
@@ -450,7 +440,7 @@ public abstract class GLObject extends GLRendering {
 				// Note: model is identity so mvMatrix == viewMatrix and sunMvMatrix == sunViewMatrix below
 				for (int i = 0; i < groupSurfaces.length; i++) {
 					if (groupSurfaces[i] != null) {
-						groupSurfaces[i].draw(shader, drawType, textureMatrix, tempColor, shininess, sideAttributes.fullBright, hasAlpha, WWObject.RENDER_LOD_FULL);
+						groupSurfaces[i].draw(shader, drawType, textureMatrix, red, green, blue, alpha, shininess, sideAttributes.fullBright, hasAlpha, WWObject.RENDER_LOD_FULL);
 					}
 				}
 			}

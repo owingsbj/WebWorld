@@ -689,7 +689,7 @@ public final class GLSurface {
 	/**
 	 * Draws the surface
 	 */
-	public void draw(Shader shader, int drawType, float[] textureMatrix, float[] color, float shininess, boolean fullBright, boolean alphaTest, int lod) {
+	public void draw(Shader shader, int drawType, float[] textureMatrix, float r, float g, float b, float a, float shininess, boolean fullBright, boolean alphaTest, int lod) {
 
 		if (baseVertex < 0) { // overflow
 			return;
@@ -700,13 +700,13 @@ public final class GLSurface {
 		}
 
 		if (lod == WWObject.RENDER_LOD_FULL) {
-			shader.drawTriangleStrip(nindices, baseIndex, textureMatrix, color, shininess, fullBright ? 1 : 0);
+			shader.drawTriangleStrip(nindices, baseIndex, textureMatrix, r, g, b, a, shininess, fullBright ? 1 : 0);
 		} else if (lod == WWObject.RENDER_LOD_MINI) {
-			shader.drawTriangleStrip(nindicesMini, baseIndexMini, textureMatrix, color, shininess, fullBright ? 1 : 0);
+			shader.drawTriangleStrip(nindicesMini, baseIndexMini, textureMatrix, r, g, b, a, shininess, fullBright ? 1 : 0);
 		} else if (lod == WWObject.RENDER_LOD_MICRO) {
-			shader.drawTriangleStrip(nindicesMicro, baseIndexMicro, textureMatrix, color, shininess, fullBright ? 1 : 0);
+			shader.drawTriangleStrip(nindicesMicro, baseIndexMicro, textureMatrix, r, g, b, a, shininess, fullBright ? 1 : 0);
 		} else if (lod == WWObject.RENDER_LOD_NANO) {
-			shader.drawTriangleStrip(nindicesNano, baseIndexNano, textureMatrix, color, shininess, fullBright ? 1 : 0);
+			shader.drawTriangleStrip(nindicesNano, baseIndexNano, textureMatrix, r, g, b, a, shininess, fullBright ? 1 : 0);
 		}
 	}
 

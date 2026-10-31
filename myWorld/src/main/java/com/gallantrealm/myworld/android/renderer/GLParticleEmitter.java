@@ -106,12 +106,11 @@ public class GLParticleEmitter extends GLObject {
 			float[] modelMatrix = getAnimatedModelMatrix(worldTime);
 			shader.setModelMatrix(modelMatrix);
 			Matrix.setIdentityM(textureMatrix, 0);
-			float[] color = null;
 			int id = object.getId();
 			float red = (((id & 0xF00) >> 8) + 0.5f) / 16.0f;
 			float green = (((id & 0x00F0) >> 4) + 0.5f) / 16.0f;
 			float blue = ((id & 0x00F) + 0.5f) / 16.0f;
-			color = new float[] { red, green, blue, 1.0f };
+			float alpha = 1.0f;
 			int textureId = renderer.getTexture("white", true);
 			if (textureId != lastTextureId) {
 				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -126,7 +125,7 @@ public class GLParticleEmitter extends GLObject {
 			}
 			for (int i = 0; i < sides.length; i++) {
 				if (sides[i] != null) {
-					sides[i].draw(shader, drawType, textureMatrix, color, 0.0f, true, false, lod);
+					sides[i].draw(shader, drawType, textureMatrix, red, green, blue, alpha, 0.0f, true, false, lod);
 				}
 			}
 			return;
@@ -152,7 +151,7 @@ public class GLParticleEmitter extends GLObject {
 			green = (green * 3 + red) / 4.0f;
 			blue = (blue * 3 + red) / 4.0f;
 		}
-		float[] color = new float[] { red, green, blue, 1.0f - trans };
+		float alpha = 1.0f - trans;
 
 		int fullBright = 1;
 		Matrix.setIdentityM(textureMatrix, 0);
@@ -194,7 +193,7 @@ public class GLParticleEmitter extends GLObject {
 		Matrix.setIdentityM(modelMatrix, 0);
 		shader.setModelMatrix(modelMatrix);
 		// draw points
-		shader.drawPoints(emitter.particleCount, vertices, extras, textureMatrix, color, shininess, fullBright, true);
+		shader.drawPoints(emitter.particleCount, vertices, extras, textureMatrix, red, green, blue, alpha, shininess, fullBright, true);
 	}
 
 	@Override

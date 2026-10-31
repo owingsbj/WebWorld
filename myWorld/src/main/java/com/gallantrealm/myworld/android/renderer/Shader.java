@@ -189,7 +189,7 @@ public abstract class Shader {
 	/**
 	 * Draw a strip of triangles.
 	 */
-	public final void drawTriangleStrip(int nindices, int baseIndex, float[] textureMatrix, float[] color, float shininess, int fullBright) {
+	public final void drawTriangleStrip(int nindices, int baseIndex, float[] textureMatrix, float r, float g, float b, float a, float shininess, int fullBright) {
 		if (program != lastProgram) {
 			GLES30.glUseProgram(program);
 			lastProgram = program;
@@ -202,7 +202,7 @@ public abstract class Shader {
 			}
 		}
 		if (colorLocation >= 0) {
-			GLES30.glUniform4fv(colorLocation, 1, color, 0);
+			GLES30.glUniform4f(colorLocation, r, g, b, a);
 			AndroidRenderer.checkGlError();
 		}
 		if (shininessLocation >= 0) {
@@ -211,6 +211,10 @@ public abstract class Shader {
 		}
 		if (fullBrightLocation >= 0) {
 			GLES30.glUniform1i(fullBrightLocation, fullBright);
+			AndroidRenderer.checkGlError();
+		}
+		if (pointDrawLocation >= 0) {
+			GLES30.glUniform1i(pointDrawLocation, 0);
 			AndroidRenderer.checkGlError();
 		}
 
@@ -256,7 +260,7 @@ public abstract class Shader {
 	/**
 	 * Draw all points given the id's of the buffers containing vertex information.  This is used for particle emitters.
 	 */
-	public final void drawPoints(int nindices, float[] pointVertices, short[] extras, float[] textureMatrix, float[] color, float shininess, int fullBright, boolean alphaTest) {
+	public final void drawPoints(int nindices, float[] pointVertices, short[] extras, float[] textureMatrix, float r, float g, float b, float a, float shininess, int fullBright, boolean alphaTest) {
 		if (program != lastProgram) {
 			GLES30.glUseProgram(program);
 			lastProgram = program;
@@ -265,9 +269,10 @@ public abstract class Shader {
 		if (textureMatrixLocation >= 0) {
 			GLES30.glUniformMatrix4fv(textureMatrixLocation, 1, false, textureMatrix, 0);
 			AndroidRenderer.checkGlError();
+			lastTextureMatrix[0] = -1; // force update for drawTriangleStrip
 		}
 		if (colorLocation >= 0) {
-			GLES30.glUniform4fv(colorLocation, 1, color, 0);
+			GLES30.glUniform4f(colorLocation, r, g, b, a);
 			AndroidRenderer.checkGlError();
 		}
 		if (shininessLocation >= 0) {
