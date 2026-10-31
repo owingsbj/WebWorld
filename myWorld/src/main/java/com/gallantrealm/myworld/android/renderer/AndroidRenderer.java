@@ -1173,6 +1173,14 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		return soundGenerator;
 	}
 
+	private final WWVector scratchCameraPoint = new WWVector();
+	private final WWVector scratchPoint = new WWVector();
+	private final WWVector scratchCameraLocation = new WWVector();
+	private final WWVector scratchPosition = new WWVector();
+	private final WWVector scratchTempPoint = new WWVector();
+	private final WWVector scratchPenetrationVector = new WWVector();
+	private final WWQuaternion scratchRotation = new WWQuaternion();
+	private final WWQuaternion scratchCameraObjectRotation = new WWQuaternion();
 	private WWVector lastDeterminedCameraPosition;
 
 	/**
@@ -1182,7 +1190,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		if (clientModel.world == null) {
 			return;
 		}
-		WWVector cameraPoint = new WWVector();
+		scratchCameraPoint.set(0, 0, 0);
 		float cameraPan = clientModel.getCameraPan();
 		float cameraPanVelocity = clientModel.getCameraPanVelocity();
 		float cameraTilt = clientModel.getCameraTilt();
@@ -1192,11 +1200,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		WWObject cameraObject = clientModel.getCameraObject();
 
 		WWObject avatar = clientModel.getAvatar();
-		WWQuaternion cameraObjectRotation;
 		if (cameraObject != null) {
-			cameraObjectRotation = cameraObject.getAbsoluteAnimatedRotation(time);
+			cameraObject.getAbsoluteAnimatedRotation(scratchCameraObjectRotation, time);
 		} else {
-			cameraObjectRotation = new WWQuaternion();
+			scratchCameraObjectRotation.set(1.0f, 0, 0, 0);
 		}
 		float cameraSlideX = clientModel.getCameraSlideX();
 		float cameraSlideY = clientModel.getCameraSlideY();
@@ -1224,20 +1231,20 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 		// Adjust camera position based on tracking object
 		if (cameraObject != null) {
-			cameraObject.getAbsoluteAnimatedPosition(cameraPoint, time);
+			cameraObject.getAbsoluteAnimatedPosition(scratchCameraPoint, time);
 			if (avatar == cameraObject && cameraDistance < 10) {
-				WWVector point = new WWVector(0, 0, 0.75f);
-				cameraObject.rotate(point, cameraObjectRotation);
-				cameraPoint.add(point); // so avatar is in lower part of screen
+				scratchPoint.set(0, 0, 0.75f);
+				cameraObject.rotate(scratchPoint, scratchCameraObjectRotation);
+				scratchCameraPoint.add(scratchPoint); // so avatar is in lower part of screen
 			}
 		}
 
 		// Adjust camera position based on camera slide
-		float slideCameraPointX = cameraPoint.x + (float) Math.cos(TORADIAN * cameraPan) * cameraSlideX - (float) Math.sin(TORADIAN * cameraPan) * (float) Math.sin(TORADIAN * cameraTilt) * cameraSlideY
+		float slideCameraPointX = scratchCameraPoint.x + (float) Math.cos(TORADIAN * cameraPan) * cameraSlideX - (float) Math.sin(TORADIAN * cameraPan) * (float) Math.sin(TORADIAN * cameraTilt) * cameraSlideY
 				- (float) Math.sin(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt) * cameraSlideZ;
-		float slideCameraPointY = cameraPoint.y - (float) Math.sin(TORADIAN * cameraPan) * cameraSlideX - (float) Math.cos(TORADIAN * cameraPan) * (float) Math.sin(TORADIAN * cameraTilt) * cameraSlideY
+		float slideCameraPointY = scratchCameraPoint.y - (float) Math.sin(TORADIAN * cameraPan) * cameraSlideX - (float) Math.cos(TORADIAN * cameraPan) * (float) Math.sin(TORADIAN * cameraTilt) * cameraSlideY
 				- (float) Math.cos(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt) * cameraSlideZ;
-		float slideCameraPointZ = cameraPoint.z + (float) Math.cos(TORADIAN * cameraTilt) * cameraSlideY - (float) Math.sin(TORADIAN * cameraTilt) * cameraSlideZ;
+		float slideCameraPointZ = scratchCameraPoint.z + (float) Math.cos(TORADIAN * cameraTilt) * cameraSlideY - (float) Math.sin(TORADIAN * cameraTilt) * cameraSlideZ;
 
 		// limit camera according to unpenetratable objects
 		float limitedCameraDistance = cameraDistance;
@@ -1249,11 +1256,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			}
 			WWObject[] objects = clientModel.world.getObjects();
 			int lastObjectIndex = clientModel.world.lastObjectIndex;
-			WWVector cameraLocation = new WWVector();
-			WWVector position = new WWVector();
-			WWQuaternion rotation = new WWQuaternion();
-			WWVector tempPoint = new WWVector();
-			WWVector penetrationVector = new WWVector();
 			boolean penetrated = true;
 			while (penetrated) {
 				penetrated = false;
@@ -1261,28 +1263,28 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					WWObject object = objects[i];
 					if (object != null && !object.deleted && !object.penetratable && object.solid && !object.phantom) {
 						if (cameraObject != null && avatar != null && (cameraObject == avatar || avatar.isDescendant(cameraObject))) {
-							cameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * (cameraPan + cameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + cameraObjectRotation.getPitch()));
+							scratchCameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * (cameraPan + scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
 							if (cameraDistance < 10) {
-								cameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * (cameraPan + cameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + cameraObjectRotation.getPitch()));
-								cameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
+								scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * (cameraPan + scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
+								scratchCameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
 							} else {
-								cameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
-								cameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
+								scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
+								scratchCameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
 							}
 						} else {
-							cameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
-							cameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
-							cameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
+							scratchCameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
+							scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
+							scratchCameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
 						}
 						// First, see if the objects are "close". If they are, it is worth
 						// determining if they actually overlap
-						object.getPosition(position);
+						object.getPosition(scratchPosition);
 						float extent = object.extent;
-						if (object.parentId != 0 || (Math.abs(position.x - cameraLocation.x) < extent && Math.abs(position.y - cameraLocation.y) < extent && Math.abs(position.z - cameraLocation.z) < extent)) {
-							object.getRotation(rotation);
-							object.getPenetration(cameraLocation, position, rotation, time, tempPoint, penetrationVector);
-							if (penetrationVector != null && penetrationVector.length() > 0 && limitedCameraDistance > 0.25) {
-								if (Math.abs(penetrationVector.z) > FastMath.max(Math.abs(penetrationVector.x), Math.abs(penetrationVector.y)) && cameraTilt < 45.0) {
+						if (object.parentId != 0 || (Math.abs(scratchPosition.x - scratchCameraLocation.x) < extent && Math.abs(scratchPosition.y - scratchCameraLocation.y) < extent && Math.abs(scratchPosition.z - scratchCameraLocation.z) < extent)) {
+							object.getRotation(scratchRotation);
+							object.getPenetration(scratchCameraLocation, scratchPosition, scratchRotation, time, scratchTempPoint, scratchPenetrationVector);
+							if (scratchPenetrationVector != null && scratchPenetrationVector.length() > 0 && limitedCameraDistance > 0.25) {
+								if (Math.abs(scratchPenetrationVector.z) > FastMath.max(Math.abs(scratchPenetrationVector.x), Math.abs(scratchPenetrationVector.y)) && cameraTilt < 45.0) {
 									cameraTilt += 15.0;
 								} else {
 									limitedCameraDistance = limitedCameraDistance * 0.5f;
@@ -1294,7 +1296,15 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					}
 				}
 			}
-			lastDeterminedCameraPosition = cameraLocation;
+			if (lastDeterminedCameraPosition == null) {
+				lastDeterminedCameraPosition = new WWVector();
+			}
+			lastDeterminedCameraPosition.set(scratchCameraLocation.x, scratchCameraLocation.y, scratchCameraLocation.z);
+		} else {
+			if (lastDeterminedCameraPosition == null) {
+				lastDeterminedCameraPosition = new WWVector();
+			}
+			lastDeterminedCameraPosition.set(slideCameraPointX, slideCameraPointY, slideCameraPointZ);
 		}
 		limitedCameraDistance = FastMath.max(clientModel.minCameraDistance, limitedCameraDistance);
 		lastLimitedCameraDistance = limitedCameraDistance;
@@ -1330,12 +1340,12 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		float dampCameraPan = (cameraPan + clientModel.cameraDampRate * clientModel.getDampedCameraPan()) / (clientModel.cameraDampRate + 1);
 		float dampCameraTilt = (cameraTilt + clientModel.cameraDampRate * clientModel.getDampedCameraTilt()) / (clientModel.cameraDampRate + 1);
 		if (cameraObject != null && avatar != null && (avatar == cameraObject || avatar.isDescendant(cameraObject))) {
-			absoluteCameraPan = dampCameraPan + cameraObjectRotation.getYaw();
+			absoluteCameraPan = dampCameraPan + scratchCameraObjectRotation.getYaw();
 			if (cameraDistance < 10) {
 				if (avatar == cameraObject) {
-					absoluteCameraTilt = dampCameraTilt - cameraObjectRotation.getPitch();
+					absoluteCameraTilt = dampCameraTilt - scratchCameraObjectRotation.getPitch();
 				} else {
-					absoluteCameraTilt = cameraTilt - cameraObjectRotation.getPitch();
+					absoluteCameraTilt = cameraTilt - scratchCameraObjectRotation.getPitch();
 				}
 			} else {
 				absoluteCameraTilt = dampCameraTilt;
