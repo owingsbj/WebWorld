@@ -1263,11 +1263,12 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					WWObject object = objects[i];
 					if (object != null && !object.deleted && !object.penetratable && object.solid && !object.phantom) {
 						if (cameraObject != null && avatar != null && (cameraObject == avatar || avatar.isDescendant(cameraObject))) {
-							scratchCameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * (cameraPan + scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
 							if (cameraDistance < 10) {
-								scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * (cameraPan + scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
+								scratchCameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * (cameraPan - scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
+								scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * (cameraPan - scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
 								scratchCameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
 							} else {
+								scratchCameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
 								scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
 								scratchCameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
 							}
@@ -1340,7 +1341,11 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		float dampCameraPan = (cameraPan + clientModel.cameraDampRate * clientModel.getDampedCameraPan()) / (clientModel.cameraDampRate + 1);
 		float dampCameraTilt = (cameraTilt + clientModel.cameraDampRate * clientModel.getDampedCameraTilt()) / (clientModel.cameraDampRate + 1);
 		if (cameraObject != null && avatar != null && (avatar == cameraObject || avatar.isDescendant(cameraObject))) {
-			absoluteCameraPan = dampCameraPan + scratchCameraObjectRotation.getYaw();
+			if (cameraDistance < 10) {
+				absoluteCameraPan = dampCameraPan - scratchCameraObjectRotation.getYaw();
+			} else {
+				absoluteCameraPan = dampCameraPan;
+			}
 			if (cameraDistance < 10) {
 				if (avatar == cameraObject) {
 					absoluteCameraTilt = dampCameraTilt - scratchCameraObjectRotation.getPitch();
