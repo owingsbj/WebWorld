@@ -534,31 +534,36 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
 		int level = 0;
-		while (height >= 1 || width >= 1) {
+		try {
+			while (height >= 1 || width >= 1) {
 
-			GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, level, bitmap, 0);
-			// GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, level, GLES20.GL_RGB, bitmap, GLES20.GL_UNSIGNED_SHORT_5_6_5, 0);
-			// GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, level, GLES20.GL_RGBA, bitmap, GLES20.GL_UNSIGNED_BYTE, 0);
+				GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, level, bitmap, 0);
+				// GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, level, GLES20.GL_RGB, bitmap, GLES20.GL_UNSIGNED_SHORT_5_6_5, 0);
+				// GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, level, GLES20.GL_RGBA, bitmap, GLES20.GL_UNSIGNED_BYTE, 0);
 
-			if (height <= 1 || width <= 1) {
-				break;
-			}
-			if (textureName.equals("surface_select") || height > 1024 || width > 1024) { // avoid mipmapping large textures
+				if (height <= 1 || width <= 1) {
+					break;
+				}
+				if (textureName.equals("surface_select") || height > 1024 || width > 1024) { // avoid mipmapping large textures
+					break;
+				}
+
+				// Increase the mipmap level
+				level++;
+
+				// gen a scaled mipmap
+				height /= 2;
+				width /= 2;
+				Bitmap bitmap2 = Bitmap.createScaledBitmap(bitmap, width, height, true);
+
+				// Clean up
 				bitmap.recycle();
-				break;
+				bitmap = bitmap2;
 			}
-
-			// Increase the mipmap level
-			level++;
-
-			// gen a scaled mipmap
-			height /= 2;
-			width /= 2;
-			Bitmap bitmap2 = Bitmap.createScaledBitmap(bitmap, width, height, true);
-
-			// Clean up
-			bitmap.recycle();
-			bitmap = bitmap2;
+		} finally {
+			if (bitmap != null && !bitmap.isRecycled()) {
+				bitmap.recycle();
+			}
 		}
 		return textureId;
 	}
