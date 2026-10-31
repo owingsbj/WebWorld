@@ -738,7 +738,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 				// then, get a sampled-down bitmap large enough for the texture
 				options.inJustDecodeBounds = false;
-				options.inSampleSize = Math.min(options.outWidth, options.outHeight) / 512;
+				options.inSampleSize = Math.max(1, Math.min(options.outWidth, options.outHeight) / 512);
 				bm = BitmapFactory.decodeFileDescriptor(fileDescriptor.getFileDescriptor(), null, options);
 			} catch (FileNotFoundException e) {
 				System.err.println("AndroidRenderer.readImageTexture: File not found -- " + selectedImage);
