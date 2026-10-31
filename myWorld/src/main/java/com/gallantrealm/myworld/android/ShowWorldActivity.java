@@ -116,9 +116,9 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 				float dPadX;
 				float dPadY;
 				if (dPadLeftDown) {
-					dPadX = 50;
-				} else if (dPadRightDown) {
 					dPadX = -50;
+				} else if (dPadRightDown) {
+					dPadX = 50;
 				} else {
 					dPadX = 0;
 				}
