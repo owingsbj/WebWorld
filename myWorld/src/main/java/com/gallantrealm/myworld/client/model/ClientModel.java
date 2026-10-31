@@ -1399,7 +1399,7 @@ public abstract class ClientModel {
 
 	public boolean isScreenOn() {
 		PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-		return pm.isScreenOn();
+		return pm.isInteractive();
 	}
 
 	public void setPlayMusic(boolean playMusic) {
