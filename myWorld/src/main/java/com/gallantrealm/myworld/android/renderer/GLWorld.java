@@ -1,24 +1,32 @@
 package com.gallantrealm.myworld.android.renderer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-
+import android.util.Log;
 import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.client.renderer.IRendering;
 import com.gallantrealm.myworld.model.WWConstant;
 import com.gallantrealm.myworld.model.WWObject;
-import com.gallantrealm.myworld.model.WWTranslucency;
 import com.gallantrealm.myworld.model.WWWorld;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class GLWorld implements IRendering {
+
+	private static final String TAG = "GLWorld";
 
 	private final AndroidRenderer renderer;
 	private final WWWorld world;
 
+	// Reusable scratch array to avoid per-frame GC allocations when drawing single surfaces
+	private final GLSurface[] singleSurfaceScratch = new GLSurface[1];
+
+	// Reusable static comparator to avoid per-frame allocations during sorting
+	private static final Comparator<GLSurface> SURFACE_Z_COMPARATOR =
+			(lhs, rhs) -> Float.compare(rhs.sortVec[2], lhs.sortVec[2]);
+
+	@SuppressWarnings("unused")
 	public GLWorld(AndroidRenderer renderer, WWWorld world, long worldTime) {
 		this.renderer = renderer;
 		this.world = world;
@@ -32,7 +40,7 @@ public class GLWorld implements IRendering {
 	/**
 	 * Record the location of all objects in the world at the given time
 	 * 
-	 * @param worldTime
+	 * @param worldTime world time in milliseconds
 	 */
 	public void snap(long worldTime) {
 		WWObject[] objects = world.objects;
@@ -64,8 +72,8 @@ public class GLWorld implements IRendering {
 		for (int i = 0; i <= lastObjectIndex; i++) {
 			WWObject object = objects[i];
 			if (object != null && object.renderit && object.rendering != null) {
-				largestGroup = (object.group > largestGroup) ? object.group : largestGroup;
-				if (!drawnOnce || ((drawType == DRAW_TYPE_PICKING || object.group == 0))) { // && renderer.isVisible(adjustedCameraPosition, object, worldTime, temp))) {
+				largestGroup = Math.max(largestGroup, object.group);
+				if (!drawnOnce || ((drawType == DRAW_TYPE_PICKING || object.group == 0))) {
 					if (!object.shadowless || drawType != DRAW_TYPE_SHADOW) {
 						((GLRendering) object.rendering).draw(shader, viewMatrix, worldTime, drawType, false, object.renderLod);
 					}
@@ -86,9 +94,9 @@ public class GLWorld implements IRendering {
 						if (object != null && object.renderit && object.rendering != null && object.group == g) {
 							tokenObject = object;
 							GLSurface[] sides = ((GLObject) object.rendering).sides;
-							for (int s = 0; s < sides.length; s++) {
-								if (sides[s] != null) {
-									surfacesList.add(sides[s]);
+							for (GLSurface side : sides) {
+								if (side != null) {
+									surfacesList.add(side);
 								}
 							}
 						}
@@ -103,7 +111,7 @@ public class GLWorld implements IRendering {
 			}
 			for (int g = 0; g < largestGroup; g++) {
 				WWObject tokenObject = drawGroupsObject[g];
-				if (tokenObject != null && tokenObject.renderit && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency == 0) { // && tokenObject.renderit) {
+				if (tokenObject != null && tokenObject.renderit && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency == 0) {
 					if (!tokenObject.shadowless || drawType != DRAW_TYPE_SHADOW) {
 						((GLObject) tokenObject.rendering).drawSurfaces(shader, drawGroups[g], viewMatrix, worldTime, drawType, false);
 					}
@@ -119,7 +127,7 @@ public class GLWorld implements IRendering {
 			// draw translucent (non-groups)
 			for (int i = 0; i <= lastObjectIndex; i++) {
 				WWObject object = objects[i];
-				if (object != null && object.renderit && object.rendering != null && (object.group == 0 || !drawnOnce)) { // && renderer.isVisible(adjustedCameraPosition, object, worldTime, temp)) {
+				if (object != null && object.renderit && object.rendering != null && (object.group == 0 || !drawnOnce)) {
 					((GLRendering) object.rendering).draw(shader, viewMatrix, worldTime, drawType, true, WWObject.RENDER_LOD_FULL);
 				}
 			}
@@ -128,24 +136,15 @@ public class GLWorld implements IRendering {
 			if (drawType != DRAW_TYPE_PICKING && drawnOnce) {
 				for (int g = 0; g < drawGroups.length; g++) {
 					WWObject tokenObject = drawGroupsObject[g];
-					if (tokenObject != null && tokenObject.renderit && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency > 0) { // && tokenObject.renderit) {
-						sortSurfaces(drawGroups[g], viewMatrix);
-// ((GLObject) tokenObject.rendering).drawSurfaces(shader, drawGroups[g], viewMatrix, sunViewMatrix, worldTime, drawType, true);
-						GLSurface[] surface = new GLSurface[1];
-						for (int s = 0; s < drawGroups[g].length; s++) {
-							surface[0] = drawGroups[g][s];
-							((GLObject) tokenObject.rendering).drawSurfaces(shader, surface, viewMatrix, worldTime, drawType, true);
+					if (tokenObject != null && tokenObject.renderit && tokenObject.rendering != null && tokenObject.sideAttributes[WWConstant.SIDE_ALL].transparency > 0) {
+						if (tokenObject.rendering instanceof GLObject) {
+							sortSurfaces(drawGroups[g], viewMatrix);
+							GLObject glObject = (GLObject) tokenObject.rendering;
+							for (int s = 0; s < drawGroups[g].length; s++) {
+								singleSurfaceScratch[0] = drawGroups[g][s];
+								glObject.drawSurfaces(shader, singleSurfaceScratch, viewMatrix, worldTime, drawType, true);
+							}
 						}
-					}
-				}
-			}
-
-			// finally, draw translucent curtains
-			if (drawType != DRAW_TYPE_PICKING && drawnOnce) {
-				for (int i = 0; i <= lastObjectIndex; i++) {
-					WWObject object = objects[i];
-					if (object != null && object.renderit && object.rendering != null && object instanceof WWTranslucency && (object.group == 0 || !drawnOnce) && object.renderit) {
-						// ((GLTranslucency) object.rendering).drawCurtain(shader, worldTime, viewMatrix, sunViewMatrix, drawType, true);
 					}
 				}
 			}
@@ -158,18 +157,13 @@ public class GLWorld implements IRendering {
 	}
 
 	private void sortSurfaces(GLSurface[] surfaces, float[] viewMatrix) {
-		int slen = surfaces.length;
-		for (int i = 0; i < slen; i++) {
-			Matrix.multiplyMV(surfaces[i].sortVec, 0, viewMatrix, 0, surfaces[i].firstVertex, 0);
+		for (GLSurface surface : surfaces) {
+			Matrix.multiplyMV(surface.sortVec, 0, viewMatrix, 0, surface.firstVertex, 0);
 		}
 		try {
-			Arrays.sort(surfaces, new Comparator<GLSurface>() {
-				public int compare(GLSurface lhs, GLSurface rhs) {
-					return (int) (rhs.sortVec[2] - lhs.sortVec[2]); // z-depth
-				}
-			});
+			Arrays.sort(surfaces, SURFACE_Z_COMPARATOR);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			Log.e(TAG, "Error sorting translucent surfaces", e);
 		}
 	}
 	
