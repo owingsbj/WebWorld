@@ -363,6 +363,9 @@ public abstract class ClientModel {
 	public void connect() {
 		try {
 
+			// Disconnect from the old server first
+			disconnect();
+
 			// Attempt to connect to the new server
 			Connection newConnection = communications.connect(getWorldAddressField(), 5000);
 			DataOutputStreamX sendStream = newConnection.getSendStream(5000);
@@ -372,8 +375,6 @@ public abstract class ClientModel {
 			ConnectResponse connectResponse = (ConnectResponse) receiveStream.readObject();
 			setUserId(connectResponse.getUserId());
 
-			// Disconnect from the old server
-			disconnect();
 			requestConnection = newConnection;
 			requestThread = new RequestThread(this, requestConnection);
 			requestThread.start();
@@ -1511,27 +1512,42 @@ public abstract class ClientModel {
 	}
 
 	public void setScore(int game, int score) {
-		this.scores[game - 1] = score;
+		if (game >= 1 && game <= NSCORES) {
+			this.scores[game - 1] = score;
+		}
 	}
 
 	public int getScore(int game) {
-		return this.scores[game - 1];
+		if (game >= 1 && game <= NSCORES) {
+			return this.scores[game - 1];
+		}
+		return 0;
 	}
 
 	public void setLevel(int game, int level) {
-		this.levels[game - 1] = level;
+		if (game >= 1 && game <= NSCORES) {
+			this.levels[game - 1] = level;
+		}
 	}
 
 	public int getLevel(int game) {
-		return this.levels[game - 1];
+		if (game >= 1 && game <= NSCORES) {
+			return this.levels[game - 1];
+		}
+		return 0;
 	}
 
 	public void setTime(int game, int time) {
-		this.times[game - 1] = time;
+		if (game >= 1 && game <= NSCORES) {
+			this.times[game - 1] = time;
+		}
 	}
 
 	public int getTime(int game) {
-		return this.times[game - 1];
+		if (game >= 1 && game <= NSCORES) {
+			return this.times[game - 1];
+		}
+		return 0;
 	}
 
 	public void flashMessage(String message, boolean blink) {
@@ -1834,7 +1850,7 @@ public abstract class ClientModel {
 	public void setThemeName(String themeName) {
 		this.themeName = themeName;
 		try {
-			this.theme = (Theme) this.getClass().getClassLoader().loadClass(themeName).newInstance();
+			this.theme = (Theme) this.getClass().getClassLoader().loadClass(themeName).getDeclaredConstructor().newInstance();
 			typeface = null;
 		} catch (Exception e) {
 			e.printStackTrace();
