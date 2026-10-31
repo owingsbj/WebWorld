@@ -286,8 +286,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 	}
 
-	public boolean textureHasAlpha(String textureName) {
-		Boolean hasAlpha =  hasAlphaCache.get(textureName);
+	public final synchronized boolean textureHasAlpha(String textureName) {
+		Boolean hasAlpha = hasAlphaCache.get(textureName);
 		if (hasAlpha == null) {
 			return false;
 		}
@@ -1162,10 +1162,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 	}
 
-	public final void clearTextureCache() {
-		textureCache = new HashMap<String, Integer>(); // clear doesn't work
-		normalTextureCache = new HashMap<String, Integer>();
-		hasAlphaCache = new HashMap<String, Boolean>();
+	public final synchronized void clearTextureCache() {
+		textureCache.clear();
+		normalTextureCache.clear();
+		hasAlphaCache.clear();
 	}
 
 	@Override
