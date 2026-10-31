@@ -67,7 +67,7 @@ public class GLSimpleShape extends GLObject {
 		String geometryMapKey = null;
 		if (!object.fixed) {
 			geometryMapKey = object.getClass().getSimpleName() + " " + sizeX + " " + sizeY + " " + sizeZ + " " + taperX + " " + taperY + " " + shearX + " " + shearY + " " + twist + " " + cutStart + " " + cutEnd + " " + hollow +
-						" " + roundedSides + " " + roundedTop + " " + roundedBottom;
+						" " + nCircleVertices + " " + roundedSides + " " + roundedTop + " " + roundedBottom;
 			if (renderer.geometryCache.containsKey(geometryMapKey)) {
 				sides = renderer.geometryCache.get(geometryMapKey);
 				return;
@@ -127,7 +127,7 @@ public class GLSimpleShape extends GLObject {
 			core = new Point2f[polygon.length];
 			for (int i = 0; i < polygon.length; i++) {
 				core[i] = origin;
-			};
+			}
 			hasEnds = true;
 			smoothSides = false;
 		} else if (object instanceof WWBox) {
@@ -179,25 +179,14 @@ public class GLSimpleShape extends GLObject {
 		// each dimension (x, y, z).
 		Point3f[] sweepPath = null;
 		Point2f[] sweepRadius = null;
-		Point3f[] hollowPath = null;
 		if (object instanceof WWBox && (roundedTop || roundedBottom)) {
 			nCircleVertices = 8;  //forced
 			float bottomSweep = roundedBottom ? -0.45f : -0.5f;
 			float topSweep = roundedTop ? 0.45f : 0.5f;
-			sweepPath = new Point3f[] { //
-					roundedBottom ? new Point3f(0.0f, 0.0f, -0.45f) : new Point3f(0.0f, 0.0f, -0.5f), //
-					new Point3f(0.0f, 0.0f, -0.375f), //
-					new Point3f(0.0f, 0.0f, -0.25f), //
-					new Point3f(0.0f, 0.0f, -0.125f), //
-					new Point3f(0.0f, 0.0f, 0.0f), //
-					new Point3f(0.0f, 0.0f, 0.125f), //
-					new Point3f(0.0f, 0.0f, 0.25f), //
-					new Point3f(0.0f, 0.0f, 0.375f), //
-					roundedTop ? new Point3f(0.0f, 0.0f, 0.45f) : new Point3f(0.0f, 0.0f, 0.5f) //
-			};
-			for (int i = 0; i < nCircleVertices+1; i++) {
+			sweepPath = new Point3f[nCircleVertices + 1];
+			for (int i = 0; i <= nCircleVertices; i++) {
 				sweepPath[i] = new Point3f(0.0f, 0.0f, bottomSweep + (topSweep - bottomSweep) / nCircleVertices * i);
-			};
+			}
 			sweepRadius = new Point2f[] {  //
 					roundedBottom ? new Point2f(0.9f, 0.9f) : new Point2f(1.0f, 1.0f), //
 					new Point2f(1.0f, 1.0f), //
@@ -241,18 +230,12 @@ public class GLSimpleShape extends GLObject {
 			sweepRadius = new Point2f[2 * nCircleVertices + 1];
 			for (int i = 0; i < nCircleVertices + 1; i++) {
 				float r = (float) i / (float) nCircleVertices * (float) Math.PI;
-				float z = -(float) Math.cos(r) / 2.0f;
 				sweepRadius[i] = new Point2f(
-				//						(float) (0.5 + 0.25*Math.sin(r)), 
-				//						(float) (0.5 + 0.25*Math.sin(r)));
 						(float) (0.75 + 0.375 * Math.sin(r)), (float) (0.75 + 0.375 * Math.sin(r)));
 			}
 			for (int i = nCircleVertices + 1; i < 2 * nCircleVertices + 1; i++) {
 				float r = (float) (i - nCircleVertices) / (float) nCircleVertices * (float) Math.PI;
-				float z = (float) Math.cos(r) / 2.0f;
 				sweepRadius[i] = new Point2f(
-				//						(float) (0.5 - 0.25*Math.sin(r)), 
-				//						(float) (0.5 - 0.25*Math.sin(r)));
 						(float) (0.75 - 0.375 * Math.sin(r)), (float) (0.75 - 0.375 * Math.sin(r)));
 			}
 		}
@@ -358,44 +341,36 @@ public class GLSimpleShape extends GLObject {
 			// For smooth surfaces there is only one side. This is so that normals will be properly
 			// created for when the sides are smooth.
 			GLSurface sidesGeometry = new GLSurface(lastVertex - firstVertex + 2, nsweeps);
-			int vertex = 0;
 			for (int i = 0; i < nsweeps; i++) {
 				for (int v = firstVertex; v <= lastVertex + 1; v++) {
 					if (v < polygon.length) {
 						sidesGeometry.setVertex(v - firstVertex, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
-						//sidesGeometry.setTextureCoordinate(0, vertex - 1, new float[] { -(float) v / nvertices - 0.5f, sweepPath[i].z });
 					} else {
 						sidesGeometry.setVertex(v - firstVertex, i, sweepPath[i].x + polygon[0].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[0].y * sweepRadius[i].y);
-						//sidesGeometry.setTextureCoordinate(0, vertex - 1, new float[] { -(float) v / nvertices - 0.5f, sweepPath[i].z });
 					}
 				}
 			}
 			adjustGeometry(sidesGeometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
-			sidesGeometry.generateNormals(firstVertex == 0 && lastVertex + 1 == polygon.length, false);
+			boolean stitchY = (object instanceof WWTorus);
+			sidesGeometry.generateNormals(firstVertex == 0 && lastVertex + 1 == polygon.length, stitchY);
 			adjustTextureCoords(sidesGeometry, WWObject.SIDE_SIDE1);
 			setSide(WWObject.SIDE_SIDE1, sidesGeometry);
 
 		} else {
 
 			// For flat sides, split the vertices up evenly for the number of sides
-			// currently assuming 4 sides
 			int nsides = 4;
-			int verticesPerSide = nvertices / nsides;
 			for (int side = 0; side < nsides; side++) {
-				int startVertex = Math.max(firstVertex, side * verticesPerSide);
-				int endVertex = Math.min(lastVertex, (side + 1) * verticesPerSide - 1);
+				int startVertex = Math.max(firstVertex, side * nvertices / nsides);
+				int endVertex = Math.min(lastVertex, (side + 1) * nvertices / nsides - 1);
 				if (startVertex <= endVertex) {
 					GLSurface sideGeometry = new GLSurface(endVertex - startVertex + 2, nsweeps);
-					int vertex = 0;
 					for (int v = startVertex; v <= endVertex + 1; v++) {
 						for (int i = 0; i < nsweeps; i++) {
 							if (v < polygon.length) {
 								sideGeometry.setVertex(v - startVertex, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
-								//sideGeometry.setTextureCoordinate(0, vertex - 1, new float[] { -4.0f * (v - startVertex) / nvertices + 0.5f, sweepPath[i].z });
 							} else {
 								sideGeometry.setVertex(v - startVertex, i, sweepPath[i].x + polygon[0].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[0].y * sweepRadius[i].y);
-								//sideGeometry.setTextureCoordinate(0, vertex - 1, new float[] { -4.0f * (v - startVertex) / nvertices + 0.5f, sweepPath[i].z });
-
 							}
 						}
 					}
@@ -418,15 +393,12 @@ public class GLSimpleShape extends GLObject {
 				// For smooth surfaces there is only one side. This is so that normals will be properly
 				// created for when the sides are smooth.
 				GLSurface insidesGeometry = new GLSurface(lastVertex - firstVertex + 2, nsweeps);
-				int vertex = 0;
 				for (int i = 0; i < nsweeps; i++) {
 					for (int v = firstVertex; v <= lastVertex + 1; v++) {
 						if (v < polygon.length) {
 							insidesGeometry.setVertex(lastVertex - v + 1, i, sweepPath[i].x + core[v].x + (polygon[v].x * sweepRadius[i].x - core[v].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[v].y + (polygon[v].y * sweepRadius[i].y - core[v].y) * hollowy);
-							//insidesGeometry.setTextureCoordinate(0, vertex - 1, new float[] { (float) v / (float) nvertices - 0.5f, sweepPath[i].z });
 						} else {
 							insidesGeometry.setVertex(lastVertex - v + 1, i, sweepPath[i].x + core[0].x + (polygon[0].x * sweepRadius[i].x - core[0].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[0].y + (polygon[0].y * sweepRadius[i].y - core[0].y) * hollowy);
-							//insidesGeometry.setTextureCoordinate(0, vertex - 1, new float[] { (float) v / (float) nvertices - 0.5f, sweepPath[i].z });
 						}
 					}
 				}
@@ -438,23 +410,18 @@ public class GLSimpleShape extends GLObject {
 			} else {
 
 				// For flat sides, split the vertices up evenly for the number of sides
-				// currently assuming 4 sides
 				int nsides = 4;
-				int verticesPerSide = nvertices / nsides;
 				for (int side = 0; side < nsides; side++) {
-					int startVertex = Math.max(firstVertex, side * verticesPerSide);
-					int endVertex = Math.min(lastVertex, (side + 1) * verticesPerSide - 1);
+					int startVertex = Math.max(firstVertex, side * nvertices / nsides);
+					int endVertex = Math.min(lastVertex, (side + 1) * nvertices / nsides - 1);
 					if (startVertex <= endVertex) {
 						GLSurface insideGeometry = new GLSurface(endVertex - startVertex + 2, nsweeps);
-						int vertex = 0;
 						for (int v = startVertex; v <= endVertex + 1; v++) {
 							for (int i = 0; i < nsweeps; i++) {
 								if (v < polygon.length) {
 									insideGeometry.setVertex(endVertex - v + 1, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + polygon[v].y * sweepRadius[i].y * hollowy);
-									//insideGeometry.setTextureCoordinate(0, vertex - 1, new float[] { 4.0f * (v - startVertex) / nvertices - 0.5f, sweepPath[i].z });
 								} else {
 									insideGeometry.setVertex(endVertex - v + 1, i, sweepPath[i].x + polygon[0].x * sweepRadius[i].x * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + polygon[0].y * sweepRadius[i].y * hollowy);
-									//insideGeometry.setTextureCoordinate(0, vertex - 1, new float[] { 4.0f * (v - startVertex) / nvertices - 0.5f, sweepPath[i].z });
 								}
 							}
 						}
@@ -475,13 +442,10 @@ public class GLSimpleShape extends GLObject {
 		if (cutStart != 0.0 || cutEnd != 1.0) {
 
 			GLSurface cutout1Geometry = new GLSurface(2, nsweeps);
-			int vertex = 0;
 			int v = firstVertex;
 			for (int i = 0; i < nsweeps; i++) {
 				cutout1Geometry.setVertex(0, i, sweepPath[i].x + core[v].x + (polygon[v].x * sweepRadius[i].x - core[v].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[v].y + (polygon[v].y * sweepRadius[i].y - core[v].y) * hollowy);
-				//cutout1Geometry.setTextureCoordinate(0, vertex - 1, new float[] { hollow - 0.5f, sweepPath[i].z });
 				cutout1Geometry.setVertex(1, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
-				//cutout1Geometry.setTextureCoordinate(0, vertex - 1, new float[] { 0.5f, sweepPath[i].z });
 			}
 			adjustGeometry(cutout1Geometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			cutout1Geometry.generateNormals();
@@ -489,16 +453,13 @@ public class GLSimpleShape extends GLObject {
 			setSide(WWObject.SIDE_CUTOUT1, cutout1Geometry);
 
 			GLSurface cutout2Geometry = new GLSurface(2, nsweeps);
-			vertex = 0;
 			v = lastVertex + 1;
-			if (v == polygon.length) {
+			if (v >= polygon.length) {
 				v = 0;
 			}
 			for (int i = 0; i < nsweeps; i++) {
 				cutout2Geometry.setVertex(1, i, sweepPath[i].x + core[v].x + (polygon[v].x * sweepRadius[i].x - core[v].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[v].y + (polygon[v].y * sweepRadius[i].y - core[v].y) * hollowy);
-				//cutout2Geometry.setTextureCoordinate(0, vertex - 1, new float[] { hollow - 0.5f, sweepPath[i].z });
 				cutout2Geometry.setVertex(0, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
-				//cutout2Geometry.setTextureCoordinate(0, vertex - 1, new float[] { hollow - 0.5f, sweepPath[i].z });
 			}
 			adjustGeometry(cutout2Geometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			cutout2Geometry.generateNormals();
