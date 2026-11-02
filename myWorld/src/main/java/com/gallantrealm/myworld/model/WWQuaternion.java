@@ -15,10 +15,10 @@ import java.io.Serializable;
 public class WWQuaternion implements Cloneable, Serializable, Sendable {
     private static final long serialVersionUID = 1L;
 
-    private float w = 1.0f;
-    private float x;
-    private float y;
-    private float z;
+    public float w = 1.0f;
+    public float x;
+    public float y;
+    public float z;
 
     public WWQuaternion() {
     }
