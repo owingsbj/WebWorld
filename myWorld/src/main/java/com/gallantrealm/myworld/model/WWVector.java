@@ -115,6 +115,10 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 		return x * v.x + y * v.y + z * v.z;
 	}
 
+	public final float dot(float vx, float vy, float vz) {
+		return x * vx + y * vy + z * vz;
+	}
+
 	/**
 	 * Get the pan needed to reach the point.
 	 */
@@ -136,6 +140,20 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 		WWVector n = mirror.clone().normalize();
 		float dot2 = 2.0f * dot(n);
 		return new WWVector(x - dot2 * n.x, y - dot2 * n.y, z - dot2 * n.z);
+	}
+
+	/**
+	 * Reflects the vector, given a vector normal to the mirror of reflection.
+	 */
+	public final WWVector reflect(WWVector mirror) {
+		float normalizedMirrorX = mirror.x / mirror.length();
+		float normalizedMirrorY = mirror.y / mirror.length();
+		float normalizedMirrorZ = mirror.z / mirror.length();
+		float dot2 = 2.0f * dot(normalizedMirrorX, normalizedMirrorY, normalizedMirrorZ);
+		x -= dot2 * normalizedMirrorX;
+		y -= dot2 * normalizedMirrorY;
+		z -= dot2 * normalizedMirrorZ;
+		return this;
 	}
 
 	/**
@@ -221,6 +239,13 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 		x = -x;
 		y = -y;
 		z = -z;
+		return this;
+	}
+
+	public final WWVector set(WWVector v) {
+		this.x = v.x;
+		this.y = v.y;
+		this.z = v.z;
 		return this;
 	}
 
