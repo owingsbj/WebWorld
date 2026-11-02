@@ -31,7 +31,7 @@ public class NewPhysicsThread extends PhysicsThread {
 		this.slideStyle = slideStyle;
 	}
 
-	class QueuedUpdate {
+	static class QueuedUpdate {
 		public WWObject object;
 		public WWVector position;
 		public WWQuaternion rotation;
@@ -61,9 +61,11 @@ public class NewPhysicsThread extends PhysicsThread {
 		if (queueUpdates) {
 			queuedUpdates = new ArrayList<QueuedUpdate>();
 		}
+		ArrayList<ObjectCollision> temp = previousPreviousCollidedObjects;
+		temp.clear();
 		previousPreviousCollidedObjects = previousCollidedObjects;
 		previousCollidedObjects = newCollidedObjects;
-		newCollidedObjects = new ArrayList<ObjectCollision>();
+		newCollidedObjects = temp;
 
 		WWVector position = new WWVector();
 		WWQuaternion rotation = new WWQuaternion();
@@ -76,6 +78,9 @@ public class NewPhysicsThread extends PhysicsThread {
 		WWVector tempPoint2 = new WWVector();
 		WWVector overlapPoint = new WWVector();
 		WWVector overlapVector = new WWVector();
+		WWVector forceVector = new WWVector();
+		WWVector force2Vector = new WWVector();
+		WWVector mirrorVector = new WWVector();
 
 		WWObject[] objects = world.getObjects();
 		int lastObjectIndex = world.lastObjectIndex;
@@ -87,7 +92,7 @@ public class NewPhysicsThread extends PhysicsThread {
 			// Only examine physical objects that are also solid. Non-solid (liquid, gas)
 			// objects are not influenced by other objects (but do influence other objects
 			// by being tested in the inner loop below).
-			if (object != null && object.physical && object.solid && !object.deleted) {
+			if (object != null && object.physical && !object.deleted) {
 
 //				synchronized (object) { // to keep it from being modified
 
@@ -162,7 +167,7 @@ public class NewPhysicsThread extends PhysicsThread {
 
 				// - Next, apply interactions of other objects that overlap the physical object
 				float objectExtent = object.extent;
-				for (int j = 1; j <= lastObjectIndex; j++) {
+				for (int j = 0; j <= lastObjectIndex; j++) {
 					WWObject object2 = objects[j];
 					if (object2 != null && !object2.phantom && object2 != object && !object2.deleted && !object.isDescendant(object2)) {
 
@@ -172,185 +177,196 @@ public class NewPhysicsThread extends PhysicsThread {
 						float maxExtenty = objectExtent + object2.extenty;
 						float maxExtentz = objectExtent + object2.extentz;
 						object2.getAbsolutePosition(position2, worldTime);
-						float px = position2.x - position.x;
-						float py = position2.y - position.y;
-						float pz = position2.z - position.z;
-						if (px < 0)
-							px = -px;
-						if (py < 0)
-							py = -py;
-						if (pz < 0)
-							pz = -pz;
+						float px = Math.abs(position2.x - position.x);
+						float py = Math.abs(position2.y - position.y);
+						float pz = Math.abs(position2.z - position.z);
 						if (/* object2.parentId != 0 || */(px <= maxExtentx && py <= maxExtenty && pz <= maxExtentz)) {
 
 							// Determine if the objects overlap, and the vector of overlap. This
 							// vector points in the direction of the deepest overlap, and the length of the
 							// vector indicates the amount of overlap
 							object2.getAbsoluteRotation(rotation2, worldTime);
+							
+							// Test object1's points penetrating object2
 							object.getOverlap(object2, position, rotation, rotationPoint, position2, rotation2, worldTime, tempPoint, tempPoint2, overlapPoint, overlapVector);
+							
+							// Test object2's points penetrating object1 (important for small objects vs large meshes)
+							WWVector overlapPoint2 = new WWVector();
+							WWVector overlapVector2 = new WWVector();
+							object2.getOverlap(object, position2, rotation2, object2.getRotationPoint(), position, rotation, worldTime, tempPoint, tempPoint2, overlapPoint2, overlapVector2);
+							
+							// Keep the deepest overlap
+							if (overlapVector2.isLongerThan(overlapVector)) {
+								overlapVector2.copyInto(overlapVector);
+								overlapPoint2.copyInto(overlapPoint);
+								overlapVector.scale(-1.0f); // Reverse the vector since it's from object2's perspective
+							}
 
 							if (!overlapVector.isZero()) {
 
 								ObjectCollision collision = new ObjectCollision(object, object2, overlapVector);
 								newCollidedObjects.add(collision);
 
-								// If the object2 is solid, apply solid-to-solid physics
-								if (object2.solid) {
+								// Determine forces based on elasticity
+								WWVector unitOverlapVector;
+								if (overlapVector.length() > 0) {
+									unitOverlapVector = new WWVector(overlapVector);
+								} else {
+									unitOverlapVector = overlapVector.clone();
+								}
+								unitOverlapVector.normalize();
 
-									// Adjust the position of the objects so that they are not overlapping
+								// Adjust positions if solid vs solid
+								if (object.solid && object2.solid) {
+									// move objects away from each other evenly
+									WWVector adjustVector = overlapVector.clone().scale(0.5f);
+									
+									// Adjust object1
 									if (!object.freedomMoveX || !object.freedomMoveY || !object.freedomMoveZ) {
 										WWObject.antiRotate(position, rotation);
-										WWObject.antiRotate(overlapVector, rotation);
-										if (object.freedomMoveX) {
-											position.x -= overlapVector.x;
-										}
-										if (object.freedomMoveY) {
-											position.y -= overlapVector.y;
-										}
-										if (object.freedomMoveZ) {
-											position.z -= overlapVector.z;
-										}
+										WWObject.antiRotate(adjustVector, rotation);
+										if (object.freedomMoveX) position.x -= adjustVector.x;
+										if (object.freedomMoveY) position.y -= adjustVector.y;
+										if (object.freedomMoveZ) position.z -= adjustVector.z;
 										WWObject.rotate(position, rotation);
-										WWObject.rotate(overlapVector, rotation);
+										WWObject.rotate(adjustVector, rotation);
 									} else {
-										position.x -= overlapVector.x;
-										position.y -= overlapVector.y;
-										position.z -= overlapVector.z;
+										position.subtract(adjustVector);
 									}
 
-									// If the object is moving toward object2, stop or repell it (according to elasticity)
-									WWVector unitOverlapVector;
-									if (overlapVector.length() > 0) {
-										unitOverlapVector = new WWVector(overlapVector);
-									} else { // use force
-										unitOverlapVector = overlapVector.clone(); // new WWVector(-force.x, -force.y, -force.z);
+									// If object2 isn't physical, we should just adjust object1 completely (don't adjust object2).
+									// Since we only do half the adjustVector above, if object2 is static, we must adjust object1 by the full amount.
+									if (!object2.physical) {
+										if (!object.freedomMoveX || !object.freedomMoveY || !object.freedomMoveZ) {
+											WWObject.antiRotate(position, rotation);
+											WWObject.antiRotate(adjustVector, rotation);
+											if (object.freedomMoveX) position.x -= adjustVector.x;
+											if (object.freedomMoveY) position.y -= adjustVector.y;
+											if (object.freedomMoveZ) position.z -= adjustVector.z;
+											WWObject.rotate(position, rotation);
+											WWObject.rotate(adjustVector, rotation);
+										} else {
+											position.subtract(adjustVector);
+										}
 									}
-									unitOverlapVector.normalize();
-									if (FastMath.avg(object.elasticity, object2.elasticity) > 0.0) { // bounce both objects off of each other
+								}
+
+								// --- APPLY PHYSICS BASED ON SOLID STATE ---
+								// 1. Solid vs Solid
+								if (object.solid && object2.solid) {
+									
+									if (FastMath.avg(object.elasticity, object2.elasticity) > 0.0) { 
+										// bounce both objects off of each other
 										if (object2.physical) {
 											float objectMass = object.density * object.size.x * object.size.y * object.size.z;
 											float object2Mass = object2.density * object2.size.x * object2.size.y * object2.size.z;
-											WWVector forceVector = velocity.clone().scale(objectMass);
-											WWVector force2Vector = object2.getVelocity().clone().scale(object2Mass);
+											
+											forceVector.set(velocity).scale(objectMass);
+											force2Vector.set(object2.getVelocity()).scale(object2Mass);
 											WWVector totalForceVector = forceVector.add(force2Vector);
-											WWVector mirrorVector = unitOverlapVector.clone();
+											
+											mirrorVector.set(unitOverlapVector);
 											mirrorVector.scale(-1.0f);
-											WWVector mirrorForceVector = totalForceVector.getReflection(mirrorVector);
+											WWVector mirrorForceVector = totalForceVector.reflect(mirrorVector);
 											float elasticity = FastMath.avg(object.elasticity, object2.elasticity);
+											
+											// Apply to object1
 											velocity.x = mirrorForceVector.x * elasticity;
 											velocity.y = mirrorForceVector.y * elasticity;
 											velocity.z = mirrorForceVector.z * elasticity;
-										} else { // simple bounce-back
-											WWVector mirrorVector = unitOverlapVector.clone();
-											mirrorVector.scale(-1.0f);
-											WWVector mirrorVelocityVector = velocity.getReflection(mirrorVector);
+											
+										} else { // simple bounce-back from a non-physical object (e.g. a wall or a moving bat)
 											float elasticity = Math.max(object.elasticity, object2.elasticity);
-											velocity.x = mirrorVelocityVector.x * elasticity;
-											velocity.y = mirrorVelocityVector.y * elasticity;
-											velocity.z = mirrorVelocityVector.z * elasticity;
+											
+											// Start with the physical object's velocity relative to the non-physical object
+											WWVector relativeVelocity = velocity.clone().subtract(object2.getVelocity());
+											
+											// Reflect that relative velocity off the surface
+											mirrorVector.set(unitOverlapVector).scale(-1.0f);
+											relativeVelocity.reflect(mirrorVector).scale(elasticity);
+											
+											// Add the non-physical object's velocity back to impart energy (the "bat" hitting the "ball")
+											velocity.set(relativeVelocity).add(object2.getVelocity());
 										}
-									} else { // slide on the object
-
+									} else { 
+										// slide on the object
 										if (slideStyle == 0) { // used in rtr
-
 											WWVector antiForceVector = unitOverlapVector.clone();
-											antiForceVector.scale(0.99f); // a small fudge factor to keep object sliding
+											antiForceVector.scale(0.99f); 
 											antiForceVector.scale(-totalForce.length());
 											totalForce.add(antiForceVector);
 											velocity.scale(1.0f, 1.0f, 1.0f - Math.abs(unitOverlapVector.z));
-
+											
 										} else if (slideStyle == 1) { // used in bonkers
-
 											WWVector unitVelocity = velocity.clone().normalize();
-											float repelMag = 1 - unitVelocity.add(unitOverlapVector).length();
+											WWVector combined = unitVelocity.clone().add(unitOverlapVector); // FIXED MUTATION BUG
+											float repelMag = 1 - combined.length();
 											WWVector repelForce = unitOverlapVector.clone().scale(velocity.length() / deltaTime * repelMag);
 											totalForce.add(repelForce);
-
+											
 										} else if (slideStyle == 2) { // most recent (best?)
-
 											WWVector unitVelocity = velocity.clone().normalize();
 											float repelMag = -Math.abs(unitVelocity.dot(unitOverlapVector));
 											WWVector repelForce = unitOverlapVector.clone().scale(velocity.length() / deltaTime * repelMag);
 											totalForce.add(repelForce);
-
+											
 										}
-
 									}
 
 									// Adjust angular momentum due to the collision.
-									// This is the cross product of the unitoverlapvector and the unit overlappoint->centerpoint,
-									// scaled by the velocity into the collided object
 									WWVector collisionRelativePosition = originalPosition.clone().subtract(overlapPoint).normalize();
 									WWVector collisionVelocity = unitOverlapVector.clone().cross(collisionRelativePosition);
 									totalTorque.add(collisionVelocity.scale(1/deltaTime));
-
-									// Place torque on the object as well due to the gravitaional force.
 									totalTorque.add(collisionRelativePosition.clone().cross(gravityForce).scale(-1/deltaTime));
-
-									// TODO implement physics of tops
-
-								} // solid
-
-								// If the object2 is non-solid, apply solid-to-liquid/gas physics
-								else {
-
-									// boyancy
+									
+									// TODO implement physics of tops for object2
+								} 
+								// 2. Object1 Solid vs Object2 Liquid/Gas
+								else if (object.solid && !object2.solid) {
+									// buoyancy on object1
 									if (object.isFreedomMoveZ() && object2.getDensity() > 0.0) {
-										// Note: pressure is determined by how deep into the object. This is an
-										// estimate here, based on the extent. This will be correct only if the object is level (flat)
 										float pressure = FastMath.max(position2.z + object2.size.z / 2.0f - position.z, 0.0f);
-										float boyancy = object2.getDensity() * pressure - object.getDensity();
-										if (boyancy > 0) {
-											velocity.z += (boyancy * deltaTime) * 30.0;
+										float buoyancy = object2.getDensity() * pressure - object.getDensity();
+										if (buoyancy > 0) {
+											velocity.z += (buoyancy * deltaTime) * 30.0f;
 										}
 									}
+								}
+								// 3. Object1 Liquid/Gas vs Object2 Solid
+								else if (!object.solid && object2.solid) {
+									// In full N^2 loop, this is handled when object2 is the outer loop (if it's physical)
+								}
 
-								} // nonsolid
-
-								// Depending on friction forces, slow the object movement
-								if (object2.isSolid() && object.getElasticity() + object2.getElasticity() > 0) {
+								// Friction
+								if (object.solid && object2.solid && object.getElasticity() + object2.getElasticity() > 0) {
 									// friction for solids touching with elasticity only impacts angular velocity
-									// TODO determine appropriate angular velocity change for solids colliding with elasticity
 								} else {
 									float friction = FastMath.min(object.friction, object2.friction);
 									if (friction > 0) {
-
-										// Note: the scale 10 factors below are fudged so objects will have greater friction.
-										// This is just a fudge factor that needs to be better modelled
-										// TODO better model friction to avoid the scale 10 fudge factors
-
-										if (object2.isSolid()) {  // solid-against-solid friction
-
+										if (object.solid && object2.solid) {  
+											// solid-against-solid friction
 											WWVector collisionDirection = originalPosition.clone().subtract(overlapPoint).normalize();
-
-											// Determine the relative speed of the two object surfaces.  This is a factor
-											// of both the linear velocity and the angular velocity of the two objects.
-											WWVector relativeVelocity = velocity.clone().subtract(object2.getVelocity()).scale(10);    // need to add scale 10 to avoid sliding too much
+											WWVector relativeVelocity = velocity.clone().subtract(object2.getVelocity()).scale(10);
 											relativeVelocity.add(aMomentum.clone().cross(collisionDirection).subtract(object2.getAngularVelocity().clone().cross(collisionDirection)).scale(object.getExtent() / FastMath.PI / 2));
-
-											// Determine the relative angular momentum of the two objects at the impact point as well.
-											// The angular momentum of the object is tempered, averaging over these two momenta over time
 											WWVector relativeAMomentum = aMomentum.clone().subtract(object2.getAngularVelocity()).scale(collisionDirection).scale(10);
-
 											relativeVelocity.scale(friction);
 											relativeAMomentum.scale(friction);
 
 											totalForce.subtract(relativeVelocity);
 											totalTorque.subtract(relativeVelocity);
 											totalTorque.subtract(relativeAMomentum);
-
-										} else { // solid-in-liquid/gas friction
-
+											
+										} else if (object.solid && !object2.solid) { 
+											// solid-in-liquid/gas friction
 											WWVector frictionVForce = object2.getVelocity().clone().subtract(velocity);
 											frictionVForce.scale(10 * friction);
 											totalForce.add(frictionVForce);
-											// TODO: Add angular velocity effect on force in liquids, to emulate paddlewheels
-
 											WWVector frictionAForce = new WWVector();
 											frictionAForce.subtract(aMomentum);
 											frictionAForce.scale(10 * friction);
 											totalTorque.add(frictionAForce);
-
+										} else if (!object.solid && object2.solid && object2.physical) {
+											// Handled in outer loop when object2 is processed
 										}
 									}
 								} // friction
