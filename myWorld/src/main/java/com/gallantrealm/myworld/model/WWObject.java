@@ -294,26 +294,35 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 	 */
 	public final WWQuaternion getAbsoluteRotation(long worldTime) {
 		WWQuaternion r = new WWQuaternion();
-		getRotation(r);
-		int p = parentId;
-		if (p != 0) {
-			WWObject parent = world.objects[p];
-			WWQuaternion parentRotation = parent.getAbsoluteRotation(worldTime);
-			r.rotate(parentRotation);
-		}
+		getAbsoluteRotation(r, worldTime);
 		return r;
 	}
+
+	transient long lastGetAbsoluteRotationTime = -1;
+	transient float lastGetAbsoluteRotationW,  lastGetAbsoluteRotationX, lastGetAbsoluteRotationY, lastGetAbsoluteRotationZ;
 
 	/**
 	 * Returns the rotation including contribution from parents
 	 */
 	public final WWQuaternion getAbsoluteRotation(WWQuaternion r, long worldTime) {
-		getRotation(r);
-		int p = parentId;
-		if (p != 0) {
-			WWObject parent = world.objects[p];
-			WWQuaternion parentRotation = parent.getAbsoluteRotation(worldTime);
-			r.rotate(parentRotation);
+		if (lastGetAbsoluteRotationTime == worldTime) {
+			r.w = lastGetAbsoluteRotationW;
+			r.x = lastGetAbsoluteRotationX;
+			r.y = lastGetAbsoluteRotationY;
+			r.z = lastGetAbsoluteRotationZ;
+		} else {
+			getRotation(r);
+			int p = parentId;
+			if (p != 0) {
+				WWObject parent = world.objects[p];
+				WWQuaternion parentRotation = parent.getAbsoluteRotation(worldTime);
+				r.rotate(parentRotation);
+			}
+			lastGetAbsoluteRotationW = r.w;
+			lastGetAbsoluteRotationX = r.x;
+			lastGetAbsoluteRotationY = r.y;
+			lastGetAbsoluteRotationZ = r.z;
+			lastGetAbsoluteRotationTime = worldTime;
 		}
 		return r;
 	}
