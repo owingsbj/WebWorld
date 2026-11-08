@@ -184,6 +184,15 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
     }
 
     /**
+     * Adjusts the rotation by angle with the center of rotation according to axis in global space.
+     */
+    public WWQuaternion prespin(float angle, float x, float y, float z) {
+        WWQuaternion temp = new WWQuaternion(angle, x, y, z);
+        prerotate(temp);
+        return this;
+    }
+
+    /**
      * Returns rotation along the x axis
      */
     public final float getPitch() {
