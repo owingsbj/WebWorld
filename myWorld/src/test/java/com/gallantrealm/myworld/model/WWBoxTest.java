@@ -1,7 +1,13 @@
 package com.gallantrealm.myworld.model;
 
+import com.gallantrealm.myworld.communication.DataInputStreamX;
+import com.gallantrealm.myworld.communication.DataOutputStreamX;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class WWBoxTest {
 
@@ -79,5 +85,25 @@ public class WWBoxTest {
 
         box.getPenetration(new WWVector(0.0f, 0.0f, 0.0f), position, rotation, 0L, tempPoint, penetration);
         Assert.assertTrue(penetration.isZero());
+    }
+
+    @Test
+    public void testSendAndReceive() throws IOException {
+        WWBox original = new WWBox(2.0f, 3.0f, 4.0f);
+        original.noXPenetration = true;
+        original.setHollow(0.2f);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStreamX dos = new DataOutputStreamX(baos);
+        original.send(dos);
+        dos.flush();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        DataInputStreamX dis = new DataInputStreamX(bais);
+        WWBox received = new WWBox();
+        received.receive(dis);
+
+        Assert.assertTrue(received.noXPenetration);
+        Assert.assertEquals(0.2f, received.getHollow(), EPSILON);
+        Assert.assertEquals(2.0f, received.size.x, EPSILON);
     }
 }

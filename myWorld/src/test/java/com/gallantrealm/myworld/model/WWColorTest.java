@@ -1,7 +1,13 @@
 package com.gallantrealm.myworld.model;
 
+import com.gallantrealm.myworld.communication.DataInputStreamX;
+import com.gallantrealm.myworld.communication.DataOutputStreamX;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class WWColorTest {
 
@@ -29,5 +35,21 @@ public class WWColorTest {
 
         c.mix(new WWColor(0.5f, 0.5f, 0.5f));
         Assert.assertEquals(0.498f, c.getRed(), EPSILON);
+    }
+
+    @Test
+    public void testSendAndReceive() throws IOException {
+        WWColor original = new WWColor(0.2f, 0.4f, 0.6f);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStreamX dos = new DataOutputStreamX(baos);
+        original.send(dos);
+        dos.flush();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        DataInputStreamX dis = new DataInputStreamX(bais);
+        WWColor received = new WWColor();
+        received.receive(dis);
+
+        Assert.assertEquals(original.getRGB(), received.getRGB());
     }
 }

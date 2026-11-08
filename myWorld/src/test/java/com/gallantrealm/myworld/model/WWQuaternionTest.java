@@ -1,7 +1,13 @@
 package com.gallantrealm.myworld.model;
 
+import com.gallantrealm.myworld.communication.DataInputStreamX;
+import com.gallantrealm.myworld.communication.DataOutputStreamX;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class WWQuaternionTest {
 
@@ -135,5 +141,24 @@ public class WWQuaternionTest {
         Assert.assertEquals(0.0f, mat[0], EPSILON);
         Assert.assertEquals(0.0f, mat[1], EPSILON);
         Assert.assertEquals(1.0f, mat[2], EPSILON);
+    }
+
+    @Test
+    public void testSendAndReceive() throws IOException {
+        WWQuaternion original = new WWQuaternion(30.0f, 45.0f, 60.0f);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStreamX dos = new DataOutputStreamX(baos);
+        original.send(dos);
+        dos.flush();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        DataInputStreamX dis = new DataInputStreamX(bais);
+        WWQuaternion received = new WWQuaternion();
+        received.receive(dis);
+
+        Assert.assertEquals(original.getW(), received.getW(), EPSILON);
+        Assert.assertEquals(original.getX(), received.getX(), EPSILON);
+        Assert.assertEquals(original.getY(), received.getY(), EPSILON);
+        Assert.assertEquals(original.getZ(), received.getZ(), EPSILON);
     }
 }

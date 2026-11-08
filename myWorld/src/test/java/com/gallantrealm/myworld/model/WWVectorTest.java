@@ -1,7 +1,13 @@
 package com.gallantrealm.myworld.model;
 
+import com.gallantrealm.myworld.communication.DataInputStreamX;
+import com.gallantrealm.myworld.communication.DataOutputStreamX;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class WWVectorTest {
 
@@ -100,5 +106,23 @@ public class WWVectorTest {
         Assert.assertEquals(0.0f, v.x, EPSILON);
         Assert.assertEquals(0.0f, v.y, EPSILON);
         Assert.assertEquals(1.0f, v.z, EPSILON);
+    }
+
+    @Test
+    public void testSendAndReceive() throws IOException {
+        WWVector original = new WWVector(1.0f, 2.0f, 3.0f);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStreamX dos = new DataOutputStreamX(baos);
+        original.send(dos);
+        dos.flush();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        DataInputStreamX dis = new DataInputStreamX(bais);
+        WWVector received = new WWVector();
+        received.receive(dis);
+
+        Assert.assertEquals(original.x, received.x, EPSILON);
+        Assert.assertEquals(original.y, received.y, EPSILON);
+        Assert.assertEquals(original.z, received.z, EPSILON);
     }
 }
