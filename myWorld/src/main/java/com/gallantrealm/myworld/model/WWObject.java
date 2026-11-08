@@ -1061,7 +1061,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 //				}
 			if (angularVelocity.x != 0 || angularVelocity.y != 0 || angularVelocity.z != 0) {
 				float angle = getAngularVelocityLength() * deltaTime;
-				rotation.spin(angle, angularVelocity.x, angularVelocity.y, angularVelocity.z);
+				rotation.prespin(angle, angularVelocity.x, angularVelocity.y, angularVelocity.z);
 	//			if (startRotation != null) {
 	//				if (rotationX > startRotation.x && rotation.x < startRotation.x) {
 	//					rotation.x = startRotation.x;
