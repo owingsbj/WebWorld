@@ -305,20 +305,46 @@ public class NewPhysicsThread extends PhysicsThread {
 											totalForce.add(repelForce);
 											
 										} else if (slideStyle == 2) { // most recent (best?)
-											WWVector unitVelocity = velocity.clone().normalize();
-											float repelMag = -Math.abs(unitVelocity.dot(unitOverlapVector));
-											WWVector repelForce = unitOverlapVector.clone().scale(velocity.length() / deltaTime * repelMag);
-											totalForce.add(repelForce);
+											// 1. Cancel velocity into the surface
+											float velIntoSurface = velocity.dot(unitOverlapVector);
+											if (velIntoSurface > 0) {
+												WWVector repelForce = unitOverlapVector.clone().scale(-velIntoSurface / deltaTime);
+												totalForce.add(repelForce);
+											}
+											
+											// 2. Cancel force (gravity, thrust) into the surface (Normal Force)
+											float forceIntoSurface = totalForce.dot(unitOverlapVector);
+											if (forceIntoSurface > 0) {
+												WWVector normalForce = unitOverlapVector.clone().scale(-forceIntoSurface);
+												totalForce.add(normalForce);
+											}
 											
 										}
 									}
 
-									// Adjust angular momentum due to the collision.
-									WWVector collisionRelativePosition = originalPosition.clone().subtract(overlapPoint).normalize();
-									WWVector collisionVelocity = unitOverlapVector.clone().cross(collisionRelativePosition);
-									totalTorque.add(collisionVelocity.scale(1/deltaTime));
-									totalTorque.add(collisionRelativePosition.clone().cross(gravityForce).scale(-1/deltaTime));
-									
+									// Adjust angular momentum due to the collision.  This logic assumes the center of mass of the object
+									// is in the middle of the object.  It then tries to determine how much angular force is applied to the
+									// object due to the amount of impact (which is relative to the size of the overlap vector) torquing the overlap
+									// point around that center of mass.
+
+									// 1. The lever arm (r): vector FROM the center of mass TO the overlap point.
+									// (Note: We do NOT normalize this, because a longer lever arm should mathematically create more torque!)
+									WWVector leverArm = overlapPoint.clone().subtract(originalPosition);
+
+									// 2. The impact force (F): proportional to the overlap vector.
+									// Because overlapVector points into the collision, the surface pushes back in the opposite direction (-1).
+									WWVector impactForce = overlapVector.clone().scale(-1.0f);
+
+									// 3. Torque = r x F
+									WWVector impactTorque = leverArm.cross(impactForce);
+
+									// 4. Apply the torque to the object, scaled by 1/deltaTime to represent the instantaneous impulse
+									float impactExtentSq = object.extent * object.extent;
+									if (impactExtentSq > 0.0001f) {
+										impactTorque.scale(FastMath.TODEGREES / (0.5f * impactExtentSq));
+									}
+									totalTorque.add(impactTorque.scale(1.0f / deltaTime));
+
 									// TODO implement physics of tops for object2
 								} 
 								// 2. Object1 Solid vs Object2 Liquid/Gas
@@ -345,16 +371,43 @@ public class NewPhysicsThread extends PhysicsThread {
 									if (friction > 0) {
 										if (object.solid && object2.solid) {  
 											// solid-against-solid friction
-											WWVector collisionDirection = originalPosition.clone().subtract(overlapPoint).normalize();
-											WWVector relativeVelocity = velocity.clone().subtract(object2.getVelocity()).scale(10);
-											relativeVelocity.add(aMomentum.clone().cross(collisionDirection).subtract(object2.getAngularVelocity().clone().cross(collisionDirection)).scale(object.getExtent() / FastMath.PI / 2));
-											WWVector relativeAMomentum = aMomentum.clone().subtract(object2.getAngularVelocity()).scale(collisionDirection).scale(10);
-											relativeVelocity.scale(friction);
-											relativeAMomentum.scale(friction);
+											
+											// 1. Calculate the lever arm (radius) from the center of mass DOWN to the contact point
+											WWVector r1 = overlapPoint.clone().subtract(originalPosition);
 
-											totalForce.subtract(relativeVelocity);
-											totalTorque.subtract(relativeVelocity);
-											totalTorque.subtract(relativeAMomentum);
+											// 2. Calculate the relative linear velocity of the surfaces in contact
+											// The surface velocity is the linear velocity PLUS the velocity contributed by the spin: v + (w x r)
+											// We must convert the engine's degrees/sec angular momentum back to radians/sec for the math
+											WWVector spinVel = aMomentum.clone().scale(1.0f / FastMath.TODEGREES).cross(r1);
+											WWVector surfaceVelocity = velocity.clone().add(spinVel);
+											
+											// We compare this against the other object's surface velocity
+											WWVector r2 = overlapPoint.clone().subtract(position2);
+											WWVector obj2SpinVel = object2.getAngularVelocity().clone().scale(1.0f / FastMath.TODEGREES).cross(r2);
+											WWVector surfaceVelocity2 = object2.getVelocity().clone().add(obj2SpinVel);
+											
+											WWVector relativeSurfaceVelocity = surfaceVelocity.subtract(surfaceVelocity2);
+
+											// 3. The friction force pushes back against the slipping surface!
+											// If the block is spinning, but not moving (like a car tire burning out), 
+											// relativeSurfaceVelocity is high. The friction force will push forward, 
+											// which ACCELERATES the block linearly!
+											WWVector frictionForce = relativeSurfaceVelocity.clone().scale(-2.5f * friction);
+											totalForce.add(frictionForce);
+
+											// 4. Calculate the resulting Rolling Torque (from the friction force pushing on the bottom of the block)
+											// Torque is the cross product of the lever arm and the force (T = r x F)
+											WWVector rollingTorque = r1.clone().cross(frictionForce).scale(FastMath.TODEGREES);
+											float extentSq = object.extent * object.extent;
+											if (extentSq > 0.0001f) {
+												rollingTorque.scale(1.0f / (0.5f * extentSq));
+											}
+											totalTorque.add(rollingTorque);
+
+											// 5. Apply a dampening effect to the existing angular momentum
+											// This simulates twisting friction (like a top spinning in place slowing down)
+											WWVector spinDampening = aMomentum.clone().scale(-1.0f * friction);
+											totalTorque.add(spinDampening);
 											
 										} else if (object.solid && !object2.solid) { 
 											// solid-in-liquid/gas friction
