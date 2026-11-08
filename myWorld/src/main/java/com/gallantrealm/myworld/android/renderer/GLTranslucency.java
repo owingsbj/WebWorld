@@ -106,6 +106,7 @@ public class GLTranslucency extends GLObject  {
 		insideXGeometry.setVertex(1, 1, -maskWidth, sizeZ / 2, -maskDistance);
 		insideXGeometry.setVertex(0, 2, maskWidth, sizeZ / 2, 0);
 		insideXGeometry.setVertex(1, 2, -maskWidth, sizeZ / 2, 0);
+		insideXGeometry.generateNormals();
 		this.setSide(WWObject.SIDE_CUTOUT1, insideXGeometry);
 
 	}
