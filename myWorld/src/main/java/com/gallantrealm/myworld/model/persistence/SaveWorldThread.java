@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import com.gallantrealm.myworld.model.WWWorld;
 
 /**
- * Saves the world every minute.
+ * Saves the world every 5 seconds.
  */
 public class SaveWorldThread extends Thread {
 
@@ -36,14 +36,17 @@ public class SaveWorldThread extends Thread {
 					if (tempWorldFile.exists()) {
 						tempWorldFile.delete();
 					}
-					OutputStream worldOutputStream = new BufferedOutputStream(new FileOutputStream(tempWorldFileName), 65536);
-					ObjectOutputStream worldObjectStream = new ObjectOutputStream(worldOutputStream);
-					worldObjectStream.writeObject(world);
-					worldObjectStream.close();
+					try (OutputStream worldOutputStream = new BufferedOutputStream(new FileOutputStream(tempWorldFile), 65536);
+						 ObjectOutputStream worldObjectStream = new ObjectOutputStream(worldOutputStream)) {
+						worldObjectStream.writeObject(world);
+					}
 					if (worldFile.exists()) {
 						worldFile.delete();
 					}
-					tempWorldFile.renameTo(worldFile);
+					boolean renamed = tempWorldFile.renameTo(worldFile);
+					if (!renamed) {
+						System.err.println("Failed to rename temporary world file to " + worldFileName);
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
