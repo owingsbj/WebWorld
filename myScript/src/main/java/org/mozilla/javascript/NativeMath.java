@@ -6,8 +6,6 @@
 
 package org.mozilla.javascript;
 
-import org.mozilla.javascript.typedarrays.Conversions;
-
 /**
  * This class implements the Math native object.
  * See ECMA 15.8.
@@ -370,11 +368,21 @@ final class NativeMath extends IdScriptableObject
             return ScriptRuntime.wrapNumber(ScriptRuntime.NaN);
         }
 
-        long x = Conversions.toUint32(args[0]);
-        long y = Conversions.toUint32(args[1]);
-        long product = (x * y) % Conversions.THIRTYTWO_BIT;
-        long result = (product >= (1L << 31L)) ? (product - Conversions.THIRTYTWO_BIT) : product;
+        long x = toUint32(args[0]);
+        long y = toUint32(args[1]);
+        long product = (x * y) % 4294967296L;
+        long result = (product >= (1L << 31L)) ? (product - 4294967296L) : product;
         return ScriptRuntime.toNumber(result);
+    }
+
+    private static long toUint32(Object val) {
+        double d = ScriptRuntime.toNumber(val);
+        if (Double.isNaN(d) || Double.isInfinite(d) || d == 0) {
+            return 0;
+        }
+        long l = (long) d;
+        long n = l % 4294967296L;
+        return n < 0 ? n + 4294967296L : n;
     }
 
 // #string_id_map#
