@@ -313,9 +313,9 @@ public abstract class ClientModel {
 
 	public final int getFrameRate() {
 		if (((ClientModel) this).isPowerSaver()) {
-			return 100;  // 10 fps
+			return 10;
 		} else {
-			return 1000 / frameRate;
+			return frameRate;
 		}
 	}
 
