@@ -134,15 +134,6 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 	}
 
 	/**
-	 * Returns the reflection of the vector, given a vector normal to the mirror of reflection.
-	 */
-	public final WWVector getReflection(WWVector mirror) {
-		WWVector n = mirror.clone().normalize();
-		float dot2 = 2.0f * dot(n);
-		return new WWVector(x - dot2 * n.x, y - dot2 * n.y, z - dot2 * n.z);
-	}
-
-	/**
 	 * Reflects the vector, given a vector normal to the mirror of reflection.
 	 */
 	public final WWVector reflect(WWVector mirror) {

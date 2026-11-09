@@ -61,31 +61,31 @@ public class WWVectorTest {
     }
 
     @Test
-    public void testGetReflectionPerpendicular() {
+    public void testReflectPerpendicular() {
         // Vertical impact onto floor (mirror normal = Up (0,0,1))
         WWVector velocity = new WWVector(0.0f, 0.0f, -10.0f);
         WWVector floorNormal = new WWVector(0.0f, 0.0f, 1.0f);
 
-        WWVector reflected = velocity.getReflection(floorNormal);
+        velocity.reflect(floorNormal);
 
         // Should bounce straight up (+10 in Z)
-        Assert.assertEquals(0.0f, reflected.x, EPSILON);
-        Assert.assertEquals(0.0f, reflected.y, EPSILON);
-        Assert.assertEquals(10.0f, reflected.z, EPSILON);
+        Assert.assertEquals(0.0f, velocity.x, EPSILON);
+        Assert.assertEquals(0.0f, velocity.y, EPSILON);
+        Assert.assertEquals(10.0f, velocity.z, EPSILON);
     }
 
     @Test
-    public void testGetReflectionAngled() {
+    public void testReflectAngled() {
         // 45 degree impact onto floor (10 forward, 10 down)
         WWVector velocity = new WWVector(10.0f, 0.0f, -10.0f);
         WWVector floorNormal = new WWVector(0.0f, 0.0f, 1.0f);
 
-        WWVector reflected = velocity.getReflection(floorNormal);
+        velocity.reflect(floorNormal);
 
         // Should bounce with same forward velocity and reversed vertical velocity (+10 in X, +10 in Z)
-        Assert.assertEquals(10.0f, reflected.x, EPSILON);
-        Assert.assertEquals(0.0f, reflected.y, EPSILON);
-        Assert.assertEquals(10.0f, reflected.z, EPSILON);
+        Assert.assertEquals(10.0f, velocity.x, EPSILON);
+        Assert.assertEquals(0.0f, velocity.y, EPSILON);
+        Assert.assertEquals(10.0f, velocity.z, EPSILON);
     }
 
     @Test
