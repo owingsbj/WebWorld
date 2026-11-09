@@ -161,24 +161,24 @@ public class AnimationBehavior extends Behavior {
 				}
 			} else if (type.equals("swimming")) {
 				if ("torso".equals(object.getName())) {
-					rotation.pitch(75 * range);
+					rotation.pitch(-75 * range);
 				}
 				if ("head".equals(object.getName())) {
 					if (object.getParent() != null && "neck".equals(object.getParent().getName())) {
-						rotation.pitch(-45 * range);
+						rotation.pitch(45 * range);
 					} else {
 						// bend head more when there's no neck to see horizon when swimming
-						rotation.pitch(-60 * range);
+						rotation.pitch(60 * range);
 					}
 				}
 				if ("neck".equals(object.getName())) {
-					rotation.pitch(-15 * range);
+					rotation.pitch(15 * range);
 				}
 				if ("left arm".equals(object.getName())) {
-					rotation.pitch(FastMath.TODEGREES * (FastMath.PI * animationTime));
+					rotation.pitch(-FastMath.TODEGREES * (FastMath.PI * animationTime));
 				}
 				if ("right arm".equals(object.getName())) {
-					rotation.pitch(FastMath.TODEGREES * (FastMath.PI * animationTime) + 180);
+					rotation.pitch(-FastMath.TODEGREES * (FastMath.PI * animationTime) + 180);
 				}
 				if ("left leg".equals(object.getName())) {
 					rotation.pitch(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
@@ -206,11 +206,11 @@ public class AnimationBehavior extends Behavior {
 				}
 			} else if (type.equals("treading")) {
 				if ("left arm".equals(object.getName())) {
-					rotation.roll(-75);
+					rotation.roll(75);
 					rotation.pitch(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
 				if ("right arm".equals(object.getName())) {
-					rotation.roll(75f);
+					rotation.roll(-75f);
 					rotation.pitch(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime + FastMath.PI) * range);
 				}
 				if ("left forearm".equals(object.getName())) {
@@ -233,13 +233,13 @@ public class AnimationBehavior extends Behavior {
 				}
 			} else if (type.equals("falling")) {
 				if ("torso".equals(object.getName())) {
-					rotation.pitch(-30 * FastMath.abs(range));
+					rotation.pitch(30 * FastMath.abs(range));
 				}
 				if ("left arm".equals(object.getName())) {
-					rotation.roll(-75 * FastMath.abs(range));
+					rotation.roll(75 * FastMath.abs(range));
 				}
 				if ("right arm".equals(object.getName())) {
-					rotation.roll(75 * FastMath.abs(range));
+					rotation.roll(-75 * FastMath.abs(range));
 				}
 				if ("left leg".equals(object.getName())) {
 					rotation.roll(15 * FastMath.abs(range));
