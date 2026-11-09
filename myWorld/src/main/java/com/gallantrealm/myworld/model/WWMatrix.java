@@ -35,6 +35,11 @@ public class WWMatrix implements Cloneable {
 		this.m = m;
 	}
 
+	public WWMatrix setMatrix(float[] m) {
+		this.m = m;
+		return this;
+	}
+
 	@Override
 	public WWMatrix clone() {
 		return new WWMatrix(Arrays.copyOf(m, 16));
