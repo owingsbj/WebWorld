@@ -137,7 +137,7 @@ public class GLTranslucency extends GLObject  {
 					// GLES20.glTranslatef((p.x - position.x), 0.0f, (p.y - position.y));
 					float[] cutoutMatrix = new float[16];
 					Matrix.translateM(cutoutMatrix, 0, modelMatrix, 0, (cameraPosition.x - position.x), 0.0f, (cameraPosition.y - position.y));
-					if (clientModel.getAvatar() != null && clientModel.cameraObject == clientModel.getAvatar()) {
+					if (clientModel.getAvatar() != null && clientModel.getCameraObject() == clientModel.getAvatar()) {
 						cameraPan += clientModel.getAvatar().getRotation().getYaw();
 					}
 					Matrix.rotateM(cutoutMatrix, 0, cameraPan, 0.0f, 1.0f, 0.0f);
