@@ -817,7 +817,9 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 			// wait long enough to match frame rate
 			try {
-				Thread.sleep(Math.max(0, 32 - (drawFrameTime - lastDrawFrameTime)));
+				int targetFrameRate = clientModel.getFrameRate();
+				int targetInterval = targetFrameRate > 0 ? 1000 / targetFrameRate : 16;
+				Thread.sleep(Math.max(0, targetInterval - (drawFrameTime - lastDrawFrameTime)));
 				drawFrameTime = System.currentTimeMillis();
 				if (lastStatusUpdateTime < drawFrameTime - 1000) {
 					clientModel.setActualFrameRate((int)(1000 / (drawFrameTime - lastDrawFrameTime)));
@@ -1039,7 +1041,9 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				positionCamera(time);
 	
 				// Three times a second, check for changes to the rendering and render/derender objects
-				if ((nrenders % (333 / clientModel.getFrameRate())) == 0) {
+				int targetFrameRate = clientModel.getFrameRate();
+				int div = targetFrameRate > 0 ? 333 / targetFrameRate : 5;
+				if ((nrenders % div) == 0) {
 
 					if (clearRenderingsNeeded) {
 						System.out.println("AndroidRenderer.preRender: clear renderings entered");
