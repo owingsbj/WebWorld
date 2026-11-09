@@ -16,6 +16,12 @@ public abstract class Shader {
 	// programs, both non-alpha testing (faster) and alpha testing (slower)
 	public int program = -1;
 
+	private static final int ATTRIB_POSITION = 0;
+	private static final int ATTRIB_NORMAL = 1;
+	private static final int ATTRIB_TANGENT = 2;
+	private static final int ATTRIB_BITANGENT = 3;
+	private static final int ATTRIB_TEXTURE_COORD = 4;
+
 	private int aPositionLocation = -1;
 	private int aNormalLocation = -1;
 	private int aTangentLocation = -1;
@@ -221,33 +227,43 @@ public abstract class Shader {
 		if (program != lastDrawProgram) { // need to rebind
 			if (aPositionLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, verticesBufferId);
-				GLES30.glEnableVertexAttribArray(aPositionLocation);
-				GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_HALF_FLOAT, false, 3 * 2, 0); // vertices);
+				GLES30.glEnableVertexAttribArray(ATTRIB_POSITION);
+				GLES30.glVertexAttribPointer(ATTRIB_POSITION, 3, GLES30.GL_HALF_FLOAT, false, 3 * 2, 0); // vertices);
 				AndroidRenderer.checkGlError();
+			} else {
+				GLES30.glDisableVertexAttribArray(ATTRIB_POSITION);
 			}
 			if (aNormalLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, normalsBufferId);
-				GLES30.glEnableVertexAttribArray(aNormalLocation);
-				GLES30.glVertexAttribPointer(aNormalLocation, 3, GLES30.GL_BYTE, false, 3 * 1, 0); // normals);
+				GLES30.glEnableVertexAttribArray(ATTRIB_NORMAL);
+				GLES30.glVertexAttribPointer(ATTRIB_NORMAL, 3, GLES30.GL_BYTE, false, 3 * 1, 0); // normals);
 				AndroidRenderer.checkGlError();
+			} else {
+				GLES30.glDisableVertexAttribArray(ATTRIB_NORMAL);
 			}
 			if (aTangentLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, tangentsBufferId);
-				GLES30.glEnableVertexAttribArray(aTangentLocation);
-				GLES30.glVertexAttribPointer(aTangentLocation, 3, GLES30.GL_BYTE, false, 3 * 1, 0); // tangents);
+				GLES30.glEnableVertexAttribArray(ATTRIB_TANGENT);
+				GLES30.glVertexAttribPointer(ATTRIB_TANGENT, 3, GLES30.GL_BYTE, false, 3 * 1, 0); // tangents);
 				AndroidRenderer.checkGlError();
+			} else {
+				GLES30.glDisableVertexAttribArray(ATTRIB_TANGENT);
 			}
 			if (aBitangentLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, bitangentsBufferId);
-				GLES30.glEnableVertexAttribArray(aBitangentLocation);
-				GLES30.glVertexAttribPointer(aBitangentLocation, 3, GLES30.GL_BYTE, false, 3 * 1, 0); // bitangents);
+				GLES30.glEnableVertexAttribArray(ATTRIB_BITANGENT);
+				GLES30.glVertexAttribPointer(ATTRIB_BITANGENT, 3, GLES30.GL_BYTE, false, 3 * 1, 0); // bitangents);
 				AndroidRenderer.checkGlError();
+			} else {
+				GLES30.glDisableVertexAttribArray(ATTRIB_BITANGENT);
 			}
 			if (aTextureCoordLocation >= 0) {
 				GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, textureCoordsBufferId);
-				GLES30.glEnableVertexAttribArray(aTextureCoordLocation);
-				GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_HALF_FLOAT, false, 2 * 2, 0); // textureCoords);
+				GLES30.glEnableVertexAttribArray(ATTRIB_TEXTURE_COORD);
+				GLES30.glVertexAttribPointer(ATTRIB_TEXTURE_COORD, 2, GLES30.GL_HALF_FLOAT, false, 2 * 2, 0); // textureCoords);
 				AndroidRenderer.checkGlError();
+			} else {
+				GLES30.glDisableVertexAttribArray(ATTRIB_TEXTURE_COORD);
 			}
 			GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, indicesBufferId);
 			AndroidRenderer.checkGlError();
@@ -295,9 +311,11 @@ public abstract class Shader {
 			pointVerticesBuffer.position(0);
 			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, pointVerticesBufferId);
 			GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, nindices * 4 * 3, pointVerticesBuffer, GLES30.GL_DYNAMIC_DRAW);
-			GLES30.glEnableVertexAttribArray(aPositionLocation);
-			GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 3 * 4, 0); // vertices);
+			GLES30.glEnableVertexAttribArray(ATTRIB_POSITION);
+			GLES30.glVertexAttribPointer(ATTRIB_POSITION, 3, GLES30.GL_FLOAT, false, 3 * 4, 0); // vertices);
 			AndroidRenderer.checkGlError();
+		} else {
+			GLES30.glDisableVertexAttribArray(ATTRIB_POSITION);
 		}
 		if (aTextureCoordLocation >= 0) {
 			extrasBuffer.clear();
@@ -305,9 +323,11 @@ public abstract class Shader {
 			extrasBuffer.position(0);
 			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, extrasBufferId);
 			GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, nindices * 2 * 2, extrasBuffer, GLES30.GL_DYNAMIC_DRAW);
-			GLES30.glEnableVertexAttribArray(aTextureCoordLocation);
-			GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_SHORT, false, 2 * 2, 0); // textureCoords);
+			GLES30.glEnableVertexAttribArray(ATTRIB_TEXTURE_COORD);
+			GLES30.glVertexAttribPointer(ATTRIB_TEXTURE_COORD, 2, GLES30.GL_SHORT, false, 2 * 2, 0); // textureCoords);
 			AndroidRenderer.checkGlError();
+		} else {
+			GLES30.glDisableVertexAttribArray(ATTRIB_TEXTURE_COORD);
 		}
 
 		GLES30.glDrawArrays(GLES30.GL_POINTS, 0, nindices);
@@ -316,15 +336,19 @@ public abstract class Shader {
 		// restore usual vertex and texture buffers
 		if (aPositionLocation >= 0) {
 			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, verticesBufferId);
-			GLES30.glEnableVertexAttribArray(aPositionLocation);
-			GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_HALF_FLOAT, false, 3 * 2, 0); // vertices);
+			GLES30.glEnableVertexAttribArray(ATTRIB_POSITION);
+			GLES30.glVertexAttribPointer(ATTRIB_POSITION, 3, GLES30.GL_HALF_FLOAT, false, 3 * 2, 0); // vertices);
 			AndroidRenderer.checkGlError();
+		} else {
+			GLES30.glDisableVertexAttribArray(ATTRIB_POSITION);
 		}
 		if (aTextureCoordLocation >= 0) {
 			GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, textureCoordsBufferId);
-			GLES30.glEnableVertexAttribArray(aTextureCoordLocation);
-			GLES30.glVertexAttribPointer(aTextureCoordLocation, 2, GLES30.GL_HALF_FLOAT, false, 2 * 2, 0); // textureCoords);
+			GLES30.glEnableVertexAttribArray(ATTRIB_TEXTURE_COORD);
+			GLES30.glVertexAttribPointer(ATTRIB_TEXTURE_COORD, 2, GLES30.GL_HALF_FLOAT, false, 2 * 2, 0); // textureCoords);
 			AndroidRenderer.checkGlError();
+		} else {
+			GLES30.glDisableVertexAttribArray(ATTRIB_TEXTURE_COORD);
 		}
 
 		if (pointDrawLocation >= 0) {
@@ -412,12 +436,19 @@ public abstract class Shader {
 		AndroidRenderer.checkGlError();
 		GLES30.glAttachShader(program, _pixelShader);
 		AndroidRenderer.checkGlError();
+		GLES30.glBindAttribLocation(program, ATTRIB_POSITION, "aPosition");
+		GLES30.glBindAttribLocation(program, ATTRIB_NORMAL, "aNormal");
+		GLES30.glBindAttribLocation(program, ATTRIB_TANGENT, "aTangent");
+		GLES30.glBindAttribLocation(program, ATTRIB_BITANGENT, "aBitangent");
+		GLES30.glBindAttribLocation(program, ATTRIB_TEXTURE_COORD, "aTextureCoord");
 		GLES30.glLinkProgram(program);
 		int[] linkStatus = new int[1];
 		GLES30.glGetProgramiv(program, GLES30.GL_LINK_STATUS, linkStatus, 0);
 		if (linkStatus[0] != GLES30.GL_TRUE) {
-			System.err.println(this.getClass().getSimpleName() + ": Linking failed: " + GLES30.glGetProgramInfoLog(program));
+			String log = GLES30.glGetProgramInfoLog(program);
+			System.err.println(this.getClass().getSimpleName() + ": Linking failed: " + log);
 			GLES30.glDeleteProgram(program);
+			throw new RuntimeException(this.getClass().getSimpleName() + ": Linking failed: " + log);
 		}
 		AndroidRenderer.checkGlError();
 
@@ -444,8 +475,10 @@ public abstract class Shader {
 			int[] compiled = new int[1];
 			GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, compiled, 0);
 			if (compiled[0] == 0) {
-				System.err.println(this.getClass().getSimpleName() + " compile failed for shader type " + shaderType + ":" + GLES30.glGetShaderInfoLog(shader));
-				AndroidRenderer.checkGlError();
+				String log = GLES30.glGetShaderInfoLog(shader);
+				System.err.println(this.getClass().getSimpleName() + " compile failed for shader type " + shaderType + ":" + log);
+				GLES30.glDeleteShader(shader);
+				throw new RuntimeException(this.getClass().getSimpleName() + " compile failed for shader type " + shaderType + ":" + log);
 			}
 		}
 		return shader;
