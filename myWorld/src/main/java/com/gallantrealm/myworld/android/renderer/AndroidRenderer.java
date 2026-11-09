@@ -177,6 +177,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	public DepthShader depthShader;
 	public ShadowMapShader shadowMapShader;
 	public Shader textureShader;
+	public SimpleTextureShader simpleTextureShader;
+	public ShadowingTextureShader shadowingTextureShader;
 
 	protected float[] projectionMatrix = new float[16];
 	protected float[] viewMatrix = new float[16];
@@ -519,8 +521,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		} else {
 			if (simpleRendering) {
 				GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES11.GL_GENERATE_MIPMAP, GLES20.GL_FALSE);
+				GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, pixelate ? GLES20.GL_NEAREST : GLES20.GL_LINEAR);
+			} else {
+				GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST_MIPMAP_NEAREST);
 			}
-			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST_MIPMAP_NEAREST);
 			if (pixelate) {
 				GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
 			} else {
@@ -637,10 +641,12 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 	
 		// Initialize shaders
+		simpleTextureShader = new SimpleTextureShader();
+		shadowingTextureShader = new ShadowingTextureShader();
 		if (clientModel.isSimpleRendering()) {
-			textureShader = new SimpleTextureShader();
+			textureShader = simpleTextureShader;
 		} else {
-			textureShader = new ShadowingTextureShader();
+			textureShader = shadowingTextureShader;
 		}
 		if (USE_DEPTH_SHADER) {
 			depthShader = new DepthShader();
@@ -787,6 +793,12 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 		if (!surfaceCreated) { // happens early when creating surface
 			return;
+		}
+
+		if (clientModel.isSimpleRendering()) {
+			textureShader = simpleTextureShader;
+		} else {
+			textureShader = shadowingTextureShader;
 		}
 
 		WWWorld world = clientModel.world;
