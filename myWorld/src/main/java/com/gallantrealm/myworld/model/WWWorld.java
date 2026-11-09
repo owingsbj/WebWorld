@@ -521,6 +521,18 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		this.sunColor = sunColor.getRGB();
 	}
 
+	public float getSunRed() {
+		return ((sunColor >> 16) & 0xFF) / 255.0f;
+	}
+
+	public float getSunGreen() {
+		return ((sunColor >> 8) & 0xFF) / 255.0f;
+	}
+
+	public float getSunBlue() {
+		return (sunColor & 0xFF) / 255.0f;
+	}
+
 	public float getFogDensity() {
 		return fogDensity;
 	}
@@ -562,6 +574,18 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 
 	public void setSkyColor(WWColor skyColor) {
 		this.skyColor = skyColor.getRGB();
+	}
+
+	public float getSkyRed() {
+		return ((skyColor >> 16) & 0xFF) / 255.0f;
+	}
+
+	public float getSkyGreen() {
+		return ((skyColor >> 8) & 0xFF) / 255.0f;
+	}
+
+	public float getSkyBlue() {
+		return (skyColor & 0xFF) / 255.0f;
 	}
 
 	public float getSunIntensity() {
@@ -606,6 +630,10 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 
 	public WWVector getSunDirection() {
 		return new WWVector(sunDirectionX, sunDirectionY, sunDirectionZ);
+	}
+
+	public void copySunDirectionInto(WWVector v) {
+		v.set(sunDirectionX, sunDirectionY, sunDirectionZ);
 	}
 
 	public void setSunDirection(WWVector direction) {
