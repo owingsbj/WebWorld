@@ -1035,14 +1035,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					world.setLastRenderingTime(lastModifyTime);
 				}
 	
-				WWObject avatar = clientModel.getAvatar();
-	
-				// Get avatar position
-				WWVector avatarPosition = new WWVector();
-				if (avatar != null) {
-					avatar.getPosition(avatarPosition);
-				}
-	
 				// position the camera
 				positionCamera(time);
 	
@@ -1212,6 +1204,9 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		WWObject cameraObject = clientModel.getCameraObject();
 
 		WWObject avatar = clientModel.getAvatar();
+		if (cameraObject == null) {
+			cameraObject = avatar;   // so the camera will look at something!
+		}
 		if (cameraObject != null) {
 			cameraObject.getAbsoluteAnimatedRotation(scratchCameraObjectRotation, time);
 		} else {
