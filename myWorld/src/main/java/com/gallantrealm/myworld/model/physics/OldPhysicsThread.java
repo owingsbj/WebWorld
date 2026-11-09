@@ -1,6 +1,6 @@
 package com.gallantrealm.myworld.model.physics;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.model.WWBehavior;
 import com.gallantrealm.myworld.model.WWObject;
@@ -20,10 +20,36 @@ import com.gallantrealm.myworld.model.WWWorld;
  */
 public class OldPhysicsThread extends PhysicsThread {
 
-	Vector<ObjectCollision> previousCollidedObjects = null;
-	Vector<ObjectCollision> newCollidedObjects = new Vector<ObjectCollision>();
+	private ArrayList<ObjectCollision> previousCollidedObjects = new ArrayList<ObjectCollision>();
+	private ArrayList<ObjectCollision> newCollidedObjects = new ArrayList<ObjectCollision>();
 
-	public OldPhysicsThread(WWWorld world, int iterationTime) {
+	private final WWVector position = new WWVector();
+	private final WWQuaternion rotation = new WWQuaternion();
+	private final WWVector rotationPoint = new WWVector();
+	private final WWVector velocity = new WWVector();
+	private final WWVector aMomentum = new WWVector();
+	private final WWVector position2 = new WWVector();
+	private final WWQuaternion rotation2 = new WWQuaternion();
+	private final WWVector tempPoint = new WWVector();
+	private final WWVector tempPoint2 = new WWVector();
+	private final WWVector overlapPoint = new WWVector();
+	private final WWVector overlapVector = new WWVector();
+
+	private final WWVector originalPosition = new WWVector();
+	private final WWQuaternion originalRotation = new WWQuaternion();
+	private final WWVector originalVelocity = new WWVector();
+	private final WWVector originalAMomentum = new WWVector();
+
+	private final WWVector force = new WWVector();
+	private final WWVector unitOverlapVector = new WWVector();
+	private final WWVector mirrorVector = new WWVector();
+	private final WWVector antiForceVector = new WWVector();
+	private final WWVector rotatedForce = new WWVector();
+	private final WWVector rotatedVelocity = new WWVector();
+	private final WWVector rotatedThrust = new WWVector();
+	private final WWVector rotatedThrustVelocity = new WWVector();
+
+	public OldPhysicsThread(WWWorld world, int iterationTime, int slideStyle) {
 		super(world, iterationTime);
 	}
 
@@ -35,20 +61,10 @@ public class OldPhysicsThread extends PhysicsThread {
 		long worldTime = world.getWorldTime();
 		float deltaTime = timeIncrement / 1000.0f;
 
+		ArrayList<ObjectCollision> tempCollidedObjects = previousCollidedObjects;
 		previousCollidedObjects = newCollidedObjects;
-		newCollidedObjects = new Vector<ObjectCollision>();
-
-		WWVector position = new WWVector();
-		WWQuaternion rotation = new WWQuaternion();
-		WWVector rotationPoint = new WWVector();
-		WWVector velocity = new WWVector();
-		WWVector aMomentum = new WWVector();
-		WWVector position2 = new WWVector();
-		WWQuaternion rotation2 = new WWQuaternion();
-		WWVector tempPoint = new WWVector();
-		WWVector tempPoint2 = new WWVector();
-		WWVector overlapPoint = new WWVector();
-		WWVector overlapVector = new WWVector();
+		newCollidedObjects = tempCollidedObjects;
+		newCollidedObjects.clear();
 
 		WWObject[] objects = world.getObjects();
 		int lastObjectIndex = world.lastObjectIndex;
@@ -77,12 +93,12 @@ public class OldPhysicsThread extends PhysicsThread {
 				WWVector torque = object.getTorque();
 				WWVector torqueVelocity = object.getTorqueVelocity();
 
-				WWVector originalPosition = position.clone();
-				WWQuaternion originalRotation = rotation.clone();
-				WWVector originalVelocity = velocity.clone();
-				WWVector originalAMomentum = aMomentum.clone();
+				position.copyInto(originalPosition);
+				rotation.copyInto(originalRotation);
+				velocity.copyInto(originalVelocity);
+				aMomentum.copyInto(originalAMomentum);
 
-				WWVector force = new WWVector(0.0f, 0.0f, 0.0f);
+				force.zero();
 
 				// sum in gravitational force only if object has mass							
 				if (object.getDensity() > 0.0) {
@@ -110,12 +126,13 @@ public class OldPhysicsThread extends PhysicsThread {
 							if (!overlapVector.isZero()) {
 
 								ObjectCollision collision = new ObjectCollision(object, object2, overlapVector);
-								if (previousCollidedObjects.indexOf(collision) < 0) {
+								int index = previousCollidedObjects.indexOf(collision);
+								if (index < 0) {
 									world.collideObject(collision);
 								} else {
-									ObjectCollision oldCollision = previousCollidedObjects.elementAt(previousCollidedObjects.indexOf(collision));
+									ObjectCollision oldCollision = previousCollidedObjects.get(index);
 									world.slideObject(oldCollision);
-									previousCollidedObjects.removeElementAt(previousCollidedObjects.indexOf(collision));
+									previousCollidedObjects.remove(index);
 									collision = oldCollision;
 								}
 								newCollidedObjects.add(collision);
@@ -129,24 +146,12 @@ public class OldPhysicsThread extends PhysicsThread {
 									position.z -= overlapVector.z;
 
 									// If the object is moving toward object2, stop or repell it (according to elasticity)
-									WWVector unitOverlapVector;
-									if (overlapVector.length() > 0) {
-										unitOverlapVector = new WWVector(overlapVector);
-									} else { // use force
-										unitOverlapVector = overlapVector.clone(); //new WWVector(-force.x, -force.y, -force.z);
-									}
-									unitOverlapVector.normalize();
+									unitOverlapVector.set(overlapVector).normalize();
 									if (object.getElasticity() > 0.0) { // bounce off the object  
-										WWVector velocityVector = new WWVector(velocity.x, velocity.y, velocity.z);
-										WWVector mirrorVector = unitOverlapVector.clone();
-										mirrorVector.scale(-1.0f);
-										WWVector mirrorVelocityVector = velocityVector.getReflection(mirrorVector);
-										velocity.x = mirrorVelocityVector.x * object.getElasticity();
-										velocity.y = mirrorVelocityVector.y * object.getElasticity();
-										velocity.z = mirrorVelocityVector.z * object.getElasticity();
+										mirrorVector.set(unitOverlapVector).scale(-1.0f);
+										velocity.reflect(mirrorVector).scale(object.getElasticity());
 									} else { // slide on the object
-										WWVector antiForceVector = unitOverlapVector.clone();
-										antiForceVector.scale(-force.length());
+										antiForceVector.set(unitOverlapVector).scale(-force.length());
 										force.add(antiForceVector);
 										// TODO add velocity attuning (and do not stop in all dimensions)
 										//velocity.scale(Math.min(1.0f, 1.0f + unitOverlapVector.x), Math.min(1.0f, 1.0f + unitOverlapVector.y), Math.min(1.0f, 1.0f + unitOverlapVector.z));
@@ -177,23 +182,10 @@ public class OldPhysicsThread extends PhysicsThread {
 								// Depending on friction forces, slow the object movement
 								float friction = FastMath.min(object.getFriction(), object2.getFriction()) * deltaTime * 10.0f;
 								if (friction > 0.0) {
-									WWVector reducedVelocity = new WWVector(velocity.x, velocity.y, velocity.z);
-									WWVector object2Velocity = object2.getVelocity();
-									reducedVelocity.average(object2Velocity, friction);
-									velocity.x = reducedVelocity.x;
-									velocity.y = reducedVelocity.y;
-									velocity.z = reducedVelocity.z;
-									// TODO determine if the friction should apply to all directions or just perpendicular to surface normal
-									WWVector reducedAMomentum = new WWVector(aMomentum.x, aMomentum.y, aMomentum.z);
-									WWVector object2AMomentum = object2.getAngularVelocity();
-									reducedAMomentum.average(object2AMomentum, friction);
-									aMomentum.x = reducedAMomentum.x;
-									aMomentum.y = reducedAMomentum.y;
-									aMomentum.z = reducedAMomentum.z;
-
+									velocity.average(object2.getVelocity(), friction);
+									aMomentum.average(object2.getAngularVelocity(), friction);
 									// degrade forces
 									force.average(WWVector.ZERO_VECTOR, friction);
-
 								} // friction
 
 							} // if overlapping
@@ -208,10 +200,10 @@ public class OldPhysicsThread extends PhysicsThread {
 				}
 
 				// Apply forces to object's velocity
-				WWVector rotatedForce = force.clone();
-				WWVector rotatedVelocity = velocity.clone();
-				object.antiRotate(rotatedForce, rotation);
-				object.antiRotate(rotatedVelocity, rotation);
+				rotatedForce.set(force);
+				rotatedVelocity.set(velocity);
+				WWObject.antiRotate(rotatedForce, rotation);
+				WWObject.antiRotate(rotatedVelocity, rotation);
 				if (!object.isFreedomMoveX()) {
 					rotatedForce.x = 0.0f;
 					rotatedVelocity.x = 0.0f;
@@ -227,16 +219,14 @@ public class OldPhysicsThread extends PhysicsThread {
 				rotatedVelocity.x += rotatedForce.x * deltaTime;
 				rotatedVelocity.y += rotatedForce.y * deltaTime;
 				rotatedVelocity.z += rotatedForce.z * deltaTime;
-				object.rotate(rotatedVelocity, rotation);
-				velocity.x = rotatedVelocity.x;
-				velocity.y = rotatedVelocity.y;
-				velocity.z = rotatedVelocity.z;
+				rotation.rotateVector(rotatedVelocity);
+				velocity.set(rotatedVelocity);
 
 				// Apply thrust to object.  Apply last to overcome any friction
-				WWVector rotatedThrust = thrust.clone();
-				WWVector rotatedThrustVelocity = thrustVelocity.clone();
-				object.rotate(rotatedThrust, rotation);
-				object.rotate(rotatedThrustVelocity, rotation);
+				rotatedThrust.set(thrust);
+				rotatedThrustVelocity.set(thrustVelocity);
+				rotation.rotateVector(rotatedThrust);
+				rotation.rotateVector(rotatedThrustVelocity);
 				if (object.isFreedomMoveX() || object.isFreedomMoveY() || object.isFreedomMoveZ()) {
 					if (rotatedThrustVelocity.x < -0.1 && rotatedThrustVelocity.x < velocity.x) {
 						velocity.x = FastMath.max(rotatedThrustVelocity.x, velocity.x + rotatedThrust.x * 10.0f * deltaTime);
@@ -339,11 +329,12 @@ public class OldPhysicsThread extends PhysicsThread {
 
 		} // for object
 
-		while (previousCollidedObjects.size() > 0) {
-			ObjectCollision previousCollision = previousCollidedObjects.elementAt(0);
+		int size = previousCollidedObjects.size();
+		for (int k = 0; k < size; k++) {
+			ObjectCollision previousCollision = previousCollidedObjects.get(k);
 			world.stopSlidingObject(previousCollision);
-			previousCollidedObjects.removeElementAt(0);
 		}
+		previousCollidedObjects.clear();
 
 //		} // synchronize world
 
