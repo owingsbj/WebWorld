@@ -161,4 +161,19 @@ public class WWQuaternionTest {
         Assert.assertEquals(original.getY(), received.getY(), EPSILON);
         Assert.assertEquals(original.getZ(), received.getZ(), EPSILON);
     }
+
+    @Test
+    public void testAntirotateVector() {
+        WWQuaternion q = new WWQuaternion(30.0f, 45.0f, 60.0f);
+        WWVector vOriginal = new WWVector(1.5f, -2.3f, 4.1f);
+        WWVector v = new WWVector(vOriginal);
+
+        // Rotate then anti-rotate
+        q.rotateVector(v);
+        q.antirotateVector(v);
+
+        Assert.assertEquals(vOriginal.x, v.x, EPSILON);
+        Assert.assertEquals(vOriginal.y, v.y, EPSILON);
+        Assert.assertEquals(vOriginal.z, v.z, EPSILON);
+    }
 }

@@ -356,8 +356,25 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
     }
 
     public final void antirotateVector(WWVector v) {
-        WWQuaternion q = this.clone().invert();
-        q.rotateVector(v);
+        if (v.isZero()) {
+            return;
+        }
+        float normSq = w * w + x * x + y * y + z * z;
+        if (normSq < 1e-6f) {
+            return;
+        }
+        float iw = w / normSq;
+        float ix = -x / normSq;
+        float iy = -y / normSq;
+        float iz = -z / normSq;
+
+        float tx = 2.0f * (iy * v.z - iz * v.y);
+        float ty = 2.0f * (iz * v.x - ix * v.z);
+        float tz = 2.0f * (ix * v.y - iy * v.x);
+
+        v.x += iw * tx + (iy * tz - iz * ty);
+        v.y += iw * ty + (iz * tx - ix * tz);
+        v.z += iw * tz + (ix * ty - iy * tx);
     }
 
     /**
