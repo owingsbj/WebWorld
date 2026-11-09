@@ -150,6 +150,7 @@ public abstract class GLObject extends GLRendering {
 
 	float[] modelMatrix;
 	static float[] textureMatrix = new float[16];
+	private static final WWMatrix scratchWWMatrix = new WWMatrix(null);  // used as a wrapper object in snap
 
 	public void snap(long worldTime) {
 		if (modelMatrix == null || !object.fixed) {
@@ -163,7 +164,7 @@ public abstract class GLObject extends GLRendering {
 			rotation.toMatrix(tempMatrix);
 			Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, tempMatrix, 0);
 			Matrix.translateM(modelMatrix, 0, -object.rotationPoint.x, -object.rotationPoint.z, -object.rotationPoint.y);
-			object.preAnimateModelMatrix(object, new WWMatrix(modelMatrix), worldTime);
+			object.preAnimateModelMatrix(object, scratchWWMatrix.setMatrix(modelMatrix), worldTime);
 			object.lastRenderingTime = worldTime;
 		}
 	}
