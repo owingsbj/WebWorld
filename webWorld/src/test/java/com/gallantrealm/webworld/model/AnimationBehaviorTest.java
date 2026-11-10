@@ -63,15 +63,15 @@ public class AnimationBehaviorTest {
         leftLeg.setName("left leg");
         WWQuaternion leftLegRotation = new WWQuaternion();
         anim.getAnimatedRotation(leftLeg, leftLegRotation, 1000L);
-        Assert.assertTrue("Left leg roll should be positive for outward tilt when falling", leftLegRotation.getRoll() > 0);
-        Assert.assertEquals(15.0f, leftLegRotation.getRoll(), EPSILON);
+        Assert.assertTrue("Left leg roll should be negative for outward tilt when falling", leftLegRotation.getRoll() < 0);
+        Assert.assertEquals(-15.0f, leftLegRotation.getRoll(), EPSILON);
 
         WWBox rightLeg = new WWBox();
         rightLeg.setName("right leg");
         WWQuaternion rightLegRotation = new WWQuaternion();
         anim.getAnimatedRotation(rightLeg, rightLegRotation, 1000L);
-        Assert.assertTrue("Right leg roll should be negative for outward tilt when falling", rightLegRotation.getRoll() < 0);
-        Assert.assertEquals(-15.0f, rightLegRotation.getRoll(), EPSILON);
+        Assert.assertTrue("Right leg roll should be positive for outward tilt when falling", rightLegRotation.getRoll() > 0);
+        Assert.assertEquals(15.0f, rightLegRotation.getRoll(), EPSILON);
     }
 
     @Test

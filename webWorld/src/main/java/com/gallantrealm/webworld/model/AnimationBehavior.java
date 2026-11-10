@@ -242,10 +242,10 @@ public class AnimationBehavior extends Behavior {
 					rotation.roll(-75 * FastMath.abs(range));
 				}
 				if ("left leg".equals(object.getName())) {
-					rotation.roll(15 * FastMath.abs(range));
+					rotation.roll(-15 * FastMath.abs(range));
 				}
 				if ("right leg".equals(object.getName())) {
-					rotation.roll(-15 * FastMath.abs(range));
+					rotation.roll(15 * FastMath.abs(range));
 				}
 			}
 		}
