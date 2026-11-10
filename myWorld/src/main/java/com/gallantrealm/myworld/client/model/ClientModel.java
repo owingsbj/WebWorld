@@ -158,7 +158,7 @@ public abstract class ClientModel {
 	// Static will allow them to be shared across all instances of client applets in the browser session
 	public static boolean localPhysicsThread = true;
 	public static float fieldOfView = 90;
-	public static int frameRate = 60;
+	public static int frameRate = 30;
 	public static int actualFrameRate;  // what is actually being experienced
 	public static boolean displayActualFrameRate = false;
 	public static boolean antialias = false;
@@ -312,11 +312,7 @@ public abstract class ClientModel {
 	}
 
 	public final int getFrameRate() {
-		if (((ClientModel) this).isPowerSaver()) {
-			return 10;
-		} else {
-			return frameRate;
-		}
+		return frameRate;
 	}
 
 	public void setFrameRate(int r) {
@@ -1812,14 +1808,6 @@ public abstract class ClientModel {
 	public void setFullVersion(boolean fullVersion) {
 		this.fullVersion = fullVersion;
 		fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_FULLVERSION_CHANGED);
-	}
-
-	public boolean isPowerSaver() {
-		return false; // no longer an option
-	}
-
-	public void setPowerSaver(boolean powerSaver) {
-		this.powerSaver = powerSaver;
 	}
 
 	public void showBannerAds() {

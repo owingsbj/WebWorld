@@ -27,7 +27,6 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 	SeekBar controlSensitivity;
 	CheckBox viewIn3dCheckBox;
 	CheckBox simpleRenderingCheckBox;
-	CheckBox powerSaverCheckBox;
 	Button okButton;
 
 	@Override
@@ -47,7 +46,6 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		controlSensitivity = (SeekBar) findViewById(R.id.controlSensitivity);
 		viewIn3dCheckBox = (CheckBox) findViewById(R.id.viewIn3dCheckbox);
 		simpleRenderingCheckBox = (CheckBox) findViewById(R.id.simpleRenderingCheckBox);
-		powerSaverCheckBox = (CheckBox) findViewById(R.id.powerSaverCheckBox);
 		okButton = (Button) findViewById(R.id.okButton);
 
 		// shadows aren't working yet.
@@ -70,9 +68,6 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		// only need to show option for simple rendering when there is GLES20
 		clientModel.setWorld(null);
 		
-		// power saver no longer featured
-		powerSaverCheckBox.setVisibility(View.GONE);
-
 		if (clientModel.useGamepad(this) ||  !clientModel.canUseSensors()) {
 			controlTypeLabel.setVisibility(View.GONE);
 			controlType.setVisibility(View.GONE);
@@ -113,7 +108,6 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		vibrationCheckBox.setOnClickListener(this);
 		viewIn3dCheckBox.setOnClickListener(this);
 		simpleRenderingCheckBox.setOnClickListener(this);
-		powerSaverCheckBox.setOnClickListener(this);
 		okButton.setOnClickListener(this);
 
 		clientModel.loadPreferences(this);
@@ -151,10 +145,6 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 			updateSettings();
 		} else if (v.equals(simpleRenderingCheckBox)) {
 			clientModel.setSimpleRendering(simpleRenderingCheckBox.isChecked());
-			clientModel.savePreferences(this);
-			updateSettings();
-		} else if (v.equals(powerSaverCheckBox)) {
-			clientModel.setPowerSaver(powerSaverCheckBox.isChecked());
 			clientModel.savePreferences(this);
 			updateSettings();
 		} else if (v.equals(okButton)) {
@@ -196,7 +186,6 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 // }
 		viewIn3dCheckBox.setChecked(clientModel.isStereoscopic());
 		simpleRenderingCheckBox.setChecked(clientModel.isSimpleRendering());
-		powerSaverCheckBox.setChecked(clientModel.isPowerSaver());
 	}
 
 	@Override

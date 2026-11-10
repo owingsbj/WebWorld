@@ -83,11 +83,6 @@
 				android:shadowColor="#444444" android:shadowDx="1" android:shadowDy="1"
 				android:shadowRadius="1" android:text="Simple rendering  "
 				android:textSize="16dp" android:visibility="visible" />
-			<CheckBox android:id="@+id/powerSaverCheckBox"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:shadowColor="#444444" android:shadowDx="1" android:shadowDy="1"
-				android:shadowRadius="1" android:text="Power saver"
-				android:textSize="16dp" android:visibility="visible" />
 		</LinearLayout>
 	</LinearLayout>
 	<Button android:id="@+id/okButton" android:layout_width="120dp"
