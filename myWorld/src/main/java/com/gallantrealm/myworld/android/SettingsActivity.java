@@ -27,6 +27,8 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 	SeekBar controlSensitivity;
 	CheckBox viewIn3dCheckBox;
 	CheckBox simpleRenderingCheckBox;
+	Spinner frameRateSpinner;
+	ArrayAdapter frameRateAdapter;
 	Button okButton;
 
 	@Override
@@ -46,6 +48,11 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 		controlSensitivity = (SeekBar) findViewById(R.id.controlSensitivity);
 		viewIn3dCheckBox = (CheckBox) findViewById(R.id.viewIn3dCheckbox);
 		simpleRenderingCheckBox = (CheckBox) findViewById(R.id.simpleRenderingCheckBox);
+		frameRateSpinner = (Spinner) findViewById(R.id.frameRateSpinner);
+		frameRateAdapter = new ArrayAdapter(this, R.layout.spinner_item, new String[] { "15", "30", "60" });
+		frameRateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		frameRateSpinner.setAdapter(frameRateAdapter);
+		frameRateSpinner.setOnItemSelectedListener(this);
 		okButton = (Button) findViewById(R.id.okButton);
 
 		// shadows aren't working yet.
@@ -186,10 +193,31 @@ public class SettingsActivity extends GallantActivity implements View.OnClickLis
 // }
 		viewIn3dCheckBox.setChecked(clientModel.isStereoscopic());
 		simpleRenderingCheckBox.setChecked(clientModel.isSimpleRendering());
+		int fps = clientModel.getFrameRate();
+		if (fps == 15) {
+			frameRateSpinner.setSelection(0);
+		} else if (fps == 30) {
+			frameRateSpinner.setSelection(1);
+		} else {
+			frameRateSpinner.setSelection(2);
+		}
 	}
 
 	@Override
 	public void onItemSelected(AdapterView av, View view, int arg1, long arg2) {
+		if (av.equals(frameRateSpinner)) {
+			String fpsStr = (String) frameRateSpinner.getSelectedItem();
+			if (fpsStr != null) {
+				try {
+					int fps = Integer.parseInt(fpsStr);
+					clientModel.setFrameRate(fps);
+					clientModel.savePreferences(this);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			return;
+		}
 		String type = (String)controlType.getSelectedItem();
 		// "Tilt", "Screen Left", "Screen Right", "Gamepad"
 		if (type == null) {

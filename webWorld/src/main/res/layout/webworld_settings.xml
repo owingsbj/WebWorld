@@ -204,6 +204,25 @@
                         android:textSize="16sp"
                         android:visibility="visible" />
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="10sp"
+                        android:shadowColor="#444444"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="1"
+                        android:text="Frame rate: "
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textSize="16sp" />
+
+                    <Spinner
+                        android:id="@+id/frameRateSpinner"
+                        android:layout_width="100sp"
+                        android:layout_height="40sp"
+                        android:layout_gravity="center_vertical" />
+
                 </LinearLayout>
             </LinearLayout>
 
