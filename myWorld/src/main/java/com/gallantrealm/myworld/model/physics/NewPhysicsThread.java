@@ -274,6 +274,7 @@ public class NewPhysicsThread extends PhysicsThread {
 											velocity.x = mirrorForceVector.x * elasticity;
 											velocity.y = mirrorForceVector.y * elasticity;
 											velocity.z = mirrorForceVector.z * elasticity;
+											aMomentum.scale(elasticity);
 											
 										} else { // simple bounce-back from a non-physical object (e.g. a wall or a moving bat)
 											float elasticity = Math.max(object.elasticity, object2.elasticity);
@@ -287,6 +288,7 @@ public class NewPhysicsThread extends PhysicsThread {
 											
 											// Add the non-physical object's velocity back to impart energy (the "bat" hitting the "ball")
 											velocity.set(relativeVelocity).add(object2.getVelocity());
+											aMomentum.scale(elasticity);
 										}
 									} else { 
 										// slide on the object
@@ -331,19 +333,16 @@ public class NewPhysicsThread extends PhysicsThread {
 									// (Note: We do NOT normalize this, because a longer lever arm should mathematically create more torque!)
 									WWVector leverArm = overlapPoint.clone().subtract(originalPosition);
 
-									// 2. The impact force (F): proportional to the overlap vector.
-									// Because overlapVector points into the collision, the surface pushes back in the opposite direction (-1).
-									WWVector impactForce = overlapVector.clone().scale(-1.0f);
+									// 2. The impact force (F): spring force proportional to object mass and overlap penetration.
+									float objectMass = object.density * object.size.x * object.size.y * object.size.z;
+									WWVector impactForce = overlapVector.clone().scale(-objectMass);
 
 									// 3. Torque = r x F
-									WWVector impactTorque = leverArm.cross(impactForce);
+									WWVector impactTorque = leverArm.cross(impactForce).scale(FastMath.TODEGREES);
 
-									// 4. Apply the torque to the object, scaled by 1/deltaTime to represent the instantaneous impulse
-									float impactExtentSq = object.extent * object.extent;
-									if (impactExtentSq > 0.0001f) {
-										impactTorque.scale(FastMath.TODEGREES / (0.5f * impactExtentSq));
-									}
-									totalTorque.add(impactTorque.scale(1.0f / deltaTime));
+									// 4. Apply the torque to the object
+									impactTorque.scale(4.0f);  // a fudge factor.. need to determine why it is useful
+									totalTorque.add(impactTorque);
 
 									// TODO implement physics of tops for object2
 								} 
