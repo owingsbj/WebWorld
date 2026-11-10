@@ -1201,7 +1201,6 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 				if (tempPoint2.isLongerThan(overlapVector)) {
 					tempPoint2.copyInto(overlapVector);
 					transformedEdgePoints[i].copyInto(overlapPoint);
-					return; // less accurate but faster
 				}
 			}
 		}
