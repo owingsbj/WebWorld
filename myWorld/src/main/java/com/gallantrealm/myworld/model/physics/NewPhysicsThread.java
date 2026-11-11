@@ -407,8 +407,19 @@ public class NewPhysicsThread extends PhysicsThread {
 											// This simulates twisting friction (like a top spinning in place slowing down)
 											WWVector spinDampening = aMomentum.clone().scale(-1.0f * friction);
 											totalTorque.add(spinDampening);
-											
-										} else if (object.solid && !object2.solid) { 
+
+											// Simulate static friction: removing contribution to totalForce and forcing velocity to equal object2's velocity
+											if (relativeSurfaceVelocity.length() < friction && totalForce.length() < friction) {
+												totalForce.subtract(frictionForce);
+												velocity.subtract(relativeSurfaceVelocity);
+											}
+											if (aMomentum.length() / FastMath.TODEGREES < 2.5f * friction && totalTorque.length() / FastMath.TODEGREES < 2.5f * friction) {
+												totalTorque.subtract(rollingTorque);
+												aMomentum.set(0, 0, 0);
+											}
+											// TODO static friction effect on aMomentum can be improved above to account for a moving object2
+
+										} else if (object.solid && !object2.solid) {
 											// solid-in-liquid/gas friction
 											WWVector frictionVForce = object2.getVelocity().clone().subtract(velocity);
 											frictionVForce.scale(10 * friction);
