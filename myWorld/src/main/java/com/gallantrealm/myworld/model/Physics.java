@@ -21,7 +21,7 @@ public class Physics implements Cloneable, Serializable {
 	public float angularVelocityX;
 	public float angularVelocityY;
 	public float angularVelocityZ;
-	public float density = 0.0f;
+	public float density = 1.0f;
 	public boolean solid = true;
 	public float elasticity;
 	public float friction = 1.0f;
