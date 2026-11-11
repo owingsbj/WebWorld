@@ -387,6 +387,9 @@ public class NewPhysicsThread extends PhysicsThread {
 											
 											WWVector relativeSurfaceVelocity = surfaceVelocity.subtract(surfaceVelocity2);
 
+											WWVector relativeAngularVelocity = aMomentum.clone().subtract(object2.getAngularVelocity()).scale(1.0f / FastMath.TODEGREES);
+											WWVector relativeSurfaceAngularVelocity = spinVel.clone().subtract(obj2SpinVel);
+
 											// 3. The friction force pushes back against the slipping surface!
 											// If the block is spinning, but not moving (like a car tire burning out), 
 											// relativeSurfaceVelocity is high. The friction force will push forward, 
@@ -413,11 +416,10 @@ public class NewPhysicsThread extends PhysicsThread {
 												totalForce.subtract(frictionForce);
 												velocity.subtract(relativeSurfaceVelocity);
 											}
-											if (aMomentum.length() / FastMath.TODEGREES < 2.5f * friction && totalTorque.length() / FastMath.TODEGREES < 2.5f * friction) {
+											if (relativeSurfaceAngularVelocity.length() < friction && totalTorque.length() / FastMath.TODEGREES < 2.5f * friction) {
 												totalTorque.subtract(rollingTorque);
-												aMomentum.set(0, 0, 0);
+												aMomentum.set(object2.getAngularVelocity());
 											}
-											// TODO static friction effect on aMomentum can be improved above to account for a moving object2
 
 										} else if (object.solid && !object2.solid) {
 											// solid-in-liquid/gas friction
