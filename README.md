@@ -9,3 +9,8 @@ on creating games and other worlds for WebWorld.
 This version of the WebWorld project is now ported to Android Studio.  The MyWorld, MyScript and MyAndroid project's code
 are now part of the WebWorld project.  (I haven't yet figured out how to cleanly separate these and
 still have Android Studio build them.)
+
+<b>Warning</b>
+
+At this time WebWorld is still in development and API's are subject to change.  I'm working with the physics
+and trying to get it to behave more like the real world.
