@@ -412,12 +412,13 @@ public class NewPhysicsThread extends PhysicsThread {
 											totalTorque.add(spinDampening);
 
 											// Simulate static friction: removing contribution to totalForce and forcing velocity to equal object2's velocity
-											if (relativeSurfaceVelocity.length() < friction && totalForce.length() < friction) {
-												totalForce.subtract(frictionForce);
+											WWVector normalForceComponent = unitOverlapVector.clone().scale(totalForce.dot(unitOverlapVector));
+											WWVector tangentialForce = totalForce.clone().subtract(normalForceComponent);
+											if (relativeSurfaceVelocity.length() < 10 * friction && tangentialForce.length() < friction * 2.0f &&
+													relativeSurfaceAngularVelocity.length() < friction && totalTorque.length() / FastMath.TODEGREES < 2.5f * friction) {
+												totalForce.zero();
 												velocity.subtract(relativeSurfaceVelocity);
-											}
-											if (relativeSurfaceAngularVelocity.length() < friction && totalTorque.length() / FastMath.TODEGREES < 2.5f * friction) {
-												totalTorque.subtract(rollingTorque);
+												totalTorque.zero();
 												aMomentum.set(object2.getAngularVelocity());
 											}
 
