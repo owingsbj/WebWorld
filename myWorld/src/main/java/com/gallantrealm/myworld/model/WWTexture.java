@@ -21,7 +21,7 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 	public float offsetY;
 	public float velocityX;
 	public float velocityY;
-	public float aMomentum;
+	public float angularVelocity;
 	public long refreshInterval;
 	public boolean pixelated;
 	
@@ -120,11 +120,11 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 		this.velocityY = velocityY;
 	}
 	
-	public float getaMomentum() {
-		return aMomentum;
+	public float getAngularVelocity() {
+		return angularVelocity;
 	}
-	public void setaMomentum(float aMomentum) {
-		this.aMomentum = aMomentum;
+	public void setAngularVelocity(float angularVelocity) {
+		this.angularVelocity = angularVelocity;
 	}
 	
 	public long getRefreshInterval() {
@@ -169,7 +169,7 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 		os.writeFloat(offsetY);
 		os.writeFloat(velocityX);
 		os.writeFloat(velocityY);
-		os.writeFloat(aMomentum);
+		os.writeFloat(angularVelocity);
 		os.writeLong(refreshInterval);
 		os.writeBoolean(isPixelated());
 	}
@@ -184,7 +184,7 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 		offsetY = is.readFloat();
 		velocityX = is.readFloat();
 		velocityY = is.readFloat();
-		aMomentum = is.readFloat();
+		angularVelocity = is.readFloat();
 		refreshInterval = is.readLong();
 		setPixelated(is.readBoolean());
 	}

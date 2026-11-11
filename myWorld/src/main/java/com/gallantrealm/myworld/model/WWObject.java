@@ -388,8 +388,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 //	public final boolean isAtRotationBounds() {
 //		long worldTime = getWorldTime();
 //		float deltaTime = (worldTime - lastMoveTime) / 1000.0f;
-//		float newRotationX = rotationX + deltaTime * aMomentumX;
-//		float newRotationY = rotationY + deltaTime * aMomentumY;
+//		float newRotationX = rotationX + deltaTime * angularVelocityX;
+//		float newRotationY = rotationY + deltaTime * angularVelocityY;
 //		float newRotationZ = rotationZ + deltaTime * angularVelocityZ;
 //		if (startRotation != null) {
 //			if (rotationX > startRotation.x && newRotationX < startRotation.x) {
@@ -696,9 +696,9 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	/**
 	 * Use this method to set all position, rotation, and momentum values in one call. This avoid undo overhead from detection of updated objects. Note that
-	 * individual setPosition, setRotation, setVelocity, and setAMomentum calls will internally call this method.
+	 * individual setPosition, setRotation, setVelocity, and setAngularVelocity calls will internally call this method.
 	 */
-	public final void setOrientation(WWVector newPosition, WWQuaternion newRotation, WWVector newVelocity, WWVector newAMomentum, long newMoveTime) {
+	public final void setOrientation(WWVector newPosition, WWQuaternion newRotation, WWVector newVelocity, WWVector newAngularVelocity, long newMoveTime) {
 
 		/*
 		 * ignoring glue behavior from child to parent
@@ -712,13 +712,13 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 //		  	deltaVelocity.subtract(getVelocity());
 //		  	WWQuaternion deltaRotation = newRotation.clone();
 //		  	deltaRotation.subtract(getRotation(lastMoveTime));
-//		  	WWVector deltaAMomentum = newAMomentum.clone();
-//			deltaAMomentum.subtract(getAMomentum());
+//		  	WWVector deltaAngularVelocity = newAngularVelocity.clone();
+//			deltaAngularVelocity.subtract(getAngularVelocity());
 //			WWObject parent = world.objects[parentId];
 //			WWVector  newParentPosition = parent.getPosition(lastMoveTime);
 //			newParentPosition.add(deltaPosition);
 //			WWVector newParentVelocity = parent.getVelocity(); // TODO rotate/position parent relative to child delta rotate
-//			parent.setOrientation(newParentPosition, newRotation, newParentVelocity, newAMomentum, newMoveTime); // TODO determine if some dynamic properties should be ignored for glued children return;
+//			parent.setOrientation(newParentPosition, newRotation, newParentVelocity, newAngularVelocity, newMoveTime); // TODO determine if some dynamic properties should be ignored for glued children return;
 //		}
 //
 //		WWVector[] savedChildPositions = null;
@@ -762,8 +762,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		if (newVelocity != null) {
 			newVelocity.copyInto(this.velocity);
 		}
-		if (newAMomentum != null) {
-			newAMomentum.copyInto(this.angularVelocity);
+		if (newAngularVelocity != null) {
+			newAngularVelocity.copyInto(this.angularVelocity);
 		}
 		this.lastMoveTime = newMoveTime;
 
@@ -981,8 +981,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 				if (sideAttributes[side] != null && sideAttributes[side] != SideAttributes.defaultSurface) {
 					float textureVelocityX = sideAttributes[side].texture.velocityX;
 					float textureVelocityY = sideAttributes[side].texture.velocityY;
-					float textureAMomentum = sideAttributes[side].texture.aMomentum;
-					if (textureVelocityX != 0 || textureVelocityY != 0 || textureAMomentum != 0) {
+					float textureAngularVelocity = sideAttributes[side].texture.angularVelocity;
+					if (textureVelocityX != 0 || textureVelocityY != 0 || textureAngularVelocity != 0) {
 						return true;
 					}
 				}
@@ -1104,7 +1104,7 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 				if (side != SideAttributes.defaultSurface) {
 					side.texture.offsetX += side.texture.velocityX * deltaTime;
 					side.texture.offsetY += side.texture.velocityY * deltaTime;
-					side.texture.rotation += side.texture.aMomentum * deltaTime;
+					side.texture.rotation += side.texture.angularVelocity * deltaTime;
 				}
 			}
 

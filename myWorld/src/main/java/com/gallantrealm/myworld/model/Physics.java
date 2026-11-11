@@ -18,9 +18,9 @@ public class Physics implements Cloneable, Serializable {
 	public float velocityX;
 	public float velocityY;
 	public float velocityZ;
-	public float aMomentumX;
-	public float aMomentumY;
-	public float aMomentumZ;
+	public float angularVelocityX;
+	public float angularVelocityY;
+	public float angularVelocityZ;
 	public float density = 0.0f;
 	public boolean solid = true;
 	public float elasticity;
@@ -65,9 +65,9 @@ public class Physics implements Cloneable, Serializable {
 		os.writeFloat(velocityX);
 		os.writeFloat(velocityY);
 		os.writeFloat(velocityZ);
-		os.writeFloat(aMomentumX);
-		os.writeFloat(aMomentumY);
-		os.writeFloat(aMomentumZ);
+		os.writeFloat(angularVelocityX);
+		os.writeFloat(angularVelocityY);
+		os.writeFloat(angularVelocityZ);
 		os.writeFloat(thrustX);
 		os.writeFloat(thrustY);
 		os.writeFloat(thrustZ);
@@ -100,9 +100,9 @@ public class Physics implements Cloneable, Serializable {
 		velocityX = is.readFloat();
 		velocityY = is.readFloat();
 		velocityZ = is.readFloat();
-		aMomentumX = is.readFloat();
-		aMomentumY = is.readFloat();
-		aMomentumZ = is.readFloat();
+		angularVelocityX = is.readFloat();
+		angularVelocityY = is.readFloat();
+		angularVelocityZ = is.readFloat();
 		thrustX = is.readFloat();
 		thrustY = is.readFloat();
 		thrustZ = is.readFloat();

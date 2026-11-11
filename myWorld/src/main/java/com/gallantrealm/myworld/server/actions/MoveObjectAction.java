@@ -8,7 +8,7 @@ import com.gallantrealm.myworld.model.WWUser;
 import com.gallantrealm.myworld.model.WWWorld;
 
 /**
- * Handles requests to reposition an object. This includes setting its velocity and angular momentum.
+ * Handles requests to reposition an object. This includes setting its velocity and angular velocity.
  */
 public class MoveObjectAction extends ServerAction {
 

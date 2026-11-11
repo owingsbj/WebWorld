@@ -10,10 +10,10 @@ import com.gallantrealm.myworld.model.WWWorld;
 
 /**
  * This thread performs updates to the world according to physical properties. This involves detecting collision and
- * forces between objects and adjusting the position, orientation, velocity and angular momentum to match.
+ * forces between objects and adjusting the position, orientation, velocity and angular velocity to match.
  * <p>
  * Note that this thread does not actually handle moving or rotating objects due to their own velocity and angular
- * momentum. This is handled within the WWObject itself.
+ * velocity. This is handled within the WWObject itself.
  * <p>
  * This is the "Old" version of physics. It applies thrust last, which allows it to better handle walking-style of
  * avatar movement.
@@ -27,7 +27,7 @@ public class OldPhysicsThread extends PhysicsThread {
 	private final WWQuaternion rotation = new WWQuaternion();
 	private final WWVector rotationPoint = new WWVector();
 	private final WWVector velocity = new WWVector();
-	private final WWVector aMomentum = new WWVector();
+	private final WWVector angularVelocity = new WWVector();
 	private final WWVector position2 = new WWVector();
 	private final WWQuaternion rotation2 = new WWQuaternion();
 	private final WWVector tempPoint = new WWVector();
@@ -38,7 +38,7 @@ public class OldPhysicsThread extends PhysicsThread {
 	private final WWVector originalPosition = new WWVector();
 	private final WWQuaternion originalRotation = new WWQuaternion();
 	private final WWVector originalVelocity = new WWVector();
-	private final WWVector originalAMomentum = new WWVector();
+	private final WWVector originalAngularVelocity = new WWVector();
 
 	private final WWVector force = new WWVector();
 	private final WWVector unitOverlapVector = new WWVector();
@@ -87,7 +87,7 @@ public class OldPhysicsThread extends PhysicsThread {
 				object.getRotationPoint(rotationPoint);
 				object.getAbsoluteRotation(rotation, worldTime);
 				object.getVelocity(velocity);
-				object.getAngularVelocity(aMomentum);
+				object.getAngularVelocity(angularVelocity);
 				WWVector thrust = object.getThrust();
 				WWVector thrustVelocity = object.getThrustVelocity();
 				WWVector torque = object.getTorque();
@@ -96,7 +96,7 @@ public class OldPhysicsThread extends PhysicsThread {
 				position.copyInto(originalPosition);
 				rotation.copyInto(originalRotation);
 				velocity.copyInto(originalVelocity);
-				aMomentum.copyInto(originalAMomentum);
+				angularVelocity.copyInto(originalAngularVelocity);
 
 				force.zero();
 
@@ -158,8 +158,8 @@ public class OldPhysicsThread extends PhysicsThread {
 										velocity.scale(1.0f, 1.0f, 1.0f + unitOverlapVector.z);
 									}
 
-									// Adjust angular momentum as well
-									// TODO implement angular momentum adjustment
+									// Adjust angular velocity as well
+									// TODO implement angular velocity adjustment
 
 								} // solid
 
@@ -183,7 +183,7 @@ public class OldPhysicsThread extends PhysicsThread {
 								float friction = FastMath.min(object.getFriction(), object2.getFriction()) * deltaTime * 10.0f;
 								if (friction > 0.0) {
 									velocity.average(object2.getVelocity(), friction);
-									aMomentum.average(object2.getAngularVelocity(), friction);
+									angularVelocity.average(object2.getAngularVelocity(), friction);
 									// degrade forces
 									force.average(WWVector.ZERO_VECTOR, friction);
 								} // friction
@@ -255,37 +255,37 @@ public class OldPhysicsThread extends PhysicsThread {
 //					object.antiRotate(torqueVelocity, rotation); // so torque is relative to current object orientation
 //				if (torque.length() != 0.0) {
 				if (object.isFreedomRotateX()) {
-					if (torqueVelocity.x < 0.0 && torqueVelocity.x < aMomentum.x) {
-						aMomentum.x = FastMath.max(torqueVelocity.x, aMomentum.x + torque.x * 10.0f * deltaTime);
-					} else if (torqueVelocity.x > 0.0 && torqueVelocity.x > aMomentum.x) {
-						aMomentum.x = FastMath.min(torqueVelocity.x, aMomentum.x + torque.x * 10.0f * deltaTime);
+					if (torqueVelocity.x < 0.0 && torqueVelocity.x < angularVelocity.x) {
+						angularVelocity.x = FastMath.max(torqueVelocity.x, angularVelocity.x + torque.x * 10.0f * deltaTime);
+					} else if (torqueVelocity.x > 0.0 && torqueVelocity.x > angularVelocity.x) {
+						angularVelocity.x = FastMath.min(torqueVelocity.x, angularVelocity.x + torque.x * 10.0f * deltaTime);
 					}
 				} else {
-					aMomentum.x = torqueVelocity.x;
+					angularVelocity.x = torqueVelocity.x;
 				}
 				if (object.isFreedomRotateY()) {
-					if (torqueVelocity.y < 0.0 && torqueVelocity.y < aMomentum.y) {
-						aMomentum.y = FastMath.max(torqueVelocity.y, aMomentum.y + torque.y * 10.0f * deltaTime);
-					} else if (torqueVelocity.y > 0.0 && torqueVelocity.y > aMomentum.y) {
-						aMomentum.y = FastMath.min(torqueVelocity.y, aMomentum.y + torque.y * 10.0f * deltaTime);
+					if (torqueVelocity.y < 0.0 && torqueVelocity.y < angularVelocity.y) {
+						angularVelocity.y = FastMath.max(torqueVelocity.y, angularVelocity.y + torque.y * 10.0f * deltaTime);
+					} else if (torqueVelocity.y > 0.0 && torqueVelocity.y > angularVelocity.y) {
+						angularVelocity.y = FastMath.min(torqueVelocity.y, angularVelocity.y + torque.y * 10.0f * deltaTime);
 					}
 				} else {
-					aMomentum.y = torqueVelocity.y;
+					angularVelocity.y = torqueVelocity.y;
 				}
 				if (object.isFreedomRotateZ()) {
-					if (torqueVelocity.z < 0.0 && torqueVelocity.z < aMomentum.z) {
-						aMomentum.z = FastMath.max(torqueVelocity.z, aMomentum.z + torque.z * 10.0f * deltaTime);
-					} else if (torqueVelocity.z > 0.0 && torqueVelocity.z > aMomentum.z) {
-						aMomentum.z = FastMath.min(torqueVelocity.z, aMomentum.z + torque.z * 10.0f * deltaTime);
+					if (torqueVelocity.z < 0.0 && torqueVelocity.z < angularVelocity.z) {
+						angularVelocity.z = FastMath.max(torqueVelocity.z, angularVelocity.z + torque.z * 10.0f * deltaTime);
+					} else if (torqueVelocity.z > 0.0 && torqueVelocity.z > angularVelocity.z) {
+						angularVelocity.z = FastMath.min(torqueVelocity.z, angularVelocity.z + torque.z * 10.0f * deltaTime);
 					}
 				} else {
-					aMomentum.z = torqueVelocity.z;
+					angularVelocity.z = torqueVelocity.z;
 				}
 //				}
 
-				// Update the position, rotation, velocity and angular momentum values on the object if any have changed due to
+				// Update the position, rotation, velocity and angular velocity values on the object if any have changed due to
 				// physical interaction with another object, but only if the object has not been moved by some other thread
-				if (object.lastMoveTime == originalLastMoveTime && (!position.equals(originalPosition) || !rotation.equals(originalRotation) || !velocity.equals(originalVelocity) || !aMomentum.equals(originalAMomentum))) {
+				if (object.lastMoveTime == originalLastMoveTime && (!position.equals(originalPosition) || !rotation.equals(originalRotation) || !velocity.equals(originalVelocity) || !angularVelocity.equals(originalAngularVelocity))) {
 
 					// Cap the movements, to cure possible physics ills
 					if (position.x - originalPosition.x > 1f) {
@@ -304,7 +304,7 @@ public class OldPhysicsThread extends PhysicsThread {
 						position.z = originalPosition.z - 0.5f;
 					}
 
-					object.setOrientation(position, rotation, velocity, aMomentum, worldTime);
+					object.setOrientation(position, rotation, velocity, angularVelocity, worldTime);
 				}
 
 //					} // synchronize object

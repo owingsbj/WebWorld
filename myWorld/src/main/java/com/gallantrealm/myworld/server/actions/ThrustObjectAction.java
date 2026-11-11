@@ -9,7 +9,7 @@ import com.gallantrealm.myworld.model.WWWorld;
 
 /**
  * Handles requests from clients to apply force to an object. This can cause the object to change in its velocity and
- * angular momentum. It is typically used to move the users avatar.
+ * angular velocity. It is typically used to move the users avatar.
  */
 public class ThrustObjectAction extends ServerAction {
 

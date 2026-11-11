@@ -9,9 +9,9 @@ import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
 /**
- * This thread performs updates to the world according to physical properties. This involves detecting collision and forces between objects and adjusting the position, orientation, velocity and angular momentum to match.
+ * This thread performs updates to the world according to physical properties. This involves detecting collision and forces between objects and adjusting the position, orientation, velocity and angular velocity to match.
  * <p>
- * Note that this thread does not actually handle moving or rotating objects due to their own velocity and angular momentum. That is handled within WWObject itself.
+ * Note that this thread does not actually handle moving or rotating objects due to their own velocity and angular velocity. That is handled within WWObject itself.
  * <p>
  * This is the "New" version of physics. It mimics real world more precisely. In particular, it applies thrust and torque first, before other forces are determined. This causes the thrust and torque to be limited by other forces, such as
  * what occurs in the real world.
@@ -36,15 +36,15 @@ public class NewPhysicsThread extends PhysicsThread {
 		public WWVector position;
 		public WWQuaternion rotation;
 		public WWVector velocity;
-		public WWVector aMomentum;
+		public WWVector angularVelocity;
 		public long worldTime;
 
-		public QueuedUpdate(WWObject object, WWVector position, WWQuaternion rotation, WWVector velocity, WWVector aMomentum, long worldTime) {
+		public QueuedUpdate(WWObject object, WWVector position, WWQuaternion rotation, WWVector velocity, WWVector angularVelocity, long worldTime) {
 			this.object = object;
 			this.position = position;
 			this.rotation = rotation;
 			this.velocity = velocity;
-			this.aMomentum = aMomentum;
+			this.angularVelocity = angularVelocity;
 			this.worldTime = worldTime;
 		}
 	}
@@ -71,7 +71,7 @@ public class NewPhysicsThread extends PhysicsThread {
 		WWQuaternion rotation = new WWQuaternion();
 		WWVector rotationPoint = new WWVector();
 		WWVector velocity = new WWVector();
-		WWVector aMomentum = new WWVector();
+		WWVector angularVelocity = new WWVector();
 		WWVector position2 = new WWVector();
 		WWQuaternion rotation2 = new WWQuaternion();
 		WWVector tempPoint = new WWVector();
@@ -103,7 +103,7 @@ public class NewPhysicsThread extends PhysicsThread {
 				object.getAbsoluteRotation(rotation, worldTime);
 				object.getRotationPoint(rotationPoint);
 				object.getVelocity(velocity);
-				object.getAngularVelocity(aMomentum);
+				object.getAngularVelocity(angularVelocity);
 				WWVector thrust = object.getThrust();
 				WWVector thrustVelocity = object.getThrustVelocity();
 				WWVector torque = object.getTorque();
@@ -112,7 +112,7 @@ public class NewPhysicsThread extends PhysicsThread {
 				WWVector originalPosition = position.clone();
 				WWQuaternion originalRotation = rotation.clone();
 				WWVector originalVelocity = velocity.clone();
-				WWVector originalAMomentum = aMomentum.clone();
+				WWVector originalAngularVelocity = angularVelocity.clone();
 
 				// start with thrust and torque by the object itself
 				// note that these are attenuated (by thrust and torque velocity) if the velocity
@@ -141,19 +141,19 @@ public class NewPhysicsThread extends PhysicsThread {
 				if (totalTorque.length() > 0) {
 					rotation.rotateVector(totalTorque);
 					rotation.rotateVector(torqueVelocity);
-					if (torqueVelocity.x > 0 && aMomentum.x > torqueVelocity.x) {
+					if (torqueVelocity.x > 0 && angularVelocity.x > torqueVelocity.x) {
 						totalTorque.x = 0;
-					} else if (torqueVelocity.x < 0 && aMomentum.x < torqueVelocity.x) {
+					} else if (torqueVelocity.x < 0 && angularVelocity.x < torqueVelocity.x) {
 						totalTorque.x = 0;
 					}
-					if (torqueVelocity.y > 0 && aMomentum.y > torqueVelocity.y) {
+					if (torqueVelocity.y > 0 && angularVelocity.y > torqueVelocity.y) {
 						totalTorque.y = 0;
-					} else if (torqueVelocity.y < 0 && aMomentum.y < torqueVelocity.y) {
+					} else if (torqueVelocity.y < 0 && angularVelocity.y < torqueVelocity.y) {
 						totalTorque.y = 0;
 					}
-					if (torqueVelocity.z > 0 && aMomentum.z > torqueVelocity.z) {
+					if (torqueVelocity.z > 0 && angularVelocity.z > torqueVelocity.z) {
 						totalTorque.z = 0;
-					} else if (torqueVelocity.z < 0 && aMomentum.z < torqueVelocity.z) {
+					} else if (torqueVelocity.z < 0 && angularVelocity.z < torqueVelocity.z) {
 						totalTorque.z = 0;
 					}
 				}
@@ -274,7 +274,7 @@ public class NewPhysicsThread extends PhysicsThread {
 											velocity.x = mirrorForceVector.x * elasticity;
 											velocity.y = mirrorForceVector.y * elasticity;
 											velocity.z = mirrorForceVector.z * elasticity;
-											aMomentum.scale(elasticity);
+											angularVelocity.scale(elasticity);
 											
 										} else { // simple bounce-back from a non-physical object (e.g. a wall or a moving bat)
 											float elasticity = Math.max(object.elasticity, object2.elasticity);
@@ -288,7 +288,7 @@ public class NewPhysicsThread extends PhysicsThread {
 											
 											// Add the non-physical object's velocity back to impart energy (the "bat" hitting the "ball")
 											velocity.set(relativeVelocity).add(object2.getVelocity());
-											aMomentum.scale(elasticity);
+											angularVelocity.scale(elasticity);
 										}
 									} else { 
 										// slide on the object
@@ -324,7 +324,7 @@ public class NewPhysicsThread extends PhysicsThread {
 										}
 									}
 
-									// Adjust angular momentum due to the collision.  This logic assumes the center of mass of the object
+									// Adjust angular velocity due to the collision.  This logic assumes the center of mass of the object
 									// is in the middle of the object.  It then tries to determine how much angular force is applied to the
 									// object due to the amount of impact (which is relative to the size of the overlap vector) torquing the overlap
 									// point around that center of mass.
@@ -376,8 +376,8 @@ public class NewPhysicsThread extends PhysicsThread {
 
 											// 2. Calculate the relative linear velocity of the surfaces in contact
 											// The surface velocity is the linear velocity PLUS the velocity contributed by the spin: v + (w x r)
-											// We must convert the engine's degrees/sec angular momentum back to radians/sec for the math
-											WWVector spinVel = aMomentum.clone().scale(1.0f / FastMath.TODEGREES).cross(r1);
+											// We must convert the engine's degrees/sec angular velocity back to radians/sec for the math
+											WWVector spinVel = angularVelocity.clone().scale(1.0f / FastMath.TODEGREES).cross(r1);
 											WWVector surfaceVelocity = velocity.clone().add(spinVel);
 											
 											// We compare this against the other object's surface velocity
@@ -387,7 +387,7 @@ public class NewPhysicsThread extends PhysicsThread {
 											
 											WWVector relativeSurfaceVelocity = surfaceVelocity.subtract(surfaceVelocity2);
 
-											WWVector relativeAngularVelocity = aMomentum.clone().subtract(object2.getAngularVelocity()).scale(1.0f / FastMath.TODEGREES);
+											WWVector relativeAngularVelocity = angularVelocity.clone().subtract(object2.getAngularVelocity()).scale(1.0f / FastMath.TODEGREES);
 											WWVector relativeSurfaceAngularVelocity = spinVel.clone().subtract(obj2SpinVel);
 
 											// 3. The friction force pushes back against the slipping surface!
@@ -406,9 +406,9 @@ public class NewPhysicsThread extends PhysicsThread {
 											}
 											totalTorque.add(rollingTorque);
 
-											// 5. Apply a dampening effect to the existing angular momentum
+											// 5. Apply a dampening effect to the existing angular velocity
 											// This simulates twisting friction (like a top spinning in place slowing down)
-											WWVector spinDampening = aMomentum.clone().scale(-1.0f * friction);
+											WWVector spinDampening = angularVelocity.clone().scale(-1.0f * friction);
 											totalTorque.add(spinDampening);
 
 											// Simulate static friction: removing contribution to totalForce and forcing velocity to equal object2's velocity
@@ -419,7 +419,7 @@ public class NewPhysicsThread extends PhysicsThread {
 												totalForce.zero();
 												velocity.subtract(relativeSurfaceVelocity);
 												totalTorque.zero();
-												aMomentum.set(object2.getAngularVelocity());
+												angularVelocity.set(object2.getAngularVelocity());
 											}
 
 										} else if (object.solid && !object2.solid) {
@@ -428,7 +428,7 @@ public class NewPhysicsThread extends PhysicsThread {
 											frictionVForce.scale(10 * friction);
 											totalForce.add(frictionVForce);
 											WWVector frictionAForce = new WWVector();
-											frictionAForce.subtract(aMomentum);
+											frictionAForce.subtract(angularVelocity);
 											frictionAForce.scale(10 * friction);
 											totalTorque.add(frictionAForce);
 										} else if (!object.solid && object2.solid && object2.physical) {
@@ -463,30 +463,30 @@ public class NewPhysicsThread extends PhysicsThread {
 					WWObject.rotate(velocity, rotation);
 				}
 
-				aMomentum.x += totalTorque.x * deltaTime;
-				aMomentum.y += totalTorque.y * deltaTime;
-				aMomentum.z += totalTorque.z * deltaTime;
+				angularVelocity.x += totalTorque.x * deltaTime;
+				angularVelocity.y += totalTorque.y * deltaTime;
+				angularVelocity.z += totalTorque.z * deltaTime;
 
 				if (!object.freedomRotateX) {
-					aMomentum.x = 0;
+					angularVelocity.x = 0;
 				}
 				if (!object.freedomRotateY) {
-					aMomentum.y = 0;
+					angularVelocity.y = 0;
 				}
 				if (!object.freedomRotateZ) {
-					aMomentum.z = 0;
+					angularVelocity.z = 0;
 				}
 
-				// Update the position, rotation, velocity and angular momentum values on the object if any have changed due to
+				// Update the position, rotation, velocity and angular velocity values on the object if any have changed due to
 				// physical interaction with another object, but only if the object has not been moved by some other thread
-				if (object.lastMoveTime == originalLastMoveTime && (!position.equals(originalPosition) || !rotation.equals(originalRotation) || !velocity.equals(originalVelocity) || !aMomentum.equals(originalAMomentum))) {
+				if (object.lastMoveTime == originalLastMoveTime && (!position.equals(originalPosition) || !rotation.equals(originalRotation) || !velocity.equals(originalVelocity) || !angularVelocity.equals(originalAngularVelocity))) {
 					if (position.length() > 10000) {
 						System.err.println("NewPhysicsThread blew object out of range.  Object: "+object.getName());
 					} else {
 						if (queueUpdates) {
-							queuedUpdates.add(new QueuedUpdate(object, position.clone(), rotation.clone(), velocity.clone(), aMomentum.clone(), worldTime));
+							queuedUpdates.add(new QueuedUpdate(object, position.clone(), rotation.clone(), velocity.clone(), angularVelocity.clone(), worldTime));
 						} else {
-							object.setOrientation(position, rotation, velocity, aMomentum, worldTime);
+							object.setOrientation(position, rotation, velocity, angularVelocity, worldTime);
 						}
 					}
 				}
@@ -506,7 +506,7 @@ public class NewPhysicsThread extends PhysicsThread {
 				for (int i = 0; i < qsize; i++) {
 					QueuedUpdate queuedUpdate = queuedUpdates.get(i);
 					if (queuedUpdate.worldTime > queuedUpdate.object.lastMoveTime) { // don't update if changed externally
-						queuedUpdate.object.setOrientation(queuedUpdate.position, queuedUpdate.rotation, queuedUpdate.velocity, queuedUpdate.aMomentum, queuedUpdate.worldTime);
+						queuedUpdate.object.setOrientation(queuedUpdate.position, queuedUpdate.rotation, queuedUpdate.velocity, queuedUpdate.angularVelocity, queuedUpdate.worldTime);
 					}
 				}
 			}

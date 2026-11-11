@@ -6,10 +6,10 @@ import com.gallantrealm.myworld.model.WWWorld;
 
 /**
  * This thread performs updates to the world according to physical properties. This involves detecting collision and
- * forces between objects and adjusting the position, orientation, velocity and angular momentum to match.
+ * forces between objects and adjusting the position, orientation, velocity and angular velocity to match.
  * <p>
  * Note that this thread does not actually handle moving or rotating objects due to their own velocity and angular
- * momentum. This is handled within the WWObject itself.
+ * velocity. This is handled within the WWObject itself.
  */
 public abstract class PhysicsThread extends Thread {
 

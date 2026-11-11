@@ -329,7 +329,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	}
 
 	/**
-	 * Move an object. The newObject describes the new location and rotation of the object. If the object is physical, the velocity and angular momentum are also updated from the newobject.
+	 * Move an object. The newObject describes the new location and rotation of the object. If the object is physical, the velocity and angular velocity are also updated from the newobject.
 	 */
 	public void moveObject(int id, WWObject newObject) {
 		if (id < 0) {
@@ -346,12 +346,12 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			WWVector newPosition = newObject.getPosition();
 			WWQuaternion newRotation = newObject.getRotation();
 			WWVector newVelocity = newObject.getVelocity();
-			WWVector newAMomentum = newObject.getAngularVelocity();
+			WWVector newAngularVelocity = newObject.getAngularVelocity();
 			oldObject.setThrust(newThrust);
 			oldObject.setThrustVelocity(newThrustVelocity);
 			oldObject.setTorque(newTorque);
 			oldObject.setTorqueVelocity(newTorqueVelocity);
-			oldObject.setOrientation(newPosition, newRotation, newVelocity, newAMomentum, time);
+			oldObject.setOrientation(newPosition, newRotation, newVelocity, newAngularVelocity, time);
 			// }
 		}
 	}
@@ -371,12 +371,12 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			WWVector newPosition = oldObject.getPosition();
 			WWQuaternion newRotation = oldObject.getRotation();
 			WWVector newVelocity = oldObject.getVelocity();
-			WWVector newAMomentum = oldObject.getAngularVelocity();
+			WWVector newAngularVelocity = oldObject.getAngularVelocity();
 			oldObject.setThrust(newThrust);
 			oldObject.setThrustVelocity(newThrustVelocity);
 			oldObject.setTorque(newTorque);
 			oldObject.setTorqueVelocity(newTorqueVelocity);
-			oldObject.setOrientation(newPosition, newRotation, newVelocity, newAMomentum, time);
+			oldObject.setOrientation(newPosition, newRotation, newVelocity, newAngularVelocity, time);
 			// }
 		}
 	}
