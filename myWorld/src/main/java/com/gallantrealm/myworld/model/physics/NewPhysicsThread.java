@@ -294,18 +294,18 @@ public class NewPhysicsThread extends PhysicsThread {
 										// slide on the object
 										if (slideStyle == 0) { // used in rtr
 											WWVector antiForceVector = unitOverlapVector.clone();
-											antiForceVector.scale(0.99f); 
+											antiForceVector.scale(0.99f);
 											antiForceVector.scale(-totalForce.length());
 											totalForce.add(antiForceVector);
 											velocity.scale(1.0f, 1.0f, 1.0f - Math.abs(unitOverlapVector.z));
-											
+
 										} else if (slideStyle == 1) { // used in bonkers
 											WWVector unitVelocity = velocity.clone().normalize();
 											WWVector combined = unitVelocity.clone().add(unitOverlapVector); // FIXED MUTATION BUG
 											float repelMag = 1 - combined.length();
 											WWVector repelForce = unitOverlapVector.clone().scale(velocity.length() / deltaTime * repelMag);
 											totalForce.add(repelForce);
-											
+
 										} else if (slideStyle == 2) { // most recent (best?)
 											// 1. Cancel velocity into the surface
 											float velIntoSurface = velocity.dot(unitOverlapVector);
@@ -313,7 +313,7 @@ public class NewPhysicsThread extends PhysicsThread {
 												WWVector repelForce = unitOverlapVector.clone().scale(-velIntoSurface / deltaTime);
 												totalForce.add(repelForce);
 											}
-											
+
 											// 2. Cancel force (gravity, thrust) into the surface (Normal Force)
 											float forceIntoSurface = totalForce.dot(unitOverlapVector);
 											if (forceIntoSurface > 0) {
@@ -406,20 +406,12 @@ public class NewPhysicsThread extends PhysicsThread {
 											}
 											totalTorque.add(rollingTorque);
 
-											// 5. Apply a dampening effect to the existing angular velocity
-											// This simulates twisting friction (like a top spinning in place slowing down)
-											WWVector spinDampening = angularVelocity.clone().scale(-1.0f * friction);
-											totalTorque.add(spinDampening);
-
 											// Simulate static friction: removing contribution to totalForce and forcing velocity to equal object2's velocity
 											WWVector normalForceComponent = unitOverlapVector.clone().scale(totalForce.dot(unitOverlapVector));
 											WWVector tangentialForce = totalForce.clone().subtract(normalForceComponent);
-											if (relativeSurfaceVelocity.length() < 10 * friction && tangentialForce.length() < friction * 2.0f &&
-													relativeSurfaceAngularVelocity.length() < friction && totalTorque.length() / FastMath.TODEGREES < 2.5f * friction) {
+											if (relativeSurfaceVelocity.length() < 10 * friction && tangentialForce.length() < 10 * friction) {
 												totalForce.zero();
 												velocity.subtract(relativeSurfaceVelocity);
-												totalTorque.zero();
-												angularVelocity.set(object2.getAngularVelocity());
 											}
 
 										} else if (object.solid && !object2.solid) {
