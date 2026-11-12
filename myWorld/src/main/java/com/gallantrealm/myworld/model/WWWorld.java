@@ -1222,11 +1222,17 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	}
 
 	public PhysicsThread makePhysicsThread() {
+		System.out.println(">WWorld.makePhysicsThread");
+		PhysicsThread physicsThread;
 		if (simplePhysics) {
-			return new OldPhysicsThread(this, iterationTime, 2);
+			System.out.println("WWorld.makePhysicsThread creating OldPhysicsThread");
+			physicsThread =  new OldPhysicsThread(this, iterationTime, 2);
 		} else {
-			return new NewPhysicsThread(this, iterationTime, 2);
+			System.out.println("WWorld.makePhysicsThread creating NewPhysicsThread");
+			physicsThread = new NewPhysicsThread(this, iterationTime, 2);
 		}
+		System.out.println("<WWorld.makePhysicsThread");
+		return physicsThread;
 	}
 
 	/**
