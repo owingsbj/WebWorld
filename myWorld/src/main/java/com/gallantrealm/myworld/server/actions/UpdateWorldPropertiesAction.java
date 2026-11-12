@@ -29,6 +29,7 @@ public class UpdateWorldPropertiesAction extends ServerAction {
 		world.setSunIntensity(updatedWorld.getSunIntensity());
 		world.setUnderglowIntensity(updatedWorld.getUnderglowIntensity());
 		world.setSunDirection(updatedWorld.getSunDirection());
+		world.setSimplePhysics(updatedWorld.isSimplePhysics());
 
 		// Update the timestamp in the world to indicate that the world has changed
 		long time = world.getWorldTime();

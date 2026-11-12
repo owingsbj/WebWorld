@@ -17,6 +17,7 @@ import com.gallantrealm.myworld.communication.DataOutputStreamX;
 import com.gallantrealm.myworld.model.behavior.BehaviorThread;
 import com.gallantrealm.myworld.model.persistence.SaveWorldThread;
 import com.gallantrealm.myworld.model.physics.NewPhysicsThread;
+import com.gallantrealm.myworld.model.physics.OldPhysicsThread;
 import com.gallantrealm.myworld.model.physics.ObjectCollision;
 import com.gallantrealm.myworld.model.physics.PhysicsThread;
 import android.opengl.GLES20;
@@ -52,6 +53,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	int nextGroup;
 	public WWAction[] actions;
 	boolean persistent; // if true the world is saved by a background thread
+	public boolean simplePhysics = false;
 
 	// Game related properties
 	int level;
@@ -410,6 +412,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		os.writeFloat(sunDirectionZ);
 		os.writeInt(sunColor);
 		os.writeFloat(renderingThreshold);
+		os.writeBoolean(simplePhysics);
 		super.send(os);
 	}
 
@@ -426,6 +429,7 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		sunDirectionZ = is.readFloat();
 		sunColor = is.readInt();
 		renderingThreshold = is.readFloat();
+		simplePhysics = is.readBoolean();
 		super.receive(is);
 	}
 
@@ -1218,7 +1222,11 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	}
 
 	public PhysicsThread makePhysicsThread() {
-		return new NewPhysicsThread(this, iterationTime, 2);
+		if (simplePhysics) {
+			return new OldPhysicsThread(this, iterationTime, 2);
+		} else {
+			return new NewPhysicsThread(this, iterationTime, 2);
+		}
 	}
 
 	/**
@@ -1384,6 +1392,18 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 
 	public boolean isPersistent() {
 		return persistent;
+	}
+
+	public boolean isSimplePhysics() {
+		return simplePhysics;
+	}
+
+	public boolean getSimplePhysics() {
+		return simplePhysics;
+	}
+
+	public void setSimplePhysics(boolean simplePhysics) {
+		this.simplePhysics = simplePhysics;
 	}
 
 	/**
