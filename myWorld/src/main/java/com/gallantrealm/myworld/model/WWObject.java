@@ -1165,14 +1165,14 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		// they are needed on the next overlap
 		WWVector[] transformedEdgePoints;
 		int edgePointsLength;
-		if (parentId == 0 && lastTransformedEdgePoints != null && (fixed || (lastOverlapPosition.equals(position) && lastOverlapRotation.equals(rotation)))) {
+		if (parentId == 0 && lastTransformedEdgePoints != null && lastOverlapPosition != null && lastOverlapRotation != null && (fixed || (lastOverlapPosition.equals(position) && lastOverlapRotation.equals(rotation)))) {
 			transformedEdgePoints = lastTransformedEdgePoints;
 			edgePointsLength = edgePoints.length;
 		} else {
 			WWVector[] constEdgePoints = getEdgePoints();
 			edgePointsLength = constEdgePoints.length;
 			transformedEdgePoints = lastTransformedEdgePoints;
-			if (transformedEdgePoints == null) {
+			if (transformedEdgePoints == null || transformedEdgePoints.length < edgePointsLength) {
 				transformedEdgePoints = new WWVector[edgePointsLength];
 			}
 			for (int i = 0; i < edgePointsLength; i++) {
@@ -1186,8 +1186,16 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 				transformedEdgePoints[i] = edgePoint;
 			}
 			lastTransformedEdgePoints = transformedEdgePoints;
-			lastOverlapPosition = position.clone();
-			lastOverlapRotation = rotation.clone();
+			if (lastOverlapPosition == null) {
+				lastOverlapPosition = new WWVector(position);
+			} else {
+				position.copyInto(lastOverlapPosition);
+			}
+			if (lastOverlapRotation == null) {
+				lastOverlapRotation = new WWQuaternion(rotation);
+			} else {
+				rotation.copyInto(lastOverlapRotation);
+			}
 		}
 
 		overlapVector.zero();
