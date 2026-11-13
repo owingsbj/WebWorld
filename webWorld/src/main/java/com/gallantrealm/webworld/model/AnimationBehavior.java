@@ -111,10 +111,10 @@ public class AnimationBehavior extends Behavior {
 					rotation.pitch(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
 				if ("left forearm".equals(object.getName())) {
-					rotation.pitch(Math.max(0.0f, -0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range));
+					rotation.pitch(Math.max(0.0f, 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range));
 				}
 				if ("right forearm".equals(object.getName())) {
-					rotation.pitch(Math.max(0.0f, 0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range));
+					rotation.pitch(Math.max(0.0f, -0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range));
 				}
 				if ("left leg".equals(object.getName())) {
 					rotation.pitch(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
@@ -123,29 +123,29 @@ public class AnimationBehavior extends Behavior {
 					rotation.pitch(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
 				if ("left calf".equals(object.getName())) {
-					rotation.pitch(Math.min(0.0f, -FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
+					rotation.pitch(Math.min(0.0f, FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
 				}
 				if ("right calf".equals(object.getName())) {
-					rotation.pitch(Math.min(0.0f, FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
+					rotation.pitch(Math.min(0.0f, -FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range));
 				}
 			} else if (type.equals("running")) {
 				if ("left arm".equals(object.getName())) {
-					rotation.pitch(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
+					rotation.pitch(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 					if (object.getChild("left forearm") != null) {
-						rotation.pitch(-45);
+						rotation.pitch(45);
 					}
 				}
 				if ("right arm".equals(object.getName())) {
-					rotation.pitch(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
+					rotation.pitch(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 					if (object.getChild("right forearm") != null) {
-						rotation.pitch(-45);
+						rotation.pitch(45);
 					}
 				}
 				if ("left forearm".equals(object.getName())) {
-					rotation.pitch(90);
+					rotation.pitch(-90);
 				}
 				if ("right forearm".equals(object.getName())) {
-					rotation.pitch(90);
+					rotation.pitch(-90);
 				}
 				if ("left leg".equals(object.getName())) {
 					rotation.pitch(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
@@ -154,10 +154,10 @@ public class AnimationBehavior extends Behavior {
 					rotation.pitch(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
 				if ("left calf".equals(object.getName())) {
-					rotation.pitch(Math.max(-90, Math.min(0.0f, -3 * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range)));
+					rotation.pitch(Math.min(90, Math.max(0.0f, -3 * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range)));
 				}
 				if ("right calf".equals(object.getName())) {
-					rotation.pitch(Math.max(-90, Math.min(0.0f, 3 * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range)));
+					rotation.pitch(Math.min(90, Math.max(0.0f, 3 * FastMath.TODEGREES * FastMath.cos(2.0f * FastMath.PI * animationTime) * range)));
 				}
 			} else if (type.equals("swimming")) {
 				if ("torso".equals(object.getName())) {
@@ -226,10 +226,10 @@ public class AnimationBehavior extends Behavior {
 					rotation.pitch(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
 				if ("left foot".equals(object.getName())) {
-					rotation.pitch(-90);
+					rotation.pitch(90);
 				}
 				if ("right foot".equals(object.getName())) {
-					rotation.pitch(-90);
+					rotation.pitch(90);
 				}
 			} else if (type.equals("falling")) {
 				if ("torso".equals(object.getName())) {
