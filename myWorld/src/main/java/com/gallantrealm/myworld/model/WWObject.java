@@ -300,6 +300,8 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	transient long lastGetAbsoluteRotationTime = -1;
 	transient float lastGetAbsoluteRotationW,  lastGetAbsoluteRotationX, lastGetAbsoluteRotationY, lastGetAbsoluteRotationZ;
+	private transient WWVector tempParentPosition;
+	private transient WWQuaternion tempParentRotation;
 
 	/**
 	 * Returns the rotation including contribution from parents
@@ -315,8 +317,11 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			int p = parentId;
 			if (p != 0) {
 				WWObject parent = world.objects[p];
-				WWQuaternion parentRotation = parent.getAbsoluteRotation(worldTime);
-				r.rotate(parentRotation);
+				if (tempParentRotation == null) {
+					tempParentRotation = new WWQuaternion();
+				}
+				parent.getAbsoluteRotation(tempParentRotation, worldTime);
+				r.rotate(tempParentRotation);
 			}
 			lastGetAbsoluteRotationW = r.w;
 			lastGetAbsoluteRotationX = r.x;
@@ -336,8 +341,11 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		int p = parentId;
 		if (p != 0) {
 			WWObject parent = world.objects[p];
-			WWQuaternion parentRotation = parent.getAbsoluteAnimatedRotation(worldTime);
-			r.rotate(parentRotation);
+			if (tempParentRotation == null) {
+				tempParentRotation = new WWQuaternion();
+			}
+			parent.getAbsoluteAnimatedRotation(tempParentRotation, worldTime);
+			r.rotate(tempParentRotation);
 		}
 		return r;
 	}
@@ -347,8 +355,11 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		int p = parentId;
 		if (p != 0) {
 			WWObject parent = world.objects[p];
-			WWQuaternion parentRotation = parent.getAbsoluteAnimatedRotation(worldTime);
-			r.rotate(parentRotation);
+			if (tempParentRotation == null) {
+				tempParentRotation = new WWQuaternion();
+			}
+			parent.getAbsoluteAnimatedRotation(tempParentRotation, worldTime);
+			r.rotate(tempParentRotation);
 		}
 		return r;
 	}
@@ -488,13 +499,17 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 			// if this is a member of a collection, adjust position according to parent's position/rotation
 			if (parentId != 0) {
 				WWObject parent = world.objects[parentId];
-				WWVector parentPosition = new WWVector();
-				WWQuaternion parentRotation = new WWQuaternion();
-				parent.getAbsolutePosition(parentPosition, worldTime);
-				parent.getRotation(parentRotation);
+				if (tempParentPosition == null) {
+					tempParentPosition = new WWVector();
+				}
+				if (tempParentRotation == null) {
+					tempParentRotation = new WWQuaternion();
+				}
+				parent.getAbsolutePosition(tempParentPosition, worldTime);
+				parent.getRotation(tempParentRotation);
 				WWVector parentRotationPoint = parent.getRotationPoint();
 				// parent.antiTransform(position, parent.getPosition(lastMoveTime), parent.getRotation(lastMoveTime));
-				transform(position, parentPosition, parentRotation, parentRotationPoint);
+				transform(position, tempParentPosition, tempParentRotation, parentRotationPoint);
 			}
 			lastGetAbsolutePositionX = position.x;
 			lastGetAbsolutePositionY = position.y;
@@ -511,13 +526,17 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		// if this is a member of a collection, adjust position according to parent's position/rotation
 		if (parentId != 0) {
 			WWObject parent = world.objects[parentId];
-			WWVector parentPosition = new WWVector();
-			WWQuaternion parentRotation = new WWQuaternion();
-			parent.getAbsoluteAnimatedPosition(parentPosition, worldTime);
-			parent.getAbsoluteAnimatedRotation(parentRotation, worldTime);
+			if (tempParentPosition == null) {
+				tempParentPosition = new WWVector();
+			}
+			if (tempParentRotation == null) {
+				tempParentRotation = new WWQuaternion();
+			}
+			parent.getAbsoluteAnimatedPosition(tempParentPosition, worldTime);
+			parent.getAbsoluteAnimatedRotation(tempParentRotation, worldTime);
 			WWVector parentRotationPoint = parent.getRotationPoint();
 			// parent.antiTransform(position, parent.getPosition(lastMoveTime), parent.getRotation(lastMoveTime));
-			transform(position, parentPosition, parentRotation, parentRotationPoint);
+			transform(position, tempParentPosition, tempParentRotation, parentRotationPoint);
 		}
 	}
 
