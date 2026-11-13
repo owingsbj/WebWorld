@@ -42,6 +42,39 @@ public class NewPhysicsThread extends PhysicsThread {
 	private final WWVector overlapPoint2 = new WWVector();
 	private final WWVector overlapVector2 = new WWVector();
 
+	private final WWVector originalPosition = new WWVector();
+	private final WWQuaternion originalRotation = new WWQuaternion();
+	private final WWVector originalVelocity = new WWVector();
+	private final WWVector originalAngularVelocity = new WWVector();
+
+	private final WWVector totalForce = new WWVector();
+	private final WWVector totalTorque = new WWVector();
+
+	private final WWVector unitOverlapVector = new WWVector();
+	private final WWVector adjustVector = new WWVector();
+	private final WWVector relativeVelocity = new WWVector();
+	private final WWVector antiForceVector = new WWVector();
+	private final WWVector unitVelocity = new WWVector();
+	private final WWVector combinedVector = new WWVector();
+	private final WWVector repelForce = new WWVector();
+	private final WWVector leverArm = new WWVector();
+	private final WWVector impactForce = new WWVector();
+	private final WWVector impactTorque = new WWVector();
+
+	private final WWVector r1 = new WWVector();
+	private final WWVector r2 = new WWVector();
+	private final WWVector spinVel = new WWVector();
+	private final WWVector obj2SpinVel = new WWVector();
+	private final WWVector surfaceVelocity = new WWVector();
+	private final WWVector surfaceVelocity2 = new WWVector();
+	private final WWVector relativeSurfaceVelocity = new WWVector();
+	private final WWVector frictionForce = new WWVector();
+	private final WWVector rollingTorque = new WWVector();
+	private final WWVector normalForceComponent = new WWVector();
+	private final WWVector tangentialForce = new WWVector();
+	private final WWVector frictionVForce = new WWVector();
+	private final WWVector frictionAForce = new WWVector();
+
 	int slideStyle;
 
 	public NewPhysicsThread(WWWorld world, int iterationTime, int slideStyle) {
@@ -113,15 +146,15 @@ public class NewPhysicsThread extends PhysicsThread {
 				WWVector torque = object.getTorque();
 				WWVector torqueVelocity = object.getTorqueVelocity();
 
-				WWVector originalPosition = position.clone();
-				WWQuaternion originalRotation = rotation.clone();
-				WWVector originalVelocity = velocity.clone();
-				WWVector originalAngularVelocity = angularVelocity.clone();
+				position.copyInto(originalPosition);
+				rotation.copyInto(originalRotation);
+				velocity.copyInto(originalVelocity);
+				angularVelocity.copyInto(originalAngularVelocity);
 
 				// start with thrust and torque by the object itself
 				// note that these are attenuated (by thrust and torque velocity) if the velocity
 				// and torque are already high.
-				WWVector totalForce = thrust.clone();
+				totalForce.set(thrust);
 				if (totalForce.length() > 0) {
 					rotation.rotateVector(totalForce);
 					rotation.rotateVector(thrustVelocity);
@@ -141,7 +174,7 @@ public class NewPhysicsThread extends PhysicsThread {
 						totalForce.z = 0;
 					}
 				}
-				WWVector totalTorque = torque.clone();
+				totalTorque.set(torque);
 				if (totalTorque.length() > 0) {
 					rotation.rotateVector(totalTorque);
 					rotation.rotateVector(torqueVelocity);
@@ -162,11 +195,9 @@ public class NewPhysicsThread extends PhysicsThread {
 					}
 				}
 
-				WWVector gravityForce = world.getGravityForce(position.x, position.y, position.z);
-
 				// sum in gravitational force only if object has mass
 				if (object.getDensity() > 0.0) {
-					totalForce.add(gravityForce);
+					totalForce.z -= world.getGravity();
 				}
 
 				// - Next, apply interactions of other objects that overlap the physical object
@@ -210,18 +241,12 @@ public class NewPhysicsThread extends PhysicsThread {
 								newCollidedObjects.add(collision);
 
 								// Determine forces based on elasticity
-								WWVector unitOverlapVector;
-								if (overlapVector.length() > 0) {
-									unitOverlapVector = new WWVector(overlapVector);
-								} else {
-									unitOverlapVector = overlapVector.clone();
-								}
-								unitOverlapVector.normalize();
+								unitOverlapVector.set(overlapVector).normalize();
 
 								// Adjust positions if solid vs solid
 								if (object.solid && object2.solid) {
 									// move objects away from each other evenly
-									WWVector adjustVector = overlapVector.clone().scale(0.5f);
+									adjustVector.set(overlapVector).scale(0.5f);
 									
 									// Adjust object1
 									if (!object.freedomMoveX || !object.freedomMoveY || !object.freedomMoveZ) {
@@ -282,7 +307,7 @@ public class NewPhysicsThread extends PhysicsThread {
 											float elasticity = Math.max(object.elasticity, object2.elasticity);
 											
 											// Start with the physical object's velocity relative to the non-physical object
-											WWVector relativeVelocity = velocity.clone().subtract(object2.getVelocity());
+											relativeVelocity.set(velocity).subtract(object2.getVelocity());
 											
 											// Reflect that relative velocity off the surface
 											mirrorVector.set(unitOverlapVector).scale(-1.0f);
@@ -295,32 +320,30 @@ public class NewPhysicsThread extends PhysicsThread {
 									} else { 
 										// slide on the object
 										if (slideStyle == 0) { // used in rtr
-											WWVector antiForceVector = unitOverlapVector.clone();
-											antiForceVector.scale(0.99f);
-											antiForceVector.scale(-totalForce.length());
+											antiForceVector.set(unitOverlapVector).scale(0.99f).scale(-totalForce.length());
 											totalForce.add(antiForceVector);
 											velocity.scale(1.0f, 1.0f, 1.0f - Math.abs(unitOverlapVector.z));
 
 										} else if (slideStyle == 1) { // used in bonkers
-											WWVector unitVelocity = velocity.clone().normalize();
-											WWVector combined = unitVelocity.clone().add(unitOverlapVector); // FIXED MUTATION BUG
-											float repelMag = 1 - combined.length();
-											WWVector repelForce = unitOverlapVector.clone().scale(velocity.length() / deltaTime * repelMag);
+											unitVelocity.set(velocity).normalize();
+											combinedVector.set(unitVelocity).add(unitOverlapVector);
+											float repelMag = 1.0f - combinedVector.length();
+											repelForce.set(unitOverlapVector).scale(velocity.length() / deltaTime * repelMag);
 											totalForce.add(repelForce);
 
 										} else if (slideStyle == 2) { // most recent (best?)
 											// 1. Cancel velocity into the surface
 											float velIntoSurface = velocity.dot(unitOverlapVector);
 											if (velIntoSurface > 0) {
-												WWVector repelForce = unitOverlapVector.clone().scale(-velIntoSurface / deltaTime);
+												repelForce.set(unitOverlapVector).scale(-velIntoSurface / deltaTime);
 												totalForce.add(repelForce);
 											}
 
 											// 2. Cancel force (gravity, thrust) into the surface (Normal Force)
 											float forceIntoSurface = totalForce.dot(unitOverlapVector);
 											if (forceIntoSurface > 0) {
-												WWVector normalForce = unitOverlapVector.clone().scale(-forceIntoSurface);
-												totalForce.add(normalForce);
+												repelForce.set(unitOverlapVector).scale(-forceIntoSurface);
+												totalForce.add(repelForce);
 											}
 											
 										}
@@ -332,15 +355,14 @@ public class NewPhysicsThread extends PhysicsThread {
 									// point around that center of mass.
 
 									// 1. The lever arm (r): vector FROM the center of mass TO the overlap point.
-									// (Note: We do NOT normalize this, because a longer lever arm should mathematically create more torque!)
-									WWVector leverArm = overlapPoint.clone().subtract(originalPosition);
+									leverArm.set(overlapPoint).subtract(originalPosition);
 
 									// 2. The impact force (F): spring force proportional to object mass and overlap penetration.
 									float objectMass = object.density * object.size.x * object.size.y * object.size.z;
-									WWVector impactForce = overlapVector.clone().scale(-objectMass);
+									impactForce.set(overlapVector).scale(-objectMass);
 
 									// 3. Torque = r x F
-									WWVector impactTorque = leverArm.cross(impactForce).scale(FastMath.TODEGREES);
+									impactTorque.set(leverArm).cross(impactForce).scale(FastMath.TODEGREES);
 
 									// 4. Apply the torque to the object
 									impactTorque.scale(4.0f);  // a fudge factor.. need to determine why it is useful
@@ -374,34 +396,31 @@ public class NewPhysicsThread extends PhysicsThread {
 											// solid-against-solid friction
 											
 											// 1. Calculate the lever arm (radius) from the center of mass DOWN to the contact point
-											WWVector r1 = overlapPoint.clone().subtract(originalPosition);
+											r1.set(overlapPoint).subtract(originalPosition);
 
 											// 2. Calculate the relative linear velocity of the surfaces in contact
 											// The surface velocity is the linear velocity PLUS the velocity contributed by the spin: v + (w x r)
 											// We must convert the engine's degrees/sec angular velocity back to radians/sec for the math
-											WWVector spinVel = angularVelocity.clone().scale(1.0f / FastMath.TODEGREES).cross(r1);
-											WWVector surfaceVelocity = velocity.clone().add(spinVel);
+											spinVel.set(angularVelocity).scale(1.0f / FastMath.TODEGREES).cross(r1);
+											surfaceVelocity.set(velocity).add(spinVel);
 											
 											// We compare this against the other object's surface velocity
-											WWVector r2 = overlapPoint.clone().subtract(position2);
-											WWVector obj2SpinVel = object2.getAngularVelocity().clone().scale(1.0f / FastMath.TODEGREES).cross(r2);
-											WWVector surfaceVelocity2 = object2.getVelocity().clone().add(obj2SpinVel);
+											r2.set(overlapPoint).subtract(position2);
+											obj2SpinVel.set(object2.getAngularVelocity()).scale(1.0f / FastMath.TODEGREES).cross(r2);
+											surfaceVelocity2.set(object2.getVelocity()).add(obj2SpinVel);
 											
-											WWVector relativeSurfaceVelocity = surfaceVelocity.subtract(surfaceVelocity2);
-
-											WWVector relativeAngularVelocity = angularVelocity.clone().subtract(object2.getAngularVelocity()).scale(1.0f / FastMath.TODEGREES);
-											WWVector relativeSurfaceAngularVelocity = spinVel.clone().subtract(obj2SpinVel);
+											relativeSurfaceVelocity.set(surfaceVelocity).subtract(surfaceVelocity2);
 
 											// 3. The friction force pushes back against the slipping surface!
 											// If the block is spinning, but not moving (like a car tire burning out), 
 											// relativeSurfaceVelocity is high. The friction force will push forward, 
 											// which ACCELERATES the block linearly!
-											WWVector frictionForce = relativeSurfaceVelocity.clone().scale(-2.5f * friction);
+											frictionForce.set(relativeSurfaceVelocity).scale(-2.5f * friction);
 											totalForce.add(frictionForce);
 
 											// 4. Calculate the resulting Rolling Torque (from the friction force pushing on the bottom of the block)
 											// Torque is the cross product of the lever arm and the force (T = r x F)
-											WWVector rollingTorque = r1.clone().cross(frictionForce).scale(FastMath.TODEGREES);
+											rollingTorque.set(r1).cross(frictionForce).scale(FastMath.TODEGREES);
 											float extentSq = object.extent * object.extent;
 											if (extentSq > 0.0001f) {
 												rollingTorque.scale(1.0f / (0.5f * extentSq));
@@ -409,8 +428,8 @@ public class NewPhysicsThread extends PhysicsThread {
 											totalTorque.add(rollingTorque);
 
 											// Simulate static friction: removing contribution to totalForce and forcing velocity to equal object2's velocity
-											WWVector normalForceComponent = unitOverlapVector.clone().scale(totalForce.dot(unitOverlapVector));
-											WWVector tangentialForce = totalForce.clone().subtract(normalForceComponent);
+											normalForceComponent.set(unitOverlapVector).scale(totalForce.dot(unitOverlapVector));
+											tangentialForce.set(totalForce).subtract(normalForceComponent);
 											if (relativeSurfaceVelocity.length() < 10 * friction && tangentialForce.length() < 10 * friction) {
 												totalForce.zero();
 												velocity.subtract(relativeSurfaceVelocity);
@@ -418,12 +437,10 @@ public class NewPhysicsThread extends PhysicsThread {
 
 										} else if (object.solid && !object2.solid) {
 											// solid-in-liquid/gas friction
-											WWVector frictionVForce = object2.getVelocity().clone().subtract(velocity);
-											frictionVForce.scale(10 * friction);
+											frictionVForce.set(object2.getVelocity()).subtract(velocity).scale(10 * friction);
 											totalForce.add(frictionVForce);
-											WWVector frictionAForce = new WWVector();
-											frictionAForce.subtract(angularVelocity);
-											frictionAForce.scale(10 * friction);
+
+											frictionAForce.zero().subtract(angularVelocity).scale(10 * friction);
 											totalTorque.add(frictionAForce);
 										} else if (!object.solid && object2.solid && object2.physical) {
 											// Handled in outer loop when object2 is processed
