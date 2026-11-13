@@ -23,6 +23,7 @@ public class NewPhysicsThread extends PhysicsThread {
 	ArrayList<ObjectCollision> previousPreviousCollidedObjects = new ArrayList<ObjectCollision>();
 	ArrayList<ObjectCollision> previousCollidedObjects = new ArrayList<ObjectCollision>();
 	ArrayList<ObjectCollision> newCollidedObjects = new ArrayList<ObjectCollision>();
+	ObjectCollisionPool collisionPool = new ObjectCollisionPool();
 
 	int slideStyle;
 
@@ -62,6 +63,7 @@ public class NewPhysicsThread extends PhysicsThread {
 			queuedUpdates = new ArrayList<QueuedUpdate>();
 		}
 		ArrayList<ObjectCollision> temp = previousPreviousCollidedObjects;
+		collisionPool.recycle(temp);
 		temp.clear();
 		previousPreviousCollidedObjects = previousCollidedObjects;
 		previousCollidedObjects = newCollidedObjects;
@@ -204,7 +206,7 @@ public class NewPhysicsThread extends PhysicsThread {
 
 							if (!overlapVector.isZero()) {
 
-								ObjectCollision collision = new ObjectCollision(object, object2, overlapVector);
+								ObjectCollision collision = collisionPool.obtain(object, object2, overlapVector);
 								newCollidedObjects.add(collision);
 
 								// Determine forces based on elasticity
