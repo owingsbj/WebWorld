@@ -20,10 +20,27 @@ public class NewPhysicsThread extends PhysicsThread {
 
 	private static final boolean queueUpdates = false;
 
-	ArrayList<ObjectCollision> previousPreviousCollidedObjects = new ArrayList<ObjectCollision>();
-	ArrayList<ObjectCollision> previousCollidedObjects = new ArrayList<ObjectCollision>();
-	ArrayList<ObjectCollision> newCollidedObjects = new ArrayList<ObjectCollision>();
-	ObjectCollisionPool collisionPool = new ObjectCollisionPool();
+	private ArrayList<ObjectCollision> previousPreviousCollidedObjects = new ArrayList<ObjectCollision>();
+	private ArrayList<ObjectCollision> previousCollidedObjects = new ArrayList<ObjectCollision>();
+	private ArrayList<ObjectCollision> newCollidedObjects = new ArrayList<ObjectCollision>();
+	private final ObjectCollisionPool collisionPool = new ObjectCollisionPool();
+
+	private final WWVector position = new WWVector();
+	private final WWQuaternion rotation = new WWQuaternion();
+	private final WWVector rotationPoint = new WWVector();
+	private final WWVector velocity = new WWVector();
+	private final WWVector angularVelocity = new WWVector();
+	private final WWVector position2 = new WWVector();
+	private final WWQuaternion rotation2 = new WWQuaternion();
+	private final WWVector tempPoint = new WWVector();
+	private final WWVector tempPoint2 = new WWVector();
+	private final WWVector overlapPoint = new WWVector();
+	private final WWVector overlapVector = new WWVector();
+	private final WWVector forceVector = new WWVector();
+	private final WWVector force2Vector = new WWVector();
+	private final WWVector mirrorVector = new WWVector();
+	private final WWVector overlapPoint2 = new WWVector();
+	private final WWVector overlapVector2 = new WWVector();
 
 	int slideStyle;
 
@@ -68,21 +85,6 @@ public class NewPhysicsThread extends PhysicsThread {
 		previousPreviousCollidedObjects = previousCollidedObjects;
 		previousCollidedObjects = newCollidedObjects;
 		newCollidedObjects = temp;
-
-		WWVector position = new WWVector();
-		WWQuaternion rotation = new WWQuaternion();
-		WWVector rotationPoint = new WWVector();
-		WWVector velocity = new WWVector();
-		WWVector angularVelocity = new WWVector();
-		WWVector position2 = new WWVector();
-		WWQuaternion rotation2 = new WWQuaternion();
-		WWVector tempPoint = new WWVector();
-		WWVector tempPoint2 = new WWVector();
-		WWVector overlapPoint = new WWVector();
-		WWVector overlapVector = new WWVector();
-		WWVector forceVector = new WWVector();
-		WWVector force2Vector = new WWVector();
-		WWVector mirrorVector = new WWVector();
 
 		WWObject[] objects = world.getObjects();
 		int lastObjectIndex = world.lastObjectIndex;
@@ -193,8 +195,6 @@ public class NewPhysicsThread extends PhysicsThread {
 							object.getOverlap(object2, position, rotation, rotationPoint, position2, rotation2, worldTime, tempPoint, tempPoint2, overlapPoint, overlapVector);
 							
 							// Test object2's points penetrating object1 (important for small objects vs large meshes)
-							WWVector overlapPoint2 = new WWVector();
-							WWVector overlapVector2 = new WWVector();
 							object2.getOverlap(object, position2, rotation2, object2.getRotationPoint(), position, rotation, worldTime, tempPoint, tempPoint2, overlapPoint2, overlapVector2);
 							
 							// Keep the deepest overlap
@@ -517,7 +517,7 @@ public class NewPhysicsThread extends PhysicsThread {
 				if (newCollision.equals(previousCollision)) {
 					newCollision.firstSlidingStreamId = previousCollision.firstSlidingStreamId;
 					newCollision.secondSlidingStreamId = previousCollision.secondSlidingStreamId;
-					world.slideObject(newCollision);
+					world.slideObject(newCollision, tempPoint, tempPoint2);
 					newCollision.sliding = true;
 					previousCollision.stillSliding = true;
 				}
@@ -528,14 +528,14 @@ public class NewPhysicsThread extends PhysicsThread {
 					if (newCollision.equals(previousPreviousCollision)) {
 						newCollision.firstSlidingStreamId = previousPreviousCollision.firstSlidingStreamId;
 						newCollision.secondSlidingStreamId = previousPreviousCollision.secondSlidingStreamId;
-						world.slideObject(newCollision);
+						world.slideObject(newCollision, tempPoint, tempPoint2);
 						newCollision.sliding = true;
 						previousPreviousCollision.stillSliding = true;
 					}
 				}
 			}
 			if (!newCollision.sliding) {
-				world.collideObject(newCollision);
+				world.collideObject(newCollision, tempPoint, tempPoint2);
 			}
 		}
 		for (int j = 0; j < ppcosize; j++) {

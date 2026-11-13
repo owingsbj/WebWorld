@@ -370,7 +370,7 @@ public class OldPhysicsThread extends PhysicsThread {
 				if (newCollision.equals(previousCollision)) {
 					newCollision.firstSlidingStreamId = previousCollision.firstSlidingStreamId;
 					newCollision.secondSlidingStreamId = previousCollision.secondSlidingStreamId;
-					world.slideObject(newCollision);
+					world.slideObject(newCollision, tempPoint, tempPoint2);
 					newCollision.sliding = true;
 					previousCollision.stillSliding = true;
 				}
@@ -381,14 +381,14 @@ public class OldPhysicsThread extends PhysicsThread {
 					if (newCollision.equals(previousPreviousCollision)) {
 						newCollision.firstSlidingStreamId = previousPreviousCollision.firstSlidingStreamId;
 						newCollision.secondSlidingStreamId = previousPreviousCollision.secondSlidingStreamId;
-						world.slideObject(newCollision);
+						world.slideObject(newCollision, tempPoint, tempPoint2);
 						newCollision.sliding = true;
 						previousPreviousCollision.stillSliding = true;
 					}
 				}
 			}
 			if (!newCollision.sliding) {
-				world.collideObject(newCollision);
+				world.collideObject(newCollision, tempPoint, tempPoint2);
 			}
 		}
 		for (int j = 0; j < ppcosize; j++) {
