@@ -9,7 +9,7 @@ import com.gallantrealm.myworld.model.WWVector;
 /**
  * Provides basic human-like bipedal behavior.  Options can be set to make it more/less
  * human:
- * - breathing -- turns on an adidtional behavior that has the avatar torso expand to look as if the avatar was breathing.
+ * - breathing -- turns on an additional behavior that has the avatar torso expand to look as if the avatar was breathing.
  * - atEase -- turns on an additional behavior that has the avatar lean from side to side when standing after a while.
  */
 public final class HumanMotionBehavior extends AnimationBehavior {
