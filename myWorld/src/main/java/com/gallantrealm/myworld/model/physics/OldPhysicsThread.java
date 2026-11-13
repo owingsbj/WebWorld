@@ -20,6 +20,7 @@ import com.gallantrealm.myworld.model.WWWorld;
  */
 public class OldPhysicsThread extends PhysicsThread {
 
+	private ArrayList<ObjectCollision> previousPreviousCollidedObjects = new ArrayList<ObjectCollision>();
 	private ArrayList<ObjectCollision> previousCollidedObjects = new ArrayList<ObjectCollision>();
 	private ArrayList<ObjectCollision> newCollidedObjects = new ArrayList<ObjectCollision>();
 
@@ -55,16 +56,20 @@ public class OldPhysicsThread extends PhysicsThread {
 
 	@Override
 	public void performIteration(long timeIncrement) {
+		if (timeIncrement <= 0) {
+			return;
+		}
 //		synchronized (world) {
 		world.updateWorldTime(timeIncrement);
 
 		long worldTime = world.getWorldTime();
 		float deltaTime = timeIncrement / 1000.0f;
 
-		ArrayList<ObjectCollision> tempCollidedObjects = previousCollidedObjects;
+		ArrayList<ObjectCollision> tempCollidedObjects = previousPreviousCollidedObjects;
+		tempCollidedObjects.clear();
+		previousPreviousCollidedObjects = previousCollidedObjects;
 		previousCollidedObjects = newCollidedObjects;
 		newCollidedObjects = tempCollidedObjects;
-		newCollidedObjects.clear();
 
 		WWObject[] objects = world.getObjects();
 		int lastObjectIndex = world.lastObjectIndex;
@@ -107,43 +112,76 @@ public class OldPhysicsThread extends PhysicsThread {
 
 				// - Next, apply interactions of other objects that overlap the physical object
 				float objectExtent = object.extent;
-				for (int j = 1; j <= lastObjectIndex; j++) {
+				for (int j = 0; j <= lastObjectIndex; j++) {
 					WWObject object2 = objects[j];
 					if (object2 != null && !object2.phantom && object2 != object && !object2.deleted && !object.isDescendant(object2)) {
 
 						// First, see if the objects are close enough to possibly overlap.
 						// If they are, it is worth determining if they actually do overlap
-						float maxExtent = objectExtent + object2.extent; //FastMath.max(objectExtent, object2.extent);
+						float maxExtentx = objectExtent + object2.extentx;
+						float maxExtenty = objectExtent + object2.extenty;
+						float maxExtentz = objectExtent + object2.extentz;
 						object2.getAbsolutePosition(position2, worldTime);
-						if (/* object2.parentId != 0 || */(Math.abs(position2.x - position.x) < maxExtent && Math.abs(position2.y - position.y) < maxExtent && Math.abs(position2.z - position.z) < maxExtent)) {
+						float px = Math.abs(position2.x - position.x);
+						float py = Math.abs(position2.y - position.y);
+						float pz = Math.abs(position2.z - position.z);
+						if (/* object2.parentId != 0 || */(px <= maxExtentx && py <= maxExtenty && pz <= maxExtentz)) {
 
 							// Determine if the objects overlap, and the vector of overlap.  This
 							// vector points in the direction of the deepest overlap, and the length of the
 							// vector indicates the amount of overlap
 							object2.getAbsoluteRotation(rotation2, worldTime);
+
+							// Test object1's points penetrating object2
 							object.getOverlap(object2, position, rotation, rotationPoint, position2, rotation2, worldTime, tempPoint, tempPoint2, overlapPoint, overlapVector);
+
+							// Test object2's points penetrating object1 (important for small objects vs large meshes)
+							WWVector overlapPoint2 = new WWVector();
+							WWVector overlapVector2 = new WWVector();
+							object2.getOverlap(object, position2, rotation2, object2.getRotationPoint(), position, rotation, worldTime, tempPoint, tempPoint2, overlapPoint2, overlapVector2);
+
+							// Keep the deepest overlap
+							if (overlapVector2.isLongerThan(overlapVector)) {
+								overlapVector2.copyInto(overlapVector);
+								overlapPoint2.copyInto(overlapPoint);
+								overlapVector.scale(-1.0f);
+							}
 
 							if (!overlapVector.isZero()) {
 
 								ObjectCollision collision = new ObjectCollision(object, object2, overlapVector);
-								int index = previousCollidedObjects.indexOf(collision);
-								if (index < 0) {
-									world.collideObject(collision);
-								} else {
-									ObjectCollision oldCollision = previousCollidedObjects.get(index);
-									world.slideObject(oldCollision);
-									previousCollidedObjects.remove(index);
-									collision = oldCollision;
-								}
 								newCollidedObjects.add(collision);
 
 								// If the object2 is solid, apply solid-to-solid physics
 								if (object2.solid) {
 
 									// Adjust the position of the objects so that they are not overlapping
-									position.x -= overlapVector.x;
-									position.y -= overlapVector.y;
-									position.z -= overlapVector.z;
+									WWVector adjustVector = overlapVector.clone().scale(0.5f);
+									if (!object.isFreedomMoveX() || !object.isFreedomMoveY() || !object.isFreedomMoveZ()) {
+										WWObject.antiRotate(position, rotation);
+										WWObject.antiRotate(adjustVector, rotation);
+										if (object.isFreedomMoveX()) position.x -= adjustVector.x;
+										if (object.isFreedomMoveY()) position.y -= adjustVector.y;
+										if (object.isFreedomMoveZ()) position.z -= adjustVector.z;
+										WWObject.rotate(position, rotation);
+										WWObject.rotate(adjustVector, rotation);
+									} else {
+										position.subtract(adjustVector);
+									}
+
+									if (!object2.physical) {
+										if (!object.isFreedomMoveX() || !object.isFreedomMoveY() || !object.isFreedomMoveZ()) {
+											WWObject.antiRotate(position, rotation);
+											WWObject.antiRotate(adjustVector, rotation);
+											if (object.isFreedomMoveX()) position.x -= adjustVector.x;
+											if (object.isFreedomMoveY()) position.y -= adjustVector.y;
+											if (object.isFreedomMoveZ()) position.z -= adjustVector.z;
+											WWObject.rotate(position, rotation);
+											WWObject.rotate(adjustVector, rotation);
+										} else {
+											position.subtract(adjustVector);
+										}
+									}
 
 									// If the object is moving toward object2, stop or repell it (according to elasticity)
 									unitOverlapVector.set(overlapVector).normalize();
@@ -286,25 +324,11 @@ public class OldPhysicsThread extends PhysicsThread {
 				// Update the position, rotation, velocity and angular velocity values on the object if any have changed due to
 				// physical interaction with another object, but only if the object has not been moved by some other thread
 				if (object.lastMoveTime == originalLastMoveTime && (!position.equals(originalPosition) || !rotation.equals(originalRotation) || !velocity.equals(originalVelocity) || !angularVelocity.equals(originalAngularVelocity))) {
-
-					// Cap the movements, to cure possible physics ills
-					if (position.x - originalPosition.x > 1f) {
-						position.x = originalPosition.x + 1f;
-					} else if (position.x - originalPosition.x < -0.5f) {
-						position.x = originalPosition.x - 0.5f;
+					if (position.length() > 10000) {
+						System.err.println("OldPhysicsThread blew object out of range. Object: " + object.getName());
+					} else {
+						object.setOrientation(position, rotation, velocity, angularVelocity, worldTime);
 					}
-					if (position.y - originalPosition.y > 0.5f) {
-						position.y = originalPosition.y + 0.5f;
-					} else if (position.y - originalPosition.y < -0.5f) {
-						position.y = originalPosition.y - 0.5f;
-					}
-					if (position.z - originalPosition.z > 0.5f) {
-						position.z = originalPosition.z + 0.5f;
-					} else if (position.z - originalPosition.z < -0.5f) {
-						position.z = originalPosition.z - 0.5f;
-					}
-
-					object.setOrientation(position, rotation, velocity, angularVelocity, worldTime);
 				}
 
 //					} // synchronize object
@@ -321,6 +345,8 @@ public class OldPhysicsThread extends PhysicsThread {
 						if (behavior.timer == 0) {
 							if (world.behaviorThread != null) {
 								world.behaviorThread.queue("timer", object, null, null);
+							} else {
+								object.invokeBehavior("timer", null, null);
 							}
 						}
 					}
@@ -329,12 +355,44 @@ public class OldPhysicsThread extends PhysicsThread {
 
 		} // for object
 
-		int size = previousCollidedObjects.size();
-		for (int k = 0; k < size; k++) {
-			ObjectCollision previousCollision = previousCollidedObjects.get(k);
-			world.stopSlidingObject(previousCollision);
+		// fire collide and slide events
+		int ncosize = newCollidedObjects.size();
+		int pcosize = previousCollidedObjects.size();
+		int ppcosize = previousPreviousCollidedObjects.size();
+		for (int i = 0; i < ncosize; i++) {
+			ObjectCollision newCollision = newCollidedObjects.get(i);
+			for (int j = 0; j < pcosize; j++) {
+				ObjectCollision previousCollision = previousCollidedObjects.get(j);
+				if (newCollision.equals(previousCollision)) {
+					newCollision.firstSlidingStreamId = previousCollision.firstSlidingStreamId;
+					newCollision.secondSlidingStreamId = previousCollision.secondSlidingStreamId;
+					world.slideObject(newCollision);
+					newCollision.sliding = true;
+					previousCollision.stillSliding = true;
+				}
+			}
+			if (!newCollision.sliding) { // check previous previous
+				for (int j = 0; j < ppcosize; j++) {
+					ObjectCollision previousPreviousCollision = previousPreviousCollidedObjects.get(j);
+					if (newCollision.equals(previousPreviousCollision)) {
+						newCollision.firstSlidingStreamId = previousPreviousCollision.firstSlidingStreamId;
+						newCollision.secondSlidingStreamId = previousPreviousCollision.secondSlidingStreamId;
+						world.slideObject(newCollision);
+						newCollision.sliding = true;
+						previousPreviousCollision.stillSliding = true;
+					}
+				}
+			}
+			if (!newCollision.sliding) {
+				world.collideObject(newCollision);
+			}
 		}
-		previousCollidedObjects.clear();
+		for (int j = 0; j < ppcosize; j++) {
+			ObjectCollision previousPreviousCollision = previousPreviousCollidedObjects.get(j);
+			if (previousPreviousCollision.sliding && !previousPreviousCollision.stillSliding) {
+				world.stopSlidingObject(previousPreviousCollision);
+			}
+		}
 
 //		} // synchronize world
 
