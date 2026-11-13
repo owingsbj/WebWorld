@@ -725,9 +725,12 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 
 	/**
 	 * Called when two objects first hit each other
-	 * 
 	 */
 	public void collideObject(ObjectCollision collision) {
+		collideObject(collision, new WWVector(), new WWVector());
+	}
+
+	public void collideObject(ObjectCollision collision, WWVector tempVector1, WWVector tempVector2) {
 		if (behaviorThread != null) {
 			behaviorThread.queue("collide", collision.firstObject, collision.secondObject, collision.overlapVector);
 			behaviorThread.queue("collide", collision.secondObject, collision.firstObject, collision.overlapVector);
@@ -743,10 +746,10 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			} else {
 				position = collision.firstObject.getPosition();
 			}
-			WWVector relativeVelocity = collision.firstObject.getVelocity().clone();
+			WWVector relativeVelocity = tempVector1.set(collision.firstObject.getVelocity());
 			WWVector secondVelocity = collision.secondObject.getVelocity();
 			relativeVelocity.subtract(secondVelocity);
-			WWVector collisionVector = collision.overlapVector.clone().normalize();
+			WWVector collisionVector = tempVector2.set(collision.overlapVector).normalize();
 			relativeVelocity.scale(collisionVector);
 			float volume = FastMath.min(1.0f, relativeVelocity.length() * 0.025f);
 			if (volume > 0.1f && rendering != null) {
@@ -760,10 +763,10 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			} else {
 				position = collision.firstObject.getPosition();
 			}
-			WWVector relativeVelocity = collision.firstObject.getVelocity().clone();
+			WWVector relativeVelocity = tempVector1.set(collision.firstObject.getVelocity());
 			WWVector secondVelocity = collision.secondObject.getVelocity();
 			relativeVelocity.subtract(secondVelocity);
-			WWVector collisionVector = collision.overlapVector.clone().normalize();
+			WWVector collisionVector = tempVector2.set(collision.overlapVector).normalize();
 			relativeVelocity.scale(collisionVector);
 			float volume = FastMath.min(1.0f, relativeVelocity.length() * 0.025f);
 			if (volume > 0.1f && rendering != null) {
@@ -773,6 +776,10 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 	}
 
 	public void slideObject(ObjectCollision collision) {
+		slideObject(collision, new WWVector(), new WWVector());
+	}
+
+	public void slideObject(ObjectCollision collision, WWVector tempVector1, WWVector tempVector2) {
 		if (behaviorThread != null) {
 			behaviorThread.queue("slide", collision.firstObject, collision.secondObject, collision.overlapVector);
 			behaviorThread.queue("slide", collision.secondObject, collision.firstObject, collision.overlapVector);
@@ -788,11 +795,11 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			} else {
 				position = collision.firstObject.getPosition();
 			}
-			WWVector relativeVelocity = collision.firstObject.getVelocity().clone();
+			WWVector relativeVelocity = tempVector1.set(collision.firstObject.getVelocity());
 			WWVector secondVelocity = collision.secondObject.getVelocity();
 			relativeVelocity.subtract(secondVelocity);
 			if (collision.firstObject.solid) {
-				WWVector perpendicular = collision.firstObject.getPosition();
+				WWVector perpendicular = tempVector2.set(collision.firstObject.getPosition());
 				WWVector secondPosition = collision.secondObject.getPosition();
 				perpendicular.subtract(secondPosition);
 				perpendicular.normalize();
@@ -814,11 +821,11 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 			} else {
 				position = collision.firstObject.getPosition();
 			}
-			WWVector relativeVelocity = collision.firstObject.getVelocity().clone();
+			WWVector relativeVelocity = tempVector1.set(collision.firstObject.getVelocity());
 			WWVector secondVelocity = collision.secondObject.getVelocity();
 			relativeVelocity.subtract(secondVelocity);
 			if (collision.secondObject.solid) {
-				WWVector perpendicular = collision.firstObject.getPosition().clone();
+				WWVector perpendicular = tempVector2.set(collision.firstObject.getPosition());
 				WWVector secondPosition = collision.secondObject.getPosition();
 				perpendicular.subtract(secondPosition);
 				perpendicular.normalize();
