@@ -510,13 +510,6 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		this.gravity = gravity;
 	}
 
-	/**
-	 * Override this method to provide more exotic gravitational fields!
-	 */
-	public WWVector getGravityForce(float x, float y, float z) {
-		return new WWVector(0, 0, -gravity);
-	}
-
 	public WWColor getSunColor() {
 		return new WWColor(sunColor);
 	}
