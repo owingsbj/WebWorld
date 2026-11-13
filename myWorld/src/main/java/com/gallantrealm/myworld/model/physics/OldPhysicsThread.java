@@ -23,6 +23,7 @@ public class OldPhysicsThread extends PhysicsThread {
 	private ArrayList<ObjectCollision> previousPreviousCollidedObjects = new ArrayList<ObjectCollision>();
 	private ArrayList<ObjectCollision> previousCollidedObjects = new ArrayList<ObjectCollision>();
 	private ArrayList<ObjectCollision> newCollidedObjects = new ArrayList<ObjectCollision>();
+	private final ObjectCollisionPool collisionPool = new ObjectCollisionPool();
 
 	private final WWVector position = new WWVector();
 	private final WWQuaternion rotation = new WWQuaternion();
@@ -35,6 +36,9 @@ public class OldPhysicsThread extends PhysicsThread {
 	private final WWVector tempPoint2 = new WWVector();
 	private final WWVector overlapPoint = new WWVector();
 	private final WWVector overlapVector = new WWVector();
+	private final WWVector overlapPoint2 = new WWVector();
+	private final WWVector overlapVector2 = new WWVector();
+	private final WWVector adjustVector = new WWVector();
 
 	private final WWVector originalPosition = new WWVector();
 	private final WWQuaternion originalRotation = new WWQuaternion();
@@ -66,6 +70,7 @@ public class OldPhysicsThread extends PhysicsThread {
 		float deltaTime = timeIncrement / 1000.0f;
 
 		ArrayList<ObjectCollision> tempCollidedObjects = previousPreviousCollidedObjects;
+		collisionPool.recycle(tempCollidedObjects);
 		tempCollidedObjects.clear();
 		previousPreviousCollidedObjects = previousCollidedObjects;
 		previousCollidedObjects = newCollidedObjects;
@@ -136,8 +141,6 @@ public class OldPhysicsThread extends PhysicsThread {
 							object.getOverlap(object2, position, rotation, rotationPoint, position2, rotation2, worldTime, tempPoint, tempPoint2, overlapPoint, overlapVector);
 
 							// Test object2's points penetrating object1 (important for small objects vs large meshes)
-							WWVector overlapPoint2 = new WWVector();
-							WWVector overlapVector2 = new WWVector();
 							object2.getOverlap(object, position2, rotation2, object2.getRotationPoint(), position, rotation, worldTime, tempPoint, tempPoint2, overlapPoint2, overlapVector2);
 
 							// Keep the deepest overlap
@@ -149,14 +152,14 @@ public class OldPhysicsThread extends PhysicsThread {
 
 							if (!overlapVector.isZero()) {
 
-								ObjectCollision collision = new ObjectCollision(object, object2, overlapVector);
+								ObjectCollision collision = collisionPool.obtain(object, object2, overlapVector);
 								newCollidedObjects.add(collision);
 
 								// If the object2 is solid, apply solid-to-solid physics
 								if (object2.solid) {
 
 									// Adjust the position of the objects so that they are not overlapping
-									WWVector adjustVector = overlapVector.clone().scale(0.5f);
+									adjustVector.set(overlapVector).scale(0.5f);
 									if (!object.isFreedomMoveX() || !object.isFreedomMoveY() || !object.isFreedomMoveZ()) {
 										WWObject.antiRotate(position, rotation);
 										WWObject.antiRotate(adjustVector, rotation);
@@ -233,8 +236,9 @@ public class OldPhysicsThread extends PhysicsThread {
 				} // for object2
 
 				// Cap force to avoid really bad behaviors
-				if (force.length() > 10) {
-					force.scale(10 / force.length());
+				float forceLen = force.length();
+				if (forceLen > 10.0f) {
+					force.scale(10.0f / forceLen);
 				}
 
 				// Apply forces to object's velocity
