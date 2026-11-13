@@ -137,9 +137,13 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 	 * Reflects the vector, given a vector normal to the mirror of reflection.
 	 */
 	public final WWVector reflect(WWVector mirror) {
-		float normalizedMirrorX = mirror.x / mirror.length();
-		float normalizedMirrorY = mirror.y / mirror.length();
-		float normalizedMirrorZ = mirror.z / mirror.length();
+		float mirrorLen = mirror.length();
+		if (mirrorLen <= 0.000001f) {
+			return this;
+		}
+		float normalizedMirrorX = mirror.x / mirrorLen;
+		float normalizedMirrorY = mirror.y / mirrorLen;
+		float normalizedMirrorZ = mirror.z / mirrorLen;
 		float dot2 = 2.0f * dot(normalizedMirrorX, normalizedMirrorY, normalizedMirrorZ);
 		x -= dot2 * normalizedMirrorX;
 		y -= dot2 * normalizedMirrorY;
