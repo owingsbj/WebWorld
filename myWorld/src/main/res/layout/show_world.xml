@@ -11,14 +11,21 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
-		android:layout_centerHorizontal="true"></FrameLayout>
+		android:layout_centerHorizontal="true"
+		android:focusable="false"
+		android:focusableInTouchMode="false"></FrameLayout>
+
 	<android.opengl.GLSurfaceView
-		android:layout_alignParentLeft="true"
 		android:id="@+id/worldView"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:layout_below="@id/adFrame"
-		android:layout_weight="1"/>
+		android:layout_alignParentLeft="true"
+		android:layout_weight="1"
+		android:focusable="true"
+		android:focusableInTouchMode="true">
+		<requestFocus />
+	</android.opengl.GLSurfaceView>
 	<TextView
 		android:id="@+id/titleText"
 		android:layout_width="fill_parent"
@@ -60,7 +67,9 @@
 		android:layout_marginLeft="30dp"
 		android:layout_marginRight="30dp"
 		android:layout_marginTop="30dp"
-		android:background="@drawable/joy_button"/>
+		android:background="@drawable/joy_button"
+		android:focusable="false"
+		android:focusableInTouchMode="false"/>
 
 	<ImageButton
 	    android:id="@+id/joyThumb"
@@ -72,7 +81,9 @@
 	    android:layout_marginLeft="10dp"
 	    android:layout_marginRight="10dp"
 	    android:layout_marginTop="10dp"
-	    android:background="@drawable/joy_button_thumb" />
+	    android:background="@drawable/joy_button_thumb"
+	    android:focusable="false"
+	    android:focusableInTouchMode="false" />
 
 	<LinearLayout
 		android:layout_alignLeft="@+id/worldView"
@@ -83,7 +94,10 @@
 		android:layout_marginTop="30dp"
 		android:background="#01000000"
 		android:clickable="true"
-		android:orientation="vertical">
+		android:orientation="vertical"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		android:descendantFocusability="blocksDescendants">
 		<Button
 			android:id="@+id/leftActionButton1"
 			android:layout_width="match_parent"
@@ -97,7 +111,9 @@
 			android:text="Pause"
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/leftActionButton2"
 			android:layout_width="match_parent"
@@ -109,7 +125,9 @@
 			android:text="View"
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/leftActionButton3"
 			android:layout_width="match_parent"
@@ -121,7 +139,9 @@
 			android:text=" "
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/leftActionButton4"
 			android:layout_width="match_parent"
@@ -133,7 +153,9 @@
 			android:text=" "
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/leftActionButton5"
 			android:layout_width="match_parent"
@@ -145,7 +167,9 @@
 			android:text=" "
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/leftActionButton6"
 			android:layout_width="match_parent"
@@ -157,7 +181,9 @@
 			android:text=" "
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/leftActionButton7"
 			android:layout_width="match_parent"
@@ -169,7 +195,9 @@
 			android:text=" "
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 	</LinearLayout>
 	<LinearLayout
 		android:layout_alignTop="@+id/worldActionsView"
@@ -180,7 +208,10 @@
 		android:layout_below="@id/statusText"
 		android:background="#01000000"
 		android:clickable="true"
-		android:orientation="vertical">
+		android:orientation="vertical"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		android:descendantFocusability="blocksDescendants">
 		<Button
 			android:id="@+id/rightActionButton1"
 			android:layout_width="match_parent"
@@ -194,7 +225,9 @@
 			android:text="Start"
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/rightActionButton2"
 			android:layout_width="match_parent"
@@ -206,7 +239,9 @@
 			android:text="Jump"
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/rightActionButton3"
 			android:layout_width="match_parent"
@@ -218,7 +253,9 @@
 			android:text=" "
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/rightActionButton4"
 			android:layout_width="match_parent"
@@ -230,7 +267,9 @@
 			android:text=" "
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/rightActionButton5"
 			android:layout_width="match_parent"
@@ -242,7 +281,9 @@
 			android:text=" "
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/rightActionButton6"
 			android:layout_width="match_parent"
@@ -254,7 +295,9 @@
 			android:text=" "
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 		<Button
 			android:id="@+id/rightActionButton7"
 			android:layout_width="match_parent"
@@ -266,7 +309,9 @@
 			android:text=" "
 			android:textColor="#FF404040"
 			android:textSize="20dp"
-			android:textStyle="bold"/>
+			android:textStyle="bold"
+			android:focusable="false"
+			android:focusableInTouchMode="false"/>
 	</LinearLayout>
 	<TextView
 		android:id="@+id/flashMessageText"

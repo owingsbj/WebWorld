@@ -201,6 +201,10 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 		worldView.setRenderer(worldRenderer);
 		worldRenderer.initializeCameraPosition();
 
+		worldView.setFocusable(true);
+		worldView.setFocusableInTouchMode(true);
+		worldView.requestFocus();
+
 		if (!pm.isInteractive()) { // avoid rendering continuously if screen is off
 			worldView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 		}
@@ -618,6 +622,9 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			controllerTimer = new Timer();
 			controllerTimer.schedule(controllerTimerTask, 50, 50); // same time as sensor delay game (40ms)
 			// }
+		}
+		if (worldView != null) {
+			worldView.requestFocus();
 		}
 		super.onResume();
 		System.out.println("<ShowWorldActivity.onResume");
