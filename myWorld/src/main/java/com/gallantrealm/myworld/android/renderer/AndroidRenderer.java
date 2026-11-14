@@ -1306,6 +1306,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 							scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
 							scratchCameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
 						}
+						scratchCameraLocation.z -= 0.1;  // fudge factor to avoid camera showing under ground surface
 						// First, see if the objects are "close". If they are, it is worth
 						// determining if they actually overlap
 						object.getPosition(scratchPosition);
@@ -1315,11 +1316,13 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 							object.getPenetration(scratchCameraLocation, scratchPosition, scratchRotation, time, scratchTempPoint, scratchPenetrationVector);
 							if (scratchPenetrationVector != null && scratchPenetrationVector.length() > 0 && limitedCameraDistance > 0.25) {
 								if (Math.abs(scratchPenetrationVector.z) > FastMath.max(Math.abs(scratchPenetrationVector.x), Math.abs(scratchPenetrationVector.y)) && cameraTilt < 45.0) {
-									cameraTilt += 15.0;
+									cameraTilt += 1.0;
+									clientModel.setCameraTilt(cameraTilt);
 								} else {
 									limitedCameraDistance = limitedCameraDistance * 0.5f;
 								}
 								penetrated = true;
+								break;
 								// System.out.println("penetrated: " + object.hashCode() + " " + cameraLocation + " " + position + " " + rotation + " " + penetrationVector);
 							}
 						}
