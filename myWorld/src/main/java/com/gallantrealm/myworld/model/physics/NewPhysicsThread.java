@@ -442,6 +442,13 @@ public class NewPhysicsThread extends PhysicsThread {
 											if (relativeSurfaceVelocity.length() < 10 * friction && tangentialForce.length() < 10 * friction) {
 												totalForce.zero();
 												velocity.subtract(relativeSurfaceVelocity);
+
+												// Static friction at the contact point converts tangential force into rolling torque
+												rollingTorque.set(r1).cross(tangentialForce).scale(-FastMath.TODEGREES);
+												if (extentSq > 0.0001f) {
+													rollingTorque.scale(1.0f / (0.5f * extentSq));
+												}
+												totalTorque.add(rollingTorque);
 											}
 
 										} else if (object.solid && !object2.solid) {

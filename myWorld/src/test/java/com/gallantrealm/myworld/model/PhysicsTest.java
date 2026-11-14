@@ -83,4 +83,32 @@ public class PhysicsTest {
         Assert.assertEquals(0.0f, angularVel.z, 1e-3f);
         Assert.assertTrue(angularVel.x > 0.0f && angularVel.x <= 100.0f);
     }
+
+    @Test
+    public void testSphereRollsDownSlope() {
+        WWWorld world = new WWWorld();
+
+        WWBox slope = new WWBox(20.0f, 20.0f, 1.0f);
+        slope.setPosition(0, 0, -0.5f);
+        slope.setRotation(new WWQuaternion(0, 15.0f, 0));
+        slope.solid = true;
+        slope.physical = false;
+        slope.friction = 0.9f;
+        world.addObject(slope);
+
+        WWSphere sphere = new WWSphere(2.0f, 2.0f, 2.0f);
+        sphere.setPosition(0, 0, 1.0f);
+        sphere.solid = true;
+        sphere.physical = true;
+        sphere.density = 0.25f;
+        sphere.friction = 0.9f;
+        world.addObject(sphere);
+
+        NewPhysicsThread thread = new NewPhysicsThread(world, 50, 2);
+        thread.performIteration(50);
+
+        WWVector angularVel = new WWVector();
+        sphere.getAngularVelocity(angularVel);
+        Assert.assertTrue("Sphere on slope should gain rolling angular velocity", angularVel.length() > 0.0f);
+    }
 }
