@@ -211,10 +211,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		int error;
 		RuntimeException exception = null;
 		while ((error = GLES30.glGetError()) != GLES30.GL_NO_ERROR) {
-			Throwable t = new Throwable();
-			t.fillInStackTrace();
-			StackTraceElement caller = t.getStackTrace()[1];
-			System.out.println("AndroidRenderer.checkGlError " + error + ": " + GLU.gluErrorString(error) + " at " + caller);
+			Throwable t = new Throwable("AndroidRenderer.checkGlError " + error + ": " + GLU.gluErrorString(error));
+			t.printStackTrace();
 		}
 	}
 
@@ -1179,6 +1177,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		textureCache.clear();
 		normalTextureCache.clear();
 		hasAlphaCache.clear();
+		Shader.initializeStatics();
+		GLObject.initializeStatics();
 	}
 
 	@Override

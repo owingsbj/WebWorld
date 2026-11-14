@@ -15,8 +15,16 @@ import android.opengl.Matrix;
  */
 public abstract class GLObject extends GLRendering {
 
-	static int lastTextureId;
-	static int lastBumpTextureId;
+	static int lastTextureId = -1;
+	static int lastBumpTextureId = -1;
+
+	/*
+	Sets the state of static variables for proper reuse of this class across app sessions.
+	 */
+	public static void initializeStatics() {
+		lastTextureId = -1;
+		lastBumpTextureId = -1;
+	}
 
 	static float[] identityMatrix = new float[16];
 	static {
