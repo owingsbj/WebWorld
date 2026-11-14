@@ -39,7 +39,7 @@ public class ShadowingTextureShader extends Shader {
 			"	mTangent = normalize((modelMatrix * vec4(aTangent, 0.0)).xyz);\n" + //
 			"	mBitangent = normalize((modelMatrix * vec4(aBitangent, 0.0)).xyz);\n" + //
 			"	textureCoord = (textureMatrix * vec4(aTextureCoord.x, aTextureCoord.y, 1.0, 1.0)).xy;\n" + //
-			"	fogDepth = gl_Position.z;\n" + //
+			"	fogDepth = gl_Position.w;\n" + //
 			"	if (pointDraw) { \n" + // used for rendering particles
 			"		gl_PointSize = aTextureCoord.x * 10.0 / (1.0 + gl_Position.z); \n" + //
 			"		pointAlpha = aTextureCoord.y / 100.0; \n" + //
@@ -99,7 +99,7 @@ public class ShadowingTextureShader extends Shader {
 			"	fragColor = sunColor * (specularLightIntensity * vec4(1.0) + color * textureColor * vec4(sValue, sValue, sValue, 1.0)); \n" + //
 			"	if (fogDensity > 0.0) { \n" + //
 			"		lowp float fog = clamp(exp(-fogDensity*fogDensity * abs(fogDepth) * abs(fogDepth) / 5000.0  ), 0.0, 1.0); \n" + //
-			"		fragColor = mix(vec4(1.0), fragColor, fog); \n" + //
+			"		fragColor = mix(sunColor, fragColor, fog); \n" + //
 			"	} \n" + //
 			"}";
 

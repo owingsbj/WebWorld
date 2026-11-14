@@ -24,7 +24,7 @@ public class SimpleTextureShader extends Shader {
 			"	gl_Position = viewMatrix * modelMatrix * aPosition;\n" + //
 			"	textureCoord = (textureMatrix * vec4(aTextureCoord.x, aTextureCoord.y, 1.0, 1.0)).xy;\n" + //
 			"	mNormal = normalize((modelMatrix * vec4(aNormal, 0.0)).xyz);\n" + //
-			"	fogDepth = gl_Position.z;\n" + //
+			"	fogDepth = gl_Position.w;\n" + //
 			"	if (pointDraw) { \n" + // used for rendering particles
 			"		gl_PointSize = aTextureCoord.x * 10.0 / (1.0 + gl_Position.z); \n" + //
 			"		pointAlpha = aTextureCoord.y / 100.0; \n" + //
@@ -66,7 +66,7 @@ public class SimpleTextureShader extends Shader {
 			"	fragColor = sunColor * (color * textureColor * vec4(sValue, sValue, sValue, 1.0)); \n" + //
 			"	if (fogDensity > 0.0) { \n" + //
 			"		lowp float fog = clamp(exp(-fogDensity*fogDensity * abs(fogDepth) * abs(fogDepth) / 5000.0  ), 0.0, 1.0); \n" + //
-			"		fragColor = mix(vec4(1.0), fragColor, fog); \n" + //
+			"		fragColor = mix(sunColor, fragColor, fog); \n" + //
 			"	} \n" + //
 			"}";
 
