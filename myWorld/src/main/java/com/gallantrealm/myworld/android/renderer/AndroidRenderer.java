@@ -17,6 +17,7 @@ import javax.microedition.khronos.opengles.GL10;
 import com.gallantrealm.android.HttpFileCache;
 import com.gallantrealm.myworld.FastMath;
 import com.gallantrealm.myworld.android.AndroidClientModel;
+import com.gallantrealm.myworld.android.BuildConfig;
 import com.gallantrealm.myworld.client.model.ClientModel;
 import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.client.renderer.IRendering;
@@ -208,17 +209,21 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	public WWObject pickedObject;
 
 	public static void checkGlError() {
-		int error;
-		RuntimeException exception = null;
-		while ((error = GLES30.glGetError()) != GLES30.GL_NO_ERROR) {
-			Throwable t = new Throwable("AndroidRenderer.checkGlError " + error + ": " + GLU.gluErrorString(error));
-			t.printStackTrace();
+		if (BuildConfig.DEBUG) {
+			int error;
+			RuntimeException exception = null;
+			while ((error = GLES30.glGetError()) != GLES30.GL_NO_ERROR) {
+				Throwable t = new Throwable("AndroidRenderer.checkGlError " + error + ": " + GLU.gluErrorString(error));
+				t.printStackTrace();
+			}
 		}
 	}
 
 	public static void ignoreGlError() {
-		int error;
-		while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+		if (BuildConfig.DEBUG) {
+			int error;
+			while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+			}
 		}
 	}
 
