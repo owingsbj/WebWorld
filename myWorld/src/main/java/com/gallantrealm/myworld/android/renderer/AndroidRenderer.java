@@ -58,6 +58,10 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
 import android.opengl.GLUtils;
 
+/**
+ * This class renders WWWorld models for Android OpenGL.   Note that in the WWWorld, the z axis is up and down.
+ * (In OpenGL the y axis is up and down.)
+ */
 public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 	// These values are used in the positionCamera to damp the positional movements
