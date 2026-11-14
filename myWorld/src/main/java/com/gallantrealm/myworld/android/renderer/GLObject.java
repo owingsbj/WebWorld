@@ -165,7 +165,9 @@ public abstract class GLObject extends GLRendering {
 			// To snap the object we'll create the model matrix
 			object.getAnimatedPosition(position, worldTime);
 			object.getAnimatedRotation(rotation, worldTime);
-			modelMatrix = new float[16];
+			if (modelMatrix == null) {
+				modelMatrix = new float[16];
+			}
 			Matrix.setIdentityM(modelMatrix, 0);
 			Matrix.translateM(modelMatrix, 0, position.x, position.z, position.y);
 			Matrix.translateM(modelMatrix, 0, object.rotationPoint.x, object.rotationPoint.z, object.rotationPoint.y);

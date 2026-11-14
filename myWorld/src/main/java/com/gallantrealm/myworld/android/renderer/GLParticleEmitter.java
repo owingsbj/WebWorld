@@ -96,6 +96,9 @@ public class GLParticleEmitter extends GLObject {
 	}
 
 	float[] particleBuffer;
+	private float[] particleVerticesScratch;
+	private short[] particleExtrasScratch;
+	private final float[] modelMatrixScratch = new float[16];
 
 	@Override
 	public void draw(Shader shader, float[] viewMatrix, long worldTime, int drawType, boolean drawtrans, int lod) {
@@ -178,22 +181,26 @@ public class GLParticleEmitter extends GLObject {
 		}
 
 		// fill in vertices
-		float[] vertices = new float[3 * emitter.particleCount];
-		short[] extras = new short[2 * emitter.particleCount];
-		for (int i = 0; i < emitter.particleCount; i++) {
-			vertices[3 * i] = emitter.particles[i].position.x;
-			vertices[3 * i + 1] = emitter.particles[i].position.z;
-			vertices[3 * i + 2] = emitter.particles[i].position.y;
+		int particleCount = emitter.particleCount;
+		if (particleVerticesScratch == null || particleVerticesScratch.length < 3 * particleCount) {
+			particleVerticesScratch = new float[3 * particleCount];
+		}
+		if (particleExtrasScratch == null || particleExtrasScratch.length < 2 * particleCount) {
+			particleExtrasScratch = new short[2 * particleCount];
+		}
+		for (int i = 0; i < particleCount; i++) {
+			particleVerticesScratch[3 * i] = emitter.particles[i].position.x;
+			particleVerticesScratch[3 * i + 1] = emitter.particles[i].position.z;
+			particleVerticesScratch[3 * i + 2] = emitter.particles[i].position.y;
 			// TODO include velocity and time since last move to smoothen animation
-			extras[2 * i] = (short) (emitter.particles[i].size * 100);
-			extras[2 * i + 1] = (short) (emitter.particles[i].alpha * 100);
+			particleExtrasScratch[2 * i] = (short) (emitter.particles[i].size * 100);
+			particleExtrasScratch[2 * i + 1] = (short) (emitter.particles[i].alpha * 100);
 			// TODO possibly include size and alpha velocities as well?
 		}
-		float[] modelMatrix = new float[16];
-		Matrix.setIdentityM(modelMatrix, 0);
-		shader.setModelMatrix(modelMatrix);
+		Matrix.setIdentityM(modelMatrixScratch, 0);
+		shader.setModelMatrix(modelMatrixScratch);
 		// draw points
-		shader.drawPoints(emitter.particleCount, vertices, extras, textureMatrix, red, green, blue, alpha, shininess, fullBright, true);
+		shader.drawPoints(particleCount, particleVerticesScratch, particleExtrasScratch, textureMatrix, red, green, blue, alpha, shininess, fullBright, true);
 	}
 
 	@Override

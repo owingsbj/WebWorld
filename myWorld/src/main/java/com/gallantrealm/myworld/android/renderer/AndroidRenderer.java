@@ -216,10 +216,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				Throwable t = new Throwable("AndroidRenderer.checkGlError " + error + ": " + GLU.gluErrorString(error));
 				t.printStackTrace();
 			}
-			Throwable t = new Throwable();
-			t.fillInStackTrace();
-			StackTraceElement caller = t.getStackTrace()[1];
-			System.out.println("AndroidRenderer.checkGlError called from " + caller);
+//			Throwable t = new Throwable();
+//			t.fillInStackTrace();
+//			StackTraceElement caller = t.getStackTrace()[1];
+//			System.out.println("AndroidRenderer.checkGlError called from " + caller);
 		}
 	}
 
@@ -229,10 +229,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
 			}
 		}
-		Throwable t = new Throwable();
-		t.fillInStackTrace();
-		StackTraceElement caller = t.getStackTrace()[1];
-		System.out.println("AndroidRenderer.ignoreGLError called from " + caller);
+//		Throwable t = new Throwable();
+//		t.fillInStackTrace();
+//		StackTraceElement caller = t.getStackTrace()[1];
+//		System.out.println("AndroidRenderer.ignoreGLError called from " + caller);
 	}
 
 	public synchronized final int getNormalTexture(String textureName, boolean pixelate) {
@@ -1207,7 +1207,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	private final WWVector scratchPenetrationVector = new WWVector();
 	private final WWQuaternion scratchRotation = new WWQuaternion();
 	private final WWQuaternion scratchCameraObjectRotation = new WWQuaternion();
-	private WWVector lastDeterminedCameraPosition;
+	private final WWVector lastDeterminedCameraPosition = new WWVector();
 
 	/**
 	 * Move the camera to the current camera position, pan, tilt and distance. This also dampens the camera movements, to make the shifting of the camera more obvious and natural.
@@ -1326,14 +1326,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					}
 				}
 			}
-			if (lastDeterminedCameraPosition == null) {
-				lastDeterminedCameraPosition = new WWVector();
-			}
 			lastDeterminedCameraPosition.set(scratchCameraLocation.x, scratchCameraLocation.y, scratchCameraLocation.z);
 		} else {
-			if (lastDeterminedCameraPosition == null) {
-				lastDeterminedCameraPosition = new WWVector();
-			}
 			lastDeterminedCameraPosition.set(slideCameraPointX, slideCameraPointY, slideCameraPointZ);
 		}
 		limitedCameraDistance = FastMath.max(clientModel.minCameraDistance, limitedCameraDistance);
