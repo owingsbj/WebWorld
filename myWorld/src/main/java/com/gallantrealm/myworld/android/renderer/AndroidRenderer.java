@@ -1306,7 +1306,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 							scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
 							scratchCameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
 						}
-						scratchCameraLocation.z -= 0.1;  // fudge factor to avoid camera showing under ground surface
+						scratchCameraLocation.z -= 0.25;  // fudge factor to avoid camera showing under ground surface
 						// First, see if the objects are "close". If they are, it is worth
 						// determining if they actually overlap
 						object.getPosition(scratchPosition);
