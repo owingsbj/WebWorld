@@ -480,10 +480,6 @@ public class World extends WWWorld {
 		clientModel.fireClientModelChanged(ClientModelChangedEvent.EVENT_TYPE_AVATAR_ACTIONS_CHANGED);
 	}
 
-//	public PhysicsThread makePhysicsThread() {
-//		return new OldPhysicsThread(this, 10);
-//	}
-	
 	@Override
 	public void preloadTexture(String textureName) {
 		super.preloadTexture(worldPrefixUrl(textureName));

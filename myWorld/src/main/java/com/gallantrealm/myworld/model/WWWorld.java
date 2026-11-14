@@ -17,9 +17,10 @@ import com.gallantrealm.myworld.communication.DataOutputStreamX;
 import com.gallantrealm.myworld.model.behavior.BehaviorThread;
 import com.gallantrealm.myworld.model.persistence.SaveWorldThread;
 import com.gallantrealm.myworld.model.physics.NewPhysicsThread;
-import com.gallantrealm.myworld.model.physics.OldPhysicsThread;
+import com.gallantrealm.myworld.model.physics.SimplePhysicsThread;
 import com.gallantrealm.myworld.model.physics.ObjectCollision;
 import com.gallantrealm.myworld.model.physics.PhysicsThread;
+
 import android.opengl.GLES20;
 
 /**
@@ -1225,8 +1226,8 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		System.out.println(">WWorld.makePhysicsThread");
 		PhysicsThread physicsThread;
 		if (simplePhysics) {
-			System.out.println("WWorld.makePhysicsThread creating OldPhysicsThread");
-			physicsThread =  new OldPhysicsThread(this, iterationTime, 2);
+			System.out.println("WWorld.makePhysicsThread creating SimplePhysicsThread");
+			physicsThread =  new SimplePhysicsThread(this, iterationTime, 2);
 		} else {
 			System.out.println("WWorld.makePhysicsThread creating NewPhysicsThread");
 			physicsThread = new NewPhysicsThread(this, iterationTime, 2);
