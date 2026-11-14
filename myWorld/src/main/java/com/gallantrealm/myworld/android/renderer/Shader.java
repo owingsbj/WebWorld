@@ -62,7 +62,7 @@ public abstract class Shader {
 				z = z / length;
 			}
 			GLES30.glUniform3f(sunPositionLocation, x, z, y);
-			AndroidRenderer.checkGlError();
+//			AndroidRenderer.checkGlError();
 		}
 	}
 
@@ -80,7 +80,7 @@ public abstract class Shader {
 				z = z / length;
 			}
 			GLES30.glUniform3f(viewPositionLocation, x, z, y);
-			AndroidRenderer.checkGlError();
+//			AndroidRenderer.checkGlError();
 		}
 	}
 
@@ -91,7 +91,7 @@ public abstract class Shader {
 				lastProgram = program;
 			}
 			GLES30.glUniform4f(sunColorLocation, red, green, blue, 1.0f);
-			AndroidRenderer.checkGlError();
+//			AndroidRenderer.checkGlError();
 		}
 	}
 
@@ -102,7 +102,7 @@ public abstract class Shader {
 				lastProgram = program;
 			}
 			GLES30.glUniform1f(sunIntensityLocation, sunIntensity);
-			AndroidRenderer.checkGlError();
+//			AndroidRenderer.checkGlError();
 		}
 	}
 
@@ -113,7 +113,7 @@ public abstract class Shader {
 				lastProgram = program;
 			}
 			GLES30.glUniform1f(ambientLightIntensityLocation, ambientLightIntensity);
-			AndroidRenderer.checkGlError();
+//			AndroidRenderer.checkGlError();
 		}
 	}
 
@@ -124,7 +124,7 @@ public abstract class Shader {
 				lastProgram = program;
 			}
 			GLES30.glUniform1f(fogDensityLocation, fogDensity);
-			AndroidRenderer.checkGlError();
+//			AndroidRenderer.checkGlError();
 		}
 	}
 
@@ -135,7 +135,7 @@ public abstract class Shader {
 				lastProgram = program;
 			}
 			GLES30.glUniformMatrix4fv(viewMatrixLocation, 1, false, viewMatrix, 0);
-			AndroidRenderer.checkGlError();
+//			AndroidRenderer.checkGlError();
 		}
 	}
 
@@ -146,7 +146,7 @@ public abstract class Shader {
 				lastProgram = program;
 			}
 			GLES30.glUniformMatrix4fv(sunViewMatrixLocation, 1, false, sunViewMatrix, 0);
-			AndroidRenderer.checkGlError();
+//			AndroidRenderer.checkGlError();
 		}
 	}
 
@@ -157,7 +157,7 @@ public abstract class Shader {
 				lastProgram = program;
 			}
 			GLES30.glUniformMatrix4fv(modelMatrixLocation, 1, false, modelMatrix, 0);
-			AndroidRenderer.checkGlError();
+//			AndroidRenderer.checkGlError();
 		}
 	}
 
@@ -279,7 +279,7 @@ public abstract class Shader {
 		}
 		GLES30.glDrawElements(GLES30.GL_TRIANGLE_STRIP, nindices, GLES30.GL_UNSIGNED_INT, baseIndex * 4); // indices);
 //		AndroidRenderer.checkGlError();
-		AndroidRenderer.ignoreGlError();  // clear errors
+//		AndroidRenderer.ignoreGlError();  // clear errors
 	}
 
 	/**
@@ -364,7 +364,7 @@ public abstract class Shader {
 			GLES30.glUniform1i(pointDrawLocation, 0);
 //			AndroidRenderer.checkGlError();
 		}
-		AndroidRenderer.ignoreGlError();  // clear errors
+//		AndroidRenderer.ignoreGlError();  // clear errors
 	}
 
 	/**

@@ -216,6 +216,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				Throwable t = new Throwable("AndroidRenderer.checkGlError " + error + ": " + GLU.gluErrorString(error));
 				t.printStackTrace();
 			}
+			Throwable t = new Throwable();
+			t.fillInStackTrace();
+			StackTraceElement caller = t.getStackTrace()[1];
+			System.out.println("AndroidRenderer.checkGlError called from " + caller);
 		}
 	}
 
@@ -225,6 +229,10 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
 			}
 		}
+		Throwable t = new Throwable();
+		t.fillInStackTrace();
+		StackTraceElement caller = t.getStackTrace()[1];
+		System.out.println("AndroidRenderer.ignoreGLError called from " + caller);
 	}
 
 	public synchronized final int getNormalTexture(String textureName, boolean pixelate) {
@@ -799,7 +807,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 	@Override
 	public void onDrawFrame(GL10 unused) {
-		AndroidRenderer.ignoreGlError();  // make sure errors are clear
+//		AndroidRenderer.ignoreGlError();  // make sure errors are clear
 
 		if (!surfaceCreated) { // happens early when creating surface
 			return;
@@ -876,7 +884,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				generateShadowMap(time, viewMatrix);
 			}
 
-			AndroidRenderer.checkGlError();  // make sure errors are clear
+//			AndroidRenderer.checkGlError();  // make sure errors are clear
 
 			// Sunlight
 			textureShader.setSunPosition(world.getSunDirectionX(), world.getSunDirectionY(), world.getSunDirectionZ());
