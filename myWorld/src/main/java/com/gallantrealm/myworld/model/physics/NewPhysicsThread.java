@@ -392,13 +392,14 @@ public class NewPhysicsThread extends PhysicsThread {
 								} else {
 									float friction = FastMath.min(object.friction, object2.friction);
 									if (friction > 0) {
-										if (object.solid && object2.solid) {  
-											// solid-against-solid friction
+										if (object.solid && object2.solid) {
+
+											// Solid-against-solid friction
 											
-											// 1. Calculate the lever arm (radius) from the center of mass DOWN to the contact point
+											// Calculate the lever arm (radius) from the center of mass DOWN to the contact point
 											r1.set(overlapPoint).subtract(originalPosition);
 
-											// 2. Calculate the relative linear velocity of the surfaces in contact
+											// Calculate the relative linear velocity of the surfaces in contact
 											// The surface velocity is the linear velocity PLUS the velocity contributed by the spin: v + (w x r)
 											// We must convert the engine's degrees/sec angular velocity back to radians/sec for the math
 											spinVel.set(angularVelocity).scale(1.0f / FastMath.TODEGREES).cross(r1);
@@ -411,14 +412,22 @@ public class NewPhysicsThread extends PhysicsThread {
 											
 											relativeSurfaceVelocity.set(surfaceVelocity).subtract(surfaceVelocity2);
 
-											// 3. The friction force pushes back against the slipping surface!
+											// The friction force pushes back against the slipping surface!
 											// If the block is spinning, but not moving (like a car tire burning out), 
 											// relativeSurfaceVelocity is high. The friction force will push forward, 
 											// which ACCELERATES the block linearly!
 											frictionForce.set(relativeSurfaceVelocity).scale(-2.5f * friction);
 											totalForce.add(frictionForce);
 
-											// 4. Calculate the resulting Rolling Torque (from the friction force pushing on the bottom of the block)
+											// Apply friction only to angular velocity inline with the penetration (normal/twisting), without slowing rolling rotation
+											float normalSpin = angularVelocity.dot(unitOverlapVector);
+											float spinScale = Math.max(0.0f, 1.0f - 10.0f * friction * deltaTime);
+											float spinReduction = (1.0f - spinScale) * normalSpin;
+											angularVelocity.x -= spinReduction * unitOverlapVector.x;
+											angularVelocity.y -= spinReduction * unitOverlapVector.y;
+											angularVelocity.z -= spinReduction * unitOverlapVector.z;
+
+											// Calculate the resulting Rolling Torque (from the friction force pushing on the bottom of the block)
 											// Torque is the cross product of the lever arm and the force (T = r x F)
 											rollingTorque.set(r1).cross(frictionForce).scale(FastMath.TODEGREES);
 											float extentSq = object.extent * object.extent;
