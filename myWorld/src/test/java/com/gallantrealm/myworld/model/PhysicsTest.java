@@ -111,4 +111,38 @@ public class PhysicsTest {
         sphere.getAngularVelocity(angularVel);
         Assert.assertTrue("Sphere on slope should gain rolling angular velocity", angularVel.length() > 0.0f);
     }
+
+    @Test
+    public void testBlockRestingOnSurfaceDoesNotBounceOrFlip() {
+        WWWorld world = new WWWorld();
+
+        WWBox ground = new WWBox(10.0f, 10.0f, 1.0f);
+        ground.setPosition(0, 0, -0.5f);
+        ground.solid = true;
+        ground.physical = false;
+        ground.friction = 0.9f;
+        world.addObject(ground);
+
+        WWBox block = new WWBox(1.0f, 1.0f, 1.0f);
+        block.setPosition(0, 0, 0.48f); // Resting with slight initial overlap on floor
+        block.setRotation(new WWQuaternion(1.0f, 2.0f, 0.0f));
+        block.solid = true;
+        block.physical = true;
+        block.density = 0.25f;
+        block.friction = 0.9f;
+        world.addObject(block);
+
+        NewPhysicsThread thread = new NewPhysicsThread(world, 50, 2);
+        for (int i = 0; i < 20; i++) {
+            thread.performIteration(50);
+        }
+
+        WWVector angularVel = new WWVector();
+        block.getAngularVelocity(angularVel);
+        System.out.println("Resting block angular velocity: " + angularVel);
+        System.out.println("Resting block velocity: " + block.getVelocity());
+        System.out.println("Resting block position: " + block.getPosition());
+
+        Assert.assertTrue("Resting block should not gain high angular velocity", angularVel.length() < 5.0f);
+    }
 }

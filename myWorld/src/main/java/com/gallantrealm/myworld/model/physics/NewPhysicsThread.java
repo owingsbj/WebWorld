@@ -364,9 +364,14 @@ public class NewPhysicsThread extends PhysicsThread {
 									// 3. Torque = r x F
 									impactTorque.set(leverArm).cross(impactForce).scale(FastMath.TODEGREES);
 
-									// 4. Apply the torque to the object
-									impactTorque.scale(4.0f);  // a fudge factor.. need to determine why it is useful
-									totalTorque.add(impactTorque);
+									// 4. Convert Torque (r x F) to Angular Acceleration by dividing by Moment of Inertia (I = mass * 0.5 * extentSq)
+									float extentSq = object.extent * object.extent;
+									float elasticity = Math.max(object.elasticity, object2.elasticity);
+									if (objectMass > 0.0001f && extentSq > 0.0001f) {
+										float momentOfInertia = objectMass * 0.5f * extentSq;
+										impactTorque.scale(elasticity / momentOfInertia);
+										totalTorque.add(impactTorque);
+									}
 
 									// TODO implement physics of tops for object2
 								} 
