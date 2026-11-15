@@ -414,6 +414,23 @@ public class World extends WWWorld {
 
 				try {
 					cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
+
+					// the world script may have overridden the avatar object.  If so, update so we use the overridden avatar and destroy
+					// the original avatar (unless is it parented)
+					if (ScriptableObject.hasProperty(scope, "avatar")) {
+						NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(scope, "avatar");
+						if (avatarWrapped != null) {
+							WWObject newAvatar = (WWObject) (avatarWrapped.unwrap());
+							if (newAvatar != avatar) {
+								this.addObject(newAvatar);
+								user.setAvatarId(newAvatar.getId());
+								if (!avatar.isDescendantOf(newAvatar)) {
+									this.removeObject(avatar);
+								}
+							}
+						}
+					}
+
 				} catch (Exception e) {
 					e.printStackTrace();
 					throw new Exception(scrubScriptError(e.getMessage()));
