@@ -157,40 +157,42 @@ public class NewPhysicsThread extends PhysicsThread {
 				totalForce.set(thrust);
 				if (totalForce.length() > 0) {
 					rotation.rotateVector(totalForce);
-					rotation.rotateVector(thrustVelocity);
-					if (thrustVelocity.x > 0 && velocity.x > thrustVelocity.x) {
+					tempPoint.set(thrustVelocity);
+					rotation.rotateVector(tempPoint);
+					if (tempPoint.x > 0 && velocity.x > tempPoint.x) {
 						totalForce.x = 0;
-					} else if (thrustVelocity.x < 0 && velocity.x < thrustVelocity.x) {
+					} else if (tempPoint.x < 0 && velocity.x < tempPoint.x) {
 						totalForce.x = 0;
 					}
-					if (thrustVelocity.y > 0 && velocity.y > thrustVelocity.y) {
+					if (tempPoint.y > 0 && velocity.y > tempPoint.y) {
 						totalForce.y = 0;
-					} else if (thrustVelocity.y < 0 && velocity.y < thrustVelocity.y) {
+					} else if (tempPoint.y < 0 && velocity.y < tempPoint.y) {
 						totalForce.y = 0;
 					}
-					if (thrustVelocity.z > 0 && velocity.z > thrustVelocity.z) {
+					if (tempPoint.z > 0 && velocity.z > tempPoint.z) {
 						totalForce.z = 0;
-					} else if (thrustVelocity.z < 0 && velocity.z < thrustVelocity.z) {
+					} else if (tempPoint.z < 0 && velocity.z < tempPoint.z) {
 						totalForce.z = 0;
 					}
 				}
 				totalTorque.set(torque);
 				if (totalTorque.length() > 0) {
 					rotation.rotateVector(totalTorque);
-					rotation.rotateVector(torqueVelocity);
-					if (torqueVelocity.x > 0 && angularVelocity.x > torqueVelocity.x) {
+					tempPoint2.set(torqueVelocity);
+					rotation.rotateVector(tempPoint2);
+					if (tempPoint2.x > 0 && angularVelocity.x > tempPoint2.x) {
 						totalTorque.x = 0;
-					} else if (torqueVelocity.x < 0 && angularVelocity.x < torqueVelocity.x) {
+					} else if (tempPoint2.x < 0 && angularVelocity.x < tempPoint2.x) {
 						totalTorque.x = 0;
 					}
-					if (torqueVelocity.y > 0 && angularVelocity.y > torqueVelocity.y) {
+					if (tempPoint2.y > 0 && angularVelocity.y > tempPoint2.y) {
 						totalTorque.y = 0;
-					} else if (torqueVelocity.y < 0 && angularVelocity.y < torqueVelocity.y) {
+					} else if (tempPoint2.y < 0 && angularVelocity.y < tempPoint2.y) {
 						totalTorque.y = 0;
 					}
-					if (torqueVelocity.z > 0 && angularVelocity.z > torqueVelocity.z) {
+					if (tempPoint2.z > 0 && angularVelocity.z > tempPoint2.z) {
 						totalTorque.z = 0;
-					} else if (torqueVelocity.z < 0 && angularVelocity.z < torqueVelocity.z) {
+					} else if (tempPoint2.z < 0 && angularVelocity.z < tempPoint2.z) {
 						totalTorque.z = 0;
 					}
 				}
@@ -245,8 +247,22 @@ public class NewPhysicsThread extends PhysicsThread {
 
 								// Adjust positions if solid vs solid
 								if (object.solid && object2.solid) {
-									// move objects away from each other evenly
-									adjustVector.set(overlapVector).scale(0.5f);
+									// move objects away from each other based on mass
+									float mass1 = object.density * object.size.x * object.size.y * object.size.z;
+									float mass2 = object2.density * object2.size.x * object2.size.y * object2.size.z;
+									float totalMass = mass1 + mass2;
+									float ratio1 = 0.5f;
+									float ratio2 = 0.5f;
+									if (totalMass > 0.0001f) {
+										ratio1 = mass2 / totalMass;
+										ratio2 = mass1 / totalMass;
+									}
+									if (!object2.physical) {
+										ratio1 = 1.0f;
+										ratio2 = 0.0f;
+									}
+									
+									adjustVector.set(overlapVector).scale(ratio1);
 									
 									// Adjust object1
 									if (!object.freedomMoveX || !object.freedomMoveY || !object.freedomMoveZ) {
@@ -261,20 +277,21 @@ public class NewPhysicsThread extends PhysicsThread {
 										position.subtract(adjustVector);
 									}
 
-									// If object2 isn't physical, we should just adjust object1 completely (don't adjust object2).
-									// Since we only do half the adjustVector above, if object2 is static, we must adjust object1 by the full amount.
-									if (!object2.physical) {
-										if (!object.freedomMoveX || !object.freedomMoveY || !object.freedomMoveZ) {
-											WWObject.antiRotate(position, rotation);
-											WWObject.antiRotate(adjustVector, rotation);
-											if (object.freedomMoveX) position.x -= adjustVector.x;
-											if (object.freedomMoveY) position.y -= adjustVector.y;
-											if (object.freedomMoveZ) position.z -= adjustVector.z;
-											WWObject.rotate(position, rotation);
-											WWObject.rotate(adjustVector, rotation);
+									// Adjust object2 immediately so they fully separate
+									if (object2.physical && ratio2 > 0) {
+										tempPoint.set(overlapVector).scale(ratio2);
+										if (!object2.freedomMoveX || !object2.freedomMoveY || !object2.freedomMoveZ) {
+											WWObject.antiRotate(position2, rotation2);
+											WWObject.antiRotate(tempPoint, rotation2);
+											if (object2.freedomMoveX) position2.x += tempPoint.x;
+											if (object2.freedomMoveY) position2.y += tempPoint.y;
+											if (object2.freedomMoveZ) position2.z += tempPoint.z;
+											WWObject.rotate(position2, rotation2);
+											WWObject.rotate(tempPoint, rotation2);
 										} else {
-											position.subtract(adjustVector);
+											position2.add(tempPoint);
 										}
+										object2.setOrientation(position2, rotation2, null, null, worldTime);
 									}
 								}
 
