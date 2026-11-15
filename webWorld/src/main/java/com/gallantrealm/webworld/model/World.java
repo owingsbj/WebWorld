@@ -681,7 +681,7 @@ public class World extends WWWorld {
 
 	@Override
 	public float[] getMoveXTurn() {
-		return new float[] { -180, -120, -60, -30, -15, 0, 15, 30, 60, 120, 180 };
+		return new float[] { -150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150 };
 	}
 
 	@Override
