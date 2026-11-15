@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Properties Viewer</title></head>
+<body>
+<pre id="output">Loading...</pre>
+<script>
+    const file = new URLSearchParams(location.search).get('file') || 'config.properties';
+    fetch(file)
+      .then(res => res.text())
+      .then(text => document.getElementById('output').textContent = text)
+      .catch(err => document.getElementById('output').textContent = 'Error: ' + err);
+</script>
+</body>
+</html>
