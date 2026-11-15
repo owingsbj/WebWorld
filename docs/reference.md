@@ -225,7 +225,7 @@ Vector also has quite a few helper methods.  You'll probably not use most of the
 - **scale(factor)** -- scales the vector by the factor provided.
 - **subtract(vector)** -- subtracts a vector from this vector.
 
-## Quarternion
+## Quaternion
 
 A Quaternion object describes the rotation of an object.  (Although a vector could be used there are issues with arithmetic that make a quaternion better.)  A quaternion is constructed like so:
 
