@@ -8,7 +8,7 @@ These variables and functions are available globally.
 
 #### Variables
 
-- **avatar** -- this is a 3D object representing the user.  It is set in the avatar script and is available in the world script.
+- **avatar** -- this is a 3D object representing the user.  It is set in the avatar script and is available in the world script.   You can also set the avatar to a different object in the world script initialization and it will be used as the avatar.
 - **console** -- an instance of the Console object (see below).
 - **user** -- an instance of the user object for the user currently controlling the avatar.
 - **world** -- this is an instance of the World object as described below.
