@@ -983,6 +983,13 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		return new WWAction[0];
 	}
 
+	/**
+	 * @deprecated Use get/setActions
+	 */
+	public void setWorldActions(WWAction[] actions) {
+		setActions(actions);
+	}
+
 	public WWAction[] getActions() {
 		return actions;
 	}
