@@ -4,7 +4,8 @@ WebWorld is an Android app that allows you to play in 3D worlds written in JavaS
 Learn some JavaScript and you can build your own games or other 3D worlds and share them for others to play.
 
 See the [https://owingsbj.github.io/WebWorld](https://owingsbj.github.io/WebWorld) for more information
-on creating games and other worlds for WebWorld.
+on creating games and other worlds for WebWorld.   The source code for all built-in avatars and worlds is located in
+this project at doc/avatars and docs/worlds and served up from github.io for use directly from the app.
 
 This version of the WebWorld project is now ported to Android Studio.  The MyWorld, MyScript and MyAndroid project's code
 are now part of the WebWorld project.  (I haven't yet figured out how to cleanly separate these and

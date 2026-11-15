@@ -1221,7 +1221,10 @@ public abstract class ClientModel {
 			avatarDisplayNames[i] = preferences.getString("avatarDisplayName" + i, null);
 		}
 		localFolder = preferences.getString("localFolder", Environment.getExternalStorageDirectory().toString() + "/webworlds");
-		sharedServer = preferences.getString("sharedServer", "https://gallantrealm.com/webworld");
+		sharedServer = preferences.getString("sharedServer", "");
+		if (sharedServer == null || sharedServer.length() == 0) {
+			sharedServer = "https://owingsbj.github.io/WebWorld";
+		}
 		showDebugLogging = preferences.getBoolean("showDebugLogging", false);
 		frameRate = preferences.getInt("frameRate", 60);
 		displayActualFrameRate = preferences.getBoolean("displayActualFrameRate", false);
