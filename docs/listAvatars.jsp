@@ -1,0 +1,4 @@
+Egg
+Blockhead
+Humanoid
+Animoid
