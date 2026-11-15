@@ -619,15 +619,16 @@ public class World extends WWWorld {
 	}
 	
 	private boolean usesController = true;
-	
+
 	public void setUsesController(boolean usesController) {
 		this.usesController = usesController;
 	}
-	
+
 	public boolean getUsesController() {
 		return usesController;
 	}
-	
+
+	@Override
 	public boolean usesController() {
 		return usesController;
 	}
@@ -635,15 +636,17 @@ public class World extends WWWorld {
 	public String getMoveType() {
 		return moveType == null ? "explore" : moveType;
 	}
-	
+
 	public void setMoveType(String moveType) {
 		this.moveType = moveType;
 	}
 
+	@Override
 	public boolean isAutoTurnOnCameraPan() {
 		return moveType == null || moveType.equals("explore") || moveType.equals("confront");
 	}
 
+	@Override
 	public int getMoveXType() {
 		if (moveType == null || moveType.equals("explore")) {
 			return MOVE_TYPE_TURN;
@@ -657,6 +660,7 @@ public class World extends WWWorld {
 		return MOVE_TYPE_TURN;
 	}
 
+	@Override
 	public int getMoveYType() {
 		if (moveType == null || moveType.equals("explore")) {
 			return MOVE_TYPE_THRUST;
@@ -670,26 +674,32 @@ public class World extends WWWorld {
 		return MOVE_TYPE_THRUST;
 	}
 
+	@Override
 	public float[] getMoveXSlide() {
 		return new float[] { 3, 2, 1, 0, -1, -2, -3 };
 	}
 
+	@Override
 	public float[] getMoveXTurn() {
 		return new float[] { -180, -120, -60, -30, -15, 0, 15, 30, 60, 120, 180 };
 	}
 
+	@Override
 	public float[] getMoveXLean() {
 		return new float[] { -15, -5, 0, 5, 15 };
 	}
 
+	@Override
 	public float[] getMoveYThrust() {
 		return new float[] { -2, -1.33f, -0.66f, 0, 1, 2, 3 };
 	}
-	
+
+	@Override
 	public float[] getMoveYTilt() {
 		return new float[] { 30, 10, 0, -5, -10 };
 	}
 
+	@Override
 	public float[] getMoveYLift() {
 		return new float[] { -8, -4, -2, 0, 2, 4, 8 };
 	}
