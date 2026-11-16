@@ -1291,13 +1291,12 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				for (int i = 0; i <= lastObjectIndex; i++) {
 					WWObject object = objects[i];
 					if (object != null && !object.deleted && !object.penetratable && object.solid && !object.phantom) {
-						if (cameraObject != null && avatar != null && (cameraObject == avatar || avatar.isDescendant(cameraObject))) {
+						if (cameraObject != null && avatar != null && (cameraObject == avatar || avatar.isDescendant(cameraObject))) {								scratchCameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * (cameraPan + scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
+							scratchCameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * (cameraPan + scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
 							if (cameraDistance < 10) {
-								scratchCameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * (cameraPan - scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
-								scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * (cameraPan - scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
+								scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * (cameraPan + scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
 								scratchCameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
 							} else {
-								scratchCameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
 								scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * cameraPan) * (float) Math.cos(TORADIAN * cameraTilt);
 								scratchCameraLocation.z = slideCameraPointZ + (float) Math.sin(TORADIAN * cameraTilt) * limitedCameraDistance;
 							}
