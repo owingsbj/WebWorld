@@ -11,6 +11,10 @@ import java.io.Serializable;
 /**
  * Used for representing rotation. A quaternion has four values that allow the rotation of an object to be represented
  * in a fashion suitable for arithmetic with other rotations, avoiding the 'gimbal lock' problem.
+ * <p>
+ *  Note on world axis definition:  In WWWorld coordinates, positive z points up, positive x points to the right, positive y points away.
+ *  (These are different than in opengl.)
+ * </p>
  */
 public class WWQuaternion implements Cloneable, Serializable, Sendable {
     private static final long serialVersionUID = 1L;
@@ -434,21 +438,21 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
         float zz = z * z;
         float zw = z * w;
 
-        // OpenGL column-major matrix converting World space (X, Y=forward, Z=up) to OpenGL space (X, Y=up, Z=depth)
+        // the matrix has y and z switched (opengl convention)
         mat[0] = 1.0f - 2.0f * (yy + zz);
-        mat[1] = 2.0f * (xz - yw);
-        mat[2] = 2.0f * (xy + zw);
+        mat[2] = 2.0f * (xy - zw);
+        mat[1] = 2.0f * (xz + yw);
         mat[3] = 0.0f;
 
-        mat[4] = 2.0f * (xz + yw);
-        mat[5] = 1.0f - 2.0f * (xx + yy);
-        mat[6] = 2.0f * (yz - xw);
-        mat[7] = 0.0f;
-
-        mat[8] = 2.0f * (xy - zw);
-        mat[9] = 2.0f * (yz + xw);
+        mat[8] = 2.0f * (xy + zw);
         mat[10] = 1.0f - 2.0f * (xx + zz);
+        mat[9] = 2.0f * (yz - xw);
         mat[11] = 0.0f;
+
+        mat[4] = 2.0f * (xz - yw);
+        mat[6] = 2.0f * (yz + xw);
+        mat[5] = 1.0f - 2.0f * (xx + yy);
+        mat[7] = 0.0f;
 
         mat[12] = 0.0f;
         mat[13] = 0.0f;

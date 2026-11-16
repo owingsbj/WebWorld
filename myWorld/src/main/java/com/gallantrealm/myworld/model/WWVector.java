@@ -10,6 +10,10 @@ import com.gallantrealm.myworld.communication.Sendable;
 /**
  * This class provides a simple fixed vector (starts at the origin). It is used for position, size, velocity, angular velocity, acceleration, torque.
  * It is NOT used for rotation -- see WWQuaternion for that.
+ * <p>
+ *  Note on world axis definition:  In WWWorld coordinates, positive z points up, positive x points to the right, positive y points away.
+ *  (These are different than in opengl.)
+ * </p>
  */
 public class WWVector implements Cloneable, Serializable, Sendable {
 	static final long serialVersionUID = 1L;

@@ -28,6 +28,10 @@ import android.opengl.GLES20;
  * <p>
  * Aspects of this world are shared as needed between the server and client, but not everything -- some information is private to the client or server. For this reason, customized send/receive logic is used rather than using default Java
  * serialization. Serialization is still used however, to preserve the state of the world to a more permanent store.
+ *  <p>
+ *   Note on world axis definition:  In WWWorld coordinates, positive z points up, positive x points to the right, positive y points away.
+ *   (These are different than in opengl.)
+ *  </p>
  */
 public class WWWorld extends WWEntity implements IRenderable, ClientModelChangedListener {
 	static final long serialVersionUID = 1L;
