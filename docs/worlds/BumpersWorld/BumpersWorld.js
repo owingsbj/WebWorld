@@ -442,12 +442,11 @@ function createCar(index) {
     car.name = "car" + index;
     car.size = new Vector(2, 2, 0.75);
     car.transparency = 1.0;
-    car.penetratable = true;
     car.physical = true;
     car.density = 0.25;
     car.elasticity = 0.75;
     car.freedomMove = [false, true, true];
-    car.freedomRotate = [false, false, false];
+    car.freedomRotate = [false, false, true];
     car.friction = 0.125;
     world.addObject(car);
 
@@ -456,7 +455,6 @@ function createCar(index) {
     tube.phantom = true;
     tube.pickable = true;
     tube.monolithic = true;
-    tube.penetratable = true;
     tube.size = new Vector(2, 2, 0.75);
     tube.color = carColor.darker().darker();
     world.addObject(tube);
@@ -467,7 +465,6 @@ function createCar(index) {
     platform.vertices = 5;
     platform.phantom = true;
     platform.monolithic = true;
-    platform.penetratable = true;
     platform.size = new Vector(1.5, 1.5, 0.25);
     platform.color = carColor;
     world.addObject(platform);
@@ -476,7 +473,6 @@ function createCar(index) {
     var seat = new Cylinder();
     seat.vertices = 32;
     seat.phantom = true;
-    seat.penetratable = true;
     seat.monolithic = true;
     seat.size = new Vector(0.75, 1, 0.1);
     seat.position = new Vector(0, 0.5, 0.4);
@@ -589,7 +585,7 @@ function makeTrack(courseNum) {
         trackObjects.push(subfloor);
 
         var floor = new Box();
-        floor.size = new Vector(25, 25, 10);
+        floor.size = new Vector(26, 26, 10);
         floor.position = new Vector(0, 0, -5);
         floor.fixed = true;
         floor.texture = new Texture("track_floor");
@@ -652,7 +648,6 @@ function makeTrack(courseNum) {
 
         var roof = new Box();
         roof.name = "roof";
-        roof.penetratable = true;
         roof.size = new Vector(100, 100, 10);
         roof.position = new Vector(0, 0, 7);
         roof.fixed = true;
@@ -676,7 +671,6 @@ function makeTrack(courseNum) {
 
         var wall = new Cylinder();
         wall.name = "wall1";
-        wall.penetratable = true;
         wall.monolithic = true;
         wall.size = new Vector(33, 33, 11);
         wall.position = new Vector(0, 0, -5);
@@ -725,7 +719,6 @@ function makeTrack(courseNum) {
         wall1.hollow = 0.9;
         wall1.position = new Vector(0, 0, 10);
         wall1.fixed = true;
-        wall1.penetratable = true;
         wall1.transparency = 0.5;
         wall1.texture = new Texture("concrete");
         world.addObject(wall1);
@@ -783,7 +776,6 @@ function makeTrack(courseNum) {
         roof.fixed = true;
         roof.texture = new Texture("mesh", 0.1, 0.1);
         roof.transparency = 0.01;
-        roof.penetratable = true;
         world.addObject(roof);
         trackObjects.push(roof);
 
@@ -793,7 +785,6 @@ function makeTrack(courseNum) {
         wall1.hollow = 0.9;
         wall1.position = new Vector(0, 0, 5);
         wall1.fixed = true;
-        wall1.penetratable = true;
         wall1.transparency = 0.01;
         wall1.texture = new Texture("mesh", 0.1, 0.1);
         world.addObject(wall1);
@@ -805,7 +796,6 @@ function makeTrack(courseNum) {
             car.size = new Vector(2, 2, 2);
             var dome = new Sphere();
             dome.phantom = true;
-            dome.penetratable = true;
             dome.size = new Vector(1.6, 1.6, 1.4);
             dome.position = new Vector(0, 0, 0.6);
             dome.transparency = 0.7;
@@ -828,7 +818,6 @@ function makeTrack(courseNum) {
         floor.texture = new Texture("track_floor");
         floor.elasticity = 0;
         floor.friction = 0;
-        floor.penetratable = true;
         world.addObject(floor);
         trackObjects.push(floor);
 
@@ -838,7 +827,6 @@ function makeTrack(courseNum) {
         wall1.hollow = 0.9;
         wall1.position = new Vector(0, 0, 10);
         wall1.fixed = true;
-        wall1.penetratable = true;
         wall1.transparency = 0.01;
         wall1.texture = new Texture("mesh", 0.01, 0.01);
         world.addObject(wall1);
@@ -910,7 +898,6 @@ function makeTrack(courseNum) {
         wall1.hollow = 0.9;
         wall1.position = new Vector(0, 0, 10);
         wall1.fixed = true;
-        wall1.penetratable = true;
         wall1.monolithic = true;
         wall1.transparency = 0.5;
         wall1.texture = new Texture("concrete");
