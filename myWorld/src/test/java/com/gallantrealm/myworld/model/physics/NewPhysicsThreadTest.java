@@ -1,29 +1,18 @@
-package com.gallantrealm.myworld.model;
+package com.gallantrealm.myworld.model.physics;
 
-import com.gallantrealm.myworld.model.physics.NewPhysicsThread;
+import com.gallantrealm.myworld.model.WWBehavior;
+import com.gallantrealm.myworld.model.WWBox;
+import com.gallantrealm.myworld.model.WWCylinder;
+import com.gallantrealm.myworld.model.WWObject;
+import com.gallantrealm.myworld.model.WWQuaternion;
+import com.gallantrealm.myworld.model.WWSphere;
+import com.gallantrealm.myworld.model.WWVector;
+import com.gallantrealm.myworld.model.WWWorld;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-public class PhysicsTest {
-
-    @Test
-    public void testDefaultPhysics() {
-        Physics p = new Physics();
-        Assert.assertFalse(p.physical);
-        Assert.assertTrue(p.solid);
-        Assert.assertEquals(1.0f, p.friction, 1e-3f);
-        Assert.assertNotNull(Physics.DEFAULT_PHYSICS);
-    }
-
-    @Test
-    public void testClone() {
-        Physics p = new Physics();
-        p.physical = true;
-        p.friction = 0.5f;
-        Physics clone = (Physics) p.clone();
-        Assert.assertTrue(clone.physical);
-        Assert.assertEquals(0.5f, clone.friction, 1e-3f);
-    }
+public class NewPhysicsThreadTest {
 
     @Test
     public void testRotationalFrictionInNewPhysicsThread() {
@@ -144,5 +133,62 @@ public class PhysicsTest {
         System.out.println("Resting block position: " + block.getPosition());
 
         Assert.assertTrue("Resting block should not gain high angular velocity", angularVel.length() < 5.0f);
+    }
+
+    @Test
+    public void testThrustSpherePinchedBetweenCylinderAndGround() {
+        System.out.println("testThrustSpherePinchedBetweenCylinderAndGround");
+
+        WWWorld world = new WWWorld();
+
+        WWBox ground = new WWBox(26.0f, 26.0f, 10.0f);
+        ground.setPosition(0, 0, -5.0f);
+        ground.solid = true;
+        ground.physical = false;
+        ground.elasticity = 0.0f;
+        ground.friction = 0.0f;
+        world.addObject(ground);
+
+        WWCylinder wall = new WWCylinder(2.25f, 1.0f, 25.0f);
+        wall.setPosition(0, 0, 0);
+        wall.setRotation(new WWQuaternion(90.0f, 0, 0));
+        wall.solid = true;
+        wall.physical = false;
+        wall.elasticity = 0.0f;
+        world.addObject(wall);
+        wall.addBehavior(new WWBehavior() {
+            @Override
+            public boolean collideEvent(WWObject object, WWObject nearObject, WWVector proximity) {
+                System.out.println("Collision with "+nearObject);
+                return true;
+            }
+
+            @Override
+            public boolean slideEvent(WWObject object, WWObject nearObject, WWVector proximity) {
+                System.out.println("Sliding with "+nearObject);
+                return true;
+            }
+        });
+
+        WWSphere avatar = new WWSphere(2.0f, 2.0f, 0.75f);
+        avatar.setPosition(10.0f, 0.0f, 0.375f); // Resting on ground, outside wall in X
+        avatar.solid = true;
+        avatar.physical = true;
+        avatar.density = 0.25f;
+        avatar.elasticity = 0.75f;
+
+        avatar.setThrust(new WWVector(-25.0f, 0.0f, 0));
+        world.addObject(avatar);
+
+        NewPhysicsThread thread = new NewPhysicsThread(world, 100, 2);
+
+        for (int i = 0; i < 100; i++) {
+            thread.updateDynamicProperties(100);
+            thread.performIteration(100);
+            System.out.println("Iter " + i + " pos: " + avatar.getPosition() + " vel: " + avatar.getVelocity());
+        }
+
+        WWVector pos = avatar.getPosition();
+        Assert.assertTrue("Sphere should not penetrate or drill through wall", pos.x >= 0.5f);
     }
 }
