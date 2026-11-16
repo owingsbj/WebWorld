@@ -1,7 +1,7 @@
 // A human-like avatar, not perfect, more robot-like. 
 
-// Note: Avatar is positioned with its back to the camera.  Left is negative x, right positive x, front positive y, back negative y.
-skin = "metal-skin.png";
+// Note: Avatar is positioned with its back to the camera.  Left is negative x, right positive x, away positive y, toward negative y, up positive z, down negative z
+var skin = "metal-skin.png";
 
 avatar = new Cylinder(); // the avatar will be in this
 avatar.name = "Humanoid";
@@ -12,7 +12,7 @@ avatar.elasticity = -0.5;
 avatar.density = 0.5;
 
 
-torso = new Sphere();
+var torso = new Sphere();
 torso.name = "torso";
 torso.size = new Vector(0.4, 0.3, 0.75);
 torso.taper = [-0.2, 0];
@@ -21,7 +21,7 @@ torso.position = new Vector(0, 0, 0.35);
 torso.textureSide1 = new Texture(skin);
 torso.shininessSide1 = 0.5;
 
-neck = new Cylinder();
+var neck = new Cylinder();
 neck.name = "neck";
 neck.size = new Vector(0.12, 0.12, 0.2);
 torso.addChild(neck);
@@ -29,7 +29,7 @@ neck.position = new Vector(0, 0.01, 0.38);
 neck.textureSide1 = new Texture(skin);
 neck.shininessSide1 = 0.5;
 
-head = new Cylinder();
+var head = new Cylinder();
 head.name = "head";
 head.size = new Vector(0.15, 0.20, 0.15);
 head.rotationPoint = new Vector(0, 0, -0.075);
@@ -38,14 +38,14 @@ head.position = new Vector(0, 0, 0.115);
 head.texture = new Texture(skin);
 head.shininess = 0.5;
 
-headDome = new Sphere();
+var headDome = new Sphere();
 headDome.size = new Vector(0.15, 0.20, 0.1);
 headDome.position = new Vector(0, 0, 0.07);
 headDome.texture = new Texture(skin);
 headDome.shininess = 0.5;
 head.addChild(headDome);
 
-nose = new Cylinder();
+var nose = new Cylinder();
 nose.name = "nose";
 nose.taper = [1, 1];
 nose.size = new Vector(0.05, 0.1, 0.1);
@@ -54,7 +54,7 @@ nose.texture = new Texture(skin);
 nose.shininess = 0.5;
 head.addChild(nose);
 
-leftEye = new Sphere();
+var leftEye = new Sphere();
 leftEye.name = "left eye";
 leftEye.size = new Vector(0.03, 0.02, 0.02);
 leftEye.position = new Vector(-0.03, -0.08, 0.02);
@@ -62,7 +62,7 @@ leftEye.rotation = new Quaternion(-90, 0, 0);
 leftEye.texture = new Texture("eye.png");
 head.addChild(leftEye);
 
-rightEye = new Sphere();
+var rightEye = new Sphere();
 rightEye.name = "right eye";
 rightEye.size = new Vector(0.03, 0.02, 0.02);
 rightEye.position = new Vector(0.03, -0.08, 0.02);
@@ -71,13 +71,13 @@ rightEye.texture = new Texture("eye.png");
 head.addChild(rightEye);
 
 // The focus object indicates where to position the camera on first-person view
-focus = new Sphere();
+var focus = new Sphere();
 focus.name = "focus";
 focus.transparency = 1.0;
 focus.position = new Vector(0, -0.2, 0.1);
 head.addChild(focus);
 
-chest = new Sphere();
+var chest = new Sphere();
 chest.name = "chest";
 chest.size = new Vector(0.45, 0.3, 0.35);
 chest.shear = [0, 0.1];
@@ -87,7 +87,7 @@ chest.position = new Vector(0, -0.025, 0.2);
 chest.textureSide1 = new Texture(skin);
 chest.shininessSide1 = 0.5;
 
-leftShoulder = new Sphere();
+var leftShoulder = new Sphere();
 leftShoulder.name = "left shoulder";
 leftShoulder.size = new Vector(0.2, 0.2, 0.3);
 torso.addChild(leftShoulder);
@@ -96,7 +96,7 @@ leftShoulder.rotation = new Quaternion(0, 90, 0);
 leftShoulder.textureSide1 = new Texture(skin);
 leftShoulder.shininessSide1 = 0.5;
 
-rightShoulder = new Sphere();
+var rightShoulder = new Sphere();
 rightShoulder.name = "right shoulder";
 rightShoulder.size = new Vector(0.2, 0.2, 0.3);
 torso.addChild(rightShoulder);
@@ -105,18 +105,18 @@ rightShoulder.rotation = new Quaternion(0, 90, 0);
 rightShoulder.textureSide1 = new Texture(skin);
 rightShoulder.shininessSide1 = 0.5;
 
-leftArm = new Sphere();
+var leftArm = new Sphere();
 leftArm.name = "left arm";
 leftArm.size = new Vector(0.1, 0.125, 0.5);
 leftArm.taper = [-0.5, -0.5];
 torso.addChild(leftArm);
 leftArm.position = new Vector(-0.28, 0, 0.1);
-leftArm.rotation = new Quaternion(0, 5, 0);
+leftArm.rotation = new Quaternion(0, -5, 0);
 leftArm.rotationPoint = new Vector(0, 0, 0.18);
 leftArm.textureSide1 = new Texture(skin);
 leftArm.shininessSide1 = 0.5;
 
-leftForearm = new Sphere();
+var leftForearm = new Sphere();
 leftForearm.name = "left forearm";
 leftForearm.size = new Vector(0.1, 0.1, 0.5);
 leftArm.addChild(leftForearm);
@@ -125,7 +125,7 @@ leftForearm.rotationPoint = new Vector(0, 0, 0.18);
 leftForearm.textureSide1 = new Texture(skin);
 leftForearm.shininessSide1 = 0.5;
 
-leftHand = new Sphere();
+var leftHand = new Sphere();
 leftHand.name = "left hand";
 leftHand.size = new Vector(0.05, 0.1, 0.15);
 leftHand.rotationPoint = new Vector(0, 0, 0.07);
@@ -134,18 +134,18 @@ leftHand.position = new Vector(0, 0, -0.25);
 leftHand.textureSide1 = new Texture(skin);
 leftHand.shininessSide1 = 0.5;
 
-rightArm = new Sphere();
+var rightArm = new Sphere();
 rightArm.name = "right arm";
 rightArm.size = new Vector(0.1, 0.125, 0.5);
 rightArm.taper = [-0.5, -0.5];
 torso.addChild(rightArm);
 rightArm.position = new Vector(0.28, 0, 0.1);
-rightArm.rotation = new Quaternion(0, -5, 0);
+rightArm.rotation = new Quaternion(0, 5, 0);
 rightArm.rotationPoint = new Vector(0, 0, 0.18);
 rightArm.textureSide1 = new Texture(skin);
 rightArm.shininessSide1 = 0.5;
 
-rightForearm = new Sphere();
+var rightForearm = new Sphere();
 rightForearm.name = "right forearm";
 rightForearm.size = new Vector(0.1, 0.1, 0.5);
 rightArm.addChild(rightForearm);
@@ -154,7 +154,7 @@ rightForearm.rotationPoint = new Vector(0, 0, 0.18);
 rightForearm.textureSide1 = new Texture(skin);
 rightForearm.shininessSide1 = 0.5;
 
-rightHand = new Sphere();
+var rightHand = new Sphere();
 rightHand.name = "right hand";
 rightHand.size = new Vector(0.05, 0.1, 0.15);
 rightHand.rotationPoint = new Vector(0, 0, 0.07);
@@ -163,7 +163,7 @@ rightHand.position = new Vector(0, 0, -0.25);
 rightHand.textureSide1 = new Texture(skin);
 rightHand.shininessSide1 = 0.5;
 
-leftButtock = new Sphere();
+var leftButtock = new Sphere();
 leftButtock.name = "left buttock";
 leftButtock.size = new Vector(0.25, 0.25, 0.35);
 torso.addChild(leftButtock);
@@ -171,7 +171,7 @@ leftButtock.position = new Vector(-0.11, 0.04, -0.35);
 leftButtock.textureSide1 = new Texture(skin);
 leftButtock.shininessSide1 = 0.5;
 
-rightButtock = new Sphere();
+var rightButtock = new Sphere();
 rightButtock.name = "right buttock";
 rightButtock.size = new Vector(0.25, 0.25, 0.35);
 torso.addChild(rightButtock);
@@ -179,7 +179,7 @@ rightButtock.position = new Vector(0.11, 0.04, -0.35);
 rightButtock.textureSide1 = new Texture(skin);
 rightButtock.shininessSide1 = 0.5;
 
-leftLeg = new Sphere();
+var leftLeg = new Sphere();
 leftLeg.name = "left leg";
 leftLeg.size = new Vector(0.25, 0.25, 0.7);
 leftLeg.rotationPoint = new Vector(0, 0, 0.1875);
@@ -188,7 +188,7 @@ leftLeg.position = new Vector(-0.125, 0, -0.375-0.25);
 leftLeg.textureSide1 = new Texture(skin);
 leftLeg.shininessSide1 = 0.5;
 
-leftCalf = new Sphere();
+var leftCalf = new Sphere();
 leftCalf.name = "left calf";
 leftCalf.size = new Vector(0.2, 0.2, 0.6);
 leftCalf.rotationPoint = new Vector(0, 0, 0.1875);
@@ -197,17 +197,17 @@ leftCalf.position = new Vector(0, 0, -0.5);
 leftCalf.textureSide1 = new Texture(skin);
 leftCalf.shininessSide1 = 0.5;
 
-leftFoot = new Sphere();
+var leftFoot = new Sphere();
 leftFoot.name = "left foot";
 leftFoot.size = new Vector(0.15, 0.1, 0.3);
 leftCalf.addChild(leftFoot);
 leftFoot.rotationPoint = new Vector(0, 0, 0.1);
-leftFoot.rotation = new Quaternion(-90, 0, 0);
+leftFoot.rotation = new Quaternion(90, 0, 0);
 leftFoot.position = new Vector(0, 0.05, -0.35);
 leftFoot.textureSide1 = new Texture(skin);
 leftFoot.shininessSide1 = 0.5;
 
-rightLeg = new Sphere();
+var rightLeg = new Sphere();
 rightLeg.name = "right leg";
 rightLeg.size = new Vector(0.25, 0.25, 0.7);
 rightLeg.rotationPoint = new Vector(0, 0, 0.1875);
@@ -216,7 +216,7 @@ rightLeg.position = new Vector(0.125, 0, -0.375-0.25);
 rightLeg.textureSide1 = new Texture(skin);
 rightLeg.shininessSide1 = 0.5;
 
-rightCalf = new Sphere();
+var rightCalf = new Sphere();
 rightCalf.name = "right calf";
 rightCalf.size = new Vector(0.2, 0.2, 0.6);
 rightCalf.rotationPoint = new Vector(0, 0, 0.1875);
@@ -225,12 +225,12 @@ rightCalf.position = new Vector(0, 0, -0.5);
 rightCalf.textureSide1 = new Texture(skin);
 rightCalf.shininessSide1 = 0.5;
 
-rightFoot = new Sphere();
+var rightFoot = new Sphere();
 rightFoot.name = "right foot";
 rightFoot.size = new Vector(0.15, 0.1, 0.3);
 rightFoot.rotationPoint = new Vector(0, 0, 0.1);
 rightFoot.position = new Vector(0, 0.05, -0.35);
-rightFoot.rotation = new Quaternion(-90, 0, 0);
+rightFoot.rotation = new Quaternion(90, 0, 0);
 rightCalf.addChild(rightFoot);
 rightFoot.textureSide1 = new Texture(skin);
 rightFoot.shininessSide1 = 0.5;
