@@ -1218,8 +1218,20 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 		}
 
 		overlapVector.zero();
-		for (int i = 0; i < edgePointsLength; i++) {
-			WWVector edgePoint = transformedEdgePoints[i];
+		for (int i = 0; i <= edgePointsLength; i++) {
+			WWVector edgePoint;
+			if (i < edgePointsLength) {
+				edgePoint = transformedEdgePoints[i];
+			} else {
+				// Dynamic point on the surface pointing towards the other object
+				WWVector dir = new WWVector(objectPosition).subtract(position);
+				if (dir.isZero()) continue;
+				WWObject.antiRotate(dir, rotation);
+				dir.normalize();
+				edgePoint = new WWVector(dir.x * size.x / 2.0f, dir.y * size.y / 2.0f, dir.z * size.z / 2.0f);
+				transform(edgePoint, position, rotation, rotationPoint);
+			}
+
 			// first test point with extents to avoid a costlier penetration calculation
 			if (object.extentx + objectPosition.x > edgePoint.x && -object.extentx + objectPosition.x < edgePoint.x && //
 					object.extenty + objectPosition.y > edgePoint.y && -object.extenty + objectPosition.y < edgePoint.y && //
@@ -1227,7 +1239,11 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 				object.getPenetration(edgePoint, objectPosition, objectRotation, worldTime, tempPoint, tempPoint2);
 				if (tempPoint2.isLongerThan(overlapVector)) {
 					tempPoint2.copyInto(overlapVector);
-					transformedEdgePoints[i].copyInto(overlapPoint);
+					if (i < edgePointsLength) {
+						transformedEdgePoints[i].copyInto(overlapPoint);
+					} else {
+						edgePoint.copyInto(overlapPoint);
+					}
 				}
 			}
 		}

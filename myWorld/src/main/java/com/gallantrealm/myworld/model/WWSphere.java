@@ -86,25 +86,31 @@ public class WWSphere extends WWSimpleShape {
 		if (hollow == 0) {
 			// The penetration is the difference in the length from 1.0, pointing away from the sphere center,
 			// and readjusted for the sphere's size
-			tempPoint.copyInto(penetration);
+			if (tempPointLength > 0.00001f) {
+				penetration.set(tempPoint.x / tempPointLength, tempPoint.y / tempPointLength, tempPoint.z / tempPointLength);
+			} else {
+				penetration.set(0, 0, 1);
+			}
 			penetration.scale(tempPointLength - 0.5f);
-//			penetration.scale(getsize.x(), getSizeY(), getSizeZ());
 			penetration.scale(Math.min(Math.min(size.x, size.y), size.z)); // alternate scaling that doesn't distort penetration 
 			rotate(penetration, rotation);
 		} else {
 			float insidePenetrationLength = tempPointLength - 0.5f * hollow;
 			float outsidePenetrationLength = 0.5f - tempPointLength;
+			if (tempPointLength > 0.00001f) {
+				penetration.set(tempPoint.x / tempPointLength, tempPoint.y / tempPointLength, tempPoint.z / tempPointLength);
+			} else {
+				penetration.set(0, 0, 1);
+			}
 			if (insidePenetrationLength < outsidePenetrationLength) {
 				// The penetration is the difference in the length from 1.0, pointing away from the sphere center,
 				// and readjusted for the sphere's size
-				tempPoint.copyInto(penetration);
 				penetration.scale(insidePenetrationLength);
 				penetration.scale(Math.min(Math.min(size.x, size.y), size.z)); // alternate scaling that doesn't distort penetration 
 				rotate(penetration, rotation);
 			} else {
 				// The penetration is the difference in the length from 1.0, pointing away from the sphere center,
 				// and readjusted for the sphere's size
-				tempPoint.copyInto(penetration);
 				penetration.scale(-outsidePenetrationLength);
 				penetration.scale(Math.min(Math.min(size.x, size.y), size.z)); // alternate scaling that doesn't distort penetration 
 				rotate(penetration, rotation);

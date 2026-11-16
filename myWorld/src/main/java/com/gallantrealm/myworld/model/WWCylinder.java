@@ -124,12 +124,20 @@ public class WWCylinder extends WWSimpleShape implements Serializable, Cloneable
 
 			// Choose inside or outside
 			if (insidePenetration < outsidePenetration) { // inside
-				penetration.set(tempPoint.x, tempPoint.y, 0);
+				if (radiusDistance > 0.00001f) {
+					penetration.set(tempPoint.x / radiusDistance, tempPoint.y / radiusDistance, 0);
+				} else {
+					penetration.set(1, 0, 0);
+				}
 				penetration.scale(insidePenetration);
 				penetration.scale(FastMath.min(size.x, size.y)); // alternate scaling that doesn't distort penetration
 			} else { // outside
 //			penetration.set(-tempPoint.x * (0.5 - tempPoint.length()), -tempPoint.y * (0.5 - tempPoint.length()), 0);
-				penetration.set(tempPoint.x, tempPoint.y, 0);
+				if (radiusDistance > 0.00001f) {
+					penetration.set(tempPoint.x / radiusDistance, tempPoint.y / radiusDistance, 0);
+				} else {
+					penetration.set(1, 0, 0);
+				}
 				penetration.scale(-outsidePenetration);
 				penetration.scale(FastMath.min(size.x, size.y)); // alternate scaling that doesn't distort penetration
 			}
