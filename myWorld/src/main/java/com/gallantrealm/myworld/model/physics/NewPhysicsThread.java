@@ -352,8 +352,8 @@ public class NewPhysicsThread extends PhysicsThread {
 											// 1. Cancel velocity into the surface
 											float velIntoSurface = velocity.dot(unitOverlapVector);
 											if (velIntoSurface > 0) {
-												repelForce.set(unitOverlapVector).scale(-velIntoSurface / deltaTime);
-												totalForce.add(repelForce);
+												tempPoint.set(unitOverlapVector).scale(-velIntoSurface);
+												velocity.add(tempPoint);
 											}
 
 											// 2. Cancel force (gravity, thrust) into the surface (Normal Force)
@@ -409,83 +409,78 @@ public class NewPhysicsThread extends PhysicsThread {
 								}
 
 								// Friction
-								if (object.solid && object2.solid && object.getElasticity() + object2.getElasticity() > 0) {
-									// friction for solids touching with elasticity only impacts angular velocity
-								} else {
-									float friction = FastMath.min(object.friction, object2.friction);
-									if (friction > 0) {
-										if (object.solid && object2.solid) {
-
-											// Solid-against-solid friction
+								float friction = FastMath.min(object.friction, object2.friction);
+								if (friction > 0) {
+									if (object.solid && object2.solid) {
+										// Solid-against-solid friction
 											
-											// Calculate the lever arm (radius) from the center of mass DOWN to the contact point
-											r1.set(overlapPoint).subtract(originalPosition);
+										// Calculate the lever arm (radius) from the center of mass DOWN to the contact point
+										r1.set(overlapPoint).subtract(originalPosition);
 
-											// Calculate the relative linear velocity of the surfaces in contact
-											// The surface velocity is the linear velocity PLUS the velocity contributed by the spin: v + (w x r)
-											// We must convert the engine's degrees/sec angular velocity back to radians/sec for the math
-											spinVel.set(angularVelocity).scale(1.0f / FastMath.TODEGREES).cross(r1);
-											surfaceVelocity.set(velocity).add(spinVel);
-											
-											// We compare this against the other object's surface velocity
-											r2.set(overlapPoint).subtract(position2);
-											obj2SpinVel.set(object2.getAngularVelocity()).scale(1.0f / FastMath.TODEGREES).cross(r2);
-											surfaceVelocity2.set(object2.getVelocity()).add(obj2SpinVel);
-											
-											relativeSurfaceVelocity.set(surfaceVelocity).subtract(surfaceVelocity2);
+										// Calculate the relative linear velocity of the surfaces in contact
+										// The surface velocity is the linear velocity PLUS the velocity contributed by the spin: v + (w x r)
+										// We must convert the engine's degrees/sec angular velocity back to radians/sec for the math
+										spinVel.set(angularVelocity).scale(1.0f / FastMath.TODEGREES).cross(r1);
+										surfaceVelocity.set(velocity).add(spinVel);
 
-											// The friction force pushes back against the slipping surface!
-											// If the block is spinning, but not moving (like a car tire burning out), 
-											// relativeSurfaceVelocity is high. The friction force will push forward, 
-											// which ACCELERATES the block linearly!
-											frictionForce.set(relativeSurfaceVelocity).scale(-2.5f * friction);
-											totalForce.add(frictionForce);
+										// We compare this against the other object's surface velocity
+										r2.set(overlapPoint).subtract(position2);
+										obj2SpinVel.set(object2.getAngularVelocity()).scale(1.0f / FastMath.TODEGREES).cross(r2);
+										surfaceVelocity2.set(object2.getVelocity()).add(obj2SpinVel);
 
-											// Apply friction only to angular velocity inline with the penetration (normal/twisting), without slowing rolling rotation
-											float normalSpin = angularVelocity.dot(unitOverlapVector);
-											float spinScale = Math.max(0.0f, 1.0f - 10.0f * friction * deltaTime);
-											float spinReduction = (1.0f - spinScale) * normalSpin;
-											angularVelocity.x -= spinReduction * unitOverlapVector.x;
-											angularVelocity.y -= spinReduction * unitOverlapVector.y;
-											angularVelocity.z -= spinReduction * unitOverlapVector.z;
+										relativeSurfaceVelocity.set(surfaceVelocity).subtract(surfaceVelocity2);
 
-											// Calculate the resulting Rolling Torque (from the friction force pushing on the bottom of the block)
-											// Torque is the cross product of the lever arm and the force (T = r x F)
-											rollingTorque.set(r1).cross(frictionForce).scale(FastMath.TODEGREES);
-											float extentSq = object.extent * object.extent;
+										// The friction force pushes back against the slipping surface!
+										// If the block is spinning, but not moving (like a car tire burning out),
+										// relativeSurfaceVelocity is high. The friction force will push forward,
+										// which ACCELERATES the block linearly!
+										frictionForce.set(relativeSurfaceVelocity).scale(-2.5f * friction);
+										totalForce.add(frictionForce);
+
+										// Apply friction only to angular velocity inline with the penetration (normal/twisting), without slowing rolling rotation
+										float normalSpin = angularVelocity.dot(unitOverlapVector);
+										float spinScale = Math.max(0.0f, 1.0f - 10.0f * friction * deltaTime);
+										float spinReduction = (1.0f - spinScale) * normalSpin;
+										angularVelocity.x -= spinReduction * unitOverlapVector.x;
+										angularVelocity.y -= spinReduction * unitOverlapVector.y;
+										angularVelocity.z -= spinReduction * unitOverlapVector.z;
+
+										// Calculate the resulting Rolling Torque (from the friction force pushing on the bottom of the block)
+										// Torque is the cross product of the lever arm and the force (T = r x F)
+										rollingTorque.set(r1).cross(frictionForce).scale(FastMath.TODEGREES);
+										float extentSq = object.extent * object.extent;
+										if (extentSq > 0.0001f) {
+											rollingTorque.scale(1.0f / (0.5f * extentSq));
+										}
+										totalTorque.add(rollingTorque);
+
+										// Simulate static friction: removing contribution to totalForce and forcing velocity to equal object2's velocity
+										normalForceComponent.set(unitOverlapVector).scale(totalForce.dot(unitOverlapVector));
+										tangentialForce.set(totalForce).subtract(normalForceComponent);
+										if (relativeSurfaceVelocity.length() < 10 * friction && tangentialForce.length() < 10 * friction) {
+											totalForce.zero();
+											velocity.subtract(relativeSurfaceVelocity);
+
+											// Static friction at the contact point converts tangential force into rolling torque
+											rollingTorque.set(r1).cross(tangentialForce).scale(-FastMath.TODEGREES);
 											if (extentSq > 0.0001f) {
 												rollingTorque.scale(1.0f / (0.5f * extentSq));
 											}
 											totalTorque.add(rollingTorque);
-
-											// Simulate static friction: removing contribution to totalForce and forcing velocity to equal object2's velocity
-											normalForceComponent.set(unitOverlapVector).scale(totalForce.dot(unitOverlapVector));
-											tangentialForce.set(totalForce).subtract(normalForceComponent);
-											if (relativeSurfaceVelocity.length() < 10 * friction && tangentialForce.length() < 10 * friction) {
-												totalForce.zero();
-												velocity.subtract(relativeSurfaceVelocity);
-
-												// Static friction at the contact point converts tangential force into rolling torque
-												rollingTorque.set(r1).cross(tangentialForce).scale(-FastMath.TODEGREES);
-												if (extentSq > 0.0001f) {
-													rollingTorque.scale(1.0f / (0.5f * extentSq));
-												}
-												totalTorque.add(rollingTorque);
-											}
-
-										} else if (object.solid && !object2.solid) {
-											// solid-in-liquid/gas friction
-											frictionVForce.set(object2.getVelocity()).subtract(velocity).scale(10 * friction);
-											totalForce.add(frictionVForce);
-
-											frictionAForce.zero().subtract(angularVelocity).scale(10 * friction);
-											totalTorque.add(frictionAForce);
-										} else if (!object.solid && object2.solid && object2.physical) {
-											// Handled in outer loop when object2 is processed
 										}
-									}
-								} // friction
 
+									} else if (object.solid && !object2.solid) {
+										// solid-in-liquid/gas friction
+										frictionVForce.set(object2.getVelocity()).subtract(velocity).scale(10 * friction);
+										totalForce.add(frictionVForce);
+
+										frictionAForce.zero().subtract(angularVelocity).scale(10 * friction);
+										totalTorque.add(frictionAForce);
+									} else if (!object.solid && object2.solid && object2.physical) {
+										// Handled in outer loop when object2 is processed
+									}
+
+								}	// if friction
 							} // if overlapping
 						} // if near each other
 
