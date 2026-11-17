@@ -717,7 +717,7 @@ public abstract class ClientModel {
 	 * Moves an avatar using the thrust velocity and torque velocity specified.
 	 */
 	public void forceAvatar(float thrustVelocity, float turnVelocity, float liftVelocity, float tiltVelocity, float leanVelocity, float slideVelocity) {
-		
+
 		if ((thrustVelocity != 0 || turnVelocity != 0 || liftVelocity != 0 || tiltVelocity != 0 || leanVelocity != 0 || slideVelocity != 0) && selectedObject != getAvatar()) {
 			setSelectedObject(getAvatar());
 		}
@@ -732,6 +732,7 @@ public abstract class ClientModel {
 		if (world.getUser(userId) == null) {
 			return;
 		}
+
 		int avatarId = world.getUser(userId).getAvatarId();
 		WWObject avatar = world.objects[avatarId];
 		if (avatarId != 0 && avatar != null) {
@@ -747,18 +748,20 @@ public abstract class ClientModel {
 			// Now move the camera back onto the avatar if it was away
 			cameraToViewpoint();
 
+			System.out.println("ClientModel.forceAvatar: thrustVelocity="+thrustVelocity+" turnVelocity="+turnVelocity);
+
 			// move and turn avatar
 			if (isLocalWorld()) {
 				avatar.setThrust(new WWVector(slideVelocity * 10, -thrustVelocity * 10, liftVelocity * 10));
 				avatar.setThrustVelocity(new WWVector(slideVelocity, -thrustVelocity, liftVelocity));
-				avatar.setTorque(new WWVector(tiltVelocity * 10, leanVelocity * 10, turnVelocity * 10));
-				avatar.setTorqueVelocity(new WWVector(tiltVelocity, leanVelocity, turnVelocity));
+				avatar.setTorque(new WWVector(tiltVelocity * 10, leanVelocity * 10, -turnVelocity * 10));
+				avatar.setTorqueVelocity(new WWVector(tiltVelocity, leanVelocity, -turnVelocity));
 			} else {
 				WWObject updatedAvatar = (WWObject) avatar.cloneNoBehavior();
 				updatedAvatar.setThrust(new WWVector(slideVelocity * 10, -thrustVelocity * 10, liftVelocity * 10));
 				updatedAvatar.setThrustVelocity(new WWVector(slideVelocity, -thrustVelocity, liftVelocity));
-				updatedAvatar.setTorque(new WWVector(tiltVelocity * 10, leanVelocity * 10, turnVelocity * 10));
-				updatedAvatar.setTorqueVelocity(new WWVector(tiltVelocity, leanVelocity, turnVelocity));
+				updatedAvatar.setTorque(new WWVector(tiltVelocity * 10, leanVelocity * 10, -turnVelocity * 10));
+				updatedAvatar.setTorqueVelocity(new WWVector(tiltVelocity, leanVelocity, -turnVelocity));
 				thrustObject(avatarId, updatedAvatar);
 			}
 
