@@ -57,7 +57,7 @@ public class WWMatrixTest {
         float[] m = matrix.m;
         Assert.assertEquals(0.0f, m[0], EPSILON);
         Assert.assertEquals(0.0f, m[1], EPSILON);
-        Assert.assertEquals(-1.0f, m[2], EPSILON);
+        Assert.assertEquals(1.0f, m[2], EPSILON);
     }
 
     @Test
