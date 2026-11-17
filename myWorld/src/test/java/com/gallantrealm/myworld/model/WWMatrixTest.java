@@ -82,4 +82,46 @@ public class WWMatrixTest {
         Assert.assertEquals(0.2f, m[7], EPSILON);
         Assert.assertEquals(1.0f, m[15], EPSILON);
     }
+
+    @Test
+    public void testMultiplyMMOrthogonalityAndAccuracy() {
+        WWQuaternion q1 = new WWQuaternion(30.0f, 45.0f, 60.0f);
+        WWQuaternion q2 = new WWQuaternion(15.0f, -20.0f, 35.0f);
+
+        float[] m1 = new float[16];
+        float[] m2 = new float[16];
+        float[] result = new float[16];
+
+        q1.toMatrix(m1);
+        q2.toMatrix(m2);
+
+        WWMatrix.multiplyMM(result, m1, m2);
+
+        // Check orthogonality of 3x3 rotation columns (col 0, col 1, col 2 length must be 1.0)
+        float lenCol0 = (float) Math.sqrt(result[0] * result[0] + result[1] * result[1] + result[2] * result[2]);
+        float lenCol1 = (float) Math.sqrt(result[4] * result[4] + result[5] * result[5] + result[6] * result[6]);
+        float lenCol2 = (float) Math.sqrt(result[8] * result[8] + result[9] * result[9] + result[10] * result[10]);
+
+        Assert.assertEquals(1.0f, lenCol0, EPSILON);
+        Assert.assertEquals(1.0f, lenCol1, EPSILON);
+        Assert.assertEquals(1.0f, lenCol2, EPSILON);
+
+        // Check column dot products (must be 0 for orthogonal matrix without squashing)
+        float dot01 = result[0] * result[4] + result[1] * result[5] + result[2] * result[6];
+        float dot02 = result[0] * result[8] + result[1] * result[9] + result[2] * result[10];
+        float dot12 = result[4] * result[8] + result[5] * result[9] + result[6] * result[10];
+
+        Assert.assertEquals(0.0f, dot01, EPSILON);
+        Assert.assertEquals(0.0f, dot02, EPSILON);
+        Assert.assertEquals(0.0f, dot12, EPSILON);
+
+        // Multiplying by combined quaternion should equal result from multiplyMM
+        WWQuaternion qCombined = q1.clone().rotate(q2);
+        float[] mCombined = new float[16];
+        qCombined.toMatrix(mCombined);
+
+        for (int i = 0; i < 16; i++) {
+            Assert.assertEquals("Mismatch at matrix index " + i, mCombined[i], result[i], EPSILON);
+        }
+    }
 }

@@ -158,7 +158,7 @@ public class WWMatrix implements Cloneable {
 		result[6]  = a20 * b01 + a21 * b11 + a22 * b21 + a23 * b31;
 		result[7]  = a30 * b01 + a31 * b11 + a32 * b21 + a33 * b31;
 
-		result[8]  = a00 * b02 + a01 * b12 + a02 * b20 + a03 * b32;
+		result[8]  = a00 * b02 + a01 * b12 + a02 * b22 + a03 * b32;
 		result[9]  = a10 * b02 + a11 * b12 + a12 * b22 + a13 * b32;
 		result[10] = a20 * b02 + a21 * b12 + a22 * b22 + a23 * b32;
 		result[11] = a30 * b02 + a31 * b12 + a32 * b22 + a33 * b32;
