@@ -200,14 +200,16 @@ A method is provided to more easily define the texture if it is a submapped:
 A Vector is used to represent dimensions and sizes on many properties and methods.  It can be constructed like so:
 
     var v = new Vector(x, y, z);
-    
+
+Remember that the coordinate system in WebWorld is "Z-up".  This is a convention used in geographic/CAD-style applications.
+
 #### Properties
 
 A Vector has three properties:
 
-- **x** -- the value along the x dimension (left and right)
-- **y** -- the value along the y dimension (forward and back)
-- **z** -- the value along the z dimension (up and down)
+- **x** -- the value along the x dimension
+- **y** -- the value along the y dimension
+- **z** -- the value along the z dimension
 
 #### Methods
 
