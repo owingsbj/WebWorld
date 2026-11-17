@@ -438,22 +438,25 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
         float zz = z * z;
         float zw = z * w;
 
-        // the matrix has y and z switched (opengl convention)
+        // Column 0 (World X: Right)
         mat[0] = 1.0f - 2.0f * (yy + zz);
-        mat[2] = 2.0f * (xy - zw);
-        mat[1] = 2.0f * (xz + yw);
+        mat[1] = 2.0f * (xz - yw);
+        mat[2] = -2.0f * (xy + zw);
         mat[3] = 0.0f;
 
-        mat[8] = 2.0f * (xy + zw);
-        mat[10] = 1.0f - 2.0f * (xx + zz);
-        mat[9] = 2.0f * (yz - xw);
-        mat[11] = 0.0f;
-
-        mat[4] = 2.0f * (xz - yw);
-        mat[6] = 2.0f * (yz + xw);
+        // Column 1 (World Z: Up)
+        mat[4] = 2.0f * (xz + yw);
         mat[5] = 1.0f - 2.0f * (xx + yy);
+        mat[6] = 2.0f * (xw - yz);
         mat[7] = 0.0f;
 
+        // Column 2 (World Y: Forward/Away)
+        mat[8] = 2.0f * (zw - xy);
+        mat[9] = -2.0f * (yz + xw);
+        mat[10] = 1.0f - 2.0f * (xx + zz);
+        mat[11] = 0.0f;
+
+        // Column 3 (Translation)
         mat[12] = 0.0f;
         mat[13] = 0.0f;
         mat[14] = 0.0f;
