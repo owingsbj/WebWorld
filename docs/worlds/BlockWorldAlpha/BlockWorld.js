@@ -7,7 +7,6 @@ world.persistent = true;
 world.playSong("es9pt2.ogg", 0.05);
 //world.moveType = "confront";
 world.renderingThreshold = 100;
-world.simplePhysics = true;
 
 // Preload sounds so there won't be a delay when first played
 world.preloadSound("create.ogg");
