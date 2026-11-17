@@ -1092,26 +1092,48 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 		}
 	}
 
+	/**
+	 * Quantized turn torque.  Note that left turn requires a positive
+	 * value and right turn negative (even though joystick is negative
+	 * for left turn and positive for right turn).
+	 */
 	public float[] getMoveXTurn() {
-		return new float[] { -90, -60, -30, 0, 30, 60, 90 };
+		return new float[] { 90, 60, 30, 0, -30, -60, -90 };
 	}
 
+	/**
+	 * Quantized lean torque (around y axis).
+	 */
 	public float[] getMoveXLean() {
 		return new float[] { -15, -5, 0, 5, 15 };
 	}
 
+	/**
+	 * Quantized sliding thrust (along x axis)
+	 */
 	public float[] getMoveXSlide() {
 		return new float[] { -8, -4, -2, 0, 2, 4, 8 };
 	}
 
+	/**
+	 * Quantized tilt torque (around x axis).   Note that tilting up
+	 * requres a positive value and down a negative value  (even
+	 * though joystick is negative for up tilt and positive for down tilt).
+	 */
 	public float[] getMoveYTilt() {
 		return new float[] { 30, 10, 0, -5, -10 };
 	}
 
+	/**
+	 * Quantized forward thrust (along y axis)
+	 */
 	public float[] getMoveYThrust() {
 		return new float[] { -4, -2, 0, 4, 8 };
 	}
 
+	/**
+	 * Quantized lift thrust (along z axis).
+	 */
 	public float[] getMoveYLift() {
 		return new float[] { -8, -4, -2, 0, 2, 4, 8 };
 	}
