@@ -206,11 +206,11 @@ public class AnimationBehavior extends Behavior {
 				}
 			} else if (type.equals("treading")) {
 				if ("left arm".equals(object.getName())) {
-					rotation.roll(-75);
+					rotation.roll(75);
 					rotation.pitch(-0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime) * range);
 				}
 				if ("right arm".equals(object.getName())) {
-					rotation.roll(75f);
+					rotation.roll(-75f);
 					rotation.pitch(0.5f * FastMath.TODEGREES * FastMath.sin(2.0f * FastMath.PI * animationTime + FastMath.PI) * range);
 				}
 				if ("left forearm".equals(object.getName())) {
@@ -236,10 +236,10 @@ public class AnimationBehavior extends Behavior {
 					rotation.pitch(-30 * FastMath.abs(range));
 				}
 				if ("left arm".equals(object.getName())) {
-					rotation.roll(-75 * FastMath.abs(range));
+					rotation.roll(75 * FastMath.abs(range));
 				}
 				if ("right arm".equals(object.getName())) {
-					rotation.roll(75 * FastMath.abs(range));
+					rotation.roll(-75 * FastMath.abs(range));
 				}
 				if ("left leg".equals(object.getName())) {
 					rotation.roll(15 * FastMath.abs(range));
