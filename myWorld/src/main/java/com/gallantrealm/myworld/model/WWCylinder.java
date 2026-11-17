@@ -116,7 +116,7 @@ public class WWCylinder extends WWSimpleShape implements Serializable, Cloneable
 		}
 
 		// Choose either the z (top/bottom) or x,y (sides) as the closest side.
-		float insidePenetration = noInsidePenetration ? 100 : radiusDistance - hollow / 2;
+		float insidePenetration = (noInsidePenetration || hollow == 0) ? 100 : radiusDistance - hollow / 2;
 		float outsidePenetration = noOutsidePenetration ? 100 : 0.5f - radiusDistance;
 		float topPenetration = noTopPenetration ? 100 : 0.5f - tempPoint.z;
 		float bottomPenetration = noBottomPenetration ? 100 : tempPoint.z + 0.5f;

@@ -3,20 +3,20 @@ package com.gallantrealm.myworld.model;
 import java.util.Arrays;
 
 /**
- * An implementation of a 4x4 model matrix. The internal float array, m, is compatible with OpenGL
- * and is in column-major order:
+ * An implementation of a 4x4 model matrix in column-major order compatible with OpenGL
+ * rendering pipeline where vertex buffers store coordinates in (X, Z, Y) order:
  * <pre>
- *  m[0] m[4] m[8] m[12]
- *  m[1] m[5] m[9] m[13]
+ *  m[0] m[4] m[8]  m[12]
+ *  m[1] m[5] m[9]  m[13]
  *  m[2] m[6] m[10] m[14]
  *  m[3] m[7] m[11] m[15]
  *  </pre>
- * In this project's World coordinate system:
+ * In this project's World coordinate system (Z-up, Right-Hand Rule):
  * <ul>
- *   <li>World X = Right / East &rarr; mapped to OpenGL Column 0 (m[0..3])</li>
- *   <li>World Z = Up / Height &rarr; mapped to OpenGL Column 1 (m[4..7])</li>
- *   <li>World Y = Forward / North &rarr; mapped to OpenGL Column 2 (m[8..11])</li>
- *   <li>Translation &rarr; mapped to OpenGL Column 3 (m[12..15])</li>
+ *   <li>World X = Right &rarr; Column 0 (m[0..3])</li>
+ *   <li>World Z = Up &rarr; Column 1 (m[4..7])</li>
+ *   <li>World Y = Forward &rarr; Column 2 (m[8..11])</li>
+ *   <li>Translation &rarr; Column 3 (m[12..15])</li>
  * </ul>
  */
 public class WWMatrix implements Cloneable {
@@ -65,13 +65,13 @@ public class WWMatrix implements Cloneable {
 	public void antirotate(WWQuaternion q) {
 		float[] qm = new float[16];
 		q.clone().invert().toMatrix(qm);
-		multiplyMM(m, m, qm);
+		multiplyMM(m, m.clone(), qm);
 	}
 
 	public void rotate(WWQuaternion q) {
 		float[] qm = new float[16];
 		q.toMatrix(qm);
-		multiplyMM(m, m, qm);
+		multiplyMM(m, m.clone(), qm);
 	}
 
 	/**
@@ -158,7 +158,7 @@ public class WWMatrix implements Cloneable {
 		result[6]  = a20 * b01 + a21 * b11 + a22 * b21 + a23 * b31;
 		result[7]  = a30 * b01 + a31 * b11 + a32 * b21 + a33 * b31;
 
-		result[8]  = a00 * b02 + a01 * b12 + a02 * b22 + a03 * b32;
+		result[8]  = a00 * b02 + a01 * b12 + a02 * b20 + a03 * b32;
 		result[9]  = a10 * b02 + a11 * b12 + a12 * b22 + a13 * b32;
 		result[10] = a20 * b02 + a21 * b12 + a22 * b22 + a23 * b32;
 		result[11] = a30 * b02 + a31 * b12 + a32 * b22 + a33 * b32;
@@ -170,3 +170,4 @@ public class WWMatrix implements Cloneable {
 	}
 
 }
+

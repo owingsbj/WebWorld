@@ -338,7 +338,7 @@ public class WWVector implements Cloneable, Serializable, Sendable {
 	}
 
 	public final WWVector antirotate(WWQuaternion q) {
-		q.clone().invert().rotateVector(this);
+		q.antirotateVector(this);
 		return this;
 	}
 

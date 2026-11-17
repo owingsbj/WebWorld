@@ -24,10 +24,7 @@ public class WWMatrixTest {
         matrix.move(10.0f, 20.0f, 30.0f); // x=10 (World X), y=20 (World Y), z=30 (World Z)
 
         float[] m = matrix.m;
-        // In OpenGL matrix: Col 3 is translation (m[12]=OpenGL X, m[13]=OpenGL Y, m[14]=OpenGL Z)
-        // OpenGL X = World X = 10
-        // OpenGL Y = World Z = 30
-        // OpenGL Z = World Y = 20
+        // Col 3 is translation (m[12]=World X, m[13]=World Z, m[14]=World Y)
         Assert.assertEquals(10.0f, m[12], EPSILON);
         Assert.assertEquals(30.0f, m[13], EPSILON);
         Assert.assertEquals(20.0f, m[14], EPSILON);
@@ -55,6 +52,7 @@ public class WWMatrixTest {
         matrix.rotate(q);
 
         float[] m = matrix.m;
+        // 90 deg around Z in OpenGL (X,Z,Y) space
         Assert.assertEquals(0.0f, m[0], EPSILON);
         Assert.assertEquals(0.0f, m[1], EPSILON);
         Assert.assertEquals(1.0f, m[2], EPSILON);
@@ -71,9 +69,7 @@ public class WWMatrixTest {
         Assert.assertEquals(1.0f, m[15], EPSILON);
 
         // Shearing along height (World Z):
-        // m[4] (OpenGL X / World X) receives 0.5
         Assert.assertEquals(0.5f, m[4], EPSILON);
-        // m[6] (OpenGL Z / World Y) receives 0.25
         Assert.assertEquals(0.25f, m[6], EPSILON);
     }
 
@@ -83,7 +79,6 @@ public class WWMatrixTest {
         matrix.taper(0.2f, 0.0f, 0.0f); // taper rate along height (World Z)
 
         float[] m = matrix.m;
-        // Col 1, row 3 (m[7]) receives 0.2
         Assert.assertEquals(0.2f, m[7], EPSILON);
         Assert.assertEquals(1.0f, m[15], EPSILON);
     }

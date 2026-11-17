@@ -135,9 +135,8 @@ public class WWQuaternionTest {
         float[] mat = new float[16];
         q.toMatrix(mat);
 
-        // In World space (Z-up), rotating 90 deg around Z turns X (1,0,0) into Y (0,1,0).
-        // In OpenGL matrix (where OpenGL Y=World Z, OpenGL Z=World Y):
-        // Col 0 (world X -> OpenGL space): X=0, Y(world Z)=0, Z(world Y)=1 -> mat[0]=0, mat[1]=0, mat[2]=1
+        // In OpenGL vertex space (X,Z,Y), rotating 90 deg around Z turns X (1,0,0) into Y (0,0,1).
+        // Col 0 (world X -> OpenGL space): mat[0]=0, mat[1]=0, mat[2]=1
         Assert.assertEquals(0.0f, mat[0], EPSILON);
         Assert.assertEquals(0.0f, mat[1], EPSILON);
         Assert.assertEquals(1.0f, mat[2], EPSILON);

@@ -450,7 +450,7 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
         mat[6] = 2.0f * (yz - xw);
         mat[7] = 0.0f;
 
-        // Column 2 (World Y: Forward/Away)
+        // Column 2 (World Y: Forward)
         mat[8] = 2.0f * (xy - zw);
         mat[9] = 2.0f * (yz + xw);
         mat[10] = 1.0f - 2.0f * (xx + zz);
