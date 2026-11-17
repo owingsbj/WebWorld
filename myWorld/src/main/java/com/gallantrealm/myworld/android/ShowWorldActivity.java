@@ -134,6 +134,9 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 			if (repeatController2) {
 				controller2(controller2X, controller2Y);
 			}
+			if (!dPadLeftDown && !dPadRightDown && !dPadDownDown && !dPadUpDown) {
+				usingDPad = false;
+			}
 		}
 
 	}
@@ -715,7 +718,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 				if (isPointInsideView(x, y, joyButton) && event.getActionMasked() != MotionEvent.ACTION_POINTER_DOWN) { // respect joy button only on first finger
 					int[] buttonLocation = new int[2];
 					joyButton.getLocationOnScreen(buttonLocation);
-					float deltaX = FastMath.min(50, FastMath.max(-50, 100.0f * (x - (buttonLocation[0] + joyButton.getWidth() / 2)) / joyButton.getWidth()));
+					float deltaX = -FastMath.min(50, FastMath.max(-50, 100.0f * (x - (buttonLocation[0] + joyButton.getWidth() / 2)) / joyButton.getWidth()));
 					float deltaY = FastMath.min(50, FastMath.max(-50, 100.0f * (buttonLocation[1] + joyButton.getHeight() / 2 - y) / joyButton.getHeight()));
 					controller(deltaX, deltaY);
 					moving = true;
@@ -864,7 +867,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 				if (moving && movingPointerId == event.getPointerId(i)) {
 					int[] buttonLocation = new int[2];
 					joyButton.getLocationOnScreen(buttonLocation);
-					float deltaX = FastMath.min(50, FastMath.max(-50, 100.0f * (x - (buttonLocation[0] + joyButton.getWidth() / 2)) / joyButton.getWidth()));
+					float deltaX = -FastMath.min(50, FastMath.max(-50, 100.0f * (buttonLocation[0] + joyButton.getWidth() / 2 - x) / joyButton.getWidth()));
 					float deltaY = FastMath.min(50, FastMath.max(-50, 100.0f * (buttonLocation[1] + joyButton.getHeight() / 2 - y) / joyButton.getHeight()));
 					controller(deltaX, deltaY);
 				} else if (isPointInsideView(x, y, rightActionButton1)) {
