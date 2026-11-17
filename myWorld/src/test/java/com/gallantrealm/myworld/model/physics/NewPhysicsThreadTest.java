@@ -191,4 +191,33 @@ public class NewPhysicsThreadTest {
         WWVector pos = avatar.getPosition();
         Assert.assertTrue("Sphere should not penetrate or drill through wall", pos.x >= 0.5f);
     }
+
+    @Test
+    public void testTorqueDirection() {
+        WWWorld world = new WWWorld();
+
+        WWBox box = new WWBox(1.0f, 1.0f, 1.0f);
+        box.setPosition(0, 0, 0);
+        box.solid = true;
+        box.physical = true;
+        box.density = 1.0f;
+        box.setTorque(new WWVector(0, 0, 10.0f));
+        box.setTorqueVelocity(new WWVector(0, 0, 10.0f));
+        world.addObject(box);
+
+        NewPhysicsThread thread = new NewPhysicsThread(world, 100, 2);
+        thread.performIteration(100);
+
+        System.out.println("Angular velocity after physics iteration: " + box.getAngularVelocity());
+        System.out.println("Initial rotation: pitch=" + box.getRotation().getPitch() + " roll=" + box.getRotation().getRoll() + " yaw=" + box.getRotation().getYaw());
+
+        thread.updateDynamicProperties(100);
+
+        System.out.println("Rotation after updateDynamicProperties: pitch=" + box.getRotation().getPitch() + " roll=" + box.getRotation().getRoll() + " yaw=" + box.getRotation().getYaw());
+
+        WWVector forward = new WWVector(0, 1, 0); // North (+Y)
+        box.getRotation().rotateVector(forward);
+        Assert.assertTrue("Torque <0,0,10> should result in positive Z angular velocity", box.getAngularVelocity().z > 0);
+        Assert.assertTrue("Positive Z angular velocity should turn object counter-clockwise (forward vector x < 0)", forward.x < 0);
+    }
 }
