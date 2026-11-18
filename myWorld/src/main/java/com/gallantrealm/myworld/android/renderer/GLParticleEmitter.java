@@ -1,5 +1,6 @@
 package com.gallantrealm.myworld.android.renderer;
 
+import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.model.SideAttributes;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWParticleEmitter;
@@ -15,7 +16,7 @@ public class GLParticleEmitter extends GLObject {
 
 	WWParticleEmitter emitter;
 
-	public GLParticleEmitter(AndroidRenderer renderer, WWParticleEmitter emitter, long worldTime) {
+	public GLParticleEmitter(IRenderer renderer, WWParticleEmitter emitter, long worldTime) {
 		super(renderer, emitter, worldTime);
 		this.emitter = emitter;
 		buildRendering();
@@ -114,13 +115,13 @@ public class GLParticleEmitter extends GLObject {
 			float green = (((id & 0x00F0) >> 4) + 0.5f) / 16.0f;
 			float blue = ((id & 0x00F) + 0.5f) / 16.0f;
 			float alpha = 1.0f;
-			int textureId = renderer.getTexture("white", true);
+			int textureId = renderer.getTextureRenderer().getTexture("white", true);
 			if (textureId != lastTextureId) {
 				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 				lastTextureId = textureId;
 			}
-			int bumpTextureId = renderer.getNormalTexture("white", true);
+			int bumpTextureId = renderer.getTextureRenderer().getNormalTexture("white", true);
 			if (bumpTextureId != lastBumpTextureId) {
 				GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
@@ -167,13 +168,13 @@ public class GLParticleEmitter extends GLObject {
 			}
 		}
 		String textureUrl = sideAttributes.texture.name;
-		int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
+		int textureId = renderer.getTextureRenderer().getTexture(textureUrl, sideAttributes.texture.pixelated);
 		if (textureId != lastTextureId) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 			lastTextureId = textureId;
 		}
-		int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
+		int bumpTextureId = renderer.getTextureRenderer().getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
 		if (bumpTextureId != lastBumpTextureId) {
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);

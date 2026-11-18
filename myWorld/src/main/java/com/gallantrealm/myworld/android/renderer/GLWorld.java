@@ -16,7 +16,7 @@ public class GLWorld implements IRendering {
 
 	private static final String TAG = "GLWorld";
 
-	private final AndroidRenderer renderer;
+	private final IRenderer renderer;
 	private final WWWorld world;
 
 	// Reusable scratch array to avoid per-frame GC allocations when drawing single surfaces
@@ -27,7 +27,7 @@ public class GLWorld implements IRendering {
 			(lhs, rhs) -> Float.compare(rhs.sortVec[2], lhs.sortVec[2]);
 
 	@SuppressWarnings("unused")
-	public GLWorld(AndroidRenderer renderer, WWWorld world, long worldTime) {
+	public GLWorld(IRenderer renderer, WWWorld world, long worldTime) {
 		this.renderer = renderer;
 		this.world = world;
 	}

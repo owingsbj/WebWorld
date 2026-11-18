@@ -1,5 +1,6 @@
 package com.gallantrealm.myworld.android.renderer;
 
+import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.model.WWBox;
 import com.gallantrealm.myworld.model.WWCylinder;
 import com.gallantrealm.myworld.model.WWObject;
@@ -34,7 +35,7 @@ public class GLSimpleShape extends GLObject {
 	/**
 	 * Constructs the PolyPrimitive.
 	 */
-	public GLSimpleShape(AndroidRenderer renderer, WWSimpleShape object, long worldTime) {
+	public GLSimpleShape(IRenderer renderer, WWSimpleShape object, long worldTime) {
 		super(renderer, object, worldTime);
 		buildRendering();
 	}
@@ -63,13 +64,13 @@ public class GLSimpleShape extends GLObject {
 		sizeY = ((int)(sizeY * 100)) / 100.0f;
 		sizeZ = ((int)(sizeZ * 100)) / 100.0f;
 
-		// optimize to share geometry
+		// android optimization to share geometry
 		String geometryMapKey = null;
 		if (!object.fixed) {
 			geometryMapKey = object.getClass().getSimpleName() + " " + sizeX + " " + sizeY + " " + sizeZ + " " + taperX + " " + taperY + " " + shearX + " " + shearY + " " + twist + " " + cutStart + " " + cutEnd + " " + hollow +
 						" " + nCircleVertices + " " + roundedSides + " " + roundedTop + " " + roundedBottom;
-			if (renderer.geometryCache.containsKey(geometryMapKey)) {
-				sides = renderer.geometryCache.get(geometryMapKey);
+			if (((AndroidRenderer)renderer).geometryCache.containsKey(geometryMapKey)) {
+				sides = ((AndroidRenderer)renderer).geometryCache.get(geometryMapKey);
 				return;
 			}
 		}
@@ -538,7 +539,7 @@ public class GLSimpleShape extends GLObject {
 
 		// save geometry for optimized sharing
 		if (!object.fixed) {
-			renderer.geometryCache.put(geometryMapKey, sides);
+			((AndroidRenderer)renderer).geometryCache.put(geometryMapKey, sides);
 		}
 
 	}

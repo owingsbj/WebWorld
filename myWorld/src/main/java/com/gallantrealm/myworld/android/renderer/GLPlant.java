@@ -1,5 +1,6 @@
 package com.gallantrealm.myworld.android.renderer;
 
+import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWPlant;
 
@@ -10,7 +11,7 @@ import com.gallantrealm.myworld.model.WWPlant;
  */
 public class GLPlant extends GLObject {
 
-	public GLPlant(AndroidRenderer renderer, WWPlant plant, long worldTime) {
+	public GLPlant(IRenderer renderer, WWPlant plant, long worldTime) {
 		super(renderer, plant, worldTime);
 		buildRendering();
 	}
