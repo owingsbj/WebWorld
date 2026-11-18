@@ -302,7 +302,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		} else {
 			ratio = (float) viewportHeight / (float) viewportWidth;
 		}
-		Matrix.frustumM(projectionMatrix, 0, -ratio / 2.0f * CLOSENESS, ratio / 2.0f * CLOSENESS, -0.5f * CLOSENESS, 0.5f * CLOSENESS, 1.0f * CLOSENESS, 16384 * CLOSENESS);
+		Matrix.frustumM(projectionMatrix, 0, ratio / 2.0f * CLOSENESS, -ratio / 2.0f * CLOSENESS, -0.5f * CLOSENESS, 0.5f * CLOSENESS, 1.0f * CLOSENESS, 16384 * CLOSENESS);
 	
 		GLES20.glDisable(GLES20.GL_DITHER);
 	
@@ -311,7 +311,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		GLES20.glCullFace(GLES20.GL_BACK);
 		GLES20.glDepthFunc(GLES20.GL_LESS);
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-		GLES20.glFrontFace(GLES20.GL_CW);
+		GLES20.glFrontFace(GLES20.GL_CCW);
 	
 		// Texture buffer settings
 		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
@@ -1153,7 +1153,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		GLES20.glEnable(GLES20.GL_CULL_FACE);
 		GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-		GLES20.glFrontFace(GLES20.GL_CW);
+		GLES20.glFrontFace(GLES20.GL_CCW);
 		// GLES20.glMatrixMode(GLES20.GL_MODELVIEW);
 		// GLES20.glLoadIdentity();
 	
