@@ -32,11 +32,11 @@ public abstract class GLObject extends GLRendering {
 	}
 
 	protected final WWObject object;
-	protected final AndroidRenderer renderer;
+	protected final IRenderer renderer;
 
 	protected GLSurface[] sides = new GLSurface[WWObject.NSIDES];
 
-	protected GLObject(AndroidRenderer renderer, WWObject object, long worldTime) {
+	protected GLObject(IRenderer renderer, WWObject object, long worldTime) {
 		this.renderer = renderer;
 		this.object = object;
 	}
@@ -254,13 +254,13 @@ public abstract class GLObject extends GLRendering {
 					float green = (((id & 0x00F0) >> 4) + 0.5f) / 16.0f;
 					float blue = ((id & 0x00F) + 0.5f) / 16.0f;
 					float alpha = 1.0f;
-					int textureId = renderer.getTexture("white", true);
+					int textureId = renderer.getTextureRenderer().getTexture("white", true);
 					if (textureId != lastTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 						lastTextureId = textureId;
 					}
-					int bumpTextureId = renderer.getNormalTexture("white", true);
+					int bumpTextureId = renderer.getTextureRenderer().getNormalTexture("white", true);
 					if (bumpTextureId != lastBumpTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
@@ -296,19 +296,19 @@ public abstract class GLObject extends GLRendering {
 						}
 					}
 					String textureUrl = sideAttributes.texture.name;
-					int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
+					int textureId = renderer.getTextureRenderer().getTexture(textureUrl, sideAttributes.texture.pixelated);
 					if (textureId != lastTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 						lastTextureId = textureId;
 					}
-					int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
+					int bumpTextureId = renderer.getTextureRenderer().getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
 					if (bumpTextureId != lastBumpTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 						lastBumpTextureId = bumpTextureId;
 					}
-					boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
+					boolean hasAlpha = renderer.getTextureRenderer().textureHasAlpha(textureUrl);
 					for (int i = 0; i < sides.length; i++) {
 						if (sides[i] != null) {
 							sides[i].draw(shader, drawType, textureMatrix, red, green, blue, alpha, shininess, fullBright, hasAlpha, lod);
@@ -353,19 +353,19 @@ public abstract class GLObject extends GLRendering {
 							}
 						}
 						String textureUrl = sideAttributes.texture.name;
-						int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
+						int textureId = renderer.getTextureRenderer().getTexture(textureUrl, sideAttributes.texture.pixelated);
 						if (textureId != lastTextureId) {
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 							lastTextureId = textureId;
 						}
-						int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
+						int bumpTextureId = renderer.getTextureRenderer().getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
 						if (bumpTextureId != lastBumpTextureId) {
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 							lastBumpTextureId = bumpTextureId;
 						}
-						boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
+						boolean hasAlpha = renderer.getTextureRenderer().textureHasAlpha(textureUrl);
 						GLSurface geometry = sides[side];
 						geometry.draw(shader, drawType, textureMatrix, red, green, blue, alpha, shininess, sideAttributes.fullBright, hasAlpha, lod);
 					}
@@ -433,19 +433,19 @@ public abstract class GLObject extends GLRendering {
 					}
 					float alpha = 1.0f - trans;
 					String textureUrl = sideAttributes.texture.name;
-					int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
+					int textureId = renderer.getTextureRenderer().getTexture(textureUrl, sideAttributes.texture.pixelated);
 					if (textureId != lastTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 						lastTextureId = textureId;
 					}
-					int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
+					int bumpTextureId = renderer.getTextureRenderer().getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
 					if (bumpTextureId != lastBumpTextureId) {
 						GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 						GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
 						lastBumpTextureId = bumpTextureId;
 					}
-					hasAlpha = renderer.textureHasAlpha(textureUrl);
+					hasAlpha = renderer.getTextureRenderer().textureHasAlpha(textureUrl);
 			//	}
 
 				// Note: model is identity so mvMatrix == viewMatrix and sunMvMatrix == sunViewMatrix below

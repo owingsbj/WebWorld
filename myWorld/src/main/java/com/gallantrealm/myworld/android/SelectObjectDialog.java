@@ -2,6 +2,7 @@ package com.gallantrealm.myworld.android;
 
 import com.gallantrealm.android.Translator;
 import com.gallantrealm.myworld.android.renderer.AndroidRenderer;
+import com.gallantrealm.myworld.android.renderer.AndroidTextureRenderer;
 import com.gallantrealm.myworld.client.model.ClientModel;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -124,7 +125,7 @@ public class SelectObjectDialog extends Dialog {
 						AsyncTask.execute(new Runnable() {
 							   @Override
 							   public void run() {
-									final Bitmap bitmap = AndroidRenderer.readImageTexture(Uri.parse(imageFileName));
+									final Bitmap bitmap = AndroidTextureRenderer.readImageTexture(Uri.parse(imageFileName));
 									SelectObjectDialog.this.activity.runOnUiThread(new Runnable() {
 										public void run() {
 											image.setImageDrawable(new BitmapDrawable(bitmap));
@@ -145,7 +146,7 @@ public class SelectObjectDialog extends Dialog {
 							Thread thread = new Thread() {
 								public void run() {
 									try {
-										Bitmap bitmap = AndroidRenderer.readImageTexture(Uri.parse((String) itemClass.getMethod("getStaticImageFileName").invoke(null)));
+										Bitmap bitmap = AndroidTextureRenderer.readImageTexture(Uri.parse((String) itemClass.getMethod("getStaticImageFileName").invoke(null)));
 										image.setImageDrawable(new BitmapDrawable(bitmap));
 									} catch (Exception e) {
 										e.printStackTrace();

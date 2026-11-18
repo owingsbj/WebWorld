@@ -1,6 +1,7 @@
 package com.gallantrealm.myworld.android.renderer;
 
 import com.gallantrealm.myworld.android.renderer.GLSurface;
+import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.model.WWMesh;
 import com.gallantrealm.myworld.model.WWObject;
 
@@ -16,7 +17,7 @@ public class GLMesh extends GLObject {
 	public static final int BASE_SHAPE_CYLINDER = 1;
 	public static final int BASE_SHAPE_SPHERE = 2;
 
-	public GLMesh(AndroidRenderer renderer, WWMesh mesh, long worldTime) {
+	public GLMesh(IRenderer renderer, WWMesh mesh, long worldTime) {
 		super(renderer, mesh, worldTime);
 		if (mesh.getBaseShape() == WWMesh.BASE_SHAPE_BOX) {
 			createBoxMesh(mesh.size.x, mesh.size.y, mesh.size.z, mesh.getCellsX(), mesh.getCellsY());

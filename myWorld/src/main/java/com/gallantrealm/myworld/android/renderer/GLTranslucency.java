@@ -2,6 +2,7 @@ package com.gallantrealm.myworld.android.renderer;
 
 import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.client.model.ClientModel;
+import com.gallantrealm.myworld.client.renderer.IRenderer;
 import com.gallantrealm.myworld.model.SideAttributes;
 import com.gallantrealm.myworld.model.WWColor;
 import com.gallantrealm.myworld.model.WWObject;
@@ -25,7 +26,7 @@ public class GLTranslucency extends GLObject  {
 	float layerTransparency;
 	int layerColor;
 
-	public GLTranslucency(AndroidRenderer renderer, WWObject object, long worldTime) {
+	public GLTranslucency(IRenderer renderer, WWObject object, long worldTime) {
 		super(renderer, object, worldTime);
 		buildRendering();
 	}
@@ -168,7 +169,7 @@ public class GLTranslucency extends GLObject  {
 							// GLES20.glMaterialfv(GLES20.GL_FRONT_AND_BACK, GLES20.GL_SPECULAR, new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 0.0f }, 0);
 							// GLES20.glMaterialf(GLES20.GL_FRONT_AND_BACK, GLES20.GL_SHININESS, 1.0f);
 							String textureUrl = sideAttributes.texture.name;
-							int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
+							int textureId = renderer.getTextureRenderer().getTexture(textureUrl, sideAttributes.texture.pixelated);
 							Matrix.setIdentityM(textureMatrix, 0);
 							Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.texture.scaleX, 1.0f / sideAttributes.texture.scaleY, 1.0f);
 							Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
@@ -178,10 +179,10 @@ public class GLTranslucency extends GLObject  {
 							}
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-							int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
+							int bumpTextureId = renderer.getTextureRenderer().getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
-							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
+							boolean hasAlpha = renderer.getTextureRenderer().textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
 							geometry.draw(shader, drawType,  textureMatrix, red, green, blue, alpha, shininess, sideAttributes.fullBright, hasAlpha, lod);
 						}
@@ -223,7 +224,7 @@ public class GLTranslucency extends GLObject  {
 							// GLES20.glMaterialfv(GLES20.GL_FRONT_AND_BACK, GLES20.GL_SPECULAR, new float[] { sideColor.getRed(), sideColor.getGreen(), sideColor.getBlue(), 0.0f }, 0);
 							// GLES20.glMaterialf(GLES20.GL_FRONT_AND_BACK, GLES20.GL_SHININESS, 1.0f);
 							String textureUrl = sideAttributes.texture.name;
-							int textureId = renderer.getTexture(textureUrl, sideAttributes.texture.pixelated);
+							int textureId = renderer.getTextureRenderer().getTexture(textureUrl, sideAttributes.texture.pixelated);
 							Matrix.setIdentityM(textureMatrix, 0);
 							Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.texture.scaleX, 1.0f / sideAttributes.texture.scaleY, 1.0f);
 							Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
@@ -233,10 +234,10 @@ public class GLTranslucency extends GLObject  {
 							}
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-							int bumpTextureId = renderer.getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
+							int bumpTextureId = renderer.getTextureRenderer().getNormalTexture(textureUrl, sideAttributes.texture.pixelated);
 							GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 							GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bumpTextureId);
-							boolean hasAlpha = renderer.textureHasAlpha(textureUrl);
+							boolean hasAlpha = renderer.getTextureRenderer().textureHasAlpha(textureUrl);
 							GLSurface geometry = sides[side];
 							geometry.draw(shader, drawType, textureMatrix, red, green, blue, alpha, shininess, sideAttributes.fullBright, hasAlpha, lod);
 						}
