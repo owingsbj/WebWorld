@@ -164,7 +164,9 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		return adjustedCameraPosition;
 	}
 
-	public static final boolean USE_DEPTH_SHADER = false;
+	public static final boolean DEBUG_SUNVIEW_MATRIX = false;   // set to true to show world from create shadow mapping perspective
+	public static final boolean USE_DEPTH_SHADER = false;  // set to true to use depth shader (experimental)
+
 	public HashMap<String, GLSurface[]> geometryCache = new HashMap();
 
 	private boolean clearRenderingsNeeded;
@@ -562,7 +564,12 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					GLES20.glDepthMask(true);
 					GLES20.glDepthFunc(GLES20.GL_LESS);
 				} else {
-					worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_MONO);
+					if (DEBUG_SUNVIEW_MATRIX) { // DEBUG OVERRIDE TO SEE SUN VIEW
+						textureShader.setViewMatrix(sunViewMatrix);
+						worldRendering.draw(textureShader, sunViewMatrix, time, GLWorld.DRAW_TYPE_MONO);
+					} else {
+						worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_MONO);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -1020,7 +1027,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		// generate and bind a depth texture for the shadow map
 		int[] shadowMapTex = new int[1];
 		GLES20.glGenTextures(1, shadowMapTex, 0);
-		shadowMapTextureId = shadowMapFb[0];
+		shadowMapTextureId = shadowMapTex[0];
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMapTextureId);
 
 		GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_DEPTH_COMPONENT, texW, texH, 0, GLES20.GL_DEPTH_COMPONENT, GLES30.GL_UNSIGNED_INT, null);
@@ -1030,12 +1037,12 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 		// configure the depth texture for optimal shadow mapping
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMapTextureId);
 		GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_COMPARE_MODE, GLES30.GL_COMPARE_REF_TO_TEXTURE);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT); // GL_CLAMP_TO_EDGE);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT); // GL_CLAMP_TO_EDGE);
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMapTextureId);
 
 		// restore back to the default framebuffer and texture 0
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -1064,13 +1071,13 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT); // only the depth buffer is used
 	
 		// View from the light's perspective
-		float FAR_OUT = 1000000.0f;
+		float FAR_OUT = 1000.0f;
 		clientModel.world.copySunDirectionInto(scratchSunPosition);
 		scratchSunPosition.normalize().scale(FAR_OUT);
 		WWVector sunPosition = scratchSunPosition;
 		float ratio = (float) SHADOW_MAP_WIDTH / SHADOW_MAP_HEIGHT;
 		float zoom = 0.08f / FastMath.max(0.25f, (float) Math.sqrt(clientModel.getCameraDistance() / (1.0f + clientModel.getCameraTilt() / 30.0f))); // + (15 - clientModel.getCameraTilt() / 6.0f));
-		Matrix.frustumM(sunProjectionMatrix, 0, -ratio / zoom, ratio / zoom, -1 / zoom, 1 / zoom, FAR_OUT - 1000.0f, FAR_OUT + 1000.0f); // sunPosition.length() * 0.99f, 100000.0f);
+		Matrix.orthoM(sunProjectionMatrix, 0, -ratio / zoom, ratio / zoom, -1 / zoom, 1 / zoom, FAR_OUT - 1000.0f, FAR_OUT + 1000.0f); // sunPosition.length() * 0.99f, 100000.0f);
 	
 		WWObject cameraObject = clientModel.getCameraObject();
 		if (cameraObject != null) {
@@ -1078,20 +1085,23 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			lastShadowCameraViewPosition.x -= FastMath.sinDeg(clientModel.getCameraPan() + cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
 			lastShadowCameraViewPosition.y -= FastMath.cosDeg(clientModel.getCameraPan() + cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
 			Matrix.setLookAtM(sunViewMatrix, 0, //
-					lastShadowCameraViewPosition.x + sunPosition.x, lastShadowCameraViewPosition.y + sunPosition.y, lastShadowCameraViewPosition.z + sunPosition.z, // sun position
-					lastShadowCameraViewPosition.x, lastShadowCameraViewPosition.y, lastShadowCameraViewPosition.z, // center (where the light is looking at)
-					0, 0, 1 // up vector
+					lastShadowCameraViewPosition.x + sunPosition.x, sunPosition.z + lastShadowCameraViewPosition.z, -(lastShadowCameraViewPosition.y + sunPosition.y), // sun position
+					lastShadowCameraViewPosition.x, lastShadowCameraViewPosition.z, -lastShadowCameraViewPosition.y, // center (where the light is looking at)
+					0, 1, 0 // up vector
 			);
 		} else {
 			Matrix.setLookAtM(sunViewMatrix, 0, //
-					sunPosition.x, sunPosition.y, sunPosition.z, // sun position
+					sunPosition.x, sunPosition.z, -sunPosition.y, // sun position
 					0, 0, 0, // center (where the light is looking at)
-					0, 0, 1 // up vector
+					0, 1, 0 // up vector
 			);
 		}
+		Matrix.rotateM(sunViewMatrix, 0, -90, 1, 0, 0); // Convert World (X,Y,Z) to OpenGL (X,Z,-Y)
 	
 		// modelviewprojection matrix
-		Matrix.multiplyMM(sunViewMatrix, 0, sunProjectionMatrix, 0, sunViewMatrix, 0);
+		float[] tempSunMatrix = new float[16];
+		Matrix.multiplyMM(tempSunMatrix, 0, sunProjectionMatrix, 0, sunViewMatrix, 0);
+		System.arraycopy(tempSunMatrix, 0, sunViewMatrix, 0, 16);
 		shadowMapShader.setSunViewMatrix(sunViewMatrix);
 		textureShader.setSunViewMatrix(sunViewMatrix);
 	
