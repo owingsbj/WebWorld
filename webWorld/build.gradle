@@ -26,12 +26,12 @@ android {
         }
     }
     namespace 'com.gallantrealm.webworld'
-    compileSdk 33
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.gallantrealm.webworld"
         minSdk 26
-        targetSdk 33
+        targetSdk 36
         versionCode 12
         versionName "0.12"
 
