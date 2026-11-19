@@ -78,26 +78,26 @@ public abstract class GLObject extends GLRendering {
 			surface.getVertex(i, coordinate);
 
 			// Taper
-			float zoffset = coordinate.y + 0.5f;
+			float zoffset = coordinate.z + 0.5f;
 			if (taperX != 0.0f) coordinate.x *= (1.0f - taperX * zoffset);
-			if (taperY != 0.0f) coordinate.z *= (1.0f - taperY * zoffset);
+			if (taperY != 0.0f) coordinate.y *= (1.0f - taperY * zoffset);
 
 			// Shear
 			if (shearX != 0.0f) coordinate.x += shearX * zoffset;
-			if (shearY != 0.0f) coordinate.z += shearY * zoffset;
+			if (shearY != 0.0f) coordinate.y += shearY * zoffset;
 
 			// Resize
 			coordinate.x *= sizeX;
-			coordinate.y *= sizeZ;
-			coordinate.z *= sizeY;
+			coordinate.y *= sizeY;
+			coordinate.z *= sizeZ;
 
 			// Twist (Only computed if twist != 0)
 			if (hasTwist) {
-				float r = (float) Math.sqrt(coordinate.x * coordinate.x + coordinate.z * coordinate.z);
-				float theta = FastMath.atan2(coordinate.x, coordinate.z);
-				float thetaDelta = (coordinate.y + 0.5f * sizeZ) * twistFactor;
+				float r = (float) Math.sqrt(coordinate.x * coordinate.x + coordinate.y * coordinate.y);
+				float theta = FastMath.atan2(coordinate.x, coordinate.y);
+				float thetaDelta = (coordinate.z + 0.5f * sizeZ) * twistFactor;
 				coordinate.x = r * (float) Math.sin(theta + thetaDelta);
-				coordinate.z = r * (float) Math.cos(theta + thetaDelta);
+				coordinate.y = r * (float) Math.cos(theta + thetaDelta);
 			}
 
 			// Model matrix transformation for groups
@@ -169,11 +169,11 @@ public abstract class GLObject extends GLRendering {
 				modelMatrix = new float[16];
 			}
 			Matrix.setIdentityM(modelMatrix, 0);
-			Matrix.translateM(modelMatrix, 0, position.x, position.z, position.y);
-			Matrix.translateM(modelMatrix, 0, object.rotationPoint.x, object.rotationPoint.z, object.rotationPoint.y);
+			Matrix.translateM(modelMatrix, 0, position.x, position.y, position.z);
+			Matrix.translateM(modelMatrix, 0, object.rotationPoint.x, object.rotationPoint.y, object.rotationPoint.z);
 			rotation.toMatrix(tempMatrix);
 			Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, tempMatrix, 0);
-			Matrix.translateM(modelMatrix, 0, -object.rotationPoint.x, -object.rotationPoint.z, -object.rotationPoint.y);
+			Matrix.translateM(modelMatrix, 0, -object.rotationPoint.x, -object.rotationPoint.y, -object.rotationPoint.z);
 			object.preAnimateModelMatrix(object, scratchWWMatrix.setMatrix(modelMatrix), worldTime);
 			object.lastRenderingTime = worldTime;
 		}

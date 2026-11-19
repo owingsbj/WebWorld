@@ -267,42 +267,42 @@ public class GLSimpleShape extends GLObject {
 			GLSurface baseGeometry;
 			if (polygon.length == 4 && twist == 0 && cutStart == 0 && cutEnd == 1 && hollow == 0) { // simple box
 				baseGeometry = new GLSurface(2, 2);
-				baseGeometry.setVertex(0, 0, sweepPath[0].x + polygon[0].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[0].y * sweepRadius[0].y);
-				baseGeometry.setVertex(0, 1, sweepPath[0].x + polygon[1].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[1].y * sweepRadius[0].y);
-				baseGeometry.setVertex(1, 1, sweepPath[0].x + polygon[2].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[2].y * sweepRadius[0].y);
-				baseGeometry.setVertex(1, 0, sweepPath[0].x + polygon[3].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[3].y * sweepRadius[0].y);
+				baseGeometry.setOldVertex(0, 0, sweepPath[0].x + polygon[0].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[0].y * sweepRadius[0].y);
+				baseGeometry.setOldVertex(0, 1, sweepPath[0].x + polygon[1].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[1].y * sweepRadius[0].y);
+				baseGeometry.setOldVertex(1, 1, sweepPath[0].x + polygon[2].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[2].y * sweepRadius[0].y);
+				baseGeometry.setOldVertex(1, 0, sweepPath[0].x + polygon[3].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[3].y * sweepRadius[0].y);
 			} else {
 				if (object instanceof WWBox && roundedBottom) {
 					// the base curves up on the ends (like a plate) for rouned bottoms
 					baseGeometry = new GLSurface((lastVertex - firstVertex + 2), 3);
 					for (int v = firstVertex; v <= lastVertex + 1; v++) {
 						if (v < polygon.length) {
-							baseGeometry.setVertex(v - firstVertex, 0,
+							baseGeometry.setOldVertex(v - firstVertex, 0,
 									sweepPath[0].x + polygon[v].x * sweepRadius[0].x * hollowx,
 									-0.5f,
 									sweepPath[0].y + polygon[v].y * sweepRadius[0].y * hollowy);
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[v].x * sweepRadius[0].x * hollowx, sweepPath[0].y + polygon[v].y * sweepRadius[0].y * hollowy });
-							baseGeometry.setVertex(v - firstVertex, 1,
+							baseGeometry.setOldVertex(v - firstVertex, 1,
 									sweepPath[0].x + polygon[v].x * sweepRadius[0].x * Math.max(hollowx, 0.9f),
 									-0.5f,
 									sweepPath[0].y + polygon[v].y * sweepRadius[0].y * Math.max(hollowy, 0.9f));
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[v].x * sweepRadius[0].x, sweepPath[0].y + polygon[v].y * sweepRadius[0].y });
-							baseGeometry.setVertex(v - firstVertex, 2,
+							baseGeometry.setOldVertex(v - firstVertex, 2,
 									sweepPath[0].x + polygon[v].x * sweepRadius[0].x,
 									-0.45f,
 									sweepPath[0].y + polygon[v].y * sweepRadius[0].y);
 						} else {
-							baseGeometry.setVertex(v - firstVertex, 0,
+							baseGeometry.setOldVertex(v - firstVertex, 0,
 									sweepPath[0].x + polygon[0].x * sweepRadius[0].x * hollowx,
 									-0.5f,
 									sweepPath[0].y + polygon[0].y * sweepRadius[0].y * hollowy);
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[0].x * sweepRadius[0].x * hollowx, sweepPath[0].y + polygon[0].y * sweepRadius[0].y * hollowy });
-							baseGeometry.setVertex(v - firstVertex, 1,
+							baseGeometry.setOldVertex(v - firstVertex, 1,
 									sweepPath[0].x + polygon[0].x * sweepRadius[0].x * Math.max(hollowx, 0.9f),
 									-0.5f,
 									sweepPath[0].y + polygon[0].y * sweepRadius[0].y * Math.max(hollowy, 0.9f));
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[0].x * sweepRadius[0].x, sweepPath[0].y + polygon[0].y * sweepRadius[0].y });
-							baseGeometry.setVertex(v - firstVertex, 2,
+							baseGeometry.setOldVertex(v - firstVertex, 2,
 									sweepPath[0].x + polygon[0].x * sweepRadius[0].x,
 									-0.45f,
 									sweepPath[0].y + polygon[0].y * sweepRadius[0].y);
@@ -312,14 +312,14 @@ public class GLSimpleShape extends GLObject {
 					baseGeometry = new GLSurface((lastVertex - firstVertex + 2), 2);
 					for (int v = firstVertex; v <= lastVertex + 1; v++) {
 						if (v < polygon.length) {
-							baseGeometry.setVertex(v - firstVertex, 0, sweepPath[0].x + polygon[v].x * sweepRadius[0].x * hollowx, sweepPath[0].z, sweepPath[0].y + polygon[v].y * sweepRadius[0].y * hollowy);
+							baseGeometry.setOldVertex(v - firstVertex, 0, sweepPath[0].x + polygon[v].x * sweepRadius[0].x * hollowx, sweepPath[0].z, sweepPath[0].y + polygon[v].y * sweepRadius[0].y * hollowy);
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[v].x * sweepRadius[0].x * hollowx, sweepPath[0].y + polygon[v].y * sweepRadius[0].y * hollowy });
-							baseGeometry.setVertex(v - firstVertex, 1, sweepPath[0].x + polygon[v].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[v].y * sweepRadius[0].y);
+							baseGeometry.setOldVertex(v - firstVertex, 1, sweepPath[0].x + polygon[v].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[v].y * sweepRadius[0].y);
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[v].x * sweepRadius[0].x, sweepPath[0].y + polygon[v].y * sweepRadius[0].y });
 						} else {
-							baseGeometry.setVertex(v - firstVertex, 0, sweepPath[0].x + polygon[0].x * sweepRadius[0].x * hollowx, sweepPath[0].z, sweepPath[0].y + polygon[0].y * sweepRadius[0].y * hollowy);
+							baseGeometry.setOldVertex(v - firstVertex, 0, sweepPath[0].x + polygon[0].x * sweepRadius[0].x * hollowx, sweepPath[0].z, sweepPath[0].y + polygon[0].y * sweepRadius[0].y * hollowy);
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[0].x * sweepRadius[0].x * hollowx, sweepPath[0].y + polygon[0].y * sweepRadius[0].y * hollowy });
-							baseGeometry.setVertex(v - firstVertex, 1, sweepPath[0].x + polygon[0].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[0].y * sweepRadius[0].y);
+							baseGeometry.setOldVertex(v - firstVertex, 1, sweepPath[0].x + polygon[0].x * sweepRadius[0].x, sweepPath[0].z, sweepPath[0].y + polygon[0].y * sweepRadius[0].y);
 							//baseGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[0].x + polygon[0].x * sweepRadius[0].x, sweepPath[0].y + polygon[0].y * sweepRadius[0].y });
 						}
 					}
@@ -345,9 +345,9 @@ public class GLSimpleShape extends GLObject {
 			for (int i = 0; i < nsweeps; i++) {
 				for (int v = firstVertex; v <= lastVertex + 1; v++) {
 					if (v < polygon.length) {
-						sidesGeometry.setVertex(v - firstVertex, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
+						sidesGeometry.setOldVertex(v - firstVertex, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
 					} else {
-						sidesGeometry.setVertex(v - firstVertex, i, sweepPath[i].x + polygon[0].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[0].y * sweepRadius[i].y);
+						sidesGeometry.setOldVertex(v - firstVertex, i, sweepPath[i].x + polygon[0].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[0].y * sweepRadius[i].y);
 					}
 				}
 			}
@@ -369,9 +369,9 @@ public class GLSimpleShape extends GLObject {
 					for (int v = startVertex; v <= endVertex + 1; v++) {
 						for (int i = 0; i < nsweeps; i++) {
 							if (v < polygon.length) {
-								sideGeometry.setVertex(v - startVertex, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
+								sideGeometry.setOldVertex(v - startVertex, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
 							} else {
-								sideGeometry.setVertex(v - startVertex, i, sweepPath[i].x + polygon[0].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[0].y * sweepRadius[i].y);
+								sideGeometry.setOldVertex(v - startVertex, i, sweepPath[i].x + polygon[0].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[0].y * sweepRadius[i].y);
 							}
 						}
 					}
@@ -397,9 +397,9 @@ public class GLSimpleShape extends GLObject {
 				for (int i = 0; i < nsweeps; i++) {
 					for (int v = firstVertex; v <= lastVertex + 1; v++) {
 						if (v < polygon.length) {
-							insidesGeometry.setVertex(lastVertex - v + 1, i, sweepPath[i].x + core[v].x + (polygon[v].x * sweepRadius[i].x - core[v].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[v].y + (polygon[v].y * sweepRadius[i].y - core[v].y) * hollowy);
+							insidesGeometry.setOldVertex(lastVertex - v + 1, i, sweepPath[i].x + core[v].x + (polygon[v].x * sweepRadius[i].x - core[v].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[v].y + (polygon[v].y * sweepRadius[i].y - core[v].y) * hollowy);
 						} else {
-							insidesGeometry.setVertex(lastVertex - v + 1, i, sweepPath[i].x + core[0].x + (polygon[0].x * sweepRadius[i].x - core[0].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[0].y + (polygon[0].y * sweepRadius[i].y - core[0].y) * hollowy);
+							insidesGeometry.setOldVertex(lastVertex - v + 1, i, sweepPath[i].x + core[0].x + (polygon[0].x * sweepRadius[i].x - core[0].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[0].y + (polygon[0].y * sweepRadius[i].y - core[0].y) * hollowy);
 						}
 					}
 				}
@@ -420,9 +420,9 @@ public class GLSimpleShape extends GLObject {
 						for (int v = startVertex; v <= endVertex + 1; v++) {
 							for (int i = 0; i < nsweeps; i++) {
 								if (v < polygon.length) {
-									insideGeometry.setVertex(endVertex - v + 1, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + polygon[v].y * sweepRadius[i].y * hollowy);
+									insideGeometry.setOldVertex(endVertex - v + 1, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + polygon[v].y * sweepRadius[i].y * hollowy);
 								} else {
-									insideGeometry.setVertex(endVertex - v + 1, i, sweepPath[i].x + polygon[0].x * sweepRadius[i].x * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + polygon[0].y * sweepRadius[i].y * hollowy);
+									insideGeometry.setOldVertex(endVertex - v + 1, i, sweepPath[i].x + polygon[0].x * sweepRadius[i].x * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + polygon[0].y * sweepRadius[i].y * hollowy);
 								}
 							}
 						}
@@ -445,8 +445,8 @@ public class GLSimpleShape extends GLObject {
 			GLSurface cutout1Geometry = new GLSurface(2, nsweeps);
 			int v = firstVertex;
 			for (int i = 0; i < nsweeps; i++) {
-				cutout1Geometry.setVertex(0, i, sweepPath[i].x + core[v].x + (polygon[v].x * sweepRadius[i].x - core[v].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[v].y + (polygon[v].y * sweepRadius[i].y - core[v].y) * hollowy);
-				cutout1Geometry.setVertex(1, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
+				cutout1Geometry.setOldVertex(0, i, sweepPath[i].x + core[v].x + (polygon[v].x * sweepRadius[i].x - core[v].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[v].y + (polygon[v].y * sweepRadius[i].y - core[v].y) * hollowy);
+				cutout1Geometry.setOldVertex(1, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
 			}
 			adjustGeometry(cutout1Geometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			cutout1Geometry.generateNormals();
@@ -459,8 +459,8 @@ public class GLSimpleShape extends GLObject {
 				v = 0;
 			}
 			for (int i = 0; i < nsweeps; i++) {
-				cutout2Geometry.setVertex(1, i, sweepPath[i].x + core[v].x + (polygon[v].x * sweepRadius[i].x - core[v].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[v].y + (polygon[v].y * sweepRadius[i].y - core[v].y) * hollowy);
-				cutout2Geometry.setVertex(0, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
+				cutout2Geometry.setOldVertex(1, i, sweepPath[i].x + core[v].x + (polygon[v].x * sweepRadius[i].x - core[v].x) * hollowx, sweepPath[i].z * hollowz, sweepPath[i].y + core[v].y + (polygon[v].y * sweepRadius[i].y - core[v].y) * hollowy);
+				cutout2Geometry.setOldVertex(0, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].z, sweepPath[i].y + polygon[v].y * sweepRadius[i].y);
 			}
 			adjustGeometry(cutout2Geometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			cutout2Geometry.generateNormals();
@@ -479,28 +479,28 @@ public class GLSimpleShape extends GLObject {
 				topGeometry = new GLSurface((lastVertex - firstVertex + 2), 3);
 				for (int v = firstVertex; v <= lastVertex + 1; v++) {
 					if (v < polygon.length) {
-						topGeometry.setVertex(v - firstVertex, 0,
+						topGeometry.setOldVertex(v - firstVertex, 0,
 								sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x,
 								0.45f,
 								sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y);
-						topGeometry.setVertex(v - firstVertex, 1,
+						topGeometry.setOldVertex(v - firstVertex, 1,
 								sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x * Math.max(hollowx, 0.9f),
 								0.5f,
 								sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y * Math.max(hollowy, 0.9f));
-						topGeometry.setVertex(v - firstVertex, 2,
+						topGeometry.setOldVertex(v - firstVertex, 2,
 								sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x * hollowx,
 								0.5f,
 								sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y * hollowy);
 					} else {
-						topGeometry.setVertex(v - firstVertex, 0,
+						topGeometry.setOldVertex(v - firstVertex, 0,
 								sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x,
 								0.45f,
 								sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y);
-						topGeometry.setVertex(v - firstVertex, 1,
+						topGeometry.setOldVertex(v - firstVertex, 1,
 								sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x * Math.max(hollowx, 0.9f),
 								0.5f,
 								sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y * Math.max(hollowy, 0.9f));
-						topGeometry.setVertex(v - firstVertex, 2,
+						topGeometry.setOldVertex(v - firstVertex, 2,
 								sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x * hollowx,
 								0.5f,
 								sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y * hollowy);
@@ -509,22 +509,22 @@ public class GLSimpleShape extends GLObject {
 			} else {
 				if (polygon.length == 4 && twist == 0 && cutStart == 0 && cutEnd == 1 && hollow == 0) { // simple box
 					topGeometry = new GLSurface(2, 2);
-					topGeometry.setVertex(0, 0, sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y);
-					topGeometry.setVertex(1, 0, sweepPath[nsweeps - 1].x + polygon[1].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[1].y * sweepRadius[nsweeps - 1].y);
-					topGeometry.setVertex(1, 1, sweepPath[nsweeps - 1].x + polygon[2].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[2].y * sweepRadius[nsweeps - 1].y);
-					topGeometry.setVertex(0, 1, sweepPath[nsweeps - 1].x + polygon[3].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[3].y * sweepRadius[nsweeps - 1].y);
+					topGeometry.setOldVertex(0, 0, sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y);
+					topGeometry.setOldVertex(1, 0, sweepPath[nsweeps - 1].x + polygon[1].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[1].y * sweepRadius[nsweeps - 1].y);
+					topGeometry.setOldVertex(1, 1, sweepPath[nsweeps - 1].x + polygon[2].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[2].y * sweepRadius[nsweeps - 1].y);
+					topGeometry.setOldVertex(0, 1, sweepPath[nsweeps - 1].x + polygon[3].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[3].y * sweepRadius[nsweeps - 1].y);
 				} else {
 					topGeometry = new GLSurface(lastVertex - firstVertex + 2, 2);
 					for (int v = firstVertex; v <= lastVertex + 1; v++) {
 						if (v < polygon.length) {
-							topGeometry.setVertex(v - firstVertex, 0, sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y);
+							topGeometry.setOldVertex(v - firstVertex, 0, sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y);
 							//topGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y });
-							topGeometry.setVertex(v - firstVertex, 1, sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x * hollowx, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y * hollowy);
+							topGeometry.setOldVertex(v - firstVertex, 1, sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x * hollowx, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y * hollowy);
 							//topGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[nsweeps - 1].x + polygon[v].x * sweepRadius[nsweeps - 1].x * hollowx, sweepPath[nsweeps - 1].y + polygon[v].y * sweepRadius[nsweeps - 1].y * hollowy });
 						} else {
-							topGeometry.setVertex(v - firstVertex, 0, sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y);
+							topGeometry.setOldVertex(v - firstVertex, 0, sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y);
 							//topGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y });
-							topGeometry.setVertex(v - firstVertex, 1, sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x * hollowx, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y * hollowy);
+							topGeometry.setOldVertex(v - firstVertex, 1, sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x * hollowx, sweepPath[nsweeps - 1].z, sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y * hollowy);
 							//topGeometry.setTextureCoordinate(0, i - 1, new float[] { sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x * hollowx, sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y * hollowy });
 						}
 					}

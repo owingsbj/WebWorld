@@ -12,8 +12,7 @@ import java.io.Serializable;
  * Used for representing rotation. A quaternion has four values that allow the rotation of an object to be represented
  * in a fashion suitable for arithmetic with other rotations, avoiding the 'gimbal lock' problem.
  * <p>
- *  Note on world axis definition:  In WWWorld coordinates, positive z points up, positive x points to the right, positive y points away.
- *  (These are different than in opengl.)
+ *  Note on world axis definition.  WWWorld coordinates are Z up, right hand rule.
  * </p>
  */
 public class WWQuaternion implements Cloneable, Serializable, Sendable {
@@ -425,35 +424,36 @@ public class WWQuaternion implements Cloneable, Serializable, Sendable {
         z = is.readFloat();
     }
 
+    /**
+     * Convert the quaternion into a column-major matrix
+     */
     public final void toMatrix(float[] mat) {
         float xx = x * x;
         float xy = x * y;
         float xz = x * z;
-        float xw = x * w;
-
         float yy = y * y;
         float yz = y * z;
-        float yw = y * w;
-
         float zz = z * z;
-        float zw = z * w;
+        float wx = w * x;
+        float wy = w * y;
+        float wz = w * z;
 
-        // Column 0 (World X: Right)
+        // Column 0 (X axis)
         mat[0] = 1.0f - 2.0f * (yy + zz);
-        mat[1] = 2.0f * (xz - yw);
-        mat[2] = 2.0f * (xy + zw);
+        mat[1] = 2.0f * (xy + wz);
+        mat[2] = 2.0f * (xz - wy);
         mat[3] = 0.0f;
 
-        // Column 1 (World Z: Up)
-        mat[4] = 2.0f * (xz + yw);
-        mat[5] = 1.0f - 2.0f * (xx + yy);
-        mat[6] = 2.0f * (yz - xw);
+        // Column 1 (Y axis)
+        mat[4] = 2.0f * (xy - wz);
+        mat[5] = 1.0f - 2.0f * (xx + zz);
+        mat[6] = 2.0f * (yz + wx);
         mat[7] = 0.0f;
 
-        // Column 2 (World Y: Forward)
-        mat[8] = 2.0f * (xy - zw);
-        mat[9] = 2.0f * (yz + xw);
-        mat[10] = 1.0f - 2.0f * (xx + zz);
+        // Column 2 (Z axis)
+        mat[8] = 2.0f * (xz + wy);
+        mat[9] = 2.0f * (yz - wx);
+        mat[10] = 1.0f - 2.0f * (xx + yy);
         mat[11] = 0.0f;
 
         // Column 3 (Translation)

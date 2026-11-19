@@ -302,7 +302,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		} else {
 			ratio = (float) viewportHeight / (float) viewportWidth;
 		}
-		Matrix.frustumM(projectionMatrix, 0, ratio / 2.0f * CLOSENESS, -ratio / 2.0f * CLOSENESS, -0.5f * CLOSENESS, 0.5f * CLOSENESS, 1.0f * CLOSENESS, 16384 * CLOSENESS);
+		Matrix.frustumM(projectionMatrix, 0, -ratio / 2.0f * CLOSENESS, ratio / 2.0f * CLOSENESS, -0.5f * CLOSENESS, 0.5f * CLOSENESS, 1.0f * CLOSENESS, 16384 * CLOSENESS);
 	
 		GLES20.glDisable(GLES20.GL_DITHER);
 	
@@ -420,6 +420,25 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		System.out.println("<AndroidRenderer.onSurfaceChanged");
 	}
 
+	private void initializeViewMatrix(Shader shader, float[] viewMatrix, float stereoViewOffset) {
+		// transform according to camera
+		scratchDampCameraDistanceVector.set(0, dampCameraDistance, 0);
+		scratchDampCameraDistanceVector.add(stereoViewOffset * dampCameraDistance, 0, 0);
+		scratchDampCameraRotationVector.set(-absoluteCameraTilt, 0, absoluteCameraPan);
+		rotate(scratchDampCameraDistanceVector, scratchDampCameraRotationVector);
+		float x = dampXCamera + scratchDampCameraDistanceVector.x;
+		float y = dampYCamera + scratchDampCameraDistanceVector.y;
+		float z = dampZCamera + scratchDampCameraDistanceVector.z;
+		clientModel.setDampedCameraLocation(x, y, z);
+		Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
+		Matrix.rotateM(viewMatrix, 0, -90, 1, 0, 0); // Convert World (X,Y,Z) to OpenGL (X,Z,-Y)
+		Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
+		Matrix.rotateM(viewMatrix, 0, absoluteCameraPan, 0, 0, 1);
+		Matrix.translateM(viewMatrix, 0, -x, -y, -z);
+		shader.setViewMatrix(viewMatrix);
+		shader.setViewPosition(scratchDampCameraDistanceVector.x, scratchDampCameraDistanceVector.y, scratchDampCameraDistanceVector.z);
+	}
+
 	static long lastStatusUpdateTime;
 
 	@Override
@@ -485,19 +504,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
 			// Generate the shadow map texture(s)
 			if (hasDepthTexture && !clientModel.isSimpleRendering() && world.supportsShadows() && worldRendering.drawnOnce) {
-				// generate view matrix for perspective shadow map
-				scratchDampCameraDistanceVector.set(0, dampCameraDistance, 0);
-				scratchDampCameraRotationVector.set(-absoluteCameraTilt, 0, clientModel.getDampedCameraPan());
-				rotate(scratchDampCameraDistanceVector, scratchDampCameraRotationVector);
-				float x = dampXCamera + scratchDampCameraDistanceVector.x;
-				float y = dampYCamera + scratchDampCameraDistanceVector.y;
-				float z = dampZCamera + scratchDampCameraDistanceVector.z;
-				clientModel.setDampedCameraLocation(x, y, z);
-				Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-				Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
-				Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
-				Matrix.translateM(viewMatrix, 0, -x, -z, -y);
-				shadowMapShader.setViewPosition(scratchDampCameraDistanceVector.x, scratchDampCameraDistanceVector.y, scratchDampCameraDistanceVector.z);
+				initializeViewMatrix(shadowMapShader, viewMatrix, 0);
 				generateShadowMap(time, viewMatrix);
 			}
 
@@ -519,21 +526,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			if (clientModel.isStereoscopic()) {
 
 				// transform according to camera - left eye
-				scratchDampCameraDistanceVector.set(0, dampCameraDistance, 0);
-				scratchDampCameraDistanceVector.add(stereoAmount * -0.02f * dampCameraDistance, 0, 0);
-				scratchDampCameraRotationVector.set(-absoluteCameraTilt, 0, absoluteCameraPan);
-				rotate(scratchDampCameraDistanceVector, scratchDampCameraRotationVector);
-				float x = dampXCamera + scratchDampCameraDistanceVector.x;
-				float y = dampYCamera + scratchDampCameraDistanceVector.y;
-				float z = dampZCamera + scratchDampCameraDistanceVector.z;
-				clientModel.setDampedCameraLocation(x, y, z);
-				Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-				Matrix.rotateM(viewMatrix, 0, stereoAmount * 1.0f, 0, 1, 0);
-				Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
-				Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
-				Matrix.translateM(viewMatrix, 0, -x, -z, -y);
-				textureShader.setViewMatrix(viewMatrix);
-				textureShader.setViewPosition(scratchDampCameraDistanceVector.x, scratchDampCameraDistanceVector.y, scratchDampCameraDistanceVector.z);
+				initializeViewMatrix(textureShader, viewMatrix, stereoAmount * -0.02f);
 
 				GLES20.glColorMask(true, false, false, true);
 
@@ -541,21 +534,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_LEFT_EYE);
 
 				// transform according to camera - right eye
-				scratchDampCameraDistanceVector.set(0, dampCameraDistance, 0);
-				scratchDampCameraDistanceVector.add(stereoAmount * 0.02f * dampCameraDistance, 0, 0);
-				scratchDampCameraRotationVector.set(-absoluteCameraTilt, 0, absoluteCameraPan);
-				rotate(scratchDampCameraDistanceVector, scratchDampCameraRotationVector);
-				x = dampXCamera + scratchDampCameraDistanceVector.x;
-				y = dampYCamera + scratchDampCameraDistanceVector.y;
-				z = dampZCamera + scratchDampCameraDistanceVector.z;
-				clientModel.setDampedCameraLocation(x, y, z);
-				Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-				Matrix.rotateM(viewMatrix, 0, stereoAmount * -1.0f, 0, 1, 0);
-				Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
-				Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
-				Matrix.translateM(viewMatrix, 0, -x, -z, -y);
-				textureShader.setViewMatrix(viewMatrix);
-				textureShader.setViewPosition(scratchDampCameraDistanceVector.x, scratchDampCameraDistanceVector.y, scratchDampCameraDistanceVector.z);
+				initializeViewMatrix(textureShader, viewMatrix, stereoAmount * 0.02f);
 
 				GLES20.glColorMask(false, true, true, true);
 
@@ -568,19 +547,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			} else {
 
 				// transform according to camera
-				scratchDampCameraDistanceVector.set(0, dampCameraDistance, 0);
-				scratchDampCameraRotationVector.set(-absoluteCameraTilt, 0, absoluteCameraPan);
-				rotate(scratchDampCameraDistanceVector, scratchDampCameraRotationVector);
-				float x = dampXCamera + scratchDampCameraDistanceVector.x;
-				float y = dampYCamera + scratchDampCameraDistanceVector.y;
-				float z = dampZCamera + scratchDampCameraDistanceVector.z;
-				clientModel.setDampedCameraLocation(x, y, z);
-				Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-				Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
-				Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
-				Matrix.translateM(viewMatrix, 0, -x, -z, -y);
-				textureShader.setViewMatrix(viewMatrix);
-				textureShader.setViewPosition(scratchDampCameraDistanceVector.x, scratchDampCameraDistanceVector.y, scratchDampCameraDistanceVector.z);
+				initializeViewMatrix(textureShader, viewMatrix,  0);
 
 				if (USE_DEPTH_SHADER) {
 					// Do a depth-only draw
@@ -1166,19 +1133,8 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 	
 		// transform according to camera
-		scratchDampCameraDistanceVector.set(0, dampCameraDistance, 0);
-		scratchDampCameraRotationVector.set(-absoluteCameraTilt, 0, absoluteCameraPan);
-		rotate(scratchDampCameraDistanceVector, scratchDampCameraRotationVector);
-		float x = dampXCamera + scratchDampCameraDistanceVector.x;
-		float y = dampYCamera + scratchDampCameraDistanceVector.y;
-		float z = dampZCamera + scratchDampCameraDistanceVector.z;
-		clientModel.setDampedCameraLocation(x, y, z);
-		Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
-		Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
-		Matrix.rotateM(viewMatrix, 0, -absoluteCameraPan, 0, 1, 0);
-		Matrix.translateM(viewMatrix, 0, -x, -z, -y);
-		textureShader.setViewMatrix(viewMatrix);
-	
+		initializeViewMatrix(textureShader, viewMatrix, 0);
+
 		GLWorld worldRendering = (GLWorld) clientModel.world.getRendering();
 		worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_PICKING);
 		GLES20.glFlush();

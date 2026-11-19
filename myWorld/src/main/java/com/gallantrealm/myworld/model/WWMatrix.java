@@ -3,21 +3,13 @@ package com.gallantrealm.myworld.model;
 import java.util.Arrays;
 
 /**
- * An implementation of a 4x4 model matrix in column-major order compatible with OpenGL
- * rendering pipeline where vertex buffers store coordinates in (X, Z, Y) order:
+ * An implementation of a 4x4 model matrix in column-major order (compatible with OpenGL).
  * <pre>
  *  m[0] m[4] m[8]  m[12]
  *  m[1] m[5] m[9]  m[13]
  *  m[2] m[6] m[10] m[14]
  *  m[3] m[7] m[11] m[15]
  *  </pre>
- * In this project's World coordinate system (Z-up, Right-Hand Rule):
- * <ul>
- *   <li>World X = Right &rarr; Column 0 (m[0..3])</li>
- *   <li>World Z = Up &rarr; Column 1 (m[4..7])</li>
- *   <li>World Y = Forward &rarr; Column 2 (m[8..11])</li>
- *   <li>Translation &rarr; Column 3 (m[12..15])</li>
- * </ul>
  */
 public class WWMatrix implements Cloneable {
 
@@ -50,11 +42,11 @@ public class WWMatrix implements Cloneable {
 	}
 
 	/**
-	 * Translates the matrix in World space coordinates (x=World X, y=World Y, z=World Z).
+	 * Translates the matrix.
 	 */
 	public void move(float x, float y, float z) {
 		for (int i = 0; i < 4; i++) {
-			m[12 + i] += m[i] * x + m[4 + i] * z + m[8 + i] * y;
+			m[12 + i] += m[i] * x + m[4 + i] * y + m[8 + i] * z;
 		}
 	}
 
@@ -75,13 +67,13 @@ public class WWMatrix implements Cloneable {
 	}
 
 	/**
-	 * Scales the matrix in World space coordinates (x=World X, y=World Y, z=World Z).
+	 * Scales the matrix (x=X, y=Y, z=Z).
 	 */
 	public void scale(float x, float y, float z) {
 		for (int i = 0; i < 4; i++) {
 			m[i] *= x;
-			m[4 + i] *= z;
-			m[8 + i] *= y;
+			m[4 + i] *= y;
+			m[8 + i] *= z;
 		}
 	}
 
@@ -94,16 +86,16 @@ public class WWMatrix implements Cloneable {
 	}
 
 	/**
-	 * Shears the matrix in World space coordinates along World Z (height).
-	 * x = shear factor along World X per unit height
-	 * y = shear factor along World Y per unit height
-	 * z = shear factor along World Z per unit horizontal distance
+	 * Shears the matrix along Z.
+	 * x = shear factor along X per unit Z
+	 * y = shear factor along Y per unit Z
+	 * z = shear factor along Z per unit X
 	 */
 	public void shear(float x, float y, float z) {
 		for (int i = 0; i < 4; i++) {
-			m[4 + i] += x * m[i] + y * m[8 + i];
+			m[8 + i] += x * m[i] + y * m[4 + i];
 			if (z != 0.0f) {
-				m[i] += z * m[4 + i];
+				m[i] += z * m[8 + i];
 			}
 		}
 	}
@@ -117,19 +109,19 @@ public class WWMatrix implements Cloneable {
 	}
 
 	/**
-	 * Tapers the matrix in World space coordinates using projective scaling.
-	 * @param x taper rate along World Z (height)
-	 * @param y taper rate along World Y (forward)
-	 * @param z taper rate along World X (right)
+	 * Tapers the matrix using projective scaling.
+	 * @param x taper rate along X
+	 * @param y taper rate along Y
+	 * @param z taper rate along Z
 	 */
 	public void taper(float x, float y, float z) {
 		for (int i = 0; i < 4; i++) {
-			m[4 + i] += x * m[12 + i];
+			m[i] += x * m[12 + i];
 			if (y != 0.0f) {
-				m[8 + i] += y * m[12 + i];
+				m[4 + i] += y * m[12 + i];
 			}
 			if (z != 0.0f) {
-				m[i] += z * m[12 + i];
+				m[8 + i] += z * m[12 + i];
 			}
 		}
 	}

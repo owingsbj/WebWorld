@@ -12,37 +12,37 @@ public class WWMatrixTest {
         WWMatrix matrix = new WWMatrix();
         float[] m = matrix.m;
 
-        Assert.assertEquals(1.0f, m[0], EPSILON);  // Col 0, row 0 (World X)
-        Assert.assertEquals(1.0f, m[5], EPSILON);  // Col 1, row 1 (World Z)
-        Assert.assertEquals(1.0f, m[10], EPSILON); // Col 2, row 2 (World Y)
+        Assert.assertEquals(1.0f, m[0], EPSILON);  // Col 0, row 0 (X)
+        Assert.assertEquals(1.0f, m[5], EPSILON);  // Col 1, row 1 (Y)
+        Assert.assertEquals(1.0f, m[10], EPSILON); // Col 2, row 2 (Z)
         Assert.assertEquals(1.0f, m[15], EPSILON); // Col 3, row 3 (W)
     }
 
     @Test
     public void testMoveInWorldSpace() {
         WWMatrix matrix = new WWMatrix();
-        matrix.move(10.0f, 20.0f, 30.0f); // x=10 (World X), y=20 (World Y), z=30 (World Z)
+        matrix.move(10.0f, 20.0f, 30.0f); // x=10, y=20, z=30
 
         float[] m = matrix.m;
-        // Col 3 is translation (m[12]=World X, m[13]=World Z, m[14]=World Y)
+        // Col 3 is translation (m[12]=X, m[13]=Y, m[14]=Z)
         Assert.assertEquals(10.0f, m[12], EPSILON);
-        Assert.assertEquals(30.0f, m[13], EPSILON);
-        Assert.assertEquals(20.0f, m[14], EPSILON);
+        Assert.assertEquals(20.0f, m[13], EPSILON);
+        Assert.assertEquals(30.0f, m[14], EPSILON);
         Assert.assertEquals(1.0f, m[15], EPSILON);
     }
 
     @Test
     public void testScaleInWorldSpace() {
         WWMatrix matrix = new WWMatrix();
-        matrix.scale(2.0f, 3.0f, 4.0f); // scale x=2 (World X), y=3 (World Y), z=4 (World Z)
+        matrix.scale(2.0f, 3.0f, 4.0f); // scale x=2, y=3, z=4
 
         float[] m = matrix.m;
-        // Col 0 (World X) scaled by 2
+        // Col 0 (X) scaled by 2
         Assert.assertEquals(2.0f, m[0], EPSILON);
-        // Col 1 (World Z) scaled by 4
-        Assert.assertEquals(4.0f, m[5], EPSILON);
-        // Col 2 (World Y) scaled by 3
-        Assert.assertEquals(3.0f, m[10], EPSILON);
+        // Col 1 (Y) scaled by 3
+        Assert.assertEquals(3.0f, m[5], EPSILON);
+        // Col 2 (Z) scaled by 4
+        Assert.assertEquals(4.0f, m[10], EPSILON);
     }
 
     @Test
@@ -52,10 +52,10 @@ public class WWMatrixTest {
         matrix.rotate(q);
 
         float[] m = matrix.m;
-        // 90 deg around Z in OpenGL (X,Z,Y) space
+        // 90 deg around Z
         Assert.assertEquals(0.0f, m[0], EPSILON);
-        Assert.assertEquals(0.0f, m[1], EPSILON);
-        Assert.assertEquals(1.0f, m[2], EPSILON);
+        Assert.assertEquals(1.0f, m[1], EPSILON);
+        Assert.assertEquals(0.0f, m[2], EPSILON);
     }
 
     @Test
@@ -64,22 +64,22 @@ public class WWMatrixTest {
         matrix.shear(0.5f, 0.25f, 0.0f);
 
         float[] m = matrix.m;
-        // m[7] is W component for Col 1 - MUST remain 0
-        Assert.assertEquals(0.0f, m[7], EPSILON);
+        // m[11] is W component for Col 2 - MUST remain 0
+        Assert.assertEquals(0.0f, m[11], EPSILON);
         Assert.assertEquals(1.0f, m[15], EPSILON);
 
-        // Shearing along height (World Z):
-        Assert.assertEquals(0.5f, m[4], EPSILON);
-        Assert.assertEquals(0.25f, m[6], EPSILON);
+        // Shearing along Z:
+        Assert.assertEquals(0.5f, m[8], EPSILON);
+        Assert.assertEquals(0.25f, m[9], EPSILON);
     }
 
     @Test
     public void testTaperInWorldSpace() {
         WWMatrix matrix = new WWMatrix();
-        matrix.taper(0.2f, 0.0f, 0.0f); // taper rate along height (World Z)
+        matrix.taper(0.2f, 0.0f, 0.0f); // taper rate along X
 
         float[] m = matrix.m;
-        Assert.assertEquals(0.2f, m[7], EPSILON);
+        Assert.assertEquals(0.2f, m[3], EPSILON);
         Assert.assertEquals(1.0f, m[15], EPSILON);
     }
 

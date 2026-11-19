@@ -48,11 +48,11 @@ public final class GLSurface {
 	}
 
 	@SuppressWarnings("HalfFloat")
-	public static float halfToFloat(short h) {
+	private static float halfToFloat(short h) {
 		return Half.toFloat(h);
 	}
 
-	public static short floatToHalf(float f) {
+	private static short floatToHalf(float f) {
 		return (short)(Half.toHalf(f));
 	}
 
@@ -178,7 +178,7 @@ public final class GLSurface {
 		return nvertices;
 	}
 
-	public void getVertex(int x, int y, Point3f point) {
+	private void getVertex(int x, int y, Point3f point) {
 		if (baseVertex < 0) { // overflow
 			return;
 		}
@@ -188,7 +188,7 @@ public final class GLSurface {
 		point.z = halfToFloat(vertices.get(vertex * 3 + 2));
 	}
 
-	public float getVertexX(int x, int y) {
+	private float getVertexX(int x, int y) {
 		if (baseVertex < 0) { // overflow
 			return 0;
 		}
@@ -196,7 +196,7 @@ public final class GLSurface {
 		return halfToFloat(vertices.get(vertex * 3));
 	}
 
-	public float getVertexY(int x, int y) {
+	private float getVertexY(int x, int y) {
 		if (baseVertex < 0) { // overflow
 			return 0;
 		}
@@ -204,12 +204,17 @@ public final class GLSurface {
 		return halfToFloat(vertices.get(vertex * 3 + 1));
 	}
 
-	public float getVertexZ(int x, int y) {
+	private float getVertexZ(int x, int y) {
 		if (baseVertex < 0) { // overflow
 			return 0;
 		}
 		int vertex = baseVertex + (y * width + x);
 		return halfToFloat(vertices.get(vertex * 3 + 2));
+	}
+
+	// TODO phase out uses of this (old code that assumed it needed to adjust for world to opengl coordinate differences)
+	public void setOldVertex(int x, int y, float px, float py, float pz) {
+		setVertex(x, y, px, pz, py);
 	}
 
 	public void setVertex(int x, int y, float px, float py, float pz) {
@@ -254,7 +259,7 @@ public final class GLSurface {
 		needsBufferUpdating = true;
 	}
 
-	public void getNormal(int x, int y, Point3f normal) {
+	private void getNormal(int x, int y, Point3f normal) {
 		if (baseVertex < 0) { // overflow
 			return;
 		}
@@ -264,7 +269,7 @@ public final class GLSurface {
 		normal.z = normals.get(vertex * 3 + 2) / 127.0f;
 	}
 
-	public void setNormal(int x, int y, Point3f normal) {
+	private void setNormal(int x, int y, Point3f normal) {
 		if (baseVertex < 0) { // overflow
 			return;
 		}
@@ -275,7 +280,7 @@ public final class GLSurface {
 		needsBufferUpdating = true;
 	}
 
-	public void setTangent(int x, int y, Point3f tangent) {  // the tangent to the normal
+	private void setTangent(int x, int y, Point3f tangent) {  // the tangent to the normal
 		if (baseVertex < 0) { // overflow
 			return;
 		}
@@ -286,7 +291,7 @@ public final class GLSurface {
 		needsBufferUpdating = true;
 	}
 
-	public void setBitangent(int x, int y, Point3f bitangent) {  // another tangent to the normal, perpendicular to tangent
+	private void setBitangent(int x, int y, Point3f bitangent) {  // another tangent to the normal, perpendicular to tangent
 		if (baseVertex < 0) { // overflow
 			return;
 		}

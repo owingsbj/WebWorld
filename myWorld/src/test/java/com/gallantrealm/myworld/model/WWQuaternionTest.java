@@ -130,16 +130,16 @@ public class WWQuaternionTest {
 
     @Test
     public void testToMatrixRotation() {
-        // 90 deg around World Z (Yaw)
+        // 90 deg around Z
         WWQuaternion q = new WWQuaternion(90.0f, 0.0f, 0.0f, 1.0f);
         float[] mat = new float[16];
         q.toMatrix(mat);
 
-        // In OpenGL vertex space (X,Z,Y), rotating 90 deg around Z turns X (1,0,0) into Y (0,0,1).
-        // Col 0 (world X -> OpenGL space): mat[0]=0, mat[1]=0, mat[2]=1
+        // Rotating 90 deg around Z turns X (1,0,0) into Y (0,1,0).
+        // Col 0: mat[0]=0, mat[1]=1, mat[2]=0
         Assert.assertEquals(0.0f, mat[0], EPSILON);
-        Assert.assertEquals(0.0f, mat[1], EPSILON);
-        Assert.assertEquals(1.0f, mat[2], EPSILON);
+        Assert.assertEquals(1.0f, mat[1], EPSILON);
+        Assert.assertEquals(0.0f, mat[2], EPSILON);
     }
 
     @Test
