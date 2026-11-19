@@ -433,7 +433,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
 		Matrix.rotateM(viewMatrix, 0, -90, 1, 0, 0); // Convert World (X,Y,Z) to OpenGL (X,Z,-Y)
 		Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
-		Matrix.rotateM(viewMatrix, 0, absoluteCameraPan, 0, 0, 1);
+		Matrix.rotateM(viewMatrix, 0, absoluteCameraPan + 180.0f, 0, 0, 1);
 		Matrix.translateM(viewMatrix, 0, -x, -y, -z);
 		shader.setViewMatrix(viewMatrix);
 		shader.setViewPosition(scratchDampCameraDistanceVector.x, scratchDampCameraDistanceVector.y, scratchDampCameraDistanceVector.z);
@@ -873,7 +873,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 				for (int i = 0; i <= lastObjectIndex; i++) {
 					WWObject object = objects[i];
 					if (object != null && !object.deleted && !object.penetratable && object.solid && !object.phantom) {
-						if (cameraObject != null && avatar != null && (cameraObject == avatar || avatar.isDescendant(cameraObject))) {								scratchCameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * (cameraPan + scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
+						if (cameraObject != null && avatar != null && (cameraObject == avatar || avatar.isDescendant(cameraObject))) {
 							scratchCameraLocation.x = slideCameraPointX + limitedCameraDistance * (float) Math.sin(TORADIAN * (cameraPan + scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
 							if (cameraDistance < 10) {
 								scratchCameraLocation.y = slideCameraPointY + limitedCameraDistance * (float) Math.cos(TORADIAN * (cameraPan + scratchCameraObjectRotation.getYaw())) * (float) Math.cos(TORADIAN * (cameraTilt + scratchCameraObjectRotation.getPitch()));
