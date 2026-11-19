@@ -1078,15 +1078,15 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			lastShadowCameraViewPosition.x -= FastMath.sinDeg(clientModel.getCameraPan() + cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
 			lastShadowCameraViewPosition.y -= FastMath.cosDeg(clientModel.getCameraPan() + cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
 			Matrix.setLookAtM(sunViewMatrix, 0, //
-					lastShadowCameraViewPosition.x + sunPosition.x, sunPosition.z + lastShadowCameraViewPosition.z, lastShadowCameraViewPosition.y + sunPosition.y, // sun position
-					lastShadowCameraViewPosition.x, lastShadowCameraViewPosition.z, lastShadowCameraViewPosition.y, // center (where the light is looking at)
-					0, 1, 0 // up vector
+					lastShadowCameraViewPosition.x + sunPosition.x, lastShadowCameraViewPosition.y + sunPosition.y, lastShadowCameraViewPosition.z + sunPosition.z, // sun position
+					lastShadowCameraViewPosition.x, lastShadowCameraViewPosition.y, lastShadowCameraViewPosition.z, // center (where the light is looking at)
+					0, 0, 1 // up vector
 			);
 		} else {
 			Matrix.setLookAtM(sunViewMatrix, 0, //
-					sunPosition.x, sunPosition.z, sunPosition.y, // sun position
+					sunPosition.x, sunPosition.y, sunPosition.z, // sun position
 					0, 0, 0, // center (where the light is looking at)
-					0, 1, 0 // up vector
+					0, 0, 1 // up vector
 			);
 		}
 	
