@@ -1229,7 +1229,7 @@ public abstract class ClientModel {
 			sharedServer = "https://owingsbj.github.io/WebWorld";
 		}
 		showDebugLogging = preferences.getBoolean("showDebugLogging", false);
-		frameRate = preferences.getInt("frameRate", 60);
+		frameRate = preferences.getInt("frameRate", 30);
 		displayActualFrameRate = preferences.getBoolean("displayActualFrameRate", false);
 	}
 
