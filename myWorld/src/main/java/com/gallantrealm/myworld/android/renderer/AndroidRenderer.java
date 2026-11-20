@@ -65,6 +65,9 @@ import android.opengl.GLUtils;
  */
 public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 
+	public static final boolean DEBUG_SUNVIEW_MATRIX = false;   // set to true to show world from create shadow mapping perspective
+	public static final boolean USE_DEPTH_SHADER = false;  // set to true to use depth shader (experimental)
+
 	// These values are used in the positionCamera to damp the positional movements
 	public float dampXCamera;
 	public float dampYCamera;
@@ -163,9 +166,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 // }
 		return adjustedCameraPosition;
 	}
-
-	public static final boolean DEBUG_SUNVIEW_MATRIX = false;   // set to true to show world from create shadow mapping perspective
-	public static final boolean USE_DEPTH_SHADER = false;  // set to true to use depth shader (experimental)
 
 	public HashMap<String, GLSurface[]> geometryCache = new HashMap();
 
@@ -1082,22 +1082,21 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		WWObject cameraObject = clientModel.getCameraObject();
 		if (cameraObject != null) {
 			cameraObject.getPosition(lastShadowCameraViewPosition);
-			lastShadowCameraViewPosition.x -= FastMath.sinDeg(clientModel.getCameraPan() + cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
-			lastShadowCameraViewPosition.y -= FastMath.cosDeg(clientModel.getCameraPan() + cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
+			lastShadowCameraViewPosition.x -= FastMath.sinDeg(clientModel.getCameraPan() - cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
+			lastShadowCameraViewPosition.y -= FastMath.cosDeg(clientModel.getCameraPan() - cameraObject.getRotation().getYaw()) * 20 * (1.0f - clientModel.getCameraTilt() / 90.0f);
 			Matrix.setLookAtM(sunViewMatrix, 0, //
-					lastShadowCameraViewPosition.x + sunPosition.x, sunPosition.z + lastShadowCameraViewPosition.z, -(lastShadowCameraViewPosition.y + sunPosition.y), // sun position
-					lastShadowCameraViewPosition.x, lastShadowCameraViewPosition.z, -lastShadowCameraViewPosition.y, // center (where the light is looking at)
-					0, 1, 0 // up vector
+					lastShadowCameraViewPosition.x + sunPosition.x, lastShadowCameraViewPosition.y + sunPosition.y, lastShadowCameraViewPosition.z + sunPosition.z, // sun position
+					lastShadowCameraViewPosition.x, lastShadowCameraViewPosition.y, lastShadowCameraViewPosition.z, // center (where the light is looking at)
+					0, 0, 1 // up vector
 			);
 		} else {
 			Matrix.setLookAtM(sunViewMatrix, 0, //
-					sunPosition.x, sunPosition.z, -sunPosition.y, // sun position
+					sunPosition.x, sunPosition.y, sunPosition.z, // sun position
 					0, 0, 0, // center (where the light is looking at)
-					0, 1, 0 // up vector
+					0, 0, 1 // up vector
 			);
 		}
-		Matrix.rotateM(sunViewMatrix, 0, -90, 1, 0, 0); // Convert World (X,Y,Z) to OpenGL (X,Z,-Y)
-	
+
 		// modelviewprojection matrix
 		float[] tempSunMatrix = new float[16];
 		Matrix.multiplyMM(tempSunMatrix, 0, sunProjectionMatrix, 0, sunViewMatrix, 0);
