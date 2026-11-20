@@ -432,7 +432,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		float y = dampYCamera + scratchDampCameraDistanceVector.y;
 		float z = dampZCamera + scratchDampCameraDistanceVector.z;
 		clientModel.setDampedCameraLocation(x, y, z);
-		Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);
+		Matrix.translateM(viewMatrix, 0, projectionMatrix, 0, 0, 0, 0);  // being used to copy projectionMatrix to viewMatrix
 		Matrix.rotateM(viewMatrix, 0, -90, 1, 0, 0); // Convert World (X,Y,Z) to OpenGL (X,Z,-Y)
 		Matrix.rotateM(viewMatrix, 0, absoluteCameraTilt, 1, 0, 0);
 		Matrix.rotateM(viewMatrix, 0, absoluteCameraPan + 180.0f, 0, 0, 1);
@@ -1071,7 +1071,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT); // only the depth buffer is used
 	
 		// View from the light's perspective
-		float FAR_OUT = 1000.0f;
+		float FAR_OUT = 1000000.0f;
 		clientModel.world.copySunDirectionInto(scratchSunPosition);
 		scratchSunPosition.normalize().scale(FAR_OUT);
 		WWVector sunPosition = scratchSunPosition;
@@ -1098,9 +1098,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 
 		// modelviewprojection matrix
-		float[] tempSunMatrix = new float[16];
-		Matrix.multiplyMM(tempSunMatrix, 0, sunProjectionMatrix, 0, sunViewMatrix, 0);
-		System.arraycopy(tempSunMatrix, 0, sunViewMatrix, 0, 16);
+		Matrix.multiplyMM(sunViewMatrix, 0, sunProjectionMatrix, 0, sunViewMatrix, 0);
 		shadowMapShader.setSunViewMatrix(sunViewMatrix);
 		textureShader.setSunViewMatrix(sunViewMatrix);
 	
