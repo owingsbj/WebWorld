@@ -83,11 +83,11 @@ public class ShadowingTextureShader extends Shader {
 			"	  discard;\n" + //
 			"	} \n" + //
 			"  highp vec3 shadowCoordProj = (shadowCoord.xyz / shadowCoord.w + 1.0) / 2.0; \n" + //
-			"  shadowCoordProj.z -= 0.005; \n" + // bias to prevent shadow acne
-			"  lowp float shadow = 1.0; \n" + // default to unshadowed
-			"  if (shadowCoordProj.x >= 0.0 && shadowCoordProj.x <= 1.0 && shadowCoordProj.y >= 0.0 && shadowCoordProj.y <= 1.0 && shadowCoordProj.z >= 0.0 && shadowCoordProj.z <= 1.0) { \n" + //
-			"    shadow = texture(shadowMapTexture, shadowCoordProj); \n" + //
-			"  } \n" + //
+			"  shadowCoordProj.z -= 0.001; \n" + // bias to prevent shadow acne
+//			"  lowp float shadow = 1.0; \n" + // default to unshadowed
+//			"  if (shadowCoordProj.x >= 0.0 && shadowCoordProj.x <= 1.0 && shadowCoordProj.y >= 0.0 && shadowCoordProj.y <= 1.0 && shadowCoordProj.z >= 0.0 && shadowCoordProj.z <= 1.0) { \n" + //
+			"  lowp float shadow = texture(shadowMapTexture, shadowCoordProj); \n" + //
+//			"  } \n" + //
 			"  lowp float diffuseLightIntensity = 0.0; \n" + //
 			"  lowp float specularLightIntensity = 0.0; \n" + //
 			"  if (fullBright) { \n" + //
