@@ -472,15 +472,15 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			}
 			preRender(time);
 
+			if (threadWaitingForPick != null) {
+				pickingDraw(time, viewMatrix);
+				initializeStandardDraw();
+			}
+
 			// Generate the shadow map texture(s)
 			if (hasDepthTexture && !clientModel.isSimpleRendering() && world.supportsShadows() && worldRendering.drawnOnce) {
 				initializeViewMatrix(shadowMapShader, viewMatrix, 0);
 				generateShadowMap(time, viewMatrix);
-			}
-
-			if (threadWaitingForPick != null) {
-				pickingDraw(time, viewMatrix);
-				initializeStandardDraw();
 			}
 
 //			AndroidRenderer.checkGlError();  // make sure errors are clear
@@ -1043,11 +1043,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		// bind the shadow framebuffer
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, shadowMapFrameBufId);
 	
-		// Cull back faces for shadow generation
-		GLES20.glCullFace(GLES20.GL_BACK);
-		GLES20.glEnable(GLES20.GL_POLYGON_OFFSET_FILL);
-		GLES20.glPolygonOffset(2.0f, 4.0f);
-	
 		// viewport
 		GLES20.glViewport(0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
 	
@@ -1061,7 +1056,7 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		WWVector sunPosition = scratchSunPosition;
 		float ratio = (float) SHADOW_MAP_WIDTH / SHADOW_MAP_HEIGHT;
 		float zoom = 0.08f / FastMath.max(0.25f, (float) Math.sqrt(clientModel.getCameraDistance() / (1.0f + clientModel.getCameraTilt() / 30.0f))); // + (15 - clientModel.getCameraTilt() / 6.0f));
-		Matrix.orthoM(sunProjectionMatrix, 0, -ratio / zoom, ratio / zoom, -1 / zoom, 1 / zoom, FAR_OUT - 100.0f, FAR_OUT + 100.0f); // sunPosition.length() * 0.99f, 100000.0f);
+		Matrix.orthoM(sunProjectionMatrix, 0, -ratio / zoom, ratio / zoom, -1 / zoom, 1 / zoom, FAR_OUT - 100.0f, FAR_OUT + 100.0f);
 	
 		float upX = 0.0f, upY = 0.0f, upZ = 1.0f;
 		if (Math.abs(sunPosition.x) < 0.001f && Math.abs(sunPosition.y) < 0.001f) {
@@ -1103,7 +1098,6 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 	
 		// restore settings to what's needed for normal draw
-		GLES20.glDisable(GLES20.GL_POLYGON_OFFSET_FILL);
 		GLES20.glColorMask(true, true, true, true);
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 		GLES20.glViewport(0, 0, viewportWidth, viewportHeight);
