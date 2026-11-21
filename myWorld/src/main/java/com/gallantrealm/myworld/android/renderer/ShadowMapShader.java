@@ -36,7 +36,6 @@ public class ShadowMapShader extends Shader {
 				"	if (textureColor.a < 0.5) {\n" +
 				"	  discard;\n" +
 				"	} \n" +
-				"  if (gl_FragCoord.x > 2046.0 || gl_FragCoord.x < 1.0 || gl_FragCoord.y > 2046.0 || gl_FragCoord.y < 1.0) discard; \n" +
 				"	fragColor = vec4(1.0); // needed or linker errors sometimes \n" + //
 				"} \n";
 		init(vs, fs);
