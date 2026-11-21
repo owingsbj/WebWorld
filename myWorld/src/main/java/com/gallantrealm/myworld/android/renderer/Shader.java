@@ -61,7 +61,7 @@ public abstract class Shader {
 				y = y / length;
 				z = z / length;
 			}
-			GLES30.glUniform3f(sunPositionLocation, x, z, y);
+			GLES30.glUniform3f(sunPositionLocation, x, y, z);
 //			AndroidRenderer.checkGlError();
 		}
 	}
@@ -79,7 +79,7 @@ public abstract class Shader {
 				y = y / length;
 				z = z / length;
 			}
-			GLES30.glUniform3f(viewPositionLocation, x, z, y);
+			GLES30.glUniform3f(viewPositionLocation, x, y, z);
 //			AndroidRenderer.checkGlError();
 		}
 	}
@@ -198,7 +198,7 @@ public abstract class Shader {
 		initializeStatics();
 	}
 
-	private float[] lastTextureMatrix = new float[16];
+//	private float[] lastTextureMatrix = new float[16];
 
 	/**
 	 * Draw a strip of triangles.
@@ -209,11 +209,11 @@ public abstract class Shader {
 			lastProgram = program;
 		}
 		if (textureMatrixLocation >= 0) {
-			if (!Arrays.equals(textureMatrix, lastTextureMatrix)) {
+//			if (!Arrays.equals(textureMatrix, lastTextureMatrix)) {
 				GLES30.glUniformMatrix4fv(textureMatrixLocation, 1, false, textureMatrix, 0);
 //				AndroidRenderer.checkGlError();
-				System.arraycopy(textureMatrix, 0, lastTextureMatrix, 0, 16);
-			}
+//				System.arraycopy(textureMatrix, 0, lastTextureMatrix, 0, 16);
+//			}
 		}
 		if (colorLocation >= 0) {
 			GLES30.glUniform4f(colorLocation, r, g, b, a);
@@ -294,7 +294,7 @@ public abstract class Shader {
 		if (textureMatrixLocation >= 0) {
 			GLES30.glUniformMatrix4fv(textureMatrixLocation, 1, false, textureMatrix, 0);
 //			AndroidRenderer.checkGlError();
-			lastTextureMatrix[0] = -1; // force update for drawTriangleStrip
+//			lastTextureMatrix[0] = -1; // force update for drawTriangleStrip
 		}
 		if (colorLocation >= 0) {
 			GLES30.glUniform4f(colorLocation, r, g, b, a);

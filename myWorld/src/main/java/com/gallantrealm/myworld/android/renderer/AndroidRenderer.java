@@ -315,36 +315,9 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		GLES20.glFrontFace(GLES20.GL_CCW);
 	
-		// Texture buffer settings
 		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 		// GLES20.glEnable(GLES20.GL_BLEND); // enabled before drawing translucent textures
 	
-		// set color texture properties
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
-		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
-	
-		// set shadow map texture properties
-		if (!clientModel.isSimpleRendering() && shadowMapTextureId != 0) {
-			GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMapTextureId);
-			GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_COMPARE_MODE, GLES30.GL_COMPARE_REF_TO_TEXTURE);
-			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
-		}
-	
-		// set bump map texture properties
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
-		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
-		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
-	
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 	}
 
 	@Override
@@ -499,15 +472,15 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			}
 			preRender(time);
 
-			if (threadWaitingForPick != null) {
-				pickingDraw(time, viewMatrix);
-				initializeStandardDraw();
-			}
-
 			// Generate the shadow map texture(s)
 			if (hasDepthTexture && !clientModel.isSimpleRendering() && world.supportsShadows() && worldRendering.drawnOnce) {
 				initializeViewMatrix(shadowMapShader, viewMatrix, 0);
 				generateShadowMap(time, viewMatrix);
+			}
+
+			if (threadWaitingForPick != null) {
+				pickingDraw(time, viewMatrix);
+				initializeStandardDraw();
 			}
 
 //			AndroidRenderer.checkGlError();  // make sure errors are clear
@@ -565,8 +538,12 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 					GLES20.glDepthFunc(GLES20.GL_LESS);
 				} else {
 					if (DEBUG_SUNVIEW_MATRIX) { // DEBUG OVERRIDE TO SEE SUN VIEW
-						textureShader.setViewMatrix(sunViewMatrix);
-						worldRendering.draw(textureShader, sunViewMatrix, time, GLWorld.DRAW_TYPE_MONO);
+						simpleTextureShader.setSunPosition(world.getSunDirectionX(), world.getSunDirectionY(), world.getSunDirectionZ());
+						simpleTextureShader.setSunColor(world.getSunRed(), world.getSunGreen(), world.getSunBlue());
+						simpleTextureShader.setSunIntensity(world.getSunIntensity());
+						simpleTextureShader.setAmbientLightIntensity(world.getAmbientLightIntensity());
+						simpleTextureShader.setViewMatrix(sunViewMatrix);
+						worldRendering.draw(simpleTextureShader, sunViewMatrix, time, GLWorld.DRAW_TYPE_MONO);
 					} else {
 						worldRendering.draw(textureShader, viewMatrix, time, GLWorld.DRAW_TYPE_MONO);
 					}
@@ -1039,13 +1016,14 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMapTextureId);
 		GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_COMPARE_MODE, GLES30.GL_COMPARE_REF_TO_TEXTURE);
+		GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_COMPARE_FUNC, GLES30.GL_LEQUAL);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE31);  // avoid any side-effects
 
-		// restore back to the default framebuffer and texture 0
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+		// restore back to the default framebuffer
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
 		System.out.println("<AndroidRenderer.setupShadowMap");
@@ -1058,11 +1036,17 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 	 */
 	private void generateShadowMap(long time, float[] viewMatrix) {
 	
+		// unbind shadow map texture from texture unit 1 during depth render to prevent feedback loops
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+
 		// bind the shadow framebuffer
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, shadowMapFrameBufId);
 	
-		// Cull front faces for shadow generation
-		GLES20.glCullFace(GLES20.GL_FRONT);
+		// Cull back faces for shadow generation
+		GLES20.glCullFace(GLES20.GL_BACK);
+		GLES20.glEnable(GLES20.GL_POLYGON_OFFSET_FILL);
+		GLES20.glPolygonOffset(2.0f, 4.0f);
 	
 		// viewport
 		GLES20.glViewport(0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
@@ -1071,14 +1055,20 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT); // only the depth buffer is used
 	
 		// View from the light's perspective
-		float FAR_OUT = 1000000.0f;
+		float FAR_OUT = 1000.0f;
 		clientModel.world.copySunDirectionInto(scratchSunPosition);
 		scratchSunPosition.normalize().scale(FAR_OUT);
 		WWVector sunPosition = scratchSunPosition;
 		float ratio = (float) SHADOW_MAP_WIDTH / SHADOW_MAP_HEIGHT;
 		float zoom = 0.08f / FastMath.max(0.25f, (float) Math.sqrt(clientModel.getCameraDistance() / (1.0f + clientModel.getCameraTilt() / 30.0f))); // + (15 - clientModel.getCameraTilt() / 6.0f));
-		Matrix.orthoM(sunProjectionMatrix, 0, -ratio / zoom, ratio / zoom, -1 / zoom, 1 / zoom, FAR_OUT - 1000.0f, FAR_OUT + 1000.0f); // sunPosition.length() * 0.99f, 100000.0f);
+		Matrix.orthoM(sunProjectionMatrix, 0, -ratio / zoom, ratio / zoom, -1 / zoom, 1 / zoom, FAR_OUT - 100.0f, FAR_OUT + 100.0f); // sunPosition.length() * 0.99f, 100000.0f);
 	
+		float upX = 0.0f, upY = 0.0f, upZ = 1.0f;
+		if (Math.abs(sunPosition.x) < 0.001f && Math.abs(sunPosition.y) < 0.001f) {
+			upY = 1.0f;
+			upZ = 0.0f;
+		}
+
 		WWObject cameraObject = clientModel.getCameraObject();
 		if (cameraObject != null) {
 			cameraObject.getPosition(lastShadowCameraViewPosition);
@@ -1087,18 +1077,20 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 			Matrix.setLookAtM(sunViewMatrix, 0, //
 					lastShadowCameraViewPosition.x + sunPosition.x, lastShadowCameraViewPosition.y + sunPosition.y, lastShadowCameraViewPosition.z + sunPosition.z, // sun position
 					lastShadowCameraViewPosition.x, lastShadowCameraViewPosition.y, lastShadowCameraViewPosition.z, // center (where the light is looking at)
-					0, 0, 1 // up vector
+					upX, upY, upZ // up vector
 			);
 		} else {
 			Matrix.setLookAtM(sunViewMatrix, 0, //
 					sunPosition.x, sunPosition.y, sunPosition.z, // sun position
 					0, 0, 0, // center (where the light is looking at)
-					0, 0, 1 // up vector
+					upX, upY, upZ // up vector
 			);
 		}
 
 		// modelviewprojection matrix
-		Matrix.multiplyMM(sunViewMatrix, 0, sunProjectionMatrix, 0, sunViewMatrix, 0);
+		float[] tempSunMatrix = new float[16];
+		Matrix.multiplyMM(tempSunMatrix, 0, sunProjectionMatrix, 0, sunViewMatrix, 0);
+		System.arraycopy(tempSunMatrix, 0, sunViewMatrix, 0, 16);
 		shadowMapShader.setSunViewMatrix(sunViewMatrix);
 		textureShader.setSunViewMatrix(sunViewMatrix);
 	
@@ -1111,28 +1103,29 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		}
 	
 		// restore settings to what's needed for normal draw
+		GLES20.glDisable(GLES20.GL_POLYGON_OFFSET_FILL);
 		GLES20.glColorMask(true, true, true, true);
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 		GLES20.glViewport(0, 0, viewportWidth, viewportHeight);
 		GLES20.glCullFace(GLES20.GL_BACK);
+
+		// bind shadow map texture to GL_TEXTURE1 for main scene shading
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shadowMapTextureId);
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 	}
 
 	/**
 	 * Perform a special frame draw that draws each object in a different color, to determine what object is at a particular pixel.
 	 */
 	public void pickingDraw(long time, float[] viewMatrix) {
-		// TODO GLES20.glEnableClientState(GLES20.GL_VERTEX_ARRAY);
-		// TODO GLES20.glDisableClientState(GLES20.GL_NORMAL_ARRAY);
-		// TODO GLES20.glDisableClientState(GLES20.GL_TEXTURE_COORD_ARRAY);
+		// Depth buffer settings
 		GLES20.glEnable(GLES20.GL_CULL_FACE);
-		GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+		GLES20.glCullFace(GLES20.GL_BACK);
+		GLES20.glDepthFunc(GLES20.GL_LESS);
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		GLES20.glFrontFace(GLES20.GL_CCW);
-		// GLES20.glMatrixMode(GLES20.GL_MODELVIEW);
-		// GLES20.glLoadIdentity();
 	
-		// TODO GLES20.glDisable(GLES20.GL_LIGHTING);
-		// GLES20.glDisable(GLES20.GL_FOG);
 		textureShader.setFogDensity(0.0f);
 	
 		// Clear to black
@@ -1188,6 +1181,14 @@ public class AndroidRenderer implements IRenderer, GLSurfaceView.Renderer {
 		synchronized (thread) {
 			thread.notify();
 		}
+
+		// restore settings to what's needed for normal draw
+		GLES20.glDisable(GLES20.GL_POLYGON_OFFSET_FILL);
+		GLES20.glColorMask(true, true, true, true);
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+		GLES20.glViewport(0, 0, viewportWidth, viewportHeight);
+		GLES20.glCullFace(GLES20.GL_BACK);
+
 	}
 
 	private int getObjectIdAtPixel(int x, int y) {

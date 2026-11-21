@@ -34,7 +34,6 @@ public class ShadowingTextureShader extends Shader {
 			"void main() {\n" + //
 			"	gl_Position = viewMatrix * modelMatrix * aPosition;\n" + //
 			"	shadowCoord = sunViewMatrix * modelMatrix * aPosition; \n" + //
-			"	shadowCoord = (shadowCoord / shadowCoord.w + 1.0) /2.0;\n" + //
 			"	mNormal = normalize((modelMatrix * vec4(aNormal, 0.0)).xyz);\n" + //
 			"	mTangent = normalize((modelMatrix * vec4(aTangent, 0.0)).xyz);\n" + //
 			"	mBitangent = normalize((modelMatrix * vec4(aBitangent, 0.0)).xyz);\n" + //
@@ -83,7 +82,12 @@ public class ShadowingTextureShader extends Shader {
 			"	if (textureColor.a <= 0.5) {\n" + //
 			"	  discard;\n" + //
 			"	} \n" + //
-			"  lowp float shadow = texture(shadowMapTexture, shadowCoord.xyz); \n" + //
+			"  highp vec3 shadowCoordProj = (shadowCoord.xyz / shadowCoord.w + 1.0) / 2.0; \n" + //
+			"  shadowCoordProj.z -= 0.005; \n" + // bias to prevent shadow acne
+			"  lowp float shadow = 1.0; \n" + // default to unshadowed
+			"  if (shadowCoordProj.x >= 0.0 && shadowCoordProj.x <= 1.0 && shadowCoordProj.y >= 0.0 && shadowCoordProj.y <= 1.0 && shadowCoordProj.z >= 0.0 && shadowCoordProj.z <= 1.0) { \n" + //
+			"    shadow = texture(shadowMapTexture, shadowCoordProj); \n" + //
+			"  } \n" + //
 			"  lowp float diffuseLightIntensity = 0.0; \n" + //
 			"  lowp float specularLightIntensity = 0.0; \n" + //
 			"  if (fullBright) { \n" + //
@@ -91,7 +95,7 @@ public class ShadowingTextureShader extends Shader {
 			"  } else { \n" + //
 			"      lowp vec4 bump = (texture(bumpTexture, textureCoord) - 0.5) * 2.0; \n" + //
 			"      lowp vec3 bumpNormal = bump.r * mTangent + bump.g * mBitangent + bump.b * mNormal; \n" + //
-			"	    diffuseLightIntensity = shadow * sunIntensity * max(-0.0,dot(sunPosition, -bumpNormal));\n" + //
+			"	    diffuseLightIntensity = shadow * sunIntensity * max(0.0,dot(sunPosition, bumpNormal));\n" + //
 			"	    lowp float specular = max(0.0, dot(viewPosition, reflect(-sunPosition, bumpNormal))); \n" + //
 			"	    specularLightIntensity = shadow * sunIntensity * clamp(pow(specular, 1.0+ 50.0* shininess) * 2.5 * shininess, 0.0, 1.0); \n" + //
 			"  } \n" + //
@@ -101,6 +105,11 @@ public class ShadowingTextureShader extends Shader {
 			"		lowp float fog = clamp(exp(-fogDensity*fogDensity * abs(fogDepth) * abs(fogDepth) / 5000.0  ), 0.0, 1.0); \n" + //
 			"		fragColor = mix(sunColor, fragColor, fog); \n" + //
 			"	} \n" + //
+			"   // DEBUG SHADOW MAP: Uncomment one of these lines to visualize what the shadow map sees \n" + //
+			"   // fragColor = vec4(shadow, shadow, shadow, 1.0); // Visualizes actual shadow calculation (white = lit, black = shadow) \n" + //
+			"   // fragColor = vec4(shadowCoordProj.z, shadowCoordProj.z, shadowCoordProj.z, 1.0); // Visualizes projected Z depth \n" + //
+			"   // fragColor = vec4(fract(shadowCoordProj.z * 100.0), fract(shadowCoordProj.z * 100.0), fract(shadowCoordProj.z * 100.0), 1.0); // Visualizes fine projected Z depth \n" + //
+			"   // fragColor = vec4((mNormal.x + 1.0) * 0.5, (mNormal.y + 1.0) * 0.5, (mNormal.z + 1.0) * 0.5, 1.0); // Visualizes World Normal \n" + //
 			"}";
 
 	public ShadowingTextureShader() {

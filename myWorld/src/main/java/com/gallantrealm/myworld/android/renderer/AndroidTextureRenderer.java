@@ -26,6 +26,12 @@ import java.io.InputStream;
 import java.nio.Buffer;
 import java.util.HashMap;
 
+/**
+ * Implementation for Android using Opengl.
+ *
+ * NOTE:  Texure unit 31 (GL_TEXTURE31) is uses a s scratchpad texture unit when loading
+ * and configuring textures so it shouldn't be used in shaders.
+ */
 public class AndroidTextureRenderer implements ITextureRenderer {
 
     public static HashMap<String, Integer> textureCache = new HashMap<String, Integer>();
@@ -153,6 +159,7 @@ public class AndroidTextureRenderer implements ITextureRenderer {
         GLES20.glGenTextures(1, textureIds, 0);
         int textureId = textureIds[0];
 
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE31);  // a scratch texture unit to use just for setting the  parameters
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 
         if (textureName.equals("surface_select")) {
@@ -221,6 +228,7 @@ public class AndroidTextureRenderer implements ITextureRenderer {
         textureCache.put(textureName, textureId);
         hasAlphaCache.put(textureName, false);
 
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE31);  // a scratch texture unit to use just for setting the  parameters
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
         if (simpleRendering) {
             GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES11.GL_GENERATE_MIPMAP, GLES20.GL_FALSE);
@@ -409,6 +417,7 @@ public class AndroidTextureRenderer implements ITextureRenderer {
     }
 
     final void updateTexture(Bitmap bitmap, int textureId) {
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE31);  // a scratch texture unit to use just for setting the  parameters
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 
         // avoid mipmapping for updated textures to save time

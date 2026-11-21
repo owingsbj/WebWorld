@@ -61,7 +61,7 @@ public class SimpleTextureShader extends Shader {
 			"	if (textureColor.a <= 0.5) {\n" + //
 			"	  discard;\n" + //
 			"	} \n" + //
-			"	lowp float diffuseLightIntensity = sunIntensity * max(0.0,dot(sunPosition, -mNormal));\n" +
+			"	lowp float diffuseLightIntensity = sunIntensity * max(0.0,dot(sunPosition, mNormal));\n" +
 			"	lowp float sValue = fullBright ? 1.0 : max(ambientLightIntensity, diffuseLightIntensity); \n" + //
 			"	fragColor = sunColor * (color * textureColor * vec4(sValue, sValue, sValue, 1.0)); \n" + //
 			"	if (fogDensity > 0.0) { \n" + //
