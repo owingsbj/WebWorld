@@ -962,7 +962,7 @@ public class ShowWorldActivity extends GallantActivity implements OnTouchListene
 										startingCameraTilt = clientModel.getCameraTilt();
 										dragging = true;
 									}
-									clientModel.setCameraPan(startingCameraPan + (startingX - x) / 2.5f);
+									clientModel.setCameraPan(startingCameraPan - (startingX - x) / 2.5f);
 									clientModel.setCameraTilt(Math.max(startingCameraTilt - (startingY - y) / 2.5f, -30.0f));
 								}
 							}
