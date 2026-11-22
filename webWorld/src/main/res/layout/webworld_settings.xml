@@ -5,8 +5,8 @@
     android:layout_height="match_parent"
     android:background="@raw/theme_background"
     android:orientation="vertical"
-    android:paddingLeft="10sp"
-    android:paddingTop="5sp" >
+    android:paddingLeft="10dp"
+    android:paddingTop="5dp" >
 
     <TextView
         android:id="@+id/titleText"
@@ -52,7 +52,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="10sp">
+                    android:layout_marginLeft="10dp">
 
                     <CheckBox
                         android:id="@+id/playMusicCheckBox"
@@ -74,7 +74,7 @@
                         android:shadowDx="1"
                         android:shadowDy="1"
                         android:shadowRadius="1"
-                        android:text="Sound effects  "
+                        android:text="Effects  "
                         android:textSize="16sp"
                         android:visibility="visible" />
 
@@ -129,8 +129,8 @@
 
                     <Spinner
                         android:id="@+id/controlType"
-                        android:layout_width="100sp"
-                        android:layout_height="40sp"
+                        android:layout_width="100dp"
+                        android:layout_height="40dp"
                         android:layout_weight="1" />
 
                     <TextView
@@ -138,7 +138,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="5sp"
+                        android:layout_marginLeft="5dp"
                         android:shadowColor="#444444"
                         android:shadowDx="1"
                         android:shadowDy="1"
@@ -149,7 +149,7 @@
 
                     <com.gallantrealm.android.Slider
                         android:id="@+id/controlSensitivity"
-                        android:layout_width="100sp"
+                        android:layout_width="100dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_marginRight="5sp"
@@ -179,7 +179,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="10sp">
+                    android:layout_marginLeft="10dp">
 
                     <CheckBox
                         android:id="@+id/viewIn3dCheckbox"
@@ -189,7 +189,7 @@
                         android:shadowDx="1"
                         android:shadowDy="1"
                         android:shadowRadius="1"
-                        android:text="Stereoscopic 3D  "
+                        android:text="3D  "
                         android:textSize="16sp" />
 
                     <CheckBox
@@ -200,7 +200,7 @@
                         android:shadowDx="1"
                         android:shadowDy="1"
                         android:shadowRadius="1"
-                        android:text="Simple rendering  "
+                        android:text="Simple  "
                         android:textSize="16sp"
                         android:visibility="visible" />
 
@@ -213,14 +213,14 @@
                         android:shadowDx="1"
                         android:shadowDy="1"
                         android:shadowRadius="1"
-                        android:text="Frame rate: "
+                        android:text="FPS: "
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textSize="16sp" />
 
                     <Spinner
                         android:id="@+id/frameRateSpinner"
-                        android:layout_width="100sp"
-                        android:layout_height="40sp"
+                        android:layout_width="100dp"
+                        android:layout_height="40dp"
                         android:layout_gravity="center_vertical" />
 
                 </LinearLayout>
@@ -237,11 +237,11 @@
 
         <Button
             android:id="@+id/okButton"
-            android:layout_width="120sp"
-            android:layout_height="60sp"
+            android:layout_width="120dp"
+            android:layout_height="60dp"
             android:background="@drawable/theme_button"
-            android:paddingLeft="20sp"
-            android:paddingRight="20sp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:shadowColor="#444444"
             android:shadowDx="3"
             android:shadowDy="3"
@@ -253,11 +253,11 @@
 
         <Button
             android:id="@+id/developerSettingsButton"
-            android:layout_width="300sp"
-            android:layout_height="60sp"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
             android:background="@drawable/theme_button"
-            android:paddingLeft="20sp"
-            android:paddingRight="20sp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:shadowColor="#444444"
             android:shadowDx="3"
             android:shadowDy="3"

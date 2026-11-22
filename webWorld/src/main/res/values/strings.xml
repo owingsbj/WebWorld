@@ -7,10 +7,10 @@
 	<string name="defaultWorldClassName">com.gallantrealm.webworld.model.World</string>
 	<string name="defaultWorldName">BlockWorld</string>
 	<string name="defaultAvatarName">Egg</string>
-	<string name="chooseAvatarButton">Choose Avatar</string>
-	<string name="chooseWorldButton">Choose World</string>
+	<string name="chooseAvatarButton">Choose\nAvatar</string>
+	<string name="chooseWorldButton">Choose\nWorld</string>
 	<string name="selectWorldPrompt">Select a world:</string>
-	<string name="selectAvatarPrompt">Select an avatar and customize:</string>
+	<string name="selectAvatarPrompt">Select avatar and customize:</string>
 	<string name="scoreLabel">Level:</string>
 	<string name="admobid"></string>
 	<string name="amazonappkey"></string>

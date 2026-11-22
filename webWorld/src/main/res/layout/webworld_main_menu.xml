@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/mainLayout"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
 	android:background="@raw/theme_background"
-	android:orientation="vertical" >
+	android:orientation="vertical">
+
 	<LinearLayout
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:layout_weight="1" >
-		<LinearLayout
-			android:layout_width="fill_parent"
-			android:layout_height="match_parent"
-			android:layout_weight="1"
-			android:orientation="vertical" />
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:gravity="center">
+
 		<TextView
 			android:id="@+id/titleText"
 			android:layout_width="wrap_content"
@@ -25,178 +23,181 @@
 			android:shadowDy="1"
 			android:shadowRadius="2"
 			android:text="@string/app_name"
+			android:textAppearance="@style/TextAppearance.AppCompat.Large"
 			android:textColor="#ffffff"
-			android:textSize="60sp"
-			android:textStyle="italic"
-			android:typeface="serif" />
-		<LinearLayout
-			android:layout_width="fill_parent"
-			android:layout_height="match_parent"
-			android:layout_weight="1"
-			android:orientation="vertical" />
+			android:textSize="24pt"
+			android:textStyle="normal"
+			android:typeface="normal" />
+
 	</LinearLayout>
+
 	<LinearLayout
 		android:id="@+id/linearLayout1"
 		android:layout_width="match_parent"
-		android:layout_height="fill_parent"
+		android:layout_height="0dp"
 		android:layout_gravity="center"
-		android:layout_weight="1" >
+		android:layout_weight="1"
+		android:gravity="center_vertical">
+
 		<FrameLayout
 			android:id="@+id/chooseAvatarFrame"
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:layout_weight="1"
-			android:visibility="visible" >
+			android:visibility="visible">
 
 			<Button
-			    android:id="@+id/chooseAvatarButton"
-			    android:layout_width="150sp"
-			    android:layout_height="100sp"
-			    android:layout_gravity="center"
-			    android:background="@drawable/theme_button"
-			    android:shadowColor="#444444"
-			    android:shadowDx="3"
-			    android:shadowDy="3"
-			    android:shadowRadius="3"
-			    android:text="@string/chooseAvatarButton"
-			    android:textColor="#ffffff"
-			    android:textSize="25sp"
-			    android:textStyle="bold" />
+				android:id="@+id/chooseAvatarButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:background="@drawable/theme_button"
+				android:minWidth="150dp"
+				android:maxWidth="150dp"
+				android:minHeight="48dp"
+				android:paddingLeft="4dp"
+				android:paddingTop="4dp"
+				android:paddingRight="4dp"
+				android:paddingBottom="4dp"
+				android:shadowColor="#444444"
+				android:shadowDx="3"
+				android:shadowDy="3"
+				android:shadowRadius="3"
+				android:text="@string/chooseAvatarButton"
+				android:textColor="#ffffff"
+				android:textSize="20sp"
+				android:textStyle="bold" />
 
 		</FrameLayout>
+
 		<FrameLayout
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="match_parent"
-			android:layout_weight="1" >
+			android:layout_weight="1">
 
 			<Button
-			    android:id="@+id/chooseWorldButton"
-			    android:layout_width="150sp"
-			    android:layout_height="100sp"
-			    android:layout_gravity="center"
-			    android:background="@drawable/theme_button"
-			    android:shadowColor="#444444"
-			    android:shadowDx="3"
-			    android:shadowDy="3"
-			    android:shadowRadius="3"
-			    android:text="@string/chooseWorldButton"
-			    android:textColor="#ffffff"
-			    android:textSize="25sp"
-			    android:textStyle="bold" />
+				android:id="@+id/chooseWorldButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:background="@drawable/theme_button"
+				android:minWidth="150dp"
+				android:maxWidth="150dp"
+				android:minHeight="48dp"
+				android:paddingLeft="4dp"
+				android:paddingTop="4dp"
+				android:paddingRight="4dp"
+				android:paddingBottom="4dp"
+				android:shadowColor="#444444"
+				android:shadowDx="3"
+				android:shadowDy="3"
+				android:shadowRadius="3"
+				android:text="@string/chooseWorldButton"
+				android:textColor="#ffffff"
+				android:textSize="20sp"
+				android:textStyle="bold" />
 
 		</FrameLayout>
+
 		<FrameLayout
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="match_parent"
-			android:layout_weight="1" >
+			android:layout_weight="1">
 
 			<Button
-			    android:id="@+id/playButton"
-			    android:layout_width="150sp"
-			    android:layout_height="100sp"
-			    android:layout_gravity="center"
-			    android:background="@drawable/theme_button"
-			    android:shadowColor="#444444"
-			    android:shadowDx="3"
-			    android:shadowDy="3"
-			    android:shadowRadius="3"
-			    android:text="Play!"
-			    android:textColor="#ffffff"
-			    android:textSize="25sp"
-			    android:textStyle="bold" />
+				android:id="@+id/playButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:background="@drawable/theme_button"
+				android:minWidth="150dp"
+				android:maxWidth="150dp"
+				android:minHeight="48dp"
+				android:paddingLeft="4dp"
+				android:paddingTop="4dp"
+				android:paddingRight="4dp"
+				android:paddingBottom="4dp"
+				android:shadowColor="#444444"
+				android:shadowDx="3"
+				android:shadowDy="3"
+				android:shadowRadius="3"
+				android:text="Play!"
+				android:textColor="#ffffff"
+				android:textSize="20sp"
+				android:textStyle="bold" />
 
 		</FrameLayout>
 	</LinearLayout>
+
 	<LinearLayout
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:layout_weight="1" >
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="0.75"
+		android:gravity="center_vertical">
+
 		<FrameLayout
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="match_parent"
-			android:layout_weight="1" >
+			android:layout_weight="1">
 
 			<Button
-			    android:id="@+id/quitButton"
-			    android:layout_width="100sp"
-			    android:layout_height="60sp"
-			    android:layout_gravity="center"
-			    android:layout_marginLeft="30px"
-			    android:background="@drawable/theme_button"
-			    android:shadowColor="#444444"
-			    android:shadowDx="3"
-			    android:shadowDy="3"
-			    android:shadowRadius="3"
-			    android:text="Quit"
-			    android:textColor="#ffffff"
-			    android:textSize="20sp"
-			    android:textStyle="bold" />
+				android:id="@+id/quitButton"
+				android:layout_width="90dp"
+				android:layout_height="60dp"
+				android:layout_gravity="center"
+				android:background="@drawable/theme_button"
+				android:shadowColor="#444444"
+				android:shadowDx="3"
+				android:shadowDy="3"
+				android:shadowRadius="3"
+				android:text="Quit"
+				android:textColor="#ffffff"
+				android:textSize="15sp"
+				android:textStyle="bold" />
 
 		</FrameLayout>
+
 		<FrameLayout
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="match_parent"
-			android:layout_weight="1" >
+			android:layout_weight="1">
 
 			<Button
-			    android:id="@+id/helpButton"
-			    android:layout_width="100sp"
-			    android:layout_height="60sp"
-			    android:layout_gravity="center"
-			    android:background="@drawable/theme_button"
-			    android:shadowColor="#444444"
-			    android:shadowDx="3"
-			    android:shadowDy="3"
-			    android:shadowRadius="3"
-			    android:text="Help"
-			    android:textColor="#ffffff"
-			    android:textSize="20sp"
-			    android:textStyle="bold" />
+				android:id="@+id/helpButton"
+				android:layout_width="90dp"
+				android:layout_height="60dp"
+				android:layout_gravity="center"
+				android:background="@drawable/theme_button"
+				android:shadowColor="#444444"
+				android:shadowDx="3"
+				android:shadowDy="3"
+				android:shadowRadius="3"
+				android:text="Help"
+				android:textColor="#ffffff"
+				android:textSize="15sp"
+				android:textStyle="bold" />
 
 		</FrameLayout>
+
 		<FrameLayout
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="match_parent"
-			android:layout_weight="1" >
+			android:layout_weight="1">
 
 			<Button
-			    android:id="@+id/settingsButton"
-			    android:layout_width="100sp"
-			    android:layout_height="60sp"
-			    android:layout_gravity="center"
-			    android:layout_marginRight="30px"
-			    android:background="@drawable/theme_button"
-			    android:shadowColor="#444444"
-			    android:shadowDx="3"
-			    android:shadowDy="3"
-			    android:shadowRadius="3"
-			    android:text="Settings"
-			    android:textColor="#ffffff"
-			    android:textSize="20sp"
-			    android:textStyle="bold" />
-
-		</FrameLayout>
-		<FrameLayout
-			android:id="@+id/buyFrame"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:layout_weight="1" >
-
-			<Button
-			    android:id="@+id/buyButton"
-			    android:layout_width="100sp"
-			    android:layout_height="60sp"
-			    android:layout_gravity="center"
-			    android:layout_marginRight="30px"
-			    android:background="@drawable/theme_button"
-			    android:shadowColor="#444444"
-			    android:shadowDx="3"
-			    android:shadowDy="3"
-			    android:shadowRadius="3"
-			    android:text="Buy"
-			    android:textColor="#ffffff"
-			    android:textSize="20sp"
-			    android:textStyle="bold" />
+				android:id="@+id/settingsButton"
+				android:layout_width="90dp"
+				android:layout_height="60dp"
+				android:layout_gravity="center"
+				android:background="@drawable/theme_button"
+				android:shadowColor="#444444"
+				android:shadowDx="3"
+				android:shadowDy="3"
+				android:shadowRadius="3"
+				android:text="Settings"
+				android:textColor="#ffffff"
+				android:textSize="15sp"
+				android:textStyle="bold" />
 
 		</FrameLayout>
 	</LinearLayout>
