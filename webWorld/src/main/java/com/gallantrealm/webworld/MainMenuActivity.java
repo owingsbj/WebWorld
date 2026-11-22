@@ -22,8 +22,6 @@ public class MainMenuActivity extends GallantActivity {
 	public Button settingsButton;
 	public Button quitButton;
 	public Button helpButton;
-	public Button buyButton;
-	public View buyFrame;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +42,6 @@ public class MainMenuActivity extends GallantActivity {
 		settingsButton = (Button) findViewById(R.id.settingsButton);
 		quitButton = (Button) findViewById(R.id.quitButton);
 		helpButton = (Button) findViewById(R.id.helpButton);
-		buyButton = (Button)findViewById(R.id.buyButton);
-		buyFrame = findViewById(R.id.buyFrame);
 
 		Typeface typeface = clientModel.getTypeface(this);
 		if (typeface != null) {
@@ -56,9 +52,6 @@ public class MainMenuActivity extends GallantActivity {
 			settingsButton.setTypeface(typeface);
 			quitButton.setTypeface(typeface);
 			helpButton.setTypeface(typeface);
-			if (buyButton != null) {
-				buyButton.setTypeface(typeface);
-			}
 		}
 
 		mainLayout.setBackgroundResource(clientModel.getTheme().themeBackgroundId);
@@ -72,9 +65,6 @@ public class MainMenuActivity extends GallantActivity {
 			settingsButton.setBackgroundResource(styleId);
 			quitButton.setBackgroundResource(styleId);
 			helpButton.setBackgroundResource(styleId);
-			if (buyButton != null) {
-				buyButton.setBackgroundResource(styleId);
-			}
 		}
 
 		chooseAvatarButton.setOnClickListener(new View.OnClickListener() {
@@ -138,26 +128,6 @@ public class MainMenuActivity extends GallantActivity {
 				MainMenuActivity.this.finish();
 			}
 		});
-		if (buyButton != null) {
-			if (clientModel.isFullVersion()) {
-				buyFrame.setVisibility(View.GONE);
-			} else {
-				buyButton.setOnClickListener(new View.OnClickListener() {
-					public void onClick(View v) {
-						try {
-							clientModel.buyFullVersion(MainMenuActivity.this);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				});
-			}
-		}
-		if (buyFrame != null) {
-			if (!clientModel.isGoggleDogPass()) {
-				buyFrame.setVisibility(View.GONE); // not working well yet
-			}
-		}
 
 		clientModel.setAllWorldsUnlocked();  // override default behavior.  webworld users don't like unlocking games one by one.
 		chooseAvatarButton.setOnClickListener(new View.OnClickListener() {
