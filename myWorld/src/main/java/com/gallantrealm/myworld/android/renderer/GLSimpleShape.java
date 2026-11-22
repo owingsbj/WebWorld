@@ -325,7 +325,7 @@ public class GLSimpleShape extends GLObject {
 					}
 				}
 			}
-			baseGeometry.generateTextureCoordsXZ(-1.0f, -1.0f);
+			baseGeometry.generateTextureCoordsXY(-1.0f, -1.0f);
 			adjustGeometry(baseGeometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			adjustTextureCoords(baseGeometry, WWObject.SIDE_BOTTOM);
 			baseGeometry.generateNormals();
@@ -530,7 +530,7 @@ public class GLSimpleShape extends GLObject {
 					}
 				}
 			}
-			topGeometry.generateTextureCoordsXZ(-1.0f, -1.0f);
+			topGeometry.generateTextureCoordsXY(-1.0f, -1.0f);
 			adjustGeometry(topGeometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			topGeometry.generateNormals();
 			adjustTextureCoords(topGeometry, WWObject.SIDE_TOP);
