@@ -183,6 +183,7 @@ There are only properties for a texture:
 - **rotation** -- the rotation of the texture in degrees.
 - **offsetX** -- the offset of the texture on the X axis.
 - **offsetY** -- the offset of the texture on the Y axis.
+- **autoTile** -- if true the texture will automatically scale based on size of surface.
 - **velocityX** -- rate of movement of the offset along the X axis.
 - **velocityY** -- rate of movement of the offset along the Y axis.
 - **aMomentum** -- rate of change of the rotation.
