@@ -31,12 +31,20 @@ public class AvatarCustomization extends WWEntity {
 
 	// some additional get/set to allow native types to work
 
-	public final Serializable getCustomProperty(String key, boolean defaultValue) {
-		return getCustomProperty(key, (Boolean)defaultValue);
+	public final boolean getCustomProperty(String key, boolean defaultValue) {
+		return (Boolean)getCustomProperty(key, (Boolean)defaultValue);
 	}
 
 	public void setCustomProperty(String key, boolean value) {
 		setCustomProperty(key, (Boolean)value);
+	}
+
+	public final Number getCustomProperty(String key, Number defaultValue) {
+		return getCustomProperty(key, (Number)defaultValue);
+	}
+
+	public void setCustomProperty(String key, Number value) {
+		setCustomProperty(key, (Number)value);
 	}
 
 }
