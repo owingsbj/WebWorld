@@ -184,6 +184,8 @@ declare class Texture {
     rotation: number;
     offsetX: number;
     offsetY: number;
+    /** Texture is automatically scaled based on size of surface. */
+    autoTile: boolean;
     /** Rate of movement of the offset along X (flowing liquid effects). */
     velocityX: number;
     /** Rate of movement of the offset along Y. */
