@@ -2007,23 +2007,14 @@ public abstract class WWObject extends WWEntity implements IRenderable, Serializ
 
 	/**
 	 * This is a simple texture setter, that uses the same texture
-	 * on all sides of the object, and scales the texture so that it looks
-	 * uniform on all sides.
+	 * on all sides of the object.  It also turns on autotiling and
+	 * scales the texture to 10, so the tiling is not noticeable.
 	 */
 	public final void setTexture(String textureName) {
 		getEditableSideAttributes(SIDE_ALL).texture.name = textureName;
-		getEditableSideAttributes(SIDE_TOP).texture.scaleX = 10 / size.x;
-		getEditableSideAttributes(SIDE_TOP).texture.scaleY = 10 / size.y;
-		getEditableSideAttributes(SIDE_BOTTOM).texture.scaleX = 10 / size.x;
-		getEditableSideAttributes(SIDE_BOTTOM).texture.scaleY = 10 / size.y;
-		getEditableSideAttributes(SIDE_SIDE1).texture.scaleX = 10 / size.x;
-		getEditableSideAttributes(SIDE_SIDE2).texture.scaleX =  10 / size.y;
-		getEditableSideAttributes(SIDE_SIDE3).texture.scaleX =  10 / size.x;
-		getEditableSideAttributes(SIDE_SIDE4).texture.scaleX =  10 / size.y;
-		getEditableSideAttributes(SIDE_SIDE1).texture.scaleY = 10 / size.z;
-		getEditableSideAttributes(SIDE_SIDE2).texture.scaleY = 10 / size.z;
-		getEditableSideAttributes(SIDE_SIDE3).texture.scaleY = 10 / size.z;
-		getEditableSideAttributes(SIDE_SIDE4).texture.scaleY = 10 / size.z;
+		getEditableSideAttributes(SIDE_ALL).texture.autoTile = true;
+		getEditableSideAttributes(SIDE_ALL).texture.scaleX = 10;
+		getEditableSideAttributes(SIDE_ALL).texture.scaleY = 10;
 	}
 
 	public final void setTextureTop(WWTexture texture) {

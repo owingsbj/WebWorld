@@ -123,6 +123,17 @@ public abstract class GLObject extends GLRendering {
 			if (textureUrl != null) {
 				float[] textureMatrix = new float[16];
 				Matrix.setIdentityM(textureMatrix, 0);
+				if (sideAttributes.texture.autoTile) {
+					if (side == WWObject.SIDE_BOTTOM || side == WWObject.SIDE_TOP) {
+						Matrix.scaleM(textureMatrix, 0, object.size.x , object.size.y, 1.0f);
+					} else if (side == WWObject.SIDE_SIDE1 || side == WWObject.SIDE_SIDE3) {
+						Matrix.scaleM(textureMatrix, 0, object.size.x , object.size.z, 1.0f);
+					} else if (side == WWObject.SIDE_SIDE2 || side == WWObject.SIDE_SIDE4) {
+						Matrix.scaleM(textureMatrix, 0, object.size.y , object.size.z, 1.0f);
+					} else {
+						// TODO implement autotiling for other sides
+					}
+				}
 				Matrix.scaleM(textureMatrix, 0, 1.0f / sideAttributes.texture.scaleX, 1.0f / sideAttributes.texture.scaleY, 1.0f);
 				Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0);
 				Matrix.rotateM(textureMatrix, 0, sideAttributes.texture.rotation, 0, 0, 1);
@@ -294,6 +305,9 @@ public abstract class GLObject extends GLRendering {
 						if (textureRotation != 0.0f) {
 							Matrix.rotateM(textureMatrix, 0, textureRotation, 0.0f, 0.0f, 1.0f);
 						}
+						if (sideAttributes.texture.autoTile) {
+							// TODO monolithics should be fixed, but if not this needs implementation
+						}
 					}
 					String textureUrl = sideAttributes.texture.name;
 					int textureId = renderer.getTextureRenderer().getTexture(textureUrl, sideAttributes.texture.pixelated);
@@ -345,6 +359,17 @@ public abstract class GLObject extends GLRendering {
 
 						Matrix.setIdentityM(textureMatrix, 0);
 						if (!object.fixed) { // for fixed the texture matrix is baked into the texture coords
+							if (sideAttributes.texture.autoTile) {
+								if (side == WWObject.SIDE_BOTTOM || side == WWObject.SIDE_TOP) {
+									Matrix.scaleM(textureMatrix, 0, object.size.x , object.size.y, 1.0f);
+								} else if (side == WWObject.SIDE_SIDE1 || side == WWObject.SIDE_SIDE3) {
+									Matrix.scaleM(textureMatrix, 0, object.size.x , object.size.z, 1.0f);
+								} else if (side == WWObject.SIDE_SIDE2 || side == WWObject.SIDE_SIDE4) {
+									Matrix.scaleM(textureMatrix, 0, object.size.y , object.size.z, 1.0f);
+								} else {
+									// TODO implement autotiling for other sides
+								}
+							}
 							Matrix.scaleM(textureMatrix, 0, 1.0f / object.sideAttributes[side].texture.scaleX, 1.0f / object.sideAttributes[side].texture.scaleY, 1.0f);
 							Matrix.translateM(textureMatrix, 0, sideAttributes.texture.offsetX + 0.5f, sideAttributes.texture.offsetY + 0.5f, 0.0f);
 							float textureRotation = sideAttributes.texture.rotation;

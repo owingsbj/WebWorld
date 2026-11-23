@@ -24,6 +24,7 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 	public float angularVelocity;
 	public long refreshInterval;
 	public boolean pixelated;
+	public boolean autoTile;
 	
 	public WWTexture() {
 	}
@@ -141,6 +142,9 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 		this.pixelated = pixelate;
 	}
 
+	public boolean isAutoTile() { return autoTile; }
+	public void setAutoTile(boolean autoTile) { this.autoTile = autoTile; }
+
 	public WWTexture subMap(float totalWidth, float totalHeight, float width, float height,  float offsetX, float offsetY, float rotation) {
 		return new WWTexture(name, totalWidth / width, totalHeight / height, rotation, offsetX / width, offsetY / height, pixelated);
 	}
@@ -172,6 +176,7 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 		os.writeFloat(angularVelocity);
 		os.writeLong(refreshInterval);
 		os.writeBoolean(isPixelated());
+		os.writeBoolean(autoTile);
 	}
 
 	@Override
@@ -187,11 +192,12 @@ public class WWTexture implements Serializable, Cloneable, Sendable {
 		angularVelocity = is.readFloat();
 		refreshInterval = is.readLong();
 		setPixelated(is.readBoolean());
+		setAutoTile(is.readBoolean());
 	}
 
 	@Override
 	public String toString() {
-		return "Texture<"+getName()+" "+getScaleX()+" "+getScaleY()+" "+" "+getRotation()+" "+getOffsetX()+" "+getOffsetY()+" "+ isPixelated()+">";
+		return "Texture<"+getName()+" "+getScaleX()+" "+getScaleY()+" "+" "+getRotation()+" "+getOffsetX()+" "+getOffsetY()+" "+ isPixelated()+" "+isAutoTile()+">";
 	}
 
 }
