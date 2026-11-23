@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES5",
+    "lib": ["es5"],
     "checkJs": true
   },
   "include": ["docs/webworld.d.ts", "docs/avatars/**/*.js", "docs/worlds/**/*.js"]
