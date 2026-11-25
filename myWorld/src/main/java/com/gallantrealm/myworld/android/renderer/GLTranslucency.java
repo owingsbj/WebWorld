@@ -135,6 +135,16 @@ public class GLTranslucency extends GLObject  {
 				SideAttributes sideAttributes = object.sideAttributes[side];
 				if (side == WWObject.SIDE_CUTOUT1) {
 
+					// skip drawing if translucent mask if outside of translucency
+					WWVector tempPoint = cameraPosition.clone();
+					WWObject.antiTransform(tempPoint, position, object.getRotation(), worldTime);
+					boolean cameraIsInside = (Math.abs(tempPoint.x) <= sizeX / 2.0f) &&
+					                         (Math.abs(tempPoint.y) <= sizeY / 2.0f) &&
+					                         (Math.abs(tempPoint.z) <= sizeZ / 2.0f);
+					if (!cameraIsInside) {
+						continue;
+					}
+
 					// GLES20.glTranslatef((p.x - position.x), 0.0f, (p.y - position.y));
 					float[] cutoutMatrix = new float[16];
 					Matrix.translateM(cutoutMatrix, 0, modelMatrix, 0, (cameraPosition.x - position.x), 0.0f, (cameraPosition.y - position.y));
