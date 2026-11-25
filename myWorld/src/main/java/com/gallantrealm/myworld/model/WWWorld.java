@@ -135,8 +135,10 @@ public class WWWorld extends WWEntity implements IRenderable, ClientModelChanged
 
 	/**
 	 * Invoked after the world has been restored from a saved state. (It is not displayed yet.)
+	 * This method can is useful for rebuilding caches or any other state necessary when
+	 * restoring the world.
 	 */
-	public void restored() {
+	public void restored() throws Exception {
 	}
 
 	/**
