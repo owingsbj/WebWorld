@@ -46,7 +46,7 @@ public class GLTranslucency extends GLObject  {
 		GLSurface topGeometry = new GLSurface(11, 11);
 		for (int y = 0; y < 11; y++) {
 			for (int x = 0; x < 11; x++) {
-				topGeometry.setOldVertex(x, y, x * sizeX / 10 - sizeX / 2, sizeZ / 2, y * sizeY / 10 - sizeY / 2);
+				topGeometry.setVertex(x, y, x * sizeX / 10 - sizeX / 2, y * sizeY / 10 - sizeY / 2, sizeZ / 2);
 			}
 		}
 		topGeometry.generateNormals();
@@ -56,7 +56,7 @@ public class GLTranslucency extends GLObject  {
 		GLSurface insideTopGeometry = new GLSurface(11, 11);
 		for (int y = 0; y < 11; y++) {
 			for (int x = 0; x < 11; x++) {
-				insideTopGeometry.setOldVertex(10 - x, y, x * sizeX / 10 - sizeX / 2, sizeZ / 2, y * sizeY / 10 - sizeY / 2);
+				insideTopGeometry.setVertex(10 - x, y, x * sizeX / 10 - sizeX / 2, y * sizeY / 10 - sizeY / 2, sizeZ / 2);
 			}
 		}
 		this.setSide(WWObject.SIDE_INSIDE_TOP, insideTopGeometry);
@@ -65,35 +65,35 @@ public class GLTranslucency extends GLObject  {
 		GLSurface insideBottomGeometry = new GLSurface(11, 11);
 		for (int y = 0; y < 11; y++) {
 			for (int x = 0; x < 11; x++) {
-				insideBottomGeometry.setOldVertex(x, y, x * sizeX / 10 - sizeX / 2, -sizeZ / 2, y * sizeY / 10 - sizeY / 2);
+				insideBottomGeometry.setVertex(x, y, x * sizeX / 10 - sizeX / 2, y * sizeY / 10 - sizeY / 2, -sizeZ / 2);
 			}
 		}
 		this.setSide(WWObject.SIDE_INSIDE_BOTTOM, insideBottomGeometry);
 
 		// Create the inside sides (inside1-inside4), no normals.  These are drawn "far away" as if fully hollow
 		GLSurface inside1Geometry = new GLSurface(2, 2);
-		inside1Geometry.setOldVertex(0, 0, -sizeX / 2, -sizeZ / 2, sizeY / 2);
-		inside1Geometry.setOldVertex(1, 0, sizeX / 2, -sizeZ / 2, sizeY / 2);
-		inside1Geometry.setOldVertex(0, 1, -sizeX / 2, sizeZ / 2, sizeY / 2);
-		inside1Geometry.setOldVertex(1, 1, sizeX / 2, sizeZ / 2, sizeY / 2);
+		inside1Geometry.setVertex(0, 0, -sizeX / 2, sizeY / 2, -sizeZ / 2);
+		inside1Geometry.setVertex(1, 0, sizeX / 2, sizeY / 2, -sizeZ / 2);
+		inside1Geometry.setVertex(0, 1, -sizeX / 2, sizeY / 2, sizeZ / 2);
+		inside1Geometry.setVertex(1, 1, sizeX / 2, sizeY / 2, sizeZ / 2);
 		this.setSide(WWObject.SIDE_INSIDE1, inside1Geometry);
 		GLSurface inside2Geometry = new GLSurface(2, 2);
-		inside2Geometry.setOldVertex(0, 0, -sizeX / 2, -sizeZ / 2, -sizeY / 2);
-		inside2Geometry.setOldVertex(1, 0, -sizeX / 2, -sizeZ / 2, sizeY / 2);
-		inside2Geometry.setOldVertex(0, 1, -sizeX / 2, sizeZ / 2, -sizeY / 2);
-		inside2Geometry.setOldVertex(1, 1, -sizeX / 2, sizeZ / 2, sizeY / 2);
+		inside2Geometry.setVertex(0, 0, -sizeX / 2, -sizeY / 2, -sizeZ / 2);
+		inside2Geometry.setVertex(1, 0, -sizeX / 2, sizeY / 2, -sizeZ / 2);
+		inside2Geometry.setVertex(0, 1, -sizeX / 2, -sizeY / 2, sizeZ / 2);
+		inside2Geometry.setVertex(1, 1, -sizeX / 2, sizeY / 2, sizeZ / 2);
 		this.setSide(WWObject.SIDE_INSIDE2, inside2Geometry);
 		GLSurface inside3Geometry = new GLSurface(2, 2);
-		inside3Geometry.setOldVertex(0, 0, sizeX / 2, -sizeZ / 2, -sizeY / 2);
-		inside3Geometry.setOldVertex(1, 0, -sizeX / 2, -sizeZ / 2, -sizeY / 2);
-		inside3Geometry.setOldVertex(0, 1, sizeX / 2, sizeZ / 2, -sizeY / 2);
-		inside3Geometry.setOldVertex(1, 1, -sizeX / 2, sizeZ / 2, -sizeY / 2);
+		inside3Geometry.setVertex(0, 0, sizeX / 2, -sizeY / 2, -sizeZ / 2);
+		inside3Geometry.setVertex(1, 0, -sizeX / 2, -sizeY / 2, -sizeZ / 2);
+		inside3Geometry.setVertex(0, 1, sizeX / 2, -sizeY / 2, sizeZ / 2);
+		inside3Geometry.setVertex(1, 1, -sizeX / 2, -sizeY / 2, sizeZ / 2);
 		this.setSide(WWObject.SIDE_INSIDE3, inside3Geometry);
 		GLSurface inside4Geometry = new GLSurface(2, 2);
-		inside4Geometry.setOldVertex(0, 0, sizeX / 2, -sizeZ / 2, sizeY / 2);
-		inside4Geometry.setOldVertex(1, 0, sizeX / 2, -sizeZ / 2, -sizeY / 2);
-		inside4Geometry.setOldVertex(0, 1, sizeX / 2, sizeZ / 2, sizeY / 2);
-		inside4Geometry.setOldVertex(1, 1, sizeX / 2, sizeZ / 2, -sizeY / 2);
+		inside4Geometry.setVertex(0, 0, sizeX / 2, sizeY / 2, -sizeZ / 2);
+		inside4Geometry.setVertex(1, 0, sizeX / 2, -sizeY / 2, -sizeZ / 2);
+		inside4Geometry.setVertex(0, 1, sizeX / 2, sizeY / 2, sizeZ / 2);
+		inside4Geometry.setVertex(1, 1, sizeX / 2, -sizeY / 2, sizeZ / 2);
 		this.setSide(WWObject.SIDE_INSIDE4, inside4Geometry);
 
 		// Create an inside shape to box the camera. This shape is only shown when the object is clipped by the camera frustrum.
@@ -101,12 +101,12 @@ public class GLTranslucency extends GLObject  {
 		GLSurface insideXGeometry = new GLSurface(2, 3);
 		float maskWidth = 3.0f * AndroidRenderer.CLOSENESS;
 		float maskDistance = 1.5f * AndroidRenderer.CLOSENESS;
-		insideXGeometry.setOldVertex(0, 0, maskWidth, -sizeZ / 2, -maskDistance * 1.2f);
-		insideXGeometry.setOldVertex(1, 0, -maskWidth, -sizeZ / 2, -maskDistance * 1.2f);
-		insideXGeometry.setOldVertex(0, 1, maskWidth, sizeZ / 2, -maskDistance);
-		insideXGeometry.setOldVertex(1, 1, -maskWidth, sizeZ / 2, -maskDistance);
-		insideXGeometry.setOldVertex(0, 2, maskWidth, sizeZ / 2, 0);
-		insideXGeometry.setOldVertex(1, 2, -maskWidth, sizeZ / 2, 0);
+		insideXGeometry.setVertex(0, 0, maskWidth, -maskDistance * 1.2f, -sizeZ / 2);
+		insideXGeometry.setVertex(1, 0, -maskWidth, -maskDistance * 1.2f, -sizeZ / 2);
+		insideXGeometry.setVertex(0, 1, maskWidth, -maskDistance, sizeZ / 2);
+		insideXGeometry.setVertex(1, 1, -maskWidth, -maskDistance, sizeZ / 2);
+		insideXGeometry.setVertex(0, 2, maskWidth, 0, sizeZ / 2);
+		insideXGeometry.setVertex(1, 2, -maskWidth, 0, sizeZ / 2);
 		insideXGeometry.generateNormals();
 		this.setSide(WWObject.SIDE_CUTOUT1, insideXGeometry);
 

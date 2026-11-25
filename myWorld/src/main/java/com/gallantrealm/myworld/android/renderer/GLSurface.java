@@ -212,11 +212,6 @@ public final class GLSurface {
 		return halfToFloat(vertices.get(vertex * 3 + 2));
 	}
 
-	// TODO phase out uses of this (old code that assumed it needed to adjust for world to opengl coordinate differences)
-	public void setOldVertex(int x, int y, float px, float py, float pz) {
-		setVertex(x, y, px, pz, py);
-	}
-
 	public void setVertex(int x, int y, float px, float py, float pz) {
 		if (baseVertex < 0) { // overflow
 			return;

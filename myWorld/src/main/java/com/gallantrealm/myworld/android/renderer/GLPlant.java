@@ -46,20 +46,20 @@ public class GLPlant extends GLObject {
 		float z2 = (float) (0.5 * plant.size.z);
 
 		GLSurface sideGeometry = new GLSurface(2, 2);
-		sideGeometry.setOldVertex(0, 0, x1, z1, y1);
-		sideGeometry.setOldVertex(0, 1, x1, z2, y1);
-		sideGeometry.setOldVertex(1, 1, x2, z2, y2);
-		sideGeometry.setOldVertex(1, 0, x2, z1, y2);
+		sideGeometry.setVertex(0, 0, x1, y1, z1);
+		sideGeometry.setVertex(0, 1, x1, y1, z2);
+		sideGeometry.setVertex(1, 1, x2, y2, z2);
+		sideGeometry.setVertex(1, 0, x2, y2, z1);
 		adjustGeometry(sideGeometry, 1, 1, 1, 0, 0, 0, 0, 0);
 		sideGeometry.generateNormals();
 		adjustTextureCoords(sideGeometry, WWObject.SIDE_SIDE1 + i);
 		setSide(WWObject.SIDE_SIDE1 + i, sideGeometry);
 
 		sideGeometry = new GLSurface(2, 2);
-		sideGeometry.setOldVertex(0, 0, x2, z1, y2);
-		sideGeometry.setOldVertex(0, 1, x2, z2, y2);
-		sideGeometry.setOldVertex(1, 1, x1, z2, y1);
-		sideGeometry.setOldVertex(1, 0, x1, z1, y1);
+		sideGeometry.setVertex(0, 0, x2, y2, z1);
+		sideGeometry.setVertex(0, 1, x2, y2, z2);
+		sideGeometry.setVertex(1, 1, x1, y1, z2);
+		sideGeometry.setVertex(1, 0, x1, y1, z1);
 		adjustGeometry(sideGeometry, 1, 1, 1, 0, 0, 0, 0, 0);
 		sideGeometry.generateNormals();
 		adjustTextureCoords(sideGeometry, WWObject.SIDE_INSIDE1 + i);
