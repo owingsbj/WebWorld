@@ -22,12 +22,12 @@ import com.gallantrealm.myworld.android.AndroidClientModel;
 import com.gallantrealm.myworld.android.MessageDialog;
 import com.gallantrealm.myworld.android.PauseAction;
 import com.gallantrealm.myworld.android.QuitAction;
-import com.gallantrealm.myworld.android.renderer.AndroidRenderer;
 import com.gallantrealm.myworld.client.model.ClientModelChangedEvent;
 import com.gallantrealm.myworld.model.WWAction;
 import com.gallantrealm.myworld.model.WWBehavior;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWUser;
+import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
 public class World extends WWWorld {
@@ -39,8 +39,8 @@ public class World extends WWWorld {
 
 	Properties worldProperties;
 	Properties avatarProperties;
-	TopLevel scope;
-	Function onRestored;
+	transient TopLevel scope;
+	transient Function onRestored;
 	String moveType;
 	private boolean allowCameraPositioning = true;
 	private boolean allowObjectMoving = false;
@@ -190,6 +190,23 @@ public class World extends WWWorld {
 
 	private void runScripts() throws Exception {
 		System.out.println(">World.runScripts");
+		Context cx = Context.enter();
+		initializeScriptingGlobals(cx);
+		runAvatarScript(cx);
+		if (clientModel.isCustomizeMode()) {
+			runAvatarCustomizationScript(cx);
+		} else {
+			runWorldScript(cx);
+		}
+
+		// Exit the top-level scope
+		Context.exit();
+
+		System.out.println("<World.runScripts");
+	}
+
+	private Context initializeScriptingGlobals(Context cx) {
+		System.out.println(">World.createScriptingContext");
 
 		final String worldName = clientModel.getWorldName();
 		final String avatarName = clientModel.getAvatarName();
@@ -216,7 +233,6 @@ public class World extends WWWorld {
 				}
 			});
 		}
-		Context cx = Context.enter();
 		cx.setOptimizationLevel(-1);
 		scope = new ImporterTopLevel(cx);
 		cx.initStandardObjects(scope, false);
@@ -252,11 +268,21 @@ public class World extends WWWorld {
 		ScriptableObject.putProperty(scope, "world", wrappedWorld);
 		Object wrappedUser = Context.javaToJS(user, scope);
 		ScriptableObject.putProperty(scope, "user", wrappedUser);
-		
+
 		// restore or create the avatar customization object
 		AvatarCustomization avatarCustomization = AvatarCustomization.createOrRestore(avatarName);
 		Object wrappedAvatarCustomization = Context.javaToJS(avatarCustomization, scope);
 		ScriptableObject.putProperty(scope, "avatarCustomization", wrappedAvatarCustomization);
+
+		System.out.println("<World.createScriptingContext");
+		return cx;
+	}
+
+	private void runAvatarScript(Context cx) throws Exception {
+		System.out.println(">World.runAvatarScript");
+
+		final String avatarName = clientModel.getAvatarName();
+		WWUser user = world.getUser(clientModel.getUserId());
 
 		// create the avatar
 		System.out.println("World.runScripts: Opening avatar " + avatarName);
@@ -311,148 +337,163 @@ public class World extends WWWorld {
 			}
 		}
 
-		if (clientModel.isCustomizeMode()) {
-			World.runningAvatarScript = true;
-			
-			// make the avatar pickable and physical, but give it no freedom to move
-			avatar.setPickable(true);
-			avatar.setPhysical(true);
-			avatar.setFreedomMoveX(false);
-			avatar.setFreedomMoveY(false);
-			avatar.setFreedomMoveZ(false);
-			avatar.setFreedomRotateX(false);
-			avatar.setFreedomRotateY(false);
-			avatar.setFreedomRotateZ(false);
+		System.out.println("<World.runAvatarScript");
+	}
 
-			setPersistent(false);
-			setUsesController(false);
-			
-			// Create the customizer world
-			System.out.println("World.runScripts: Opening customizer for " + avatarName);
-			connection = null;
-			inputStream = null;
+	private void runAvatarCustomizationScript(Context cx) throws Exception {
+		System.out.println(">World.runAvatarCustomizationScript");
+
+		World.runningAvatarScript = true;
+
+		final String avatarName = clientModel.getAvatarName();
+
+		int avatarId = world.getUser(clientModel.getUserId()).getAvatarId();
+		WWObject avatar = world.objects[avatarId];
+
+		// make the avatar pickable and physical, but give it no freedom to move
+		avatar.setPickable(true);
+		avatar.setPhysical(true);
+		avatar.setFreedomMoveX(false);
+		avatar.setFreedomMoveY(false);
+		avatar.setFreedomMoveZ(false);
+		avatar.setFreedomRotateX(false);
+		avatar.setFreedomRotateY(false);
+		avatar.setFreedomRotateZ(false);
+
+		setPersistent(false);
+		setUsesController(false);
+
+		// Create the customizer world
+		System.out.println("World.runScripts: Opening customizer for " + avatarName);
+		HttpURLConnection connection = null;
+		InputStream inputStream = null;
+		try {
+			setName(avatarProperties.getProperty("name"));  // to override
+
+			// First try local
+			File file = new File(clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer"));
+			if (file.exists()) {
+				inputStream = new FileInputStream(file);
+				World.runningLocalWorldScript = true;
+			} else {
+				// Then try gallantrealm.com
+				String urlString = clientModel.getSharedServer() + "/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer");
+				file = HttpFileCache.getUpToDateFile(urlString, clientModel.getContext());
+				inputStream = new FileInputStream(file);
+				World.runningLocalWorldScript = false;
+			}
+			Reader reader = new InputStreamReader(inputStream, "UTF-8");
+			System.out.println("World.runScripts: Running customizer script..");
+
 			try {
-				setName(avatarProperties.getProperty("name"));  // to override
-				
-				// First try local
-				File file = new File(clientModel.getLocalFolder() + "/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer"));
-				if (file.exists()) {
-					inputStream = new FileInputStream(file);
-					World.runningLocalWorldScript = true;
-				} else {
-					// Then try gallantrealm.com
-					String urlString = clientModel.getSharedServer() + "/avatars/" + avatarName + "/" + avatarProperties.getProperty("customizer");
-					file = HttpFileCache.getUpToDateFile(urlString, clientModel.getContext());
-					inputStream = new FileInputStream(file);
-					World.runningLocalWorldScript = false;
-				}
-				Reader reader = new InputStreamReader(inputStream, "UTF-8");
-				System.out.println("World.runScripts: Running customizer script..");
-
-				try {
-					cx.evaluateReader(scope, reader, avatarProperties.getProperty("customizer"), 1, null);
-				} catch (Exception e) {
-					e.printStackTrace();
-					throw new Exception(scrubScriptError(e.getMessage()));
-				}
-			} catch (IOException e) {
+				cx.evaluateReader(scope, reader, avatarProperties.getProperty("customizer"), 1, null);
+			} catch (Exception e) {
 				e.printStackTrace();
-				throw new Exception("Couldn't download customizer for " + avatarName + ".  Are you connected to the internet?");
-			} finally {
-				if (inputStream != null) {
-					try {
-						inputStream.close();
-					} catch (IOException e) {
-					}
-				}
+				throw new Exception(scrubScriptError(e.getMessage()));
 			}
-
-		} else {
-
-			// make the avatar pickable and physical (can be overwritten by world)
-			avatar.setPickable(true);
-			avatar.setPhysical(true);
-			avatar.setFreedomMoveZ(true);
-			avatar.setFreedomRotateX(false);
-			avatar.setFreedomRotateY(false);
-			avatar.setFreedomRotateZ(true);
-
-			// add a behavior to the avatar so it is facing user for a while
-			if (clientModel.cameraInitiallyFacingAvatar) {
-				WWBehavior avatarCameraBehavior = new WWBehavior() {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public boolean timerEvent() {
-						clientModel.setViewpoint(clientModel.getViewpoint());
-						return true;
-					}
-				};
-				avatar.addBehavior(avatarCameraBehavior);
-				avatarCameraBehavior.setTimer(5000);
-			}
-
-			// create the world
-			System.out.println("World.runScripts: Opening world " + worldName);
-			connection = null;
-			inputStream = null;
-			try {
-				// First try local
-				File file = new File(clientModel.getLocalFolder() + "/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
-				if (file.exists()) {
-					inputStream = new FileInputStream(file);
-					World.runningLocalWorldScript = true;
-				} else {
-					// Then try gallantrealm.com
-					String urlString = clientModel.getSharedServer() + "/worlds/" + worldName + "/" + worldProperties.getProperty("script");
-					file = HttpFileCache.getUpToDateFile(urlString, clientModel.getContext());
-					inputStream = new FileInputStream(file);
-					World.runningLocalWorldScript = false;
-				}
-				Reader reader = new InputStreamReader(inputStream, "UTF-8");
-				System.out.println("World.runScripts: Running world script..");
-
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new Exception("Couldn't download customizer for " + avatarName + ".  Are you connected to the internet?");
+		} finally {
+			if (inputStream != null) {
 				try {
-					cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
+					inputStream.close();
+				} catch (IOException e) {
+				}
+			}
+		}
 
-					// the world script may have overridden the avatar object.  If so, update so we use the overridden avatar and destroy
-					// the original avatar (unless is it parented)
-					if (ScriptableObject.hasProperty(scope, "avatar")) {
-						NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(scope, "avatar");
-						if (avatarWrapped != null) {
-							WWObject newAvatar = (WWObject) (avatarWrapped.unwrap());
-							if (newAvatar != avatar) {
-								this.addObject(newAvatar);
-								user.setAvatarId(newAvatar.getId());
-								if (!avatar.isDescendantOf(newAvatar)) {
-									this.removeObject(avatar);
-								}
+		System.out.println("<World.runAvatarCustomizationScript");
+	}
+
+	private void runWorldScript(Context cx) throws Exception {
+		System.out.println(">World.runWorldScript");
+
+		final String worldName = clientModel.getWorldName();
+
+		WWUser user = world.getUser(clientModel.getUserId());
+		int avatarId = user.getAvatarId();
+		WWObject avatar = world.objects[avatarId];
+
+		// make the avatar pickable and physical (can be overwritten by world)
+		avatar.setPickable(true);
+		avatar.setPhysical(true);
+		avatar.setFreedomMoveZ(true);
+		avatar.setFreedomRotateX(false);
+		avatar.setFreedomRotateY(false);
+		avatar.setFreedomRotateZ(true);
+
+		// add a behavior to the avatar so it is facing user for a while
+		if (clientModel.cameraInitiallyFacingAvatar) {
+			WWBehavior avatarCameraBehavior = new WWBehavior() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public boolean timerEvent() {
+					clientModel.setViewpoint(clientModel.getViewpoint());
+					return true;
+				}
+			};
+			avatar.addBehavior(avatarCameraBehavior);
+			avatarCameraBehavior.setTimer(5000);
+		}
+
+		// create the world
+		System.out.println("World.runScripts: Opening world " + worldName);
+		HttpURLConnection connection = null;
+		InputStream inputStream = null;
+		try {
+			// First try local
+			File file = new File(clientModel.getLocalFolder() + "/worlds/" + worldName + "/" + worldProperties.getProperty("script"));
+			if (file.exists()) {
+				inputStream = new FileInputStream(file);
+				World.runningLocalWorldScript = true;
+			} else {
+				// Then try gallantrealm.com
+				String urlString = clientModel.getSharedServer() + "/worlds/" + worldName + "/" + worldProperties.getProperty("script");
+				file = HttpFileCache.getUpToDateFile(urlString, clientModel.getContext());
+				inputStream = new FileInputStream(file);
+				World.runningLocalWorldScript = false;
+			}
+			Reader reader = new InputStreamReader(inputStream, "UTF-8");
+			System.out.println("World.runScripts: Running world script..");
+
+			try {
+				cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
+
+				// the world script may have overridden the avatar object.  If so, update so we use the overridden avatar and destroy
+				// the original avatar (unless is it parented)
+				if (ScriptableObject.hasProperty(scope, "avatar")) {
+					NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(scope, "avatar");
+					if (avatarWrapped != null) {
+						WWObject newAvatar = (WWObject) (avatarWrapped.unwrap());
+						if (newAvatar != avatar) {
+							this.addObject(newAvatar);
+							user.setAvatarId(newAvatar.getId());
+							if (!avatar.isDescendantOf(newAvatar)) {
+								this.removeObject(avatar);
 							}
 						}
 					}
-
-				} catch (Exception e) {
-					e.printStackTrace();
-					throw new Exception(scrubScriptError(e.getMessage()));
 				}
-			} catch (IOException e) {
+
+			} catch (Exception e) {
 				e.printStackTrace();
-				throw new Exception("Couldn't download world " + worldName + ".  Are you connected to the internet?");
-			} finally {
-				if (inputStream != null) {
-					try {
-						inputStream.close();
-					} catch (IOException e) {
-					}
+				throw new Exception(scrubScriptError(e.getMessage()));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new Exception("Couldn't download world " + worldName + ".  Are you connected to the internet?");
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
 				}
 			}
-
 		}
 
-		// Exit the top-level scope
-		Context.exit();
-
-		System.out.println("<World.runScripts");
+		System.out.println("<World.runWorldScript");
 	}
 
 	/**
@@ -472,8 +513,38 @@ public class World extends WWWorld {
 	}
 
 	@Override
-	public void restored() {
+	public void restored() throws Exception {
+
 		clientModel = AndroidClientModel.getClientModel();
+
+		// TODO add a test to skip if avatar hasn't changed
+
+		// Rebuild the avatar so it matches selected avatar in avatar chooser.
+		int avatarId = world.getUser(clientModel.getUserId()).getAvatarId();
+		WWObject oldAvatar = world.objects[avatarId];
+		world.removeObject(avatarId);
+		Context cx = Context.enter();
+		initializeScriptingGlobals(cx);
+		avatarProperties = getAvatarProperties(clientModel.getAvatarName());
+		runAvatarScript(cx);
+		Context.exit();
+		avatarId = world.getUser(clientModel.getUserId()).getAvatarId();
+		WWObject newAvatar = world.objects[avatarId];
+
+		// duplicate the location and physical properties of the old avatar
+		if (newAvatar != null && oldAvatar != null) {
+			newAvatar.setPosition(oldAvatar.getPosition());
+			newAvatar.setRotation(oldAvatar.getRotation());
+			newAvatar.setPickable(oldAvatar.isPickable());
+			newAvatar.setPhysical(oldAvatar.isPhysical());
+			newAvatar.setFreedomMoveZ(oldAvatar.isFreedomMoveZ());
+			newAvatar.setFreedomRotateX(oldAvatar.isFreedomRotateX());
+			newAvatar.setFreedomRotateY(oldAvatar.isFreedomRotateY());
+			newAvatar.setFreedomRotateZ(oldAvatar.isFreedomRotateZ());
+		}
+
+		// TODO handle the case of a custom avatar (not from the chooser)
+
 		clientModel.setSelectedObject(clientModel.getAvatar());
 		if (onRestored != null) {
 			callFunction(onRestored, this, new Object[] {});
