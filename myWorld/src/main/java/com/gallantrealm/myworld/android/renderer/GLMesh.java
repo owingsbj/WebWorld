@@ -38,7 +38,10 @@ public class GLMesh extends GLObject {
 		GLSurface topGeometry = new GLSurface(cellsX + 1, cellsY + 1);
 		for (int cy = 0; cy <= cellsY; cy++) {
 			for (int cx = 0; cx <= cellsX; cx++) {
-				topGeometry.setVertex(cx, cy, cx * sizeXPerCell - sizeX / 2, cy * sizeYPerCell - sizeY / 2, sizeZ * mesh.getMeshPoint(cx, cy) - sizeZ / 2);
+				topGeometry.setVertex(cx, cy,
+						cx * sizeXPerCell - sizeX / 2,
+						cy * sizeYPerCell - sizeY / 2,
+						sizeZ * mesh.getMeshPoint(cx, cy) - sizeZ / 2);
 				//topGeometry.setTextureCoordinate(0, i, new float[] { cx / (float) cellsX - 0.5f, cy / (float) cellsY - 0.5f });
 			}
 		}
@@ -51,9 +54,15 @@ public class GLMesh extends GLObject {
 		// - side1 (front)
 		GLSurface side1Geometry = new GLSurface(cellsX + 1, 2);
 		for (int cx = 0; cx <= cellsX; cx++) {
-			side1Geometry.setVertex(cellsX - cx, 0, cx * sizeXPerCell - sizeX / 2, sizeY / 2, -sizeZ / 2);
+			side1Geometry.setVertex(cellsX - cx, 0,
+					cx * sizeXPerCell - sizeX / 2,
+					sizeY / 2,
+					-sizeZ / 2);
 			//side1Geometry.setTextureCoordinate(0, i, new float[] { cx / (float) cellsX - 0.5f, -0.5f });
-			side1Geometry.setVertex(cellsX - cx, 1, cx * sizeXPerCell - sizeX / 2, sizeY / 2, sizeZ * mesh.getMeshPoint(cx, cellsY) - sizeZ / 2);
+			side1Geometry.setVertex(cellsX - cx, 1,
+					cx * sizeXPerCell - sizeX / 2,
+					sizeY / 2,
+					sizeZ * mesh.getMeshPoint(cx, cellsY) - sizeZ / 2);
 			//side1Geometry.setTextureCoordinate(0, i, new float[] { (cx) / (float) cellsX - 0.5f, mesh.getMeshPoint(cx][cellsY] - 0.5f });
 		}
 		side1Geometry.generateNormals();
@@ -63,9 +72,15 @@ public class GLMesh extends GLObject {
 		// - side2 (right)
 		GLSurface side2Geometry = new GLSurface(cellsY + 1, 2);
 		for (int cy = 0; cy <= cellsY; cy++) {
-			side2Geometry.setVertex(cy, 0, sizeX / 2, cy * sizeYPerCell - sizeY / 2, -sizeZ / 2);
+			side2Geometry.setVertex(cy, 0,
+					sizeX / 2,
+					cy * sizeYPerCell - sizeY / 2,
+					-sizeZ / 2);
 			//side2Geometry.setTextureCoordinate(0, i, new float[] { (cellsY - cy) / (float) cellsY - 0.5f, -0.5f });
-			side2Geometry.setVertex(cy, 1, sizeX / 2, cy * sizeYPerCell - sizeY / 2, sizeZ * mesh.getMeshPoint(cellsX, cy) - sizeZ / 2);
+			side2Geometry.setVertex(cy, 1,
+					sizeX / 2,
+					cy * sizeYPerCell - sizeY / 2,
+					sizeZ * mesh.getMeshPoint(cellsX, cy) - sizeZ / 2);
 			//side2Geometry.setTextureCoordinate(0, i, new float[] { (cellsY - cy) / (float) cellsY - 0.5f, mesh.getMeshPoint(cellsX][cy] - 0.5f });
 		}
 		side2Geometry.generateNormals();
@@ -75,9 +90,15 @@ public class GLMesh extends GLObject {
 		// - side3 (back)
 		GLSurface side3Geometry = new GLSurface(cellsX + 1, 2);
 		for (int cx = 0; cx <= cellsX; cx++) {
-			side3Geometry.setVertex(cx, 0, cx * sizeXPerCell - sizeX / 2, -sizeY / 2, -sizeZ / 2);
+			side3Geometry.setVertex(cx, 0,
+					cx * sizeXPerCell - sizeX / 2,
+					-sizeY / 2,
+					-sizeZ / 2);
 			//side3Geometry.setTextureCoordinate(0, i, new float[] { (cellsX - cx) / (float) cellsX - 0.5f, -0.5f });
-			side3Geometry.setVertex(cx, 1, (cx) * sizeXPerCell - sizeX / 2, -sizeY / 2, sizeZ * mesh.getMeshPoint(cx, 0) - sizeZ / 2);
+			side3Geometry.setVertex(cx, 1,
+					(cx) * sizeXPerCell - sizeX / 2,
+					-sizeY / 2,
+					sizeZ * mesh.getMeshPoint(cx, 0) - sizeZ / 2);
 			//side3Geometry.setTextureCoordinate(0, i, new float[] { (cellsX - cx) / (float) cellsX - 0.5f, mesh.getMeshPoint(cx][0] - 0.5f });
 		}
 		side3Geometry.generateNormals();
@@ -87,9 +108,15 @@ public class GLMesh extends GLObject {
 		// - side4 (left)
 		GLSurface side4Geometry = new GLSurface(cellsY + 1, 2);
 		for (int cy = 0; cy <= cellsY; cy++) {
-			side4Geometry.setVertex(cellsY - cy, 0, -sizeX / 2, cy * sizeYPerCell - sizeY / 2, -sizeZ / 2);
+			side4Geometry.setVertex(cellsY - cy, 0,
+					-sizeX / 2,
+					cy * sizeYPerCell - sizeY / 2,
+					-sizeZ / 2);
 			//side4Geometry.setTextureCoordinate(0, i, new float[] { cy / (float) cellsY - 0.5f, -0.5f });
-			side4Geometry.setVertex(cellsY - cy, 1, -sizeX / 2, cy * sizeYPerCell - sizeY / 2, sizeZ * mesh.getMeshPoint(0, cy) - sizeZ / 2);
+			side4Geometry.setVertex(cellsY - cy, 1,
+					-sizeX / 2,
+					cy * sizeYPerCell - sizeY / 2,
+					sizeZ * mesh.getMeshPoint(0, cy) - sizeZ / 2);
 			//side4Geometry.setTextureCoordinate(0, i, new float[] { cy / (float) cellsY - 0.5f, mesh.getMeshPoint(0][cy] - 0.5f });
 		}
 		side4Geometry.generateNormals();
@@ -98,13 +125,25 @@ public class GLMesh extends GLObject {
 
 		// Create the bottom. This is simply a rectangle to close the shape
 		GLSurface bottomGeometry = new GLSurface(2, 2);
-		bottomGeometry.setVertex(0, 0, -sizeX / 2, -sizeY / 2, -sizeZ / 2);
+		bottomGeometry.setVertex(0, 0,
+				-sizeX / 2,
+				-sizeY / 2,
+				-sizeZ / 2);
 		//bottomGeometry.setTextureCoordinate(0, i, new float[] { -0.5f, -0.5f });
-		bottomGeometry.setVertex(0, 1, sizeX / 2, -sizeY / 2, -sizeZ / 2);
+		bottomGeometry.setVertex(0, 1,
+				sizeX / 2,
+				-sizeY / 2,
+				-sizeZ / 2);
 		//bottomGeometry.setTextureCoordinate(0, i, new float[] { 0.5f, -0.5f });
-		bottomGeometry.setVertex(1, 0, -sizeX / 2, sizeY / 2, -sizeZ / 2);
+		bottomGeometry.setVertex(1, 0,
+				-sizeX / 2,
+				sizeY / 2,
+				-sizeZ / 2);
 		//bottomGeometry.setTextureCoordinate(0, i, new float[] { 0.5f, 0.5f });
-		bottomGeometry.setVertex(1, 1, sizeX / 2, sizeY / 2, -sizeZ / 2);
+		bottomGeometry.setVertex(1, 1,
+				sizeX / 2,
+				sizeY / 2,
+				-sizeZ / 2);
 		//bottomGeometry.setTextureCoordinate(0, i, new float[] { -0.5f, 0.5f });
 
 		bottomGeometry.generateNormals();
@@ -131,7 +170,10 @@ public class GLMesh extends GLObject {
 		// Create the top. This is the actual mesh.
 		for (int cy = 0; cy <= cellsY; cy++) {
 			for (int cx = 0; cx <= cellsX; cx++) {
-				topGeometry.setVertex(cx, cy, cx * sizeXPerCell - sizeX / 2, cy * sizeYPerCell - sizeY / 2, sizeZ * mesh.getMeshPoint(cx, cy) - sizeZ / 2);
+				topGeometry.setVertex(cx, cy,
+						cx * sizeXPerCell - sizeX / 2,
+						cy * sizeYPerCell - sizeY / 2,
+						sizeZ * mesh.getMeshPoint(cx, cy) - sizeZ / 2);
 				//topGeometry.setTextureCoordinate(0, i, new float[] { cx / (float) cellsX - 0.5f, cy / (float) cellsY - 0.5f });
 			}
 		}

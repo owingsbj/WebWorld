@@ -41,10 +41,22 @@ public class GLParticleEmitter extends GLObject {
 
 		GLSurface baseGeometry;
 		baseGeometry = new GLSurface(2, 2);
-		baseGeometry.setVertex(0, 0, sweepPath[0].x + polygon[0].x * sweepRadius[0].x, sweepPath[0].y + polygon[0].y * sweepRadius[0].y, sweepPath[0].z);
-		baseGeometry.setVertex(0, 1, sweepPath[0].x + polygon[1].x * sweepRadius[0].x, sweepPath[0].y + polygon[1].y * sweepRadius[0].y, sweepPath[0].z);
-		baseGeometry.setVertex(1, 1, sweepPath[0].x + polygon[2].x * sweepRadius[0].x, sweepPath[0].y + polygon[2].y * sweepRadius[0].y, sweepPath[0].z);
-		baseGeometry.setVertex(1, 0, sweepPath[0].x + polygon[3].x * sweepRadius[0].x, sweepPath[0].y + polygon[3].y * sweepRadius[0].y, sweepPath[0].z);
+		baseGeometry.setVertex(0, 0,
+				sweepPath[0].x + polygon[0].x * sweepRadius[0].x,
+				sweepPath[0].y + polygon[0].y * sweepRadius[0].y,
+				sweepPath[0].z);
+		baseGeometry.setVertex(0, 1,
+				sweepPath[0].x + polygon[1].x * sweepRadius[0].x,
+				sweepPath[0].y + polygon[1].y * sweepRadius[0].y,
+				sweepPath[0].z);
+		baseGeometry.setVertex(1, 1,
+				sweepPath[0].x + polygon[2].x * sweepRadius[0].x,
+				sweepPath[0].y + polygon[2].y * sweepRadius[0].y,
+				sweepPath[0].z);
+		baseGeometry.setVertex(1, 0,
+				sweepPath[0].x + polygon[3].x * sweepRadius[0].x,
+				sweepPath[0].y + polygon[3].y * sweepRadius[0].y,
+				sweepPath[0].z);
 		adjustGeometry(baseGeometry, sizeX, sizeY, sizeZ, 0, 0, 0, 0, 0);
 		adjustTextureCoords(baseGeometry, WWObject.SIDE_BOTTOM);
 		baseGeometry.generateNormals();
@@ -68,9 +80,15 @@ public class GLParticleEmitter extends GLObject {
 				for (int v = startVertex; v <= endVertex + 1; v++) {
 					for (int i = 0; i < nsweeps; i++) {
 						if (v < polygon.length) {
-							sideGeometry.setVertex(v - startVertex, i, sweepPath[i].x + polygon[v].x * sweepRadius[i].x, sweepPath[i].y + polygon[v].y * sweepRadius[i].y, sweepPath[i].z);
+							sideGeometry.setVertex(v - startVertex, i,
+									sweepPath[i].x + polygon[v].x * sweepRadius[i].x,
+									sweepPath[i].y + polygon[v].y * sweepRadius[i].y,
+									sweepPath[i].z);
 						} else {
-							sideGeometry.setVertex(v - startVertex, i, sweepPath[i].x + polygon[0].x * sweepRadius[i].x, sweepPath[i].y + polygon[0].y * sweepRadius[i].y, sweepPath[i].z);
+							sideGeometry.setVertex(v - startVertex, i,
+									sweepPath[i].x + polygon[0].x * sweepRadius[i].x,
+									sweepPath[i].y + polygon[0].y * sweepRadius[i].y,
+									sweepPath[i].z);
 						}
 					}
 				}
@@ -86,10 +104,22 @@ public class GLParticleEmitter extends GLObject {
 		// --------------------------
 
 		GLSurface topGeometry = new GLSurface(2, 2);
-		topGeometry.setVertex(0, 0, sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y, sweepPath[nsweeps - 1].z);
-		topGeometry.setVertex(1, 0, sweepPath[nsweeps - 1].x + polygon[1].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].y + polygon[1].y * sweepRadius[nsweeps - 1].y, sweepPath[nsweeps - 1].z);
-		topGeometry.setVertex(1, 1, sweepPath[nsweeps - 1].x + polygon[2].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].y + polygon[2].y * sweepRadius[nsweeps - 1].y, sweepPath[nsweeps - 1].z);
-		topGeometry.setVertex(0, 1, sweepPath[nsweeps - 1].x + polygon[3].x * sweepRadius[nsweeps - 1].x, sweepPath[nsweeps - 1].y + polygon[3].y * sweepRadius[nsweeps - 1].y, sweepPath[nsweeps - 1].z);
+		topGeometry.setVertex(0, 0,
+				sweepPath[nsweeps - 1].x + polygon[0].x * sweepRadius[nsweeps - 1].x,
+				sweepPath[nsweeps - 1].y + polygon[0].y * sweepRadius[nsweeps - 1].y,
+				sweepPath[nsweeps - 1].z);
+		topGeometry.setVertex(1, 0,
+				sweepPath[nsweeps - 1].x + polygon[1].x * sweepRadius[nsweeps - 1].x,
+				sweepPath[nsweeps - 1].y + polygon[1].y * sweepRadius[nsweeps - 1].y,
+				sweepPath[nsweeps - 1].z);
+		topGeometry.setVertex(1, 1,
+				sweepPath[nsweeps - 1].x + polygon[2].x * sweepRadius[nsweeps - 1].x,
+				sweepPath[nsweeps - 1].y + polygon[2].y * sweepRadius[nsweeps - 1].y,
+				sweepPath[nsweeps - 1].z);
+		topGeometry.setVertex(0, 1,
+				sweepPath[nsweeps - 1].x + polygon[3].x * sweepRadius[nsweeps - 1].x,
+				sweepPath[nsweeps - 1].y + polygon[3].y * sweepRadius[nsweeps - 1].y,
+				sweepPath[nsweeps - 1].z);
 		adjustGeometry(topGeometry, sizeX, sizeY, sizeZ, 0, 0, 0, 0, 0);
 		topGeometry.generateNormals();
 		adjustTextureCoords(topGeometry, WWObject.SIDE_TOP);
