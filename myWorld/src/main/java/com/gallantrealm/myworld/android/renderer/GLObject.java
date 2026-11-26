@@ -130,6 +130,12 @@ public abstract class GLObject extends GLRendering {
 						Matrix.scaleM(textureMatrix, 0, object.size.x , object.size.z, 1.0f);
 					} else if (side == WWObject.SIDE_SIDE2 || side == WWObject.SIDE_SIDE4) {
 						Matrix.scaleM(textureMatrix, 0, object.size.y , object.size.z, 1.0f);
+					} else if (side == WWObject.SIDE_INSIDE1 || side == WWObject.SIDE_INSIDE3) {
+						Matrix.scaleM(textureMatrix, 0, object.size.x , object.size.z, 1.0f);
+					} else if (side == WWObject.SIDE_INSIDE2 || side == WWObject.SIDE_INSIDE4) {
+						Matrix.scaleM(textureMatrix, 0, object.size.y , object.size.z, 1.0f);
+					} else if (side == WWObject.SIDE_CUTOUT1 || side == WWObject.SIDE_CUTOUT2) {
+						Matrix.scaleM(textureMatrix, 0, 0.5f * object.size.x , object.size.z, 1.0f);  // really should vary by cutout angle
 					} else {
 						// TODO implement autotiling for other sides
 					}
@@ -366,6 +372,12 @@ public abstract class GLObject extends GLRendering {
 									Matrix.scaleM(textureMatrix, 0, object.size.x , object.size.z, 1.0f);
 								} else if (side == WWObject.SIDE_SIDE2 || side == WWObject.SIDE_SIDE4) {
 									Matrix.scaleM(textureMatrix, 0, object.size.y , object.size.z, 1.0f);
+								} else if (side == WWObject.SIDE_INSIDE1 || side == WWObject.SIDE_INSIDE3) {
+									Matrix.scaleM(textureMatrix, 0, object.size.x , object.size.z, 1.0f);
+								} else if (side == WWObject.SIDE_INSIDE2 || side == WWObject.SIDE_INSIDE4) {
+									Matrix.scaleM(textureMatrix, 0, object.size.y , object.size.z, 1.0f);
+								} else if (side == WWObject.SIDE_CUTOUT1 || side == WWObject.SIDE_CUTOUT2) {
+									Matrix.scaleM(textureMatrix, 0, 0.5f * object.size.x , object.size.z, 1.0f);  // really should vary by cutout angle
 								} else {
 									// TODO implement autotiling for other sides
 								}
