@@ -169,7 +169,7 @@ public final class GLSurface {
 		baseVertex = nextFreeVertex;
 		nextFreeVertex += nvertices;
 
-		generateTextureCoords();
+		generateTextureCoords(1, 1);
 
 		generateIndices();
 	}
@@ -403,7 +403,7 @@ public final class GLSurface {
 	 * Initially generates the texture coordinates based on
 	 * the vertex position.
 	 */
-	private void generateTextureCoords() {
+	public void generateTextureCoords(float xScale, float yScale) {
 		if (baseVertex < 0) { // overflow
 			return;
 		}
@@ -413,8 +413,8 @@ public final class GLSurface {
 				float ycoord = 1.0f / (height - 1) * (height - y - 1) - 0.5f;
 				for (int x = 0; x < width; x++) {
 					float xcoord = 0.5f - 1.0f / (width - 1) * x;
-					textureCoords.put(index * 2, floatToHalf(xcoord));
-					textureCoords.put(index * 2 + 1, floatToHalf(ycoord));
+					textureCoords.put(index * 2, floatToHalf(xScale * xcoord));
+					textureCoords.put(index * 2 + 1, floatToHalf(yScale * ycoord));
 					index++;
 				}
 			}

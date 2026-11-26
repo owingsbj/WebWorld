@@ -24,6 +24,7 @@ import com.gallantrealm.myworld.model.WWTorus;
  * <li>CUT1, CUT2 -- if the primitive is cut (a wedge taken out) this is the shape of each face of the cut
  * <li>INSIDE1, INSIDE2, INSIDE3, INSIDE4 -- if the shape is hollowed, this is the shape of the inside of the hollowed
  * portion. Again, for spheres and toruses, there is only one inner side, INSIDE1.
+ * </ul>
  */
 public class GLSimpleShape extends GLObject {
 
@@ -204,10 +205,8 @@ public class GLSimpleShape extends GLObject {
 		}
 		int nvertices = polygon.length;
 
-		// Develop the sweepPath and sweepRadius. These are used to adjust the
-		// shape as it is swept.
-		// Also, set the hollowFactor. This tells how much the hollowing impacts
-		// each dimension (x, y, z).
+		// Develop the sweepPath and sweepRadius. These are used to adjust the shape as it is swept.
+		// Also, set the hollowFactor. This tells how much the hollowing impacts each dimension (x, y, z).
 		Point3f[] sweepPath = null;
 		Point2f[] sweepRadius = null;
 		if (object instanceof WWBox && (roundedTop || roundedBottom)) {
@@ -379,7 +378,7 @@ public class GLSimpleShape extends GLObject {
 					}
 				}
 			}
-			baseGeometry.generateTextureCoordsXY(-1.0f, -1.0f);
+			baseGeometry.generateTextureCoordsXY(1.0f, 1.0f);   // flattens (otherwise the texture follows the pie-shaped texture polygons)
 			adjustGeometry(baseGeometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			adjustTextureCoords(baseGeometry, WWObject.SIDE_BOTTOM);
 			baseGeometry.generateNormals();
@@ -411,6 +410,7 @@ public class GLSimpleShape extends GLObject {
 					}
 				}
 			}
+			sidesGeometry.generateTextureCoords(-1, 1);  // needs to be mirrored (for some reason)
 			adjustGeometry(sidesGeometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			boolean stitchY = (object instanceof WWTorus);
 			sidesGeometry.generateNormals(firstVertex == 0 && lastVertex + 1 == polygon.length, stitchY);
@@ -441,6 +441,7 @@ public class GLSimpleShape extends GLObject {
 							}
 						}
 					}
+					sideGeometry.generateTextureCoords(-1, 1);  // needs to be mirrored (for some reason)
 					adjustGeometry(sideGeometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 					sideGeometry.generateNormals();
 					adjustTextureCoords(sideGeometry, WWObject.SIDE_SIDE1 + side);
@@ -475,6 +476,7 @@ public class GLSimpleShape extends GLObject {
 						}
 					}
 				}
+				insidesGeometry.generateTextureCoords(-1, 1);    // needs to be mirrored
 				adjustGeometry(insidesGeometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 				insidesGeometry.generateNormals();
 				adjustTextureCoords(insidesGeometry, WWObject.SIDE_INSIDE1);
@@ -504,6 +506,7 @@ public class GLSimpleShape extends GLObject {
 								}
 							}
 						}
+						insideGeometry.generateTextureCoords(-1, 1);   // needs to be mirrored
 						adjustGeometry(insideGeometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 						insideGeometry.generateNormals();
 						adjustTextureCoords(insideGeometry, WWObject.SIDE_INSIDE1 + side);
@@ -532,6 +535,7 @@ public class GLSimpleShape extends GLObject {
 						sweepPath[i].y + polygon[v].y * sweepRadius[i].y,
 						sweepPath[i].z);
 			}
+			cutout1Geometry.generateTextureCoords(-1, 1);   // needs to be mirrored for some reason
 			adjustGeometry(cutout1Geometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			cutout1Geometry.generateNormals();
 			adjustTextureCoords(cutout1Geometry, WWObject.SIDE_CUTOUT1);
@@ -552,6 +556,7 @@ public class GLSimpleShape extends GLObject {
 						sweepPath[i].y + polygon[v].y * sweepRadius[i].y,
 						sweepPath[i].z);
 			}
+			cutout2Geometry.generateTextureCoords(-1, 1);  // needs to be mirrored for some reason
 			adjustGeometry(cutout2Geometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			cutout2Geometry.generateNormals();
 			adjustTextureCoords(cutout2Geometry, WWObject.SIDE_CUTOUT2);
@@ -640,7 +645,7 @@ public class GLSimpleShape extends GLObject {
 					}
 				}
 			}
-			topGeometry.generateTextureCoordsXY(-1.0f, -1.0f);
+			topGeometry.generateTextureCoordsXY(-1.0f, 1.0f);   // flattens and also mirror-images texture
 			adjustGeometry(topGeometry, sizeX, sizeY, sizeZ, taperX, taperY, shearX, shearY, twist);
 			topGeometry.generateNormals();
 			adjustTextureCoords(topGeometry, WWObject.SIDE_TOP);
