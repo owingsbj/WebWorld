@@ -27,7 +27,6 @@ import com.gallantrealm.myworld.model.WWAction;
 import com.gallantrealm.myworld.model.WWBehavior;
 import com.gallantrealm.myworld.model.WWObject;
 import com.gallantrealm.myworld.model.WWUser;
-import com.gallantrealm.myworld.model.WWVector;
 import com.gallantrealm.myworld.model.WWWorld;
 
 public class World extends WWWorld {
@@ -39,7 +38,7 @@ public class World extends WWWorld {
 
 	Properties worldProperties;
 	Properties avatarProperties;
-	transient TopLevel scope;
+	TopLevel topLevelScope;
 	transient Function onRestored;
 	String moveType;
 	private boolean allowCameraPositioning = true;
@@ -212,7 +211,7 @@ public class World extends WWWorld {
 		final String avatarName = clientModel.getAvatarName();
 
 		// create toplevel scope
-		System.out.println("World.runScripts: Creating toplevel scope");
+		System.out.println(" Creating toplevel scope");
 		if (!ContextFactory.hasExplicitGlobal()) {
 			ContextFactory.initGlobal(new ContextFactory() {
 				@Override
@@ -234,45 +233,48 @@ public class World extends WWWorld {
 			});
 		}
 		cx.setOptimizationLevel(-1);
-		scope = new ImporterTopLevel(cx);
-		cx.initStandardObjects(scope, false);
-		cx.evaluateString(scope, "importPackage(Packages.com.gallantrealm.webworld.model);", "<importPackage>", 1, null);
-		ScriptableObject.putProperty(scope, "SIDE_ALL", 0);
-		ScriptableObject.putProperty(scope, "SIDE_TOP", 1);
-		ScriptableObject.putProperty(scope, "SIDE_BOTTOM", 2);
-		ScriptableObject.putProperty(scope, "SIDE_SIDE1", 3);
-		ScriptableObject.putProperty(scope, "SIDE_SIDE2", 4);
-		ScriptableObject.putProperty(scope, "SIDE_SIDE3", 5);
-		ScriptableObject.putProperty(scope, "SIDE_SIDE4", 6);
-		ScriptableObject.putProperty(scope, "SIDE_INSIDE_TOP", 7);
-		ScriptableObject.putProperty(scope, "SIDE_INSIDE_BOTTOM", 8);
-		ScriptableObject.putProperty(scope, "SIDE_INSIDE1", 9);
-		ScriptableObject.putProperty(scope, "SIDE_INSIDE2", 10);
-		ScriptableObject.putProperty(scope, "SIDE_INSIDE3", 11);
-		ScriptableObject.putProperty(scope, "SIDE_INSIDE4", 12);
-		ScriptableObject.putProperty(scope, "SIDE_CUTOUT1", 13);
-		ScriptableObject.putProperty(scope, "SIDE_CUTOUT2", 14);
-		ScriptableObject.putProperty(scope, "avatar", null);
+		if (topLevelScope == null) {  // note: it will not be null on restored worlds
+			topLevelScope = new ImporterTopLevel(cx);
+			cx.initStandardObjects(topLevelScope, false);
+			cx.evaluateString(topLevelScope, "importPackage(Packages.com.gallantrealm.webworld.model);", "<importPackage>", 1, null);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_ALL", 0);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_TOP", 1);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_BOTTOM", 2);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_SIDE1", 3);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_SIDE2", 4);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_SIDE3", 5);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_SIDE4", 6);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_INSIDE_TOP", 7);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_INSIDE_BOTTOM", 8);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_INSIDE1", 9);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_INSIDE2", 10);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_INSIDE3", 11);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_INSIDE4", 12);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_CUTOUT1", 13);
+			ScriptableObject.putProperty(topLevelScope, "SIDE_CUTOUT2", 14);
+			ScriptableObject.putProperty(topLevelScope, "avatar", null);
 
-		// Add console and built-in UI methods
-		Console console = new Console();
-		Object wrappedConsole = Context.javaToJS(console, scope);
-		ScriptableObject.putProperty(scope, "console", wrappedConsole);
-		scope.defineFunctionProperties(new String[] { "alert", "confirm", "prompt", "select"}, GlobalFunctions.class, ScriptableObject.READONLY);
+			// Add console and built-in UI methods
+			Console console = new Console();
+			Object wrappedConsole = Context.javaToJS(console, topLevelScope);
+			ScriptableObject.putProperty(topLevelScope, "console", wrappedConsole);
+			topLevelScope.defineFunctionProperties(new String[]{"alert", "confirm", "prompt", "select"}, GlobalFunctions.class, ScriptableObject.READONLY);
 
-		// make sure the world, some constants, and avatar are available to the world script
-		WWUser user = new WWUser();
-		user.setName(avatarName);
-		addUser(user);
-		Object wrappedWorld = Context.javaToJS(this, scope);
-		ScriptableObject.putProperty(scope, "world", wrappedWorld);
-		Object wrappedUser = Context.javaToJS(user, scope);
-		ScriptableObject.putProperty(scope, "user", wrappedUser);
+			// make sure the world, some constants, and avatar are available to the world script
+			WWUser user = new WWUser();
+			user.setName(avatarName);
+			addUser(user);
+			Object wrappedWorld = Context.javaToJS(this, topLevelScope);
+			ScriptableObject.putProperty(topLevelScope, "world", wrappedWorld);
+			Object wrappedUser = Context.javaToJS(user, topLevelScope);
+			ScriptableObject.putProperty(topLevelScope, "user", wrappedUser);
+
+		}
 
 		// restore or create the avatar customization object
 		AvatarCustomization avatarCustomization = AvatarCustomization.createOrRestore(avatarName);
-		Object wrappedAvatarCustomization = Context.javaToJS(avatarCustomization, scope);
-		ScriptableObject.putProperty(scope, "avatarCustomization", wrappedAvatarCustomization);
+		Object wrappedAvatarCustomization = Context.javaToJS(avatarCustomization, topLevelScope);
+		ScriptableObject.putProperty(topLevelScope, "avatarCustomization", wrappedAvatarCustomization);
 
 		System.out.println("<World.createScriptingContext");
 		return cx;
@@ -285,7 +287,7 @@ public class World extends WWWorld {
 		WWUser user = world.getUser(clientModel.getUserId());
 
 		// create the avatar
-		System.out.println("World.runScripts: Opening avatar " + avatarName);
+		System.out.println(" Opening avatar " + avatarName);
 		WWObject avatar = null;
 		HttpURLConnection connection = null;
 		InputStream inputStream = null;
@@ -303,12 +305,12 @@ public class World extends WWWorld {
 				World.runningLocalAvatarScript = false;
 			}
 			Reader reader = new InputStreamReader(inputStream, "UTF-8");
-			System.out.println("World.runScripts: Running avatar script..");
+			System.out.println(" Running avatar script..");
 			try {
 				World.runningAvatarScript = true;
-				cx.evaluateReader(scope, reader, avatarProperties.getProperty("script"), 1, null);
-				if (ScriptableObject.hasProperty(scope, "avatar")) {
-					NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(scope, "avatar");
+				cx.evaluateReader(topLevelScope, reader, avatarProperties.getProperty("script"), 1, null);
+				if (ScriptableObject.hasProperty(topLevelScope, "avatar")) {
+					NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(topLevelScope, "avatar");
 					if (avatarWrapped != null) {
 						avatar = (WWObject) (avatarWrapped.unwrap());
 					}
@@ -364,7 +366,7 @@ public class World extends WWWorld {
 		setUsesController(false);
 
 		// Create the customizer world
-		System.out.println("World.runScripts: Opening customizer for " + avatarName);
+		System.out.println(" Opening customizer for " + avatarName);
 		HttpURLConnection connection = null;
 		InputStream inputStream = null;
 		try {
@@ -383,10 +385,10 @@ public class World extends WWWorld {
 				World.runningLocalWorldScript = false;
 			}
 			Reader reader = new InputStreamReader(inputStream, "UTF-8");
-			System.out.println("World.runScripts: Running customizer script..");
+			System.out.println(" Running customizer script..");
 
 			try {
-				cx.evaluateReader(scope, reader, avatarProperties.getProperty("customizer"), 1, null);
+				cx.evaluateReader(topLevelScope, reader, avatarProperties.getProperty("customizer"), 1, null);
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new Exception(scrubScriptError(e.getMessage()));
@@ -439,7 +441,7 @@ public class World extends WWWorld {
 		}
 
 		// create the world
-		System.out.println("World.runScripts: Opening world " + worldName);
+		System.out.println(" Opening world " + worldName);
 		HttpURLConnection connection = null;
 		InputStream inputStream = null;
 		try {
@@ -456,15 +458,15 @@ public class World extends WWWorld {
 				World.runningLocalWorldScript = false;
 			}
 			Reader reader = new InputStreamReader(inputStream, "UTF-8");
-			System.out.println("World.runScripts: Running world script..");
+			System.out.println(" Running world script..");
 
 			try {
-				cx.evaluateReader(scope, reader, worldProperties.getProperty("script"), 1, null);
+				cx.evaluateReader(topLevelScope, reader, worldProperties.getProperty("script"), 1, null);
 
 				// the world script may have overridden the avatar object.  If so, update so we use the overridden avatar and destroy
 				// the original avatar (unless is it parented)
-				if (ScriptableObject.hasProperty(scope, "avatar")) {
-					NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(scope, "avatar");
+				if (ScriptableObject.hasProperty(topLevelScope, "avatar")) {
+					NativeJavaObject avatarWrapped = (NativeJavaObject) ScriptableObject.getProperty(topLevelScope, "avatar");
 					if (avatarWrapped != null) {
 						WWObject newAvatar = (WWObject) (avatarWrapped.unwrap());
 						if (newAvatar != avatar) {
@@ -533,6 +535,7 @@ public class World extends WWWorld {
 
 		// duplicate the location and physical properties of the old avatar
 		if (newAvatar != null && oldAvatar != null) {
+			newAvatar.setActions(oldAvatar.getActions());
 			newAvatar.setPosition(oldAvatar.getPosition());
 			newAvatar.setRotation(oldAvatar.getRotation());
 			newAvatar.setPickable(oldAvatar.isPickable());
@@ -651,11 +654,11 @@ public class World extends WWWorld {
 	public void callFunction(Function fun, Object thisObj, Object[] params) {
 		Context cx = Context.enter();
 		try {
-			Scriptable scriptableThisObj = Context.toObject(thisObj, scope);
+			Scriptable scriptableThisObj = Context.toObject(thisObj, topLevelScope);
 			for (int i = 0; i < params.length; i++) {
-				params[i] = Context.toObject(params[i], scope);
+				params[i] = Context.toObject(params[i], topLevelScope);
 			}
-			fun.call(cx, scope, scriptableThisObj, params);
+			fun.call(cx, topLevelScope, scriptableThisObj, params);
 		} catch (Exception e) {
 			final String errorMessage = scrubScriptError(e.getMessage());
 			clientModel.getContext().runOnUiThread(new Runnable() {
