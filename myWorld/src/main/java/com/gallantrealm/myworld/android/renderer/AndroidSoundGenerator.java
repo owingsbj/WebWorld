@@ -177,7 +177,7 @@ public final class AndroidSoundGenerator implements ISoundGenerator {
 				if (AndroidClientModel.getClientModel().isPlaySoundEffects()) {
 					if (loadingCount.intValue() <= 0) {
 						soundPool.play(soundId, level, level, priority, 0, pitch);
-						System.out.println("AndroidSoundGenerator.playSound " + sound + " playing");
+						//System.out.println("AndroidSoundGenerator.playSound " + sound + " playing");
 					}
 				}
 			}
