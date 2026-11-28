@@ -13,4 +13,6 @@ public class Quaternion extends WWQuaternion {
 		super(pitch, roll, yaw);
 	}
 
+	public Quaternion(float angle, float x, float y, float z) { super(angle, x, y, z); }
+
 }
